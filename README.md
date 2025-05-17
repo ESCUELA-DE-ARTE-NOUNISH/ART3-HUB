@@ -27,10 +27,10 @@ This Mini App combines AI Agents + Base onchain tools to make onboarding frictio
 
 ## 👤 Team
 
-Created by [Your Name or Team Name]  
+Created by Escuela de Arte Nounish 
 Built with ❤️ from LATAM.
 
 ## 📸 Screenshots
 
-_(Add here some screenshots or a demo GIF if possible)_
+
 
