@@ -1,14 +1,13 @@
-// scripts/deploy.ts
 import { ethers } from "hardhat";
 
 async function main() {
-  const Contract = await ethers.getContractFactory("MyContract");
-  const contract = await Contract.deploy();
+  const factory = await ethers.getContractFactory("Art3NFT");
+  const contract = await factory.deploy();
   await contract.deployed();
-  console.log(`Contract deployed to: ${contract.address}`);
+  console.log(`✅ Deployed ART3NFT to: ${contract.address}`);
 }
 
-main().catch((error) => {
-  console.error(error);
+main().catch((err) => {
+  console.error(err);
   process.exitCode = 1;
 });
