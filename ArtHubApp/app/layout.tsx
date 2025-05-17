@@ -8,7 +8,7 @@ import Navigation from "@/components/navigation"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "AI Art Hub - Web3 Onboarding for Artists",
+  title: "AI Art3 Hub - Web3 Onboarding for Artists",
   description: "AI-powered onboarding experience for visual artists entering Web3",
     generator: 'v0.dev'
 }
