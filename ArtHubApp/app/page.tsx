@@ -161,7 +161,7 @@ export default function Home() {
         </Card>
       </div>
 
-      <div className="text-center text-sm text-gray-500">
+      <div className="text-center text-sm text-gray-500 mb-8">
         <p>Created by Escuela de Arte Nounish</p>
         <p>Built with ❤️ from LATAM</p>
       </div>
