@@ -1,10 +1,41 @@
+"use client";
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, Sparkles, Palette, Coins } from "lucide-react"
+import { useEffect, useMemo, useState, useCallback } from "react";
+import {
+  useMiniKit,
+  useAddFrame,
+  useOpenUrl,
+} from "@coinbase/onchainkit/minikit";
+import {
+  Name,
+  Identity,
+  Address,
+  Avatar,
+  EthBalance,
+} from "@coinbase/onchainkit/identity";
+import {
+  ConnectWallet,
+  Wallet,
+  WalletDropdown,
+  WalletDropdownDisconnect,
+} from "@coinbase/onchainkit/wallet";
 
 export default function Home() {
+
+  const { setFrameReady, isFrameReady, context } = useMiniKit();
+
+  // The setFrameReady() function is called when your mini-app is ready to be shown
+  useEffect(() => {
+    if (!isFrameReady) {
+      setFrameReady();
+    }
+  }, [setFrameReady, isFrameReady]);
+
   return (
     <div className="container mx-auto px-4 pb-16">
       <div className="flex justify-center py-6">
