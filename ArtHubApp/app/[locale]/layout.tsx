@@ -1,11 +1,13 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import "./globals.css"
+import "../globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import Navigation from "@/components/navigation"
 import { Providers } from "@/providers/MiniKitProvider"
 import LanguageSelector from "@/components/language-selector"
+import { locales } from "@/config/i18n"
+import HtmlWithLang from "@/components/html-with-lang"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -35,13 +37,19 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export function generateStaticParams() {
+  return locales.map(locale => ({ locale }))
+}
+
+export default function LocalizedRootLayout({
   children,
-}: Readonly<{
+  params,
+}: {
   children: React.ReactNode
-}>) {
+  params: { locale?: string }
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <HtmlWithLang>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light">
           <div className="flex flex-col min-h-screen">
@@ -55,6 +63,6 @@ export default function RootLayout({
           </div>
         </ThemeProvider>
       </body>
-    </html>
+    </HtmlWithLang>
   )
-}
+} 

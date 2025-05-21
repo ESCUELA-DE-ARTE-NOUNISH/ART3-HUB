@@ -1,0 +1,54 @@
+{
+  "navigation": {
+    "home": "Home",
+    "explore": "Explore",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "submit": "Submit",
+    "cancel": "Cancel"
+  },
+  "home": {
+    "title": "AI ART3 HUB",
+    "subtitle": "Your bridge to Web3 creativity",
+    "aiAgent": {
+      "title": "AI Education Agent",
+      "description": "Learn about Web3, NFTs, and blockchain with our AI assistant.",
+      "button": "Ask Questions"
+    },
+    "createNft": {
+      "title": "Create & Mint NFTs",
+      "description": "Upload your artwork and mint it as an NFT on the Base blockchain.",
+      "button": "Create NFT"
+    },
+    "wallet": {
+      "title": "Manage Wallet",
+      "description": "Set up and manage your Web3 wallet for minting and transactions.",
+      "button": "Wallet"
+    },
+    "myNfts": {
+      "title": "My NFTs",
+      "description": "View and manage your minted NFT collection.",
+      "button": "View Collection"
+    },
+    "unlock": {
+      "title": "Unlock Your Creative Future in Web3",
+      "opportunities": "Check out opportunities for artists on Web3",
+      "description": "Discover how Web3 is revolutionizing the art world with new income streams, direct fan connections, and ownership of your creative work.",
+      "freedom": "Creative Freedom",
+      "freedomDesc": "Mint and sell your art without gatekeepers",
+      "royalties": "Royalties",
+      "royaltiesDesc": "Earn from secondary sales of your work",
+      "community": "Global Community",
+      "communityDesc": "Connect with collectors worldwide",
+      "explore": "Explore Web3 Opportunities"
+    },
+    "footer": {
+      "created": "Created by Escuela de Arte Nourish",
+      "built": "Built with ❤️ from LATAM"
+    }
+  }
+} 

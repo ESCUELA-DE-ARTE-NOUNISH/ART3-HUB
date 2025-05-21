@@ -1,0 +1,54 @@
+{
+  "navigation": {
+    "home": "Inicio",
+    "explore": "Explorar",
+    "profile": "Perfil",
+    "settings": "Ajustes"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Ha ocurrido un error",
+    "submit": "Enviar",
+    "cancel": "Cancelar"
+  },
+  "home": {
+    "title": "AI ART3 HUB",
+    "subtitle": "Tu puente hacia la creatividad en Web3",
+    "aiAgent": {
+      "title": "Agente Educativo de IA",
+      "description": "Aprende sobre Web3, NFTs y blockchain con nuestro asistente de IA.",
+      "button": "Hacer Preguntas"
+    },
+    "createNft": {
+      "title": "Crear y Acuñar NFTs",
+      "description": "Sube tu obra de arte y acúñala como NFT en la blockchain de Base.",
+      "button": "Crear NFT"
+    },
+    "wallet": {
+      "title": "Administrar Billetera",
+      "description": "Configura y administra tu billetera Web3 para acuñación y transacciones.",
+      "button": "Billetera"
+    },
+    "myNfts": {
+      "title": "Mis NFTs",
+      "description": "Visualiza y administra tu colección de NFTs acuñados.",
+      "button": "Ver Colección"
+    },
+    "unlock": {
+      "title": "Desbloquea Tu Futuro Creativo en Web3",
+      "opportunities": "Descubre oportunidades para artistas en Web3",
+      "description": "Descubre cómo Web3 está revolucionando el mundo del arte con nuevas fuentes de ingresos, conexiones directas con fans y propiedad de tu trabajo creativo.",
+      "freedom": "Libertad Creativa",
+      "freedomDesc": "Acuña y vende tu arte sin intermediarios",
+      "royalties": "Regalías",
+      "royaltiesDesc": "Gana por ventas secundarias de tu trabajo",
+      "community": "Comunidad Global",
+      "communityDesc": "Conéctate con coleccionistas de todo el mundo",
+      "explore": "Explorar Oportunidades Web3"
+    },
+    "footer": {
+      "created": "Creado por Escuela de Arte Nourish",
+      "built": "Construido con ❤️ desde LATAM"
+    }
+  }
+} 
