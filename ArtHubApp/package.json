@@ -13,6 +13,7 @@
     "@farcaster/frame-sdk": "^0.0.45",
     "@hookform/resolvers": "^3.9.1",
     "@langchain/community": "^0.3.43",
+    "@langchain/core": "^0.3.56",
     "@langchain/openai": "^0.5.10",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
