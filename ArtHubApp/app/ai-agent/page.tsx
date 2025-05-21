@@ -1,17 +1,23 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Header from "@/components/header"
-import { Send } from "lucide-react"
+import { Send, AlertCircle } from "lucide-react"
 import { Card } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 type Message = {
   role: "user" | "assistant"
   content: string
+}
+
+type RateLimitInfo = {
+  remaining: number
+  limit: number
+  reset: number
 }
 
 export default function AIAgent() {
@@ -23,6 +29,30 @@ export default function AIAgent() {
   ])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [rateLimitInfo, setRateLimitInfo] = useState<RateLimitInfo | null>(null)
+  
+  // Generate a temporary userId for the session if not already in localStorage
+  const [userId] = useState(() => {
+    // Check if we're in the browser
+    if (typeof window !== 'undefined') {
+      const storedId = localStorage.getItem('chatUserId')
+      if (storedId) return storedId
+      const newId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+      localStorage.setItem('chatUserId', newId)
+      return newId
+    }
+    return `user-${Date.now()}`
+  })
+  
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Auto-scroll to the bottom when messages change
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [messages])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,35 +62,42 @@ export default function AIAgent() {
     setMessages((prev) => [...prev, userMessage])
     setInput("")
     setIsLoading(true)
+    setError(null)
 
     try {
-      // This is a simulation of AI response - in a real app, you would use the AI SDK
-      // const { text } = await generateText({
-      //   model: openai("gpt-4o"),
-      //   prompt: input,
-      //   system: "You are a helpful Web3 education assistant for artists. Provide clear, simple explanations about NFTs, wallets, and blockchain technology."
-      // });
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: input,
+          userId: userId,
+        }),
+      })
 
-      // Simulated response for demo purposes
-      const responses = [
-        "NFTs (Non-Fungible Tokens) are unique digital assets that represent ownership of a specific item or piece of content on the blockchain. Unlike cryptocurrencies such as Bitcoin, each NFT has a distinct value and cannot be exchanged on a like-for-like basis.",
-        "A crypto wallet is a digital tool that allows you to store and manage your cryptocurrencies and NFTs. Think of it like a digital bank account for your blockchain assets. For artists, this is where your minted NFTs and any earnings from sales will be stored.",
-        "Minting an NFT means creating a new token on the blockchain that represents your artwork. When you mint an NFT, you're essentially publishing your work on the blockchain, making it verifiably unique and owned.",
-        "Royalties in the NFT space allow artists to earn a percentage of all future sales of their work. This is one of the most revolutionary aspects for artists - you can continue earning from your art even after the initial sale!",
-      ]
-
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)]
-
-      setTimeout(() => {
-        setMessages((prev) => [...prev, { role: "assistant", content: randomResponse }])
-        setIsLoading(false)
-      }, 1000)
+      const data = await response.json()
+      
+      // Handle rate limit response headers
+      if (data.rateLimitInfo) {
+        setRateLimitInfo(data.rateLimitInfo)
+      }
+      
+      // Handle error responses
+      if (!response.ok) {
+        if (response.status === 429) {
+          setError(`Rate limit exceeded. Please try again in ${Math.ceil((data.rateLimitInfo?.reset || 60) / 1000)} seconds.`)
+        } else {
+          setError(data.error || 'Something went wrong. Please try again.')
+        }
+      } else {
+        // Add AI response to messages
+        setMessages((prev) => [...prev, { role: "assistant", content: data.response }])
+      }
     } catch (error) {
       console.error("Error generating response:", error)
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Sorry, I encountered an error. Please try again." },
-      ])
+      setError("Failed to connect to the AI service. Please try again later.")
+    } finally {
       setIsLoading(false)
     }
   }
@@ -90,10 +127,22 @@ export default function AIAgent() {
               </div>
             </Card>
           )}
+          {error && (
+            <Alert variant="destructive" className="mt-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          <div ref={messagesEndRef}></div>
         </div>
       </div>
 
       <div className="p-4 border-t bg-white">
+        {rateLimitInfo && rateLimitInfo.remaining < rateLimitInfo.limit && (
+          <div className="text-xs text-gray-500 mb-2">
+            {rateLimitInfo.remaining} requests remaining (resets in {Math.ceil((rateLimitInfo.reset || 60) / 1000)} seconds)
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
             value={input}
