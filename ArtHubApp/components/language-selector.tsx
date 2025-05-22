@@ -5,7 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Globe } from "lucide-react"
 import Image from "next/image"
 import { useState, useEffect } from "react"
-import { useParams, usePathname, useRouter } from "next/navigation"
+import { useParams, usePathname } from "next/navigation"
 import { locales, defaultLocale } from "@/config/i18n"
 
 type Language = {
@@ -47,7 +47,6 @@ export default function LanguageSelector() {
   const [currentLocale, setCurrentLocale] = useState(defaultLocale)
   const params = useParams()
   const pathname = usePathname()
-  const router = useRouter()
   
   // Set isClient and current locale on mount
   useEffect(() => {
@@ -89,8 +88,9 @@ export default function LanguageSelector() {
       // Create new path with the selected language - always include locale in URL for consistency
       const newPath = `/${language.code}${pathWithoutLocale === '/' ? '' : pathWithoutLocale}`
         
-      // Navigate
-      router.push(newPath)
+      // Use window.location instead of router.push to trigger a full page load
+      // This prevents the hydration error with nested HTML elements
+      window.location.href = newPath
     }
   }
 
@@ -110,6 +110,7 @@ export default function LanguageSelector() {
                 width={16}
                 height={12}
                 className="rounded-sm"
+                style={{ height: "auto" }}
               />
               <span className="text-xs font-medium">{selectedLanguage.nativeName}</span>
             </div>
@@ -128,6 +129,7 @@ export default function LanguageSelector() {
                 width={20}
                 height={15}
                 className="rounded-sm"
+                style={{ height: "auto" }}
               />
               <div className="flex justify-between items-center w-full">
                 <span>{language.nativeName}</span>
