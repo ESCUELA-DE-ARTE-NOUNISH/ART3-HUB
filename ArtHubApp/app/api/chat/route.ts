@@ -31,6 +31,14 @@ interface ChatSession {
   lastUpdated: number
 }
 
+// Language mapping for system instructions
+const languageInstructions: Record<string, string> = {
+  en: "Respond in English.",
+  es: "Responde en español.",
+  fr: "Réponds en français.",
+  pt: "Responda em português."
+}
+
 // Simple in-memory store for chat sessions
 const chatSessions: Record<string, ChatSession> = {}
 
@@ -73,7 +81,11 @@ const chatModel = new ChatOpenAI({
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, userId } = await request.json() as { message: string, userId: string }
+    const { message, userId, locale = 'en' } = await request.json() as { 
+      message: string, 
+      userId: string,
+      locale?: string 
+    }
     
     // Get client IP as fallback identifier if userId is not provided
     const identifier = userId || request.headers.get("x-forwarded-for") || "anonymous"
@@ -110,12 +122,17 @@ export async function POST(request: NextRequest) {
       console.log(`Rate limit remaining for ${identifier}: ${rateLimitInfo.remaining}`)
     }
     
+    // Get language instruction based on locale, defaulting to English
+    const languageInstruction = languageInstructions[locale] || languageInstructions.en
+    
     // Initialize or retrieve chat session
     if (!chatSessions[userId]) {
       chatSessions[userId] = {
         messages: [{
           role: 'system',
           content: `You are a friendly Web3 guide for beginners who are new to the Art3-Hub platform and Nouns community.
+
+          ${languageInstruction}
 
           IMPORTANT GUIDELINES:
           - Keep your responses SHORT and SIMPLE - use plain language a 10-year-old could understand
@@ -143,6 +160,17 @@ export async function POST(request: NextRequest) {
           After providing a simple explanation, you can ask: "Would you like me to explain more about this?"`
         }],
         lastUpdated: Date.now()
+      }
+    } else {
+      // If session exists but locale changed, update the system message
+      const systemMessage = chatSessions[userId].messages[0]
+      if (systemMessage.role === 'system' && !systemMessage.content.includes(languageInstruction)) {
+        // Update the system message with the new language instruction
+        const updatedContent = systemMessage.content.replace(
+          new RegExp("^(You are a friendly Web3 guide.*?)(?:Respond in \\w+\\.|Responde en español\\.|Réponds en français\\.|Responda em português\\.)?([\\s\\S]*IMPORTANT GUIDELINES)"),
+          `$1${languageInstruction}$2`
+        )
+        chatSessions[userId].messages[0].content = updatedContent
       }
     }
     
