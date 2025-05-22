@@ -46,7 +46,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light">
           <div className="flex flex-col min-h-screen">
             <div className="flex mx-auto px-4">
-              <LanguageSelector />
+              {/* <LanguageSelector /> */}
             </div>
             <main className="flex-1">
               <Providers>{children}</Providers>

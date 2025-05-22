@@ -6,6 +6,7 @@ import { defaultLocale } from '@/config/i18n'
 import Link from 'next/link'
 import { ArrowRight, Sparkles, Crown, Globe } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 
 import {
   useMiniKit,
@@ -134,6 +135,15 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-4 py-8">
       <header className="text-center mb-12">
+        <div className="flex items-center justify-center mt-2">
+          <Image
+            src="/images/logo.png"
+            alt="Escuela de Arte Nounish Logo"
+            width={120}
+            height={120}
+            className="rounded-full"
+          />
+        </div>
         <h1 className="text-4xl font-bold text-pink-500">
           {messages.title}
         </h1>
@@ -226,7 +236,7 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="mt-8 text-center text-sm text-gray-500">
+      <footer className="mt-4 mb-12 text-center text-sm text-gray-500">
         <p>{messages.footer.created}</p>
         <p>{messages.footer.built}</p>
       </footer>
