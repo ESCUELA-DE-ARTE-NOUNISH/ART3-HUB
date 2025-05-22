@@ -13,6 +13,12 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Add this configuration to allow ngrok domains
+  allowedDevOrigins: [
+    'art3-hub.vercel.app/',
+    'codalabs.ngrok.io',
+    '*.ngrok.io', // This will allow any ngrok subdomain
+  ],
   webpack: (config, { isServer }) => {
     // Only apply this to client-side bundle
     if (!isServer) {

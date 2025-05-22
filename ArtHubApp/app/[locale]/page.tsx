@@ -7,7 +7,30 @@ import Link from 'next/link'
 import { ArrowRight, Sparkles, Crown, Globe } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
+import {
+  useMiniKit,
+  useAddFrame,
+  useOpenUrl,
+} from "@coinbase/onchainkit/minikit";
+import {
+  Name,
+  Identity,
+  Address,
+  Avatar,
+  EthBalance,
+} from "@coinbase/onchainkit/identity";
+import {
+  ConnectWallet,
+  Wallet,
+  WalletDropdown,
+  WalletDropdownDisconnect,
+} from "@coinbase/onchainkit/wallet";
+
+
 export default function Home() {
+
+  const { setFrameReady, isFrameReady, context } = useMiniKit();
+
   const params = useParams()
   const [locale, setLocale] = useState<string>(defaultLocale)
   const [messages, setMessages] = useState({
@@ -100,6 +123,13 @@ export default function Home() {
     
     loadMessages()
   }, [locale])
+
+  // The setFrameReady() function is called when your mini-app is ready to be shown
+  useEffect(() => {
+    if (!isFrameReady) {
+      setFrameReady();
+    }
+  }, [setFrameReady, isFrameReady]);
 
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-4 py-8">
