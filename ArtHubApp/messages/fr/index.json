@@ -1,0 +1,54 @@
+{
+  "navigation": {
+    "home": "Accueil",
+    "explore": "Explorer",
+    "profile": "Profil",
+    "settings": "Paramètres"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue",
+    "submit": "Soumettre",
+    "cancel": "Annuler"
+  },
+  "home": {
+    "title": "Bienvenue sur ArtHub",
+    "subtitle": "Expérience d'intégration alimentée par l'IA pour les artistes visuels entrant dans le Web3",
+    "aiAgent": {
+      "title": "Agent Éducatif IA",
+      "description": "Apprenez sur Web3, les NFTs et la blockchain avec notre assistant IA.",
+      "button": "Poser des Questions"
+    },
+    "createNft": {
+      "title": "Créer et Frapper des NFTs",
+      "description": "Téléchargez votre œuvre d'art et frappez-la en tant que NFT sur la blockchain Base.",
+      "button": "Créer un NFT"
+    },
+    "wallet": {
+      "title": "Gérer le Portefeuille",
+      "description": "Configurez et gérez votre portefeuille Web3 pour la frappe et les transactions.",
+      "button": "Portefeuille"
+    },
+    "myNfts": {
+      "title": "Mes NFTs",
+      "description": "Visualisez et gérez votre collection de NFTs frappés.",
+      "button": "Voir la Collection"
+    },
+    "unlock": {
+      "title": "Débloquez Votre Avenir Créatif dans le Web3",
+      "opportunities": "Découvrez les opportunités pour les artistes sur le Web3",
+      "description": "Découvrez comment le Web3 révolutionne le monde de l'art avec de nouvelles sources de revenus, des connexions directes avec les fans et la propriété de votre travail créatif.",
+      "freedom": "Liberté Créative",
+      "freedomDesc": "Frappez et vendez votre art sans intermédiaires",
+      "royalties": "Redevances",
+      "royaltiesDesc": "Gagnez des ventes secondaires de votre travail",
+      "community": "Communauté Mondiale",
+      "communityDesc": "Connectez-vous avec des collectionneurs du monde entier",
+      "explore": "Explorer les Opportunités Web3"
+    },
+    "footer": {
+      "created": "Créé par Escuela de Arte Nourish",
+      "built": "Construit avec ❤️ depuis l'Amérique Latine"
+    }
+  }
+} 

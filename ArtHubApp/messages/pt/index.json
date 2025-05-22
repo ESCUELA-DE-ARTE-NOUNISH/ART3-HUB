@@ -1,0 +1,54 @@
+{
+  "navigation": {
+    "home": "Início",
+    "explore": "Explorar",
+    "profile": "Perfil",
+    "settings": "Configurações"
+  },
+  "common": {
+    "loading": "Carregando...",
+    "error": "Ocorreu um erro",
+    "submit": "Enviar",
+    "cancel": "Cancelar"
+  },
+  "home": {
+    "title": "Bem-vindo ao ArtHub",
+    "subtitle": "Experiência de integração com IA para artistas visuais entrando no Web3",
+    "aiAgent": {
+      "title": "Agente Educativo de IA",
+      "description": "Aprenda sobre Web3, NFTs e blockchain com nosso assistente de IA.",
+      "button": "Fazer Perguntas"
+    },
+    "createNft": {
+      "title": "Criar e Cunhar NFTs",
+      "description": "Faça upload da sua obra de arte e cunhe-a como NFT na blockchain Base.",
+      "button": "Criar NFT"
+    },
+    "wallet": {
+      "title": "Gerenciar Carteira",
+      "description": "Configure e gerencie sua carteira Web3 para cunhagem e transações.",
+      "button": "Carteira"
+    },
+    "myNfts": {
+      "title": "Meus NFTs",
+      "description": "Visualize e gerencie sua coleção de NFTs cunhados.",
+      "button": "Ver Coleção"
+    },
+    "unlock": {
+      "title": "Desbloqueie Seu Futuro Criativo no Web3",
+      "opportunities": "Confira oportunidades para artistas no Web3",
+      "description": "Descubra como o Web3 está revolucionando o mundo da arte com novas fontes de renda, conexões diretas com fãs e propriedade do seu trabalho criativo.",
+      "freedom": "Liberdade Criativa",
+      "freedomDesc": "Cunhe e venda sua arte sem intermediários",
+      "royalties": "Royalties",
+      "royaltiesDesc": "Ganhe com vendas secundárias do seu trabalho",
+      "community": "Comunidade Global",
+      "communityDesc": "Conecte-se com colecionadores de todo o mundo",
+      "explore": "Explorar Oportunidades Web3"
+    },
+    "footer": {
+      "created": "Criado por Escuela de Arte Nourish",
+      "built": "Construído com ❤️ da América Latina"
+    }
+  }
+} 
