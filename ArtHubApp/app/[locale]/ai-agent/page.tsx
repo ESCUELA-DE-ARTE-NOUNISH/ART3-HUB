@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Send, AlertCircle } from "lucide-react"
@@ -75,53 +75,50 @@ const headerTitle: Record<string, string> = {
 
 export default function AIAgent() {
   const params = useParams()
-  const [locale, setLocale] = useState<string>(defaultLocale)
-  const [messages, setMessages] = useState<Message[]>([])
+  const currentLocale = (params?.locale as string) || defaultLocale
+  
+  // Store messages with locale key to prevent cross-locale contamination
+  const [conversationHistory, setConversationHistory] = useState<Record<string, Message[]>>({})
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [rateLimitInfo, setRateLimitInfo] = useState<RateLimitInfo | null>(null)
+  const [userId, setUserId] = useState<string>("")
   
-  // Update locale when params change
-  useEffect(() => {
-    const currentLocale = (params?.locale as string) || defaultLocale
-    setLocale(currentLocale)
-    
-    // Update welcome message when locale changes
-    const welcomeMessage = welcomeMessages[currentLocale] || welcomeMessages[defaultLocale]
-    
-    // If there are no messages or only the welcome message exists, update it
-    if (messages.length === 0 || (messages.length === 1 && messages[0].role === "assistant")) {
-      setMessages([{
-        role: "assistant",
+  // Get messages for current locale
+  const messages = useMemo(() => {
+    if (!conversationHistory[currentLocale]) {
+      // Initialize with welcome message for this locale
+      const welcomeMessage = welcomeMessages[currentLocale] || welcomeMessages[defaultLocale]
+      return [{
+        role: "assistant" as const,
         content: welcomeMessage
-      }])
+      }]
     }
-  }, [params?.locale]) // Only depend on locale change, not messages
-
-  // Initialize welcome message on first mount
-  useEffect(() => {
-    if (messages.length === 0) {
-      const welcomeMessage = welcomeMessages[locale] || welcomeMessages[defaultLocale]
-      setMessages([{
-        role: "assistant",
-        content: welcomeMessage
-      }])
-    }
-  }, [])
+    return conversationHistory[currentLocale]
+  }, [currentLocale, conversationHistory])
   
-  // Generate a temporary userId for the session if not already in localStorage
-  const [userId] = useState(() => {
-    // Check if we're in the browser
-    if (typeof window !== 'undefined') {
-      const storedId = localStorage.getItem('chatUserId')
-      if (storedId) return storedId
+  // Update conversation history
+  const setMessages = (updater: Message[] | ((prev: Message[]) => Message[])) => {
+    setConversationHistory(prev => ({
+      ...prev,
+      [currentLocale]: typeof updater === 'function' 
+        ? updater(prev[currentLocale] || [])
+        : updater
+    }))
+  }
+  
+  // Initialize userId on client side only to avoid hydration mismatch
+  useEffect(() => {
+    const storedId = localStorage.getItem('chatUserId')
+    if (storedId) {
+      setUserId(storedId)
+    } else {
       const newId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
       localStorage.setItem('chatUserId', newId)
-      return newId
+      setUserId(newId)
     }
-    return `user-${Date.now()}`
-  })
+  }, [])
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -151,7 +148,7 @@ export default function AIAgent() {
         body: JSON.stringify({
           message: input,
           userId: userId,
-          locale: locale,
+          locale: currentLocale,
         }),
       })
 
@@ -165,10 +162,10 @@ export default function AIAgent() {
       // Handle error responses
       if (!response.ok) {
         if (response.status === 429) {
-          const rateLimitMessage = errorMessages[locale]?.rateLimit || errorMessages[defaultLocale].rateLimit
-          setError(`${rateLimitMessage} ${Math.ceil((data.rateLimitInfo?.reset || 60) / 1000)} ${locale === 'en' ? 'seconds' : locale === 'es' ? 'segundos' : locale === 'fr' ? 'secondes' : 'segundos'}.`)
+          const rateLimitMessage = errorMessages[currentLocale]?.rateLimit || errorMessages[defaultLocale].rateLimit
+          setError(`${rateLimitMessage} ${Math.ceil((data.rateLimitInfo?.reset || 60) / 1000)} ${currentLocale === 'en' ? 'seconds' : currentLocale === 'es' ? 'segundos' : currentLocale === 'fr' ? 'secondes' : 'segundos'}.`)
         } else {
-          setError(data.error || (errorMessages[locale]?.generic || errorMessages[defaultLocale].generic))
+          setError(data.error || (errorMessages[currentLocale]?.generic || errorMessages[defaultLocale].generic))
         }
       } else {
         // Add AI response to messages
@@ -176,7 +173,7 @@ export default function AIAgent() {
       }
     } catch (error) {
       console.error("Error generating response:", error)
-      setError(errorMessages[locale]?.connectionFailed || errorMessages[defaultLocale].connectionFailed)
+      setError(errorMessages[currentLocale]?.connectionFailed || errorMessages[defaultLocale].connectionFailed)
     } finally {
       setIsLoading(false)
     }
@@ -185,7 +182,7 @@ export default function AIAgent() {
   return (
     <div className="pb-16 flex flex-col h-screen">
       <div className="p-4 border-b">
-        <h1 className="text-xl font-bold text-center">{headerTitle[locale] || headerTitle[defaultLocale]}</h1>
+        <h1 className="text-xl font-bold text-center">{headerTitle[currentLocale] || headerTitle[defaultLocale]}</h1>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
@@ -222,14 +219,14 @@ export default function AIAgent() {
       <div className="p-4 border-t bg-white">
         {rateLimitInfo && rateLimitInfo.remaining < rateLimitInfo.limit && (
           <div className="text-xs text-gray-500 mb-2">
-            {rateLimitInfo.remaining} {locale === 'en' ? 'requests remaining' : locale === 'es' ? 'solicitudes restantes' : locale === 'fr' ? 'requêtes restantes' : 'solicitações restantes'} ({locale === 'en' ? 'resets in' : locale === 'es' ? 'se reinicia en' : locale === 'fr' ? 'réinitialise dans' : 'redefine em'} {Math.ceil((rateLimitInfo.reset || 60) / 1000)} {locale === 'en' ? 'seconds' : locale === 'es' ? 'segundos' : locale === 'fr' ? 'secondes' : 'segundos'})
+            {rateLimitInfo.remaining} {currentLocale === 'en' ? 'requests remaining' : currentLocale === 'es' ? 'solicitudes restantes' : currentLocale === 'fr' ? 'requêtes restantes' : 'solicitações restantes'} ({currentLocale === 'en' ? 'resets in' : currentLocale === 'es' ? 'se reinicia en' : currentLocale === 'fr' ? 'réinitialise dans' : 'redefine em'} {Math.ceil((rateLimitInfo.reset || 60) / 1000)} {currentLocale === 'en' ? 'seconds' : currentLocale === 'es' ? 'segundos' : currentLocale === 'fr' ? 'secondes' : 'segundos'})
           </div>
         )}
         <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={placeholderText[locale] || placeholderText[defaultLocale]}
+            placeholder={placeholderText[currentLocale] || placeholderText[defaultLocale]}
             className="flex-1"
             disabled={isLoading}
           />
