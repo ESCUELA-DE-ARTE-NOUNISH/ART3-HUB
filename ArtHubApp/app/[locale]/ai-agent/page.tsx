@@ -88,22 +88,26 @@ export default function AIAgent() {
     setLocale(currentLocale)
     
     // Update welcome message when locale changes
-    if (messages.length === 0) {
-      const welcomeMessage = welcomeMessages[currentLocale] || welcomeMessages[defaultLocale]
+    const welcomeMessage = welcomeMessages[currentLocale] || welcomeMessages[defaultLocale]
+    
+    // If there are no messages or only the welcome message exists, update it
+    if (messages.length === 0 || (messages.length === 1 && messages[0].role === "assistant")) {
       setMessages([{
         role: "assistant",
         content: welcomeMessage
       }])
     }
-  }, [params, messages.length])
+  }, [params?.locale]) // Only depend on locale change, not messages
 
-  // Initialize welcome message
+  // Initialize welcome message on first mount
   useEffect(() => {
-    const welcomeMessage = welcomeMessages[locale] || welcomeMessages[defaultLocale]
-    setMessages([{
-      role: "assistant",
-      content: welcomeMessage
-    }])
+    if (messages.length === 0) {
+      const welcomeMessage = welcomeMessages[locale] || welcomeMessages[defaultLocale]
+      setMessages([{
+        role: "assistant",
+        content: welcomeMessage
+      }])
+    }
   }, [])
   
   // Generate a temporary userId for the session if not already in localStorage
