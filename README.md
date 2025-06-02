@@ -1,6 +1,12 @@
 # ART3-HUB
 Mini app built on Base that acts as an educational and transactional bridge for artists entering Web3. It combines a custom AI agent that offers step-by-step guidance—from what a wallet is to how to mint an NFT—with integrated tools that allow users to mint their creations directly, without technical knowledge. 
 Mini app: https://farcaster.xyz/miniapps/HiSz_AYGZ62l/art3-hub
+Team: 
+- Julio M Cruz https://github.com/JulioMCruz
+Dynamic and innovative Onchain developer with a robust ability to analyze and implement decentralized solutions. I have profound expertise in cloud integrations, demonstrate top-tier problem-solving aptitude, and excel in collaborative settings, driving projects to fruition.
+
+- Ivanna León – Project Manager & Community Lead: Founder of Nounish IRL, she bridges educational vision with Web3 development, leading teams and initiatives to scale impact from LATAM.
+
 # 🎨 AI Art Hub — An Onboarding Agent for Creatives in Web3
 
 AI-powered onboarding experience that helps visual artists (especially in LATAM) easily enter Web3—mint NFTs, set up wallets, understand royalties, and deploy collections, all without writing a single line of code.
