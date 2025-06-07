@@ -1,4 +1,3 @@
-
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
@@ -54,7 +53,7 @@ export default function LocalizedRootLayout({
 }) {
   return (
     <HtmlWithLang>
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning={true}>
         <ThemeProvider attribute="class" defaultTheme="light">
           <WagmiConfig>
           <div className="flex flex-col min-h-screen">
