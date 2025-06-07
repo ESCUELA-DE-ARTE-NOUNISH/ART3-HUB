@@ -104,7 +104,7 @@ export default function AIAgent() {
 
   return (
     <div className="pb-16 flex flex-col h-screen">
-      <Header title="AI Education Agent" />
+      <Header title="Education Agent" className="hidden" />
 
       <div className="flex-1 overflow-y-auto p-4">
         <div className="space-y-4">

@@ -9,7 +9,7 @@ const ConnectMenu = dynamic(
 
 export function Wallet() {
   return (
-    <div className="fixed top-4 left-[20px] z-50">
+    <div className="fixed top-2 left-2 z-50">
       {/* Connect Menu - Fixed positioned for mobile, absolute for desktop */}
         <ConnectMenu />
     </div>

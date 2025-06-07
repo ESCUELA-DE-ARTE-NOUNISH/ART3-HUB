@@ -95,11 +95,11 @@ export function ConnectMenu() {
               variant={isWrongNetwork ? "destructive" : "outline"}
               className={cn(
                 isWrongNetwork ? "animate-pulse" : "bg-pink-500/10 text-pink-500 hover:bg-pink-500/20 hover:text-pink-600",
-                "min-w-[160px] justify-between"
+                "min-w-[130px] justify-between"
               )}
             >
               <div className="flex items-center">
-                <Wallet className="mr-2 h-4 w-4" />
+                <Wallet className="mr-1 h-4 w-4" />
                 {isWrongNetwork ? (
                   <>Wrong Network</>
                 ) : (
@@ -109,7 +109,7 @@ export function ConnectMenu() {
               <ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[200px]">
+          <DropdownMenuContent align="end" className="w-[140px]">
             {isWrongNetwork && (
               <DropdownMenuItem
                 className="bg-pink-500 hover:bg-pink-600 cursor-pointer"
@@ -124,7 +124,7 @@ export function ConnectMenu() {
               className="text-red-500 focus:text-red-500 cursor-pointer"
               onClick={() => disconnect()}
             >
-              <LogOut className="mr-2 h-4 w-4" />
+              <LogOut className="mr-1 h-4 w-4" />
               Disconnect
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -67,10 +67,10 @@ const placeholderText: Record<string, string> = {
 
 // Header title in different languages
 const headerTitle: Record<string, string> = {
-  en: "AI Education Agent",
-  es: "Agente Educativo de IA",
-  fr: "Agent Éducatif IA",
-  pt: "Agente Educativo de IA"
+  en: "Education Agent",
+  es: "Agente Educativo",
+  fr: "Agent Éducatif",
+  pt: "Agente Educativo"
 }
 
 export default function AIAgent() {
@@ -182,7 +182,7 @@ export default function AIAgent() {
   return (
     <div className="pb-16 flex flex-col h-screen">
       <div className="p-4 border-b">
-        <h1 className="text-xl font-bold text-center">{headerTitle[currentLocale] || headerTitle[defaultLocale]}</h1>
+        <h1 className="text-xl font-bold text-center mt-10">{headerTitle[currentLocale] || headerTitle[defaultLocale]}</h1>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">

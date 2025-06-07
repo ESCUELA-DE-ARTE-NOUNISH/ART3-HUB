@@ -176,7 +176,7 @@ export default function Home() {
         </div>
 
         {/* Manage Wallet */}
-        <div className="border border-pink-300 rounded-lg p-6 bg-white shadow-sm">
+        {/* <div className="border border-pink-300 rounded-lg p-6 bg-white shadow-sm">
           <h2 className="text-xl font-semibold text-pink-500">{messages.wallet.title}</h2>
           <p className="mt-2 text-gray-600">{messages.wallet.description}</p>
           <Link href={`/${locale}/wallet`}>
@@ -184,7 +184,7 @@ export default function Home() {
               {messages.wallet.button}
             </Button>
           </Link>
-        </div>
+        </div> */}
 
         {/* My NFTs */}
         <div className="border border-lime-300 rounded-lg p-6 bg-white shadow-sm">
