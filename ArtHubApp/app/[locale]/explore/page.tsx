@@ -233,7 +233,7 @@ export default function ExplorePage() {
   return (
     <div className="pb-16">
       <div className="p-4 border-b">
-        <h1 className="text-xl font-bold text-center">{t.title}</h1>
+        <h1 className="text-xl font-bold text-center mt-10">{t.title}</h1>
       </div>
 
       {showConfetti && <Confetti />}

@@ -98,7 +98,7 @@ export default function LanguageSelector() {
   if (!isClient) return null
 
   return (
-    <div className="fixed top-4 right-4 z-50">
+    <div className="fixed top-2 right-2 z-50">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="lg" className="flex items-center gap-2 h-10 px-3 rounded-full min-w-[100px]">
