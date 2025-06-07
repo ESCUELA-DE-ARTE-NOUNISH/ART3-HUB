@@ -1,3 +1,4 @@
+
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
@@ -7,7 +8,10 @@ import Navigation from "@/components/navigation"
 import { Providers } from "@/providers/MiniKitProvider"
 import LanguageSelector from "@/components/language-selector"
 import { locales } from "@/config/i18n"
-import HtmlWithLang from "@/components/html-with-lang"
+import HtmlWithLang from "@/components/html-with-lang";
+
+import { WagmiConfig } from "@/providers/wagmi-provider"
+import { Wallet } from "@/components/wallet"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -52,15 +56,18 @@ export default function LocalizedRootLayout({
     <HtmlWithLang>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light">
+          <WagmiConfig>
           <div className="flex flex-col min-h-screen">
             <div className="flex mx-auto px-4">
+              <Wallet />
               <LanguageSelector />
             </div>
             <main className="flex-1">
               <Providers>{children}</Providers>
             </main>
             <Navigation />
-          </div>
+            </div>
+          </WagmiConfig>
         </ThemeProvider>
       </body>
     </HtmlWithLang>

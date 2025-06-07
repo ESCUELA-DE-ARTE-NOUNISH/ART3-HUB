@@ -1,12 +1,8 @@
+"use client"
+
 import { ChevronLeft } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-
-interface HeaderProps {
-  title: string
-  showBack?: boolean
-  backUrl?: string
-}
 
 export default function Header({ title, showBack = true, backUrl = "/" }: HeaderProps) {
   return (
