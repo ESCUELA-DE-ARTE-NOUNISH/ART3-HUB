@@ -9,8 +9,8 @@ import LanguageSelector from "@/components/language-selector"
 import { locales } from "@/config/i18n"
 import HtmlWithLang from "@/components/html-with-lang";
 
-import { WagmiConfig } from "@/providers/wagmi-provider"
 import { Wallet } from "@/components/wallet"
+import { PrivyAppProvider } from "@/providers/PrivyProvider"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -55,18 +55,20 @@ export default function LocalizedRootLayout({
     <HtmlWithLang>
       <body className={inter.className} suppressHydrationWarning={true}>
         <ThemeProvider attribute="class" defaultTheme="light">
-          <WagmiConfig>
-          <div className="flex flex-col min-h-screen">
-            <div className="flex mx-auto px-4">
-              <Wallet />
-              <LanguageSelector />
-            </div>
-            <main className="flex-1">
-              <Providers>{children}</Providers>
-            </main>
-            <Navigation />
-            </div>
-          </WagmiConfig>
+          <Providers>
+            <PrivyAppProvider>
+              <div className="flex flex-col min-h-screen">
+                <div className="flex mx-auto px-4">
+                  <Wallet />
+                  <LanguageSelector />
+                </div>
+                <main className="flex-1">
+                  {children}
+                </main>
+                <Navigation />
+                </div>
+            </PrivyAppProvider>
+          </Providers>
         </ThemeProvider>
       </body>
     </HtmlWithLang>

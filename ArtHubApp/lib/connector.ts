@@ -13,7 +13,16 @@ export function frameConnector() {
     type: frameConnector.type,
 
     async setup() {
-      this.connect({ chainId: config.chains[0].id });
+      // Only auto-connect in Farcaster context, not in browser
+      try {
+        const context = await sdk.context;
+        if (context?.client?.clientFid) {
+          this.connect({ chainId: config.chains[0].id });
+        }
+      } catch (error) {
+        // Not in Farcaster context, don't auto-connect
+        console.log('Not in Farcaster context, skipping auto-connect');
+      }
     },
     async connect({ chainId } = {}) {
       const provider = await this.getProvider();
