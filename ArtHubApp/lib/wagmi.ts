@@ -48,6 +48,7 @@ export const config = createConfig({
   transports,
   connectors: [
     frameConnector(),
+    // Always include injected and walletConnect for fallback scenarios
     injected(),
     walletConnect({
       projectId,

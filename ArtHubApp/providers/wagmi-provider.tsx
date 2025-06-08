@@ -1,9 +1,12 @@
 "use client"
 
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { WagmiProvider } from 'wagmi'
+import { WagmiProvider as PrivyWagmiProvider } from '@privy-io/wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { config } from '@/lib/wagmi'
+import { privyWagmiConfig } from '@/lib/privy-wagmi'
+import { sdk } from "@farcaster/frame-sdk"
 
 // Create a simple context for wallet connection state
 export const WalletContext = React.createContext({
@@ -16,14 +19,52 @@ export const WalletContext = React.createContext({
 // Create a client
 const queryClient = new QueryClient()
 
-// Create a simple provider that simulates wallet connection
+// Create a provider that chooses config based on environment
 export function WagmiConfig({ children }: { children: React.ReactNode }) {
-  return (
-    <WagmiProvider config={config}>
+  const [isFarcaster, setIsFarcaster] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const hasPrivy = !!process.env.NEXT_PUBLIC_PRIVY_APP_ID
+  
+  useEffect(() => {
+    const checkFarcasterContext = async () => {
+      try {
+        const context = await sdk.context
+        setIsFarcaster(!!context?.client?.clientFid)
+      } catch (error) {
+        console.error('Failed to get Farcaster context:', error)
+        setIsFarcaster(false)
+      }
+      setMounted(true)
+    }
+
+    checkFarcasterContext()
+  }, [])
+
+  if (!mounted) {
+    // Return a loading state while checking context
+    return (
       <QueryClientProvider client={queryClient}>
-        {children}
+        <WagmiProvider config={config}>
+          {children}
+        </WagmiProvider>
       </QueryClientProvider>
-    </WagmiProvider>
+    )
+  }
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      {isFarcaster || !hasPrivy ? (
+        // Use regular wagmi config for Farcaster or when Privy is not configured
+        <WagmiProvider config={config}>
+          {children}
+        </WagmiProvider>
+      ) : (
+        // Use Privy wagmi config for browser mode when Privy is configured
+        <PrivyWagmiProvider config={privyWagmiConfig}>
+          {children}
+        </PrivyWagmiProvider>
+      )}
+    </QueryClientProvider>
   )
 }
 
