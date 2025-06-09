@@ -9,13 +9,14 @@
     "loading": "Cargando...",
     "error": "Ha ocurrido un error",
     "submit": "Enviar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "close": "Cerrar"
   },
   "home": {
-    "title": "AI ART3 HUB",
+    "title": "ART3 HUB",
     "subtitle": "Tu puente hacia la creatividad en Web3",
     "aiAgent": {
-      "title": "Agente Educativo de IA",
+      "title": "Agente Educativo",
       "description": "Aprende sobre Web3, NFTs y blockchain con nuestro asistente de IA.",
       "button": "Hacer Preguntas"
     },
@@ -49,6 +50,15 @@
     "footer": {
       "created": "Creado por Escuela de Arte Nourish",
       "built": "Construido con ❤️ desde LATAM"
+    },
+    "walletRequired": {
+      "title": "Por favor, Inicia Sesión para Continuar",
+      "description": "Necesitas conectar tu billetera para crear NFTs y acceder a funciones premium.",
+      "connectButton": "Conectar Billetera",
+      "createNftMessage": "Conecta tu billetera primero para crear NFTs",
+      "viewNftsMessage": "Conecta tu billetera primero para ver tus NFTs",
+      "connectionFailed": "Conexión Fallida",
+      "connectionFailedDescription": "No se pudo conectar la billetera. Por favor, intenta de nuevo."
     }
   }
 } 

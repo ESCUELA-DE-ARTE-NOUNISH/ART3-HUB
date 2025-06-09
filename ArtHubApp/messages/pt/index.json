@@ -9,7 +9,8 @@
     "loading": "Carregando...",
     "error": "Ocorreu um erro",
     "submit": "Enviar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "close": "Fechar"
   },
   "home": {
     "title": "Bem-vindo ao ArtHub",
@@ -49,6 +50,15 @@
     "footer": {
       "created": "Criado por Escuela de Arte Nourish",
       "built": "Construído com ❤️ da América Latina"
+    },
+    "walletRequired": {
+      "title": "Por favor, Faça Login para Continuar",
+      "description": "Você precisa conectar sua carteira para criar NFTs e acessar recursos premium.",
+      "connectButton": "Conectar Carteira",
+      "createNftMessage": "Conecte sua carteira primeiro para criar NFTs",
+      "viewNftsMessage": "Conecte sua carteira primeiro para ver seus NFTs",
+      "connectionFailed": "Falha na Conexão",
+      "connectionFailedDescription": "Falha ao conectar carteira. Por favor, tente novamente."
     }
   }
 } 

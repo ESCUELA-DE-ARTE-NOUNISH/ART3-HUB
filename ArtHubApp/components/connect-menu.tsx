@@ -285,7 +285,7 @@ export function ConnectMenu() {
           )}
         >
           <Wallet className="h-4 w-4" />
-          Connect Wallet
+          Join
         </Button>
         {error && (
           <p className="text-sm text-red-500 animate-fade-in">
@@ -310,7 +310,7 @@ export function ConnectMenu() {
           )}
         >
           <User className="h-4 w-4" />
-          Connect
+          Join
         </Button>
         {error && (
           <p className="text-sm text-red-500 animate-fade-in">
