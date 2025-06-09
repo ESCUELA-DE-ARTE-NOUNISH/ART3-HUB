@@ -4,10 +4,23 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import Image from "next/image"
-import { Edit, Users, Grid, Trophy, Twitter, Instagram } from "lucide-react"
+import { Edit, Users, Grid, Trophy, Twitter, Instagram, ExternalLink, Star, Check } from "lucide-react"
 import { useParams } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
+import { useUserProfile } from "@/hooks/useUserProfile"
+import { ProfileEditForm } from "@/components/profile-edit-form"
+
+// Custom Verified Star Component
+function VerifiedStar() {
+  return (
+    <div className="relative inline-flex items-center justify-center">
+      <Star className="h-6 w-6 text-pink-500 fill-pink-500" />
+      <Check className="absolute h-3.5 w-3.5 text-white stroke-[3]" />
+    </div>
+  )
+}
 
 // Translation content
 const translations = {
@@ -150,6 +163,10 @@ export default function ProfilePage() {
   const params = useParams()
   const [locale, setLocale] = useState<string>(defaultLocale)
   const [t, setT] = useState(translations.en)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  
+  // Get user profile data
+  const { userProfile, loading, isConnected, walletAddress, isProfileComplete, refreshProfile } = useUserProfile()
 
   // Update locale when params change
   useEffect(() => {
@@ -158,13 +175,36 @@ export default function ProfilePage() {
     setT(translations[currentLocale as keyof typeof translations] || translations.en)
   }, [params])
 
+  // Show connection prompt if not connected
+  if (!isConnected) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-2xl font-bold mb-4">{t.title}</h1>
+        <p className="text-gray-500 mb-6">Please connect your wallet to view your profile.</p>
+        <Button className="bg-[#FF69B4] hover:bg-[#FF1493]">
+          Connect Wallet
+        </Button>
+      </div>
+    )
+  }
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-2xl font-bold mb-4">{t.title}</h1>
+        <p className="text-gray-500">Loading profile...</p>
+      </div>
+    )
+  }
+
   return (
     <div className="pb-16">
       <div className="relative">
         {/* Cover Image */}
         <div className="h-40 w-full relative">
           <Image
-            src={userData.coverImage}
+            src={userProfile?.banner_image || "/profile-cover.png"}
             alt="Cover"
             fill
             className="object-cover"
@@ -177,63 +217,100 @@ export default function ProfilePage() {
           <div className="relative -mt-16 flex flex-col items-center">
             <div className="relative h-32 w-32 rounded-full border-4 border-white overflow-hidden bg-white">
               <Image
-                src={userData.avatar}
-                alt={userData.name}
+                src={userProfile?.profile_picture || "/assets/blank-profile.png"}
+                alt={userProfile?.name || "Profile"}
                 fill
                 className="object-cover"
                 priority
               />
             </div>
-            <h1 className="mt-4 text-2xl font-bold">{userData.name}</h1>
-            <p className="text-gray-500">@{userData.username}</p>
+            <h1 className="mt-4 text-2xl font-bold flex items-center gap-2">
+              {userProfile?.name || "Unnamed User"}
+              {isProfileComplete && <VerifiedStar />}
+            </h1>
+            <p className="text-gray-500">
+              {userProfile?.username ? `@${userProfile.username}` : walletAddress?.slice(0, 8) + "..."}
+            </p>
             
             <div className="mt-4 flex space-x-6 text-center">
               <div>
-                <p className="font-semibold">{userData.followers}</p>
+                <p className="font-semibold">0</p>
                 <p className="text-sm text-gray-500">{t.followers}</p>
               </div>
               <div>
-                <p className="font-semibold">{userData.following}</p>
+                <p className="font-semibold">0</p>
                 <p className="text-sm text-gray-500">{t.following}</p>
               </div>
               <div>
-                <p className="font-semibold">{userData.joinedDate}</p>
+                <p className="font-semibold">
+                  {userProfile?.created_at ? new Date(userProfile.created_at).toLocaleDateString() : "N/A"}
+                </p>
                 <p className="text-sm text-gray-500">{t.joinedDate}</p>
               </div>
             </div>
             
-            {/* Bio */}
-            <div className="mt-4 text-center max-w-md">
-              <h3 className="font-medium text-gray-500">{t.bio}</h3>
-              <p className="mt-1">{userData.bio}</p>
-            </div>
-            
             {/* Social Links */}
-            <div className="mt-4 flex space-x-2">
-              {userData.socialLinks.twitter && (
-                <Button variant="outline" size="sm" className="flex items-center">
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              {userProfile?.x_url && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center"
+                  onClick={() => window.open(userProfile.x_url, '_blank')}
+                >
                   <Twitter className="h-4 w-4 mr-2" />
-                  @{userData.socialLinks.twitter}
+                  X
+                  <ExternalLink className="h-3 w-3 ml-1" />
                 </Button>
               )}
-              {userData.socialLinks.instagram && (
-                <Button variant="outline" size="sm" className="flex items-center">
+              {userProfile?.instagram_url && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center"
+                  onClick={() => window.open(userProfile.instagram_url, '_blank')}
+                >
                   <Instagram className="h-4 w-4 mr-2" />
-                  @{userData.socialLinks.instagram}
+                  Instagram
+                  <ExternalLink className="h-3 w-3 ml-1" />
+                </Button>
+              )}
+              {userProfile?.farcaster_url && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center"
+                  onClick={() => window.open(userProfile.farcaster_url, '_blank')}
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Farcaster
+                  <ExternalLink className="h-3 w-3 ml-1" />
                 </Button>
               )}
             </div>
             
             {/* Action Buttons */}
             <div className="mt-6 flex space-x-4">
-              <Button className="bg-[#FF69B4] hover:bg-[#FF1493]">
-                <Edit className="h-4 w-4 mr-2" />
-                {t.editProfile}
-              </Button>
-              <Button variant="outline">
-                <Users className="h-4 w-4 mr-2" />
-                {t.connectSocial}
-              </Button>
+              <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-[#FF69B4] hover:bg-[#FF1493]">
+                    <Edit className="h-4 w-4 mr-2" />
+                    {t.editProfile}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>{t.editProfile}</DialogTitle>
+                  </DialogHeader>
+                  <ProfileEditForm 
+                    userProfile={userProfile}
+                    onSuccess={() => {
+                      setEditDialogOpen(false)
+                      refreshProfile()
+                    }}
+                  />
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </div>
