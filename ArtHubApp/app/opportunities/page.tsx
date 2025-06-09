@@ -554,10 +554,10 @@ export default function OpportunitiesPage() {
                       <Lightbulb className="h-6 w-6 text-[#FF69B4]" />
                     </div>
                     <h4 className="font-semibold mb-2">Learn More</h4>
-                    <p className="text-sm text-gray-600 mb-4">Ask our AI agent about Web3 opportunities</p>
+                    <p className="text-sm text-gray-600 mb-4">Ask our agent about Web3 opportunities</p>
                     <Link href="/ai-agent?topic=web3-for-artists">
                       <Button variant="outline" size="sm" className="w-full">
-                        Ask AI Agent
+                        Ask Agent
                       </Button>
                     </Link>
                   </CardContent>

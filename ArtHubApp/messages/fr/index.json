@@ -9,13 +9,14 @@
     "loading": "Chargement...",
     "error": "Une erreur est survenue",
     "submit": "Soumettre",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "close": "Fermer"
   },
   "home": {
     "title": "Bienvenue sur ArtHub",
     "subtitle": "Expérience d'intégration alimentée par l'IA pour les artistes visuels entrant dans le Web3",
     "aiAgent": {
-      "title": "Agent Éducatif IA",
+      "title": "Agent Éducatif",
       "description": "Apprenez sur Web3, les NFTs et la blockchain avec notre assistant IA.",
       "button": "Poser des Questions"
     },
@@ -49,6 +50,15 @@
     "footer": {
       "created": "Créé par Escuela de Arte Nourish",
       "built": "Construit avec ❤️ depuis l'Amérique Latine"
+    },
+    "walletRequired": {
+      "title": "Veuillez vous Connecter pour Continuer",
+      "description": "Vous devez connecter votre portefeuille pour créer des NFTs et accéder aux fonctionnalités premium.",
+      "connectButton": "Connecter le Portefeuille",
+      "createNftMessage": "Connectez d'abord votre portefeuille pour créer des NFTs",
+      "viewNftsMessage": "Connectez d'abord votre portefeuille pour voir vos NFTs",
+      "connectionFailed": "Connexion Échouée",
+      "connectionFailedDescription": "Échec de la connexion du portefeuille. Veuillez réessayer."
     }
   }
 } 
