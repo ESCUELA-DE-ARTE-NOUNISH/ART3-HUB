@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { ImagePlus } from "lucide-react"
 import { useParams } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
+import { NetworkSelector } from "@/components/network-selector"
+import { getDefaultNetwork } from "@/lib/networks"
 
 // Translation content
 const translations = {
@@ -24,7 +26,9 @@ const translations = {
     mint: "Mint NFT",
     minting: "Minting...",
     success: "NFT minted successfully!",
-    change: "Change"
+    change: "Change",
+    network: "Network",
+    selectNetwork: "Select the blockchain network for minting"
   },
   es: {
     title: "Crear NFT",
@@ -39,7 +43,9 @@ const translations = {
     mint: "Acuñar NFT",
     minting: "Acuñando...",
     success: "¡NFT acuñado con éxito!",
-    change: "Cambiar"
+    change: "Cambiar",
+    network: "Red",
+    selectNetwork: "Selecciona la red blockchain para acuñar"
   },
   fr: {
     title: "Créer un NFT",
@@ -54,7 +60,9 @@ const translations = {
     mint: "Frapper le NFT",
     minting: "Frappe en cours...",
     success: "NFT frappé avec succès !",
-    change: "Changer"
+    change: "Changer",
+    network: "Réseau",
+    selectNetwork: "Sélectionnez le réseau blockchain pour frapper"
   },
   pt: {
     title: "Criar NFT",
@@ -69,7 +77,9 @@ const translations = {
     mint: "Cunhar NFT",
     minting: "Cunhando...",
     success: "NFT cunhado com sucesso!",
-    change: "Alterar"
+    change: "Alterar",
+    network: "Rede",
+    selectNetwork: "Selecione a rede blockchain para cunhar"
   }
 }
 
@@ -80,6 +90,7 @@ export default function CreateNFT() {
   const [image, setImage] = useState<string | null>(null)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
+  const [selectedNetwork, setSelectedNetwork] = useState(getDefaultNetwork())
   const [isLoading, setIsLoading] = useState(false)
 
   // Update locale when params change
@@ -104,14 +115,19 @@ export default function CreateNFT() {
     e.preventDefault()
     setIsLoading(true)
 
+    // TODO: Implement actual minting logic with selected network
+    console.log('Minting NFT on network:', selectedNetwork)
+    console.log('NFT data:', { title, description, image })
+
     // Simulate minting process
     setTimeout(() => {
       setIsLoading(false)
-      alert(t.success)
+      alert(`${t.success} Network: ${selectedNetwork}`)
       // Reset form
       setImage(null)
       setTitle("")
       setDescription("")
+      setSelectedNetwork(getDefaultNetwork())
     }, 2000)
   }
 
@@ -123,6 +139,13 @@ export default function CreateNFT() {
 
       <div className="container mx-auto px-4 py-6">
         <form onSubmit={handleSubmit}>
+          {/* Network Selection */}
+          <NetworkSelector
+            selectedNetwork={selectedNetwork}
+            onNetworkChange={setSelectedNetwork}
+            locale={locale}
+          />
+
           <div className="mb-6">
             <label className="block text-sm font-medium mb-2">{t.image}</label>
             <div className="flex justify-center">
