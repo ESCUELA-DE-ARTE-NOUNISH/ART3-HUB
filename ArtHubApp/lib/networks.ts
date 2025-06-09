@@ -36,23 +36,6 @@ export const SUPPORTED_NETWORKS: NetworkConfig[] = [
     icon: '🔵'
   },
   {
-    id: 42220, // Celo mainnet
-    name: 'celo',
-    displayName: 'Celo',
-    testnet: {
-      id: 44787,
-      name: 'celo-alfajores',
-      displayName: 'Celo Alfajores'
-    },
-    mainnet: {
-      id: 42220,
-      name: 'celo',
-      displayName: 'Celo'
-    },
-    color: '#35D07F',
-    icon: '🌱'
-  },
-  {
     id: 7777777, // Zora mainnet
     name: 'zora',
     displayName: 'Zora',

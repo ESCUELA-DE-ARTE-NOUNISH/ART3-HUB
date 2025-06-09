@@ -143,30 +143,6 @@ export function NetworkSelector({ selectedNetwork, onNetworkChange, locale = 'en
     })
 
     const networkConfigs = {
-      // Celo Mainnet
-      42220: {
-        chainId: '0xa4ec',
-        chainName: 'Celo Mainnet',
-        nativeCurrency: { 
-          name: 'Celo', 
-          symbol: 'CELO', 
-          decimals: 18 
-        },
-        rpcUrls: ['https://forno.celo.org'],
-        blockExplorerUrls: ['https://celoscan.io/']
-      },
-      // Celo Alfajores Testnet
-      44787: {
-        chainId: '0xaef3',
-        chainName: 'Celo Alfajores Testnet',
-        nativeCurrency: { 
-          name: 'Celo', 
-          symbol: 'CELO', 
-          decimals: 18 
-        },
-        rpcUrls: ['https://alfajores-forno.celo-testnet.org'],
-        blockExplorerUrls: ['https://alfajores.celoscan.io/']
-      },
       // Zora Mainnet
       7777777: {
         chainId: '0x76adf1',
@@ -225,29 +201,7 @@ export function NetworkSelector({ selectedNetwork, onNetworkChange, locale = 'en
       } else if (error.code === -32603) {
         console.log('Internal error - possibly RPC issue, trying alternative config...')
         
-        // Try with simpler config for Celo
-        if (chainId === 44787) {
-          try {
-            console.log('Trying simplified Celo config...')
-            const simplifiedConfig = {
-              chainId: '0xaef3',
-              chainName: 'Celo Alfajores',
-              nativeCurrency: { name: 'CELO', symbol: 'CELO', decimals: 18 },
-              rpcUrls: ['https://alfajores-forno.celo-testnet.org'],
-              blockExplorerUrls: ['https://alfajores.celoscan.io']
-            }
-            
-            const retryResult = await ethereum.request({
-              method: 'wallet_addEthereumChain',
-              params: [simplifiedConfig]
-            })
-            console.log('Simplified config worked:', retryResult)
-            return true
-          } catch (retryError) {
-            console.error('Simplified config also failed:', retryError)
-            return false
-          }
-        }
+        // Network-specific error handling could be added here if needed
       }
       
       return false
