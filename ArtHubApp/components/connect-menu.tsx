@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { useAccount, useConnect, useDisconnect, useChainId, useSwitchChain } from 'wagmi'
+import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
-import { Wallet, LogOut, ChevronDown, SwitchCamera, User } from "lucide-react"
+import { Wallet, LogOut, ChevronDown, SwitchCamera, User, CheckCircle, XCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { truncateEthAddress } from "@/lib/utils"
 import { useMiniKit } from '@coinbase/onchainkit/minikit'
 import { usePrivy } from '@privy-io/react-auth'
 import { useWallets } from '@privy-io/react-auth'
+import { useUserProfile } from '@/hooks/useUserProfile'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,20 +28,24 @@ export function ConnectMenu() {
   const { switchChain, isPending: isSwitchPending } = useSwitchChain()
   const [isWrongNetwork, setIsWrongNetwork] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
   
   // MiniKit context - this will tell us if we're in a MiniKit environment
   const { context } = useMiniKit()
   const isMiniKit = !!context
+  
+  // User profile tracking
+  const { userProfile, isProfileComplete } = useUserProfile()
   
   // Privy hooks (safe to call even without provider)
   const privyHooks = (() => {
     try {
       return usePrivy()
     } catch {
-      return { login: () => {}, logout: () => {}, authenticated: false, user: null }
+      return { login: () => {}, logout: () => {}, authenticated: false }
     }
   })()
-  const { login, logout, authenticated, user } = privyHooks
+  const { login, logout, authenticated } = privyHooks
   
   // Privy wallets hook
   const walletsHooks = (() => {
@@ -101,6 +107,29 @@ export function ConnectMenu() {
     }
   }
 
+  // Handle wallet disconnect with redirect
+  const handleDisconnect = () => {
+    try {
+      const hasPrivy = !!process.env.NEXT_PUBLIC_PRIVY_APP_ID
+      
+      if (isMiniKit) {
+        // In MiniKit, use wagmi disconnect
+        disconnect()
+      } else if (hasPrivy && authenticated) {
+        logout()
+      } else {
+        disconnect()
+      }
+      
+      // Redirect to root page after disconnect
+      router.push('/')
+    } catch (error) {
+      console.error('Failed to disconnect:', error)
+      // Still try to redirect even if disconnect fails
+      router.push('/')
+    }
+  }
+
   // Don't render anything on the server
   if (!mounted) {
     return (
@@ -149,7 +178,16 @@ export function ConnectMenu() {
                 {isWrongNetwork ? (
                   <>Wrong Network</>
                 ) : (
-                  userAddress ? truncateEthAddress(userAddress) : 'Connected'
+                  <div className="flex items-center gap-1">
+                    <span>{userAddress ? truncateEthAddress(userAddress) : 'Connected'}</span>
+                    {userProfile && (
+                      isProfileComplete ? (
+                        <CheckCircle className="h-3 w-3 text-green-500 fill-current" />
+                      ) : (
+                        <XCircle className="h-3 w-3 text-yellow-500 fill-current" />
+                      )
+                    )}
+                  </div>
                 )}
               </div>
               <ChevronDown className="h-4 w-4" />
@@ -168,16 +206,7 @@ export function ConnectMenu() {
             )}
             <DropdownMenuItem
               className="text-red-500 focus:text-red-500 cursor-pointer"
-              onClick={() => {
-                if (isMiniKit) {
-                  // In MiniKit, use wagmi disconnect
-                  disconnect()
-                } else if (hasPrivy && authenticated) {
-                  logout()
-                } else {
-                  disconnect()
-                }
-              }}
+              onClick={handleDisconnect}
             >
               <LogOut className="mr-1 h-4 w-4" />
               Disconnect
