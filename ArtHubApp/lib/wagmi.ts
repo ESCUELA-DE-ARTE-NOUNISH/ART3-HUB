@@ -1,18 +1,51 @@
 import { http, createConfig } from 'wagmi'
-import { base, baseSepolia } from 'wagmi/chains'
+import { base, baseSepolia, celo, celoAlfajores } from 'wagmi/chains'
 import { frameConnector } from './connector'
 import { injected, walletConnect } from 'wagmi/connectors'
+
+// Define Zora chains since they're not in wagmi/chains yet
+const zora = {
+  id: 7777777,
+  name: 'Zora',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: {
+    default: { http: ['https://rpc.zora.energy'] },
+  },
+  blockExplorers: {
+    default: { name: 'Zora Explorer', url: 'https://explorer.zora.energy' },
+  },
+} as const
+
+const zoraSepolia = {
+  id: 999999999,
+  name: 'Zora Sepolia',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: {
+    default: { http: ['https://sepolia.rpc.zora.energy'] },
+  },
+  blockExplorers: {
+    default: { name: 'Zora Sepolia Explorer', url: 'https://sepolia.explorer.zora.energy' },
+  },
+  testnet: true,
+} as const
 
 // Get chain configuration from environment variables
 const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "84532")
 
-// Select the appropriate chain based on the chain ID
-const targetChain = TARGET_CHAIN_ID === 8453 ? base : baseSepolia
+// All supported chains
+const allChains = [base, baseSepolia, celo, celoAlfajores, zora, zoraSepolia]
 
-// Create transports object with proper typing for both chains
+// Select the primary chain based on the chain ID
+const targetChain = allChains.find(chain => chain.id === TARGET_CHAIN_ID) || baseSepolia
+
+// Create transports object for all chains
 const transports = {
   [base.id]: http(),
   [baseSepolia.id]: http(),
+  [celo.id]: http(),
+  [celoAlfajores.id]: http(),
+  [zora.id]: http(),
+  [zoraSepolia.id]: http(),
 } as const
 
 // WalletConnect project ID is required for WalletConnect v2
@@ -22,29 +55,8 @@ if (!projectId) {
   throw new Error('NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is not defined')
 }
 
-// Configure chain-specific settings
-const chainConfig = {
-  [base.id]: {
-    ...base,
-    rpcUrls: {
-      ...base.rpcUrls,
-      default: { http: [process.env.NEXT_PUBLIC_RPC_URL_BASE || ''] },
-    }
-  },
-  [baseSepolia.id]: {
-    ...baseSepolia,
-    rpcUrls: {
-      ...baseSepolia.rpcUrls,
-      default: { http: [process.env.NEXT_PUBLIC_RPC_URL_BASE_SEPOLIA || ''] },
-    }
-  }
-}
-
-// Use the chain config for the target chain
-const configuredChain = chainConfig[targetChain.id]
-
 export const config = createConfig({
-  chains: [configuredChain],
+  chains: allChains,
   transports,
   connectors: [
     frameConnector(),
@@ -61,4 +73,7 @@ export const config = createConfig({
       },
     }),
   ]
-}) 
+})
+
+// Export chain definitions for use in other components
+export { base, baseSepolia, celo, celoAlfajores, zora, zoraSepolia, allChains } 
