@@ -1,51 +1,52 @@
 import { http, createConfig } from 'wagmi'
-import { base, baseSepolia, celo, celoAlfajores } from 'wagmi/chains'
+import { base, baseSepolia } from 'wagmi/chains'
 import { frameConnector } from './connector'
 import { injected, walletConnect } from 'wagmi/connectors'
+import { defineChain } from 'viem'
 
 // Define Zora chains since they're not in wagmi/chains yet
-const zora = {
+const zora = defineChain({
   id: 7777777,
   name: 'Zora',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: { http: ['https://rpc.zora.energy'] },
+    default: { 
+      http: [
+        process.env.NEXT_PUBLIC_ZORA_RPC_URL || 'https://rpc.zora.energy'
+      ] 
+    },
   },
   blockExplorers: {
     default: { name: 'Zora Explorer', url: 'https://explorer.zora.energy' },
   },
-} as const
+})
 
-const zoraSepolia = {
+const zoraSepolia = defineChain({
   id: 999999999,
   name: 'Zora Sepolia',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: { http: ['https://sepolia.rpc.zora.energy'] },
+    default: { 
+      http: [
+        process.env.NEXT_PUBLIC_ZORA_SEPOLIA_RPC_URL || 'https://sepolia.rpc.zora.energy'
+      ] 
+    },
   },
   blockExplorers: {
     default: { name: 'Zora Sepolia Explorer', url: 'https://sepolia.explorer.zora.energy' },
   },
   testnet: true,
-} as const
-
-// Get chain configuration from environment variables
-const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "84532")
+})
 
 // All supported chains
-const allChains = [base, baseSepolia, celo, celoAlfajores, zora, zoraSepolia]
+const allChains = [base, baseSepolia, zora, zoraSepolia] as const
 
-// Select the primary chain based on the chain ID
-const targetChain = allChains.find(chain => chain.id === TARGET_CHAIN_ID) || baseSepolia
-
-// Create transports object for all chains
+// Create transports object for all chains using custom RPC URLs
 const transports = {
-  [base.id]: http(),
-  [baseSepolia.id]: http(),
-  [celo.id]: http(),
-  [celoAlfajores.id]: http(),
-  [zora.id]: http(),
-  [zoraSepolia.id]: http(),
+  [base.id]: http(process.env.NEXT_PUBLIC_BASE_RPC_URL),
+  [baseSepolia.id]: http(process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL),
+  [zora.id]: http(process.env.NEXT_PUBLIC_ZORA_RPC_URL),
+  [zoraSepolia.id]: http(process.env.NEXT_PUBLIC_ZORA_SEPOLIA_RPC_URL),
 } as const
 
 // WalletConnect project ID is required for WalletConnect v2
@@ -76,4 +77,4 @@ export const config = createConfig({
 })
 
 // Export chain definitions for use in other components
-export { base, baseSepolia, celo, celoAlfajores, zora, zoraSepolia, allChains } 
+export { base, baseSepolia, zora, zoraSepolia, allChains } 

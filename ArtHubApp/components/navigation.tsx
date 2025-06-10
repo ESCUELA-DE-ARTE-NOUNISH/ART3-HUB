@@ -1,14 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import { Home, Search, Grid3X3, User } from "lucide-react"
+import { Home, Search, Grid3X3, User, Image } from "lucide-react"
 import { usePathname, useParams, useRouter } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import { useAccount, useConnect } from 'wagmi'
 import { usePrivy, useWallets } from '@privy-io/react-auth'
 import { useMiniKit } from '@coinbase/onchainkit/minikit'
 import { useToast } from '@/hooks/use-toast'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +29,7 @@ export default function Navigation() {
   const { toast } = useToast()
 
   // Wallet connection hooks
-  const { isConnected: wagmiConnected, address: wagmiAddress } = useAccount()
+  const { isConnected: wagmiConnected } = useAccount()
   const { connect, connectors } = useConnect()
   const { context } = useMiniKit()
 
@@ -82,9 +82,9 @@ export default function Navigation() {
              locale === 'pt' ? 'Perfil' : 
              locale === 'fr' ? 'Profil' : 'Profile',
              
-    collection: locale === 'es' ? 'Colección' : 
-                locale === 'pt' ? 'Coleção' : 
-                locale === 'fr' ? 'Collection' : 'Collection'
+    myNfts: locale === 'es' ? 'Mis NFTs' : 
+            locale === 'pt' ? 'Meus NFTs' : 
+            locale === 'fr' ? 'Mes NFTs' : 'My NFTs'
   }
 
   // Wallet required messages
@@ -208,14 +208,14 @@ export default function Navigation() {
           </span>
         </Link>
         <button 
-          onClick={() => handleProtectedNavigation("/my-collection")} 
+          onClick={() => handleProtectedNavigation("/my-nfts")} 
           className="flex flex-col items-center px-2 py-1"
         >
-          <Grid3X3 className={`h-5 w-5 ${isActive("/my-collection") ? "text-[#FF69B4]" : "text-gray-500"}`} />
+          <Image className={`h-5 w-5 ${isActive("/my-nfts") ? "text-[#FF69B4]" : "text-gray-500"}`} />
           <span
-            className={`text-xs mt-1 ${isActive("/my-collection") ? "text-[#FF69B4] font-medium" : "text-gray-500"}`}
+            className={`text-xs mt-1 ${isActive("/my-nfts") ? "text-[#FF69B4] font-medium" : "text-gray-500"}`}
           >
-            {labels.collection}
+            {labels.myNfts}
           </span>
         </button>
         <button 
