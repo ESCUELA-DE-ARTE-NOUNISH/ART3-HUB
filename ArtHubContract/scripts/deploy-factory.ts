@@ -9,6 +9,7 @@ async function main() {
   // Get deployment parameters from environment or use defaults
   const DEPLOYMENT_FEE = process.env.DEPLOYMENT_FEE || ethers.parseEther("0.001"); // 0.001 ETH to create collection
   const PLATFORM_FEE_PERCENTAGE = process.env.PLATFORM_FEE_PERCENTAGE || "250"; // 2.5% platform fee
+  const FACTORY_OWNER = process.env.FACTORY_OWNER || deployer.address; // Factory owner (can be changed)
   
   // OpenSea proxy registry addresses
   const OPENSEA_PROXY_REGISTRIES = {
@@ -38,6 +39,7 @@ async function main() {
   console.log("📋 Factory Parameters:");
   console.log(`   Deployment Fee: ${ethers.formatEther(DEPLOYMENT_FEE.toString())} ETH`);
   console.log(`   Platform Fee: ${PLATFORM_FEE_PERCENTAGE} basis points (${Number(PLATFORM_FEE_PERCENTAGE) / 100}%)`);
+  console.log(`   Factory Owner: ${FACTORY_OWNER}`);
   console.log(`   Fee Recipient: ${deployer.address}`);
   console.log(`   OpenSea Proxy Registry: ${proxyRegistryAddress}`);
 
@@ -69,6 +71,14 @@ async function main() {
   console.log("✅ Factory deployed successfully!");
   console.log(`📍 Factory Address: ${factoryAddress}`);
   console.log(`📍 Implementation Address: ${implementationAddress}`);
+
+  // Transfer ownership if different from deployer
+  if (FACTORY_OWNER.toLowerCase() !== deployer.address.toLowerCase()) {
+    console.log(`\n🔄 Transferring factory ownership to ${FACTORY_OWNER}...`);
+    const transferTx = await factory.transferOwnership(FACTORY_OWNER);
+    await transferTx.wait();
+    console.log("✅ Ownership transferred successfully!");
+  }
   
   // Step 3: Verify deployment
   console.log("\n🔍 Verifying deployment...");
