@@ -11,10 +11,16 @@ const config: HardhatUserConfig = {
       chainId: 84532,
       accounts: [process.env.PRIVATE_KEY!],
     },
+    base: {
+      url: "https://mainnet.base.org",
+      chainId: 8453,
+      accounts: [process.env.PRIVATE_KEY!],
+    },
   },
   etherscan: {
     apiKey: {
       baseSepolia: process.env.BASESCAN_API_KEY!,
+      base: process.env.BASESCAN_API_KEY!,
     },
   },
 };
