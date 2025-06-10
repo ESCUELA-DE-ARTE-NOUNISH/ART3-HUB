@@ -48,6 +48,7 @@
     "@tanstack/react-query": "^5.76.1",
     "@upstash/ratelimit": "^2.0.5",
     "@upstash/redis": "^1.34.9",
+    "@zoralabs/protocol-sdk": "^0.13.8",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

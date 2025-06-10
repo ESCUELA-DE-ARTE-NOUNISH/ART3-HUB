@@ -58,8 +58,9 @@ export function ConnectMenu() {
   const { wallets } = walletsHooks
 
   // Get target chain from env
-  const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "84532")
-  const targetChain = TARGET_CHAIN_ID === 8453 ? base : baseSepolia
+  const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
+  const targetChain = isTestingMode ? baseSepolia : base
+  const TARGET_CHAIN_ID = targetChain.id
   const NETWORK_NAME = targetChain.name
 
   useEffect(() => {

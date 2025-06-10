@@ -7,9 +7,9 @@ import { base, baseSepolia } from 'wagmi/chains'
 import { privyWagmiConfig } from '@/lib/privy-wagmi'
 import { useMiniKit } from '@coinbase/onchainkit/minikit'
 
-// Get chain configuration from environment variables
-const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "84532")
-const targetChain = TARGET_CHAIN_ID === 8453 ? base : baseSepolia
+// Get default chain based on testing mode
+const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
+const targetChain = isTestingMode ? baseSepolia : base
 
 // Create a client for react-query
 const queryClient = new QueryClient()

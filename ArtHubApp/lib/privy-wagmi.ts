@@ -2,9 +2,9 @@ import { createConfig } from '@privy-io/wagmi'
 import { http } from 'wagmi'
 import { base, baseSepolia } from 'wagmi/chains'
 
-// Get chain configuration from environment variables
-const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "84532")
-const targetChain = TARGET_CHAIN_ID === 8453 ? base : baseSepolia
+// Get default chain based on testing mode
+const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
+const targetChain = isTestingMode ? baseSepolia : base
 
 // Configure chain-specific settings
 const chainConfig = {
@@ -12,14 +12,14 @@ const chainConfig = {
     ...base,
     rpcUrls: {
       ...base.rpcUrls,
-      default: { http: [process.env.NEXT_PUBLIC_RPC_URL_BASE || ''] },
+      default: { http: [process.env.NEXT_PUBLIC_BASE_RPC_URL || 'https://mainnet.base.org'] },
     }
   },
   [baseSepolia.id]: {
     ...baseSepolia,
     rpcUrls: {
       ...baseSepolia.rpcUrls,
-      default: { http: [process.env.NEXT_PUBLIC_RPC_URL_BASE_SEPOLIA || ''] },
+      default: { http: [process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org'] },
     }
   }
 }

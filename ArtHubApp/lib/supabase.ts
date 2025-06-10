@@ -17,6 +17,22 @@ export interface UserProfile {
   updated_at: string
 }
 
+export interface NFT {
+  id: string
+  wallet_address: string
+  name: string
+  description?: string
+  image_ipfs_hash: string
+  metadata_ipfs_hash?: string
+  transaction_hash?: string
+  network: string
+  royalty_percentage: number
+  contract_address?: string
+  token_id?: number
+  created_at: string
+  updated_at: string
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -24,6 +40,11 @@ export interface Database {
         Row: UserProfile
         Insert: Omit<UserProfile, 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Omit<UserProfile, 'id' | 'created_at'>>
+      }
+      nfts: {
+        Row: NFT
+        Insert: Omit<NFT, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<NFT, 'id' | 'created_at'>>
       }
     }
   }

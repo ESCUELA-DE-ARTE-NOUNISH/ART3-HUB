@@ -74,5 +74,8 @@ export function getCurrentNetworkId(networkName: string): number {
 }
 
 export function getDefaultNetwork(): string {
-  return 'base' // Default to Base network
+  // Auto-determine default network based on testing mode
+  // Testing mode: Base Sepolia (testnet)
+  // Production mode: Base (mainnet)
+  return 'base' // Always return 'base' - the actual network (testnet/mainnet) is determined by isTestingMode
 }

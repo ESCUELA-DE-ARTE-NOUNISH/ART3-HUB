@@ -2,11 +2,6 @@
 
 import { useState, useEffect } from 'react'
 
-// MetaMask ethereum provider interface
-interface EthereumProvider {
-  request: (args: { method: string; params?: any[] }) => Promise<any>
-  isMetaMask?: boolean
-}
 import { Button } from '@/components/ui/button'
 import { SUPPORTED_NETWORKS, getActiveNetwork, type NetworkConfig } from '@/lib/networks'
 import { useSwitchChain, useChainId, useAccount, useConfig } from 'wagmi'
@@ -19,7 +14,7 @@ interface NetworkSelectorProps {
 }
 
 export function NetworkSelector({ selectedNetwork, onNetworkChange, locale = 'en' }: NetworkSelectorProps) {
-  const { switchChain, isPending } = useSwitchChain()
+  const { isPending } = useSwitchChain()
   const currentChainId = useChainId()
   const { isConnected } = useAccount()
   const config = useConfig()
@@ -43,23 +38,12 @@ export function NetworkSelector({ selectedNetwork, onNetworkChange, locale = 'en
     configuredChains: config.chains.map(c => ({ id: c.id, name: c.name }))
   })
 
-  // Force refresh when chain changes
+  // Force refresh when chain changes - but don't auto-update selected network
   useEffect(() => {
     console.log('Chain ID changed to:', currentChainId)
     setRefreshTrigger(prev => prev + 1)
-    
-    // Update selected network based on current chain
-    if (effectiveChainId) {
-      const matchingNetwork = SUPPORTED_NETWORKS.find(n => {
-        const activeNet = getActiveNetwork(n.name, isTestingMode)
-        return activeNet.id === effectiveChainId
-      })
-      if (matchingNetwork && matchingNetwork.name !== selectedNetwork) {
-        console.log('Auto-updating selected network to:', matchingNetwork.name)
-        onNetworkChange(matchingNetwork.name)
-      }
-    }
-  }, [currentChainId, effectiveChainId, isTestingMode, selectedNetwork, onNetworkChange])
+    // Note: No longer auto-updating selected network - user controls this now
+  }, [currentChainId, effectiveChainId])
 
   // Listen to MetaMask chain changes directly
   useEffect(() => {
@@ -127,208 +111,56 @@ export function NetworkSelector({ selectedNetwork, onNetworkChange, locale = 'en
 
   const t = translations[locale as keyof typeof translations] || translations.en
 
-  // Function to add network to MetaMask if it doesn't exist
-  const addNetworkToWallet = async (chainId: number) => {
-    console.log('addNetworkToWallet called with chainId:', chainId)
+
+  const handleNetworkSelect = (network: NetworkConfig) => {
+    const activeNetwork = getActiveNetwork(network.name, isTestingMode)
     
-    const ethereum = (window as any).ethereum as EthereumProvider | undefined
-    if (!ethereum) {
-      console.log('No ethereum provider found')
-      return false
-    }
-    
-    console.log('Ethereum provider found:', {
-      isMetaMask: ethereum.isMetaMask,
-      hasRequest: typeof ethereum.request === 'function'
+    console.log('Network selected in UI:', {
+      networkName: network.name,
+      targetChainId: activeNetwork.id,
+      displayName: activeNetwork.displayName,
+      isTestingMode
     })
-
-    const networkConfigs = {
-      // Zora Mainnet
-      7777777: {
-        chainId: '0x76adf1',
-        chainName: 'Zora Network',
-        nativeCurrency: { 
-          name: 'Ethereum', 
-          symbol: 'ETH', 
-          decimals: 18 
-        },
-        rpcUrls: ['https://rpc.zora.energy'],
-        blockExplorerUrls: ['https://explorer.zora.energy/']
-      },
-      // Zora Sepolia Testnet
-      999999999: {
-        chainId: '0x3b9ac9ff',
-        chainName: 'Zora Sepolia Testnet',
-        nativeCurrency: { 
-          name: 'Ethereum', 
-          symbol: 'ETH', 
-          decimals: 18 
-        },
-        rpcUrls: ['https://sepolia.rpc.zora.energy'],
-        blockExplorerUrls: ['https://sepolia.explorer.zora.energy/']
+    
+    // Simply update the selected network preference - no automatic switching
+    onNetworkChange(network.name)
+    
+    // Show helpful information about the selected network
+    if (isConnected) {
+      toast({
+        title: `${activeNetwork.displayName} Selected`,
+        description: `Switch to ${activeNetwork.displayName} in your wallet before minting. Chain ID: ${activeNetwork.id}`,
+        variant: "default",
+      })
+      
+      // For Zora networks, provide additional helpful info
+      if (activeNetwork.id === 999999999) {
+        setTimeout(() => {
+          toast({
+            title: 'Zora Sepolia Network Details',
+            description: `RPC: https://sepolia.rpc.zora.energy | Block Explorer: https://sepolia.explorer.zora.energy`,
+            variant: "default",
+          })
+        }, 2000)
+      } else if (activeNetwork.id === 7777777) {
+        setTimeout(() => {
+          toast({
+            title: 'Zora Network Details',
+            description: `RPC: https://rpc.zora.energy | Block Explorer: https://explorer.zora.energy`,
+            variant: "default",
+          })
+        }, 2000)
       }
-    }
-
-    const networkConfig = networkConfigs[chainId as keyof typeof networkConfigs]
-    if (!networkConfig) {
-      console.log('No network config found for chainId:', chainId)
-      return false
+    } else {
+      toast({
+        title: `${activeNetwork.displayName} Selected`,
+        description: 'Connect your wallet and switch to this network to mint NFTs.',
+        variant: "default",
+      })
     }
     
-    console.log('Network config for chainId', chainId, ':', networkConfig)
-
-    try {
-      console.log('Calling wallet_addEthereumChain...')
-      const result = await ethereum.request({
-        method: 'wallet_addEthereumChain',
-        params: [networkConfig]
-      })
-      console.log('wallet_addEthereumChain result:', result)
-      return true
-    } catch (error: any) {
-      console.error('Failed to add network:', error)
-      console.error('Error details:', {
-        code: error?.code,
-        message: error?.message,
-        data: error?.data,
-        stack: error?.stack
-      })
-      
-      // Handle specific error codes
-      if (error.code === 4001) {
-        console.log('User rejected the request')
-        return false
-      } else if (error.code === -32603) {
-        console.log('Internal error - possibly RPC issue, trying alternative config...')
-        
-        // Network-specific error handling could be added here if needed
-      }
-      
-      return false
-    }
-  }
-
-  const handleNetworkSelect = async (network: NetworkConfig) => {
-    try {
-      const activeNetwork = getActiveNetwork(network.name, isTestingMode)
-      
-      console.log('Attempting to switch to network:', {
-        networkName: network.name,
-        targetChainId: activeNetwork.id,
-        currentChainId,
-        isTestingMode,
-        isMetaMask: (window as any).ethereum?.isMetaMask
-      })
-      
-      // Update the selected network in the parent component immediately
-      onNetworkChange(network.name)
-      
-      // Only try to switch chain if wallet is connected
-      if (isConnected) {
-        console.log('Wallet is connected, proceeding with network switch...')
-        
-        // For non-Base networks, try adding network first
-        if (activeNetwork.id !== 8453 && activeNetwork.id !== 84532) {
-          console.log('Non-Base network detected, adding to wallet first...')
-          
-          try {
-            const networkAdded = await addNetworkToWallet(activeNetwork.id)
-            console.log('Network addition result:', networkAdded)
-            
-            if (networkAdded) {
-              console.log('Network added successfully, now switching...')
-              // Small delay to let MetaMask process
-              await new Promise(resolve => setTimeout(resolve, 1500))
-              
-              if (switchChain) {
-                try {
-                  const result = await switchChain({ chainId: activeNetwork.id })
-                  console.log('Chain switch successful:', result)
-                  
-                  // Multiple refresh attempts to ensure UI updates
-                  setTimeout(() => setRefreshTrigger(prev => prev + 1), 200)
-                  setTimeout(() => setRefreshTrigger(prev => prev + 1), 1000)
-                  setTimeout(() => setRefreshTrigger(prev => prev + 1), 2000)
-                  
-                  toast({
-                    title: t.networkSwitched,
-                    description: `Switched to ${activeNetwork.displayName}`,
-                  })
-                } catch (switchError) {
-                  console.error('Switch failed after adding network:', switchError)
-                  // Even if switch fails, the network was added
-                  toast({
-                    title: 'Network Added',
-                    description: `${activeNetwork.displayName} was added to your wallet. Please switch manually.`,
-                  })
-                }
-              }
-            } else {
-              console.log('Failed to add network or user cancelled')
-              toast({
-                title: 'Network Addition Cancelled',
-                description: 'Please add the network manually in MetaMask',
-                variant: "destructive",
-              })
-            }
-          } catch (addError) {
-            console.error('Error adding network:', addError)
-            toast({
-              title: t.switchFailed,
-              description: `Failed to add ${activeNetwork.displayName} to wallet`,
-              variant: "destructive",
-            })
-          }
-        } else {
-          // For Base networks, try direct switch
-          console.log('Base network, trying direct switch...')
-          if (switchChain) {
-            try {
-              const result = await switchChain({ chainId: activeNetwork.id })
-              console.log('Direct switch successful:', result)
-              
-              // Multiple refresh attempts to ensure UI updates
-              setTimeout(() => setRefreshTrigger(prev => prev + 1), 200)
-              setTimeout(() => setRefreshTrigger(prev => prev + 1), 1000)
-              setTimeout(() => setRefreshTrigger(prev => prev + 1), 2000)
-              
-              toast({
-                title: t.networkSwitched,
-                description: `Switched to ${activeNetwork.displayName}`,
-              })
-            } catch (switchError) {
-              console.error('Direct switch failed:', switchError)
-              toast({
-                title: t.switchFailed,
-                description: `Failed to switch to ${activeNetwork.displayName}`,
-                variant: "destructive",
-              })
-            }
-          }
-        }
-      } else if (!isConnected) {
-        console.log('Wallet not connected, cannot switch chain')
-        toast({
-          title: 'Wallet Required',
-          description: 'Please connect your wallet to switch networks',
-          variant: "destructive",
-        })
-      } else {
-        console.log('switchChain function is not available')
-        toast({
-          title: t.switchFailed,
-          description: 'Wallet switching not available',
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      console.error('Failed to select network:', error)
-      toast({
-        title: t.switchFailed,
-        description: t.switchFailed,
-        variant: "destructive",
-      })
-    }
+    // Update UI refresh
+    setRefreshTrigger(prev => prev + 1)
   }
 
   return (
