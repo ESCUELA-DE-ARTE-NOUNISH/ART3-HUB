@@ -45,7 +45,10 @@ const translations = {
     copyHash: "Copy Hash",
     copied: "Copied!",
     copiedDesc: "Hash copied to clipboard",
-    retry: "Retry"
+    retry: "Retry",
+    noFilterResults: "No NFTs found",
+    noFilterResultsDesc: "No NFTs match the current filter selection.",
+    showAllNfts: "Show All NFTs"
   },
   es: {
     title: "Mi Colección",
@@ -77,7 +80,10 @@ const translations = {
     copyHash: "Copiar Hash",
     copied: "¡Copiado!",
     copiedDesc: "Hash copiado al portapapeles",
-    retry: "Reintentar"
+    retry: "Reintentar",
+    noFilterResults: "No se encontraron NFTs",
+    noFilterResultsDesc: "Ningún NFT coincide con el filtro seleccionado.",
+    showAllNfts: "Mostrar Todos los NFTs"
   },
   fr: {
     title: "Ma Collection",
@@ -109,7 +115,10 @@ const translations = {
     copyHash: "Copier le Hash",
     copied: "Copié!",
     copiedDesc: "Hash copié dans le presse-papiers",
-    retry: "Réessayer"
+    retry: "Réessayer",
+    noFilterResults: "Aucun NFT trouvé",
+    noFilterResultsDesc: "Aucun NFT ne correspond au filtre sélectionné.",
+    showAllNfts: "Afficher Tous les NFTs"
   },
   pt: {
     title: "Minha Coleção",
@@ -141,7 +150,10 @@ const translations = {
     copyHash: "Copiar Hash",
     copied: "Copiado!",
     copiedDesc: "Hash copiado para área de transferência",
-    retry: "Tentar Novamente"
+    retry: "Tentar Novamente",
+    noFilterResults: "Nenhum NFT encontrado",
+    noFilterResultsDesc: "Nenhum NFT corresponde ao filtro selecionado.",
+    showAllNfts: "Mostrar Todos os NFTs"
   }
 }
 
@@ -261,6 +273,44 @@ export default function MyNFTsPage() {
   // Filter options
   const [selectedFilter, setSelectedFilter] = useState<string>("all")
   
+  // Filter and sort NFTs based on current selections
+  const filteredAndSortedNfts = nfts
+    .filter((nft) => {
+      switch (selectedFilter) {
+        case "all":
+          return true
+        case "created":
+          // Currently all NFTs in our database are created by the user
+          // Future enhancement: add 'creator_address' field to distinguish created vs collected
+          return true
+        case "collected":
+          // Future enhancement: NFTs collected from other creators
+          // For now, return empty array as all current NFTs are self-created
+          return false
+        case "recent":
+          // Show NFTs from the last 7 days
+          const weekAgo = new Date()
+          weekAgo.setDate(weekAgo.getDate() - 7)
+          return new Date(nft.created_at) > weekAgo
+        default:
+          return true
+      }
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        case "oldest":
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        case "price-high":
+        case "price-low":
+          // Future enhancement: implement price sorting when price field is added
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      }
+    })
+  
   // Get current sort option
   const currentSortOption = t.sortOptions.find((option) => option.value === sortBy)
 
@@ -299,6 +349,11 @@ export default function MyNFTsPage() {
         </div>
 
         <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">
+              {filteredAndSortedNfts.length} of {nfts.length} NFTs
+            </span>
+          </div>
           <div className="flex items-center gap-2">
             <Button
               variant={viewMode === "grid" ? "default" : "outline"}
@@ -349,8 +404,10 @@ export default function MyNFTsPage() {
             </Button>
           </div>
         ) : nfts.length > 0 ? (
-          <div className={viewMode === "grid" ? "grid grid-cols-2 gap-4" : "space-y-4"}>
-            {nfts.map((nft) => (
+          <>
+            {filteredAndSortedNfts.length > 0 ? (
+              <div className={viewMode === "grid" ? "grid grid-cols-2 gap-4" : "space-y-4"}>
+                {filteredAndSortedNfts.map((nft) => (
               <Card
                 key={nft.id}
                 className={`overflow-hidden ${
@@ -472,9 +529,22 @@ export default function MyNFTsPage() {
                     </div>
                   </div>
                 )}
-              </Card>
-            ))}
-          </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10">
+                <h2 className="text-xl font-semibold mb-2">{t.noFilterResults}</h2>
+                <p className="text-gray-600 mb-4">{t.noFilterResultsDesc}</p>
+                <Button 
+                  onClick={() => setSelectedFilter("all")} 
+                  variant="outline"
+                >
+                  {t.showAllNfts}
+                </Button>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-10">
             <h2 className="text-2xl font-bold mb-2">{t.noNftsTitle}</h2>

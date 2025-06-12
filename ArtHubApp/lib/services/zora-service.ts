@@ -1,6 +1,7 @@
 // Art3 Hub NFT Creation Service using deployed Factory contracts
-import { parseEther, type Address, type PublicClient, type WalletClient, parseUnits, encodeFunctionData } from 'viem'
+import { parseEther, type Address, type PublicClient, type WalletClient, parseUnits, encodeFunctionData, createPublicClient, http } from 'viem'
 import { getActiveNetwork } from '@/lib/networks'
+import { base, baseSepolia, celo, celoAlfajores, zora, zoraSepolia } from '@/lib/wagmi'
 
 // Art3HubFactory ABI - from deployed contracts
 const ART3HUB_FACTORY_ABI = [
@@ -103,6 +104,44 @@ const ART3HUB_COLLECTION_ABI = [
   }
 ] as const
 
+// Helper function to create public client for specific chain
+function createChainSpecificPublicClient(chainId: number): PublicClient {
+  switch (chainId) {
+    case 84532: // Base Sepolia
+      return createPublicClient({
+        chain: baseSepolia,
+        transport: http(process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org')
+      })
+    case 8453: // Base Mainnet
+      return createPublicClient({
+        chain: base,
+        transport: http(process.env.NEXT_PUBLIC_BASE_RPC_URL || 'https://mainnet.base.org')
+      })
+    case 44787: // Celo Sepolia
+      return createPublicClient({
+        chain: celoAlfajores,
+        transport: http(process.env.NEXT_PUBLIC_CELO_SEPOLIA_RPC_URL || 'https://alfajores-forno.celo-testnet.org')
+      })
+    case 42220: // Celo Mainnet
+      return createPublicClient({
+        chain: celo,
+        transport: http(process.env.NEXT_PUBLIC_CELO_RPC_URL || 'https://forno.celo.org')
+      })
+    case 999999999: // Zora Sepolia
+      return createPublicClient({
+        chain: zoraSepolia,
+        transport: http(process.env.NEXT_PUBLIC_ZORA_SEPOLIA_RPC_URL || 'https://sepolia.rpc.zora.energy')
+      })
+    case 7777777: // Zora Mainnet
+      return createPublicClient({
+        chain: zora,
+        transport: http(process.env.NEXT_PUBLIC_ZORA_RPC_URL || 'https://rpc.zora.energy')
+      })
+    default:
+      throw new Error(`Unsupported chain ID: ${chainId}`)
+  }
+}
+
 // Get factory contract addresses based on network
 function getArt3HubFactoryAddress(chainId: number): Address | null {
   switch (chainId) {
@@ -110,6 +149,10 @@ function getArt3HubFactoryAddress(chainId: number): Address | null {
       return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_BASE_SEPOLIA as Address) || null
     case 8453: // Base Mainnet
       return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_BASE as Address) || null
+    case 44787: // Celo Sepolia
+      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_CELO_SEPOLIA as Address) || null
+    case 42220: // Celo Mainnet
+      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_CELO as Address) || null
     case 7777777: // Zora Mainnet
       return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_ZORA as Address) || null
     case 999999999: // Zora Sepolia
@@ -148,9 +191,16 @@ export class Art3HubService {
   private chainId: number
 
   constructor(publicClient: PublicClient, walletClient: WalletClient, chainId: number) {
-    this.publicClient = publicClient
+    // Use chain-specific public client to ensure we're using the correct RPC
+    this.publicClient = createChainSpecificPublicClient(chainId)
     this.walletClient = walletClient
     this.chainId = chainId
+    
+    console.log('🔧 Art3HubService initialized:', {
+      chainId,
+      publicClientChain: this.publicClient.chain?.id,
+      walletClientChain: walletClient.chain?.id
+    })
   }
 
   // Create an artist collection using Art3Hub Factory
@@ -174,6 +224,10 @@ export class Art3HubService {
       
       // Get deployment fee from factory
       console.log('💰 Fetching deployment fee...')
+      console.log('🔗 Public client chain:', this.publicClient.chain?.id)
+      console.log('🔗 Target chain ID:', this.chainId)
+      console.log('🔗 Factory address:', factoryAddress)
+      
       const deploymentFee = await this.publicClient.readContract({
         address: factoryAddress,
         abi: ART3HUB_FACTORY_ABI,
@@ -190,7 +244,7 @@ export class Art3HubService {
         mintPrice: parseEther(params.mintPrice || '0.001'), // Default 0.001 ETH mint price
         contractURI: params.contractURI || params.imageURI, // Collection metadata
         baseURI: params.baseURI || `${params.imageURI}/`, // Base URI for tokens
-        royaltyBps: params.royaltyBPS, // Royalty in basis points
+        royaltyBps: BigInt(params.royaltyBPS), // Royalty in basis points
         royaltyRecipient: params.fundsRecipient
       }
       
@@ -198,12 +252,16 @@ export class Art3HubService {
       
       // Create collection via factory
       console.log('🚀 Calling createCollection on factory...')
+      console.log('🔗 Wallet client chain:', this.walletClient.chain)
+      console.log('🔗 Public client chain:', this.publicClient.chain)
+      
       const hash = await this.walletClient.writeContract({
         address: factoryAddress,
         abi: ART3HUB_FACTORY_ABI,
         functionName: 'createCollection',
         args: [collectionParams],
-        value: deploymentFee // Pay deployment fee
+        value: deploymentFee, // Pay deployment fee
+        chain: this.publicClient.chain // Force the correct chain
       })
       
       console.log('✅ Collection creation transaction sent:', hash)
@@ -237,9 +295,6 @@ export class Art3HubService {
         try {
           // Check if this log is from the factory contract and has the right topic count
           if (log.address.toLowerCase() === factoryAddress.toLowerCase() && log.topics.length >= 3) {
-            // CollectionCreated event signature: keccak256("CollectionCreated(address,address,string,string,uint256)")
-            const collectionCreatedTopic = '0x1a2a22cb034d26d1854bdc6666a5b91fe25efbbb5dcad3b0355478d6f5c362a1' // This might need to be calculated
-            
             // For now, let's use a simpler approach - the collection address should be in the second topic (indexed parameter)
             if (log.topics.length >= 3) {
               // Topics: [event_signature, artist_address, collection_address]
@@ -326,7 +381,8 @@ export class Art3HubService {
           address: params.collectionContract,
           abi: ART3HUB_COLLECTION_ABI,
           functionName: 'artistMint',
-          args: [params.title, params.description, params.tokenURI, params.royaltyBPS]
+          args: [params.title, params.description, params.tokenURI, BigInt(params.royaltyBPS)],
+          chain: this.publicClient.chain
         })
         
         const receipt = await this.publicClient.waitForTransactionReceipt({ hash })
@@ -344,7 +400,8 @@ export class Art3HubService {
           abi: ART3HUB_COLLECTION_ABI,
           functionName: 'mint',
           args: [params.tokenURI],
-          value: mintPrice
+          value: mintPrice,
+          chain: this.publicClient.chain
         })
         
         const receipt = await this.publicClient.waitForTransactionReceipt({ hash })
@@ -506,6 +563,22 @@ export const ART3HUB_NETWORKS = {
       rpcUrl: 'https://sepolia.base.org',
       blockExplorer: 'https://sepolia.basescan.org',
       factoryAddress: process.env.NEXT_PUBLIC_ART3HUB_FACTORY_BASE_SEPOLIA
+    }
+  },
+  celo: {
+    mainnet: {
+      chainId: 42220,
+      name: 'Celo',
+      rpcUrl: 'https://forno.celo.org',
+      blockExplorer: 'https://celoscan.io',
+      factoryAddress: process.env.NEXT_PUBLIC_ART3HUB_FACTORY_CELO
+    },
+    testnet: {
+      chainId: 44787,
+      name: 'Celo Sepolia',
+      rpcUrl: 'https://alfajores-forno.celo-testnet.org',
+      blockExplorer: 'https://alfajores.celoscan.io',
+      factoryAddress: process.env.NEXT_PUBLIC_ART3HUB_FACTORY_CELO_SEPOLIA
     }
   },
   zora: {

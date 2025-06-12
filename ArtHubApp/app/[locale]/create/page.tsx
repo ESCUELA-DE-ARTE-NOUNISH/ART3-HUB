@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import Header from "@/components/header"
 import { ImagePlus, Loader2, ExternalLink } from "lucide-react"
 import { useAccount, usePublicClient, useWalletClient } from "wagmi"
+import { useNetworkClients } from "@/hooks/useNetworkClients"
 import { IPFSService, type NFTMetadata } from "@/lib/services/ipfs-service"
 import { createZoraService, type Art3HubCollectionParams } from "@/lib/services/zora-service"
 import { useToast } from "@/hooks/use-toast"
@@ -19,6 +20,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { CheckCircle2, Copy } from "lucide-react"
 import { useParams } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
+import { NetworkSelector } from "@/components/network-selector"
 
 // Translation content
 const translations = {
@@ -197,8 +199,7 @@ function CreateNFT() {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [royaltyPercentage, setRoyaltyPercentage] = useState("5")
-  // Fixed to Base network only
-  const selectedNetwork = "base"
+  const [selectedNetwork, setSelectedNetwork] = useState("base")
   const [isLoading, setIsLoading] = useState(false)
   const [mintStatus, setMintStatus] = useState<string>('')
   const [transactionHash, setTransactionHash] = useState<string>('')
@@ -207,17 +208,131 @@ function CreateNFT() {
   const [mintResult, setMintResult] = useState<any>(null)
   
   // Wagmi hooks
-  const { address, isConnected } = useAccount()
-  const publicClient = usePublicClient()
-  const { data: walletClient } = useWalletClient()
+  const { address, isConnected, connector, status } = useAccount()
+  const defaultPublicClient = usePublicClient()
+  const { data: defaultWalletClient } = useWalletClient()
   const { toast } = useToast()
   
-  const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
+  // Get fresh clients that match the current network
+  const { publicClient, walletClient, chainId: currentChainId } = useNetworkClients()
   
-  // Function to get block explorer URL - Base only
-  const getBlockExplorerUrl = (txHash: string) => {
-    const baseUrl = isTestingMode ? 'https://sepolia.basescan.org' : 'https://basescan.org'
-    return `${baseUrl}/tx/${txHash}`
+  // Debug connection status
+  useEffect(() => {
+    console.log('🔗 Wallet connection status:', {
+      isConnected,
+      address,
+      connector: connector?.name,
+      status,
+      walletClient: !!walletClient,
+      walletClientChain: walletClient?.chain?.id,
+      publicClient: !!publicClient,
+      publicClientChain: publicClient?.chain?.id,
+      defaultWalletClient: !!defaultWalletClient,
+      defaultPublicClient: !!defaultPublicClient,
+      selectedNetwork,
+      currentChainId
+    })
+  }, [isConnected, address, connector, status, walletClient, publicClient, selectedNetwork, currentChainId])
+  
+  const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
+
+  // Helper function to add custom network to wallet
+  const addNetworkToWallet = async (networkName: string, isTestingMode: boolean) => {
+    try {
+      const ethereum = (window as any).ethereum
+      if (!ethereum) return false
+
+      let networkConfig: any = null
+      
+      if (networkName === 'zora' && isTestingMode) {
+        networkConfig = {
+          chainId: '0x3B9ACA07', // 999999999 in hex
+          chainName: 'Zora Sepolia',
+          rpcUrls: ['https://sepolia.rpc.zora.energy'],
+          nativeCurrency: {
+            name: 'Ethereum',
+            symbol: 'ETH',
+            decimals: 18
+          },
+          blockExplorerUrls: ['https://sepolia.explorer.zora.energy']
+        }
+      } else if (networkName === 'zora' && !isTestingMode) {
+        networkConfig = {
+          chainId: '0x76ADF1', // 7777777 in hex
+          chainName: 'Zora Network',
+          rpcUrls: ['https://rpc.zora.energy'],
+          nativeCurrency: {
+            name: 'Ethereum',
+            symbol: 'ETH',
+            decimals: 18
+          },
+          blockExplorerUrls: ['https://explorer.zora.energy']
+        }
+      } else if (networkName === 'celo' && isTestingMode) {
+        networkConfig = {
+          chainId: '0xAEF3', // 44787 in hex
+          chainName: 'Celo Sepolia',
+          rpcUrls: ['https://alfajores-forno.celo-testnet.org'],
+          nativeCurrency: {
+            name: 'Celo',
+            symbol: 'CELO',
+            decimals: 18
+          },
+          blockExplorerUrls: ['https://alfajores.celoscan.io']
+        }
+      } else if (networkName === 'celo' && !isTestingMode) {
+        networkConfig = {
+          chainId: '0xA4EC', // 42220 in hex
+          chainName: 'Celo Network',
+          rpcUrls: ['https://forno.celo.org'],
+          nativeCurrency: {
+            name: 'Celo',
+            symbol: 'CELO',
+            decimals: 18
+          },
+          blockExplorerUrls: ['https://celoscan.io']
+        }
+      }
+
+      if (networkConfig) {
+        await ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [networkConfig]
+        })
+        return true
+      }
+    } catch (error) {
+      console.error('Failed to add network:', error)
+      return false
+    }
+    return false
+  }
+  
+  // Function to get block explorer URL for different networks
+  const getBlockExplorerUrl = (txHash: string, network: string = selectedNetwork) => {
+    if (isTestingMode) {
+      switch (network) {
+        case 'base':
+          return `https://sepolia.basescan.org/tx/${txHash}`
+        case 'celo':
+          return `https://alfajores.celoscan.io/tx/${txHash}`
+        case 'zora':
+          return `https://sepolia.explorer.zora.energy/tx/${txHash}`
+        default:
+          return `https://sepolia.basescan.org/tx/${txHash}`
+      }
+    } else {
+      switch (network) {
+        case 'base':
+          return `https://basescan.org/tx/${txHash}`
+        case 'celo':
+          return `https://celoscan.io/tx/${txHash}`
+        case 'zora':
+          return `https://explorer.zora.energy/tx/${txHash}`
+        default:
+          return `https://basescan.org/tx/${txHash}`
+      }
+    }
   }
   
   // Function to copy transaction hash to clipboard
@@ -251,11 +366,39 @@ function CreateNFT() {
     setMintResult(null)
   }
 
-  // Function to get Blockscout collection link
-  const getBlockscoutCollectionLink = (result: any) => {
-    const baseUrl = isTestingMode 
-      ? 'https://base-sepolia.blockscout.com'
-      : 'https://base.blockscout.com'
+  // Function to get Blockscout collection link for different networks
+  const getBlockscoutCollectionLink = (result: any, network: string = selectedNetwork) => {
+    let baseUrl: string
+    
+    if (isTestingMode) {
+      switch (network) {
+        case 'base':
+          baseUrl = 'https://base-sepolia.blockscout.com'
+          break
+        case 'celo':
+          baseUrl = 'https://celo-alfajores.blockscout.com'
+          break
+        case 'zora':
+          baseUrl = 'https://zora-sepolia.blockscout.com'
+          break
+        default:
+          baseUrl = 'https://base-sepolia.blockscout.com'
+      }
+    } else {
+      switch (network) {
+        case 'base':
+          baseUrl = 'https://base.blockscout.com'
+          break
+        case 'celo':
+          baseUrl = 'https://celo.blockscout.com'
+          break
+        case 'zora':
+          baseUrl = 'https://zora.blockscout.com'
+          break
+        default:
+          baseUrl = 'https://base.blockscout.com'
+      }
+    }
     
     // If we have contract address, link directly to the collection
     if (result?.contractAddress) {
@@ -316,6 +459,12 @@ function CreateNFT() {
     e.preventDefault()
     
     if (!isConnected || !address || !walletClient || !publicClient) {
+      console.error('Missing required clients:', {
+        isConnected,
+        address: !!address,
+        walletClient: !!walletClient,
+        publicClient: !!publicClient
+      })
       toast({
         title: t.walletRequired,
         description: t.walletRequired,
@@ -365,7 +514,19 @@ function CreateNFT() {
       setMintStatus('Verifying network...')
       const { getActiveNetwork } = await import('@/lib/networks')
       const targetNetwork = getActiveNetwork(selectedNetwork, isTestingMode)
+      
+      // Get the actual chain ID from the wallet
       const currentChainId = await walletClient.getChainId()
+      
+      console.log('🔍 Detailed network information:', {
+        selectedNetwork,
+        targetNetwork,
+        targetChainId: targetNetwork.id,
+        currentChainId,
+        isTestingMode,
+        walletClientChain: walletClient.chain?.id,
+        publicClientChain: publicClient?.chain?.id
+      })
       
       console.log('Network check:', {
         selectedNetwork,
@@ -384,15 +545,64 @@ function CreateNFT() {
           targetNetwork
         })
         
-        const expectedNetwork = isTestingMode ? 'Base Sepolia' : 'Base'
-        const currentNetwork = currentChainId === 84532 ? 'Base Sepolia' : 
-                              currentChainId === 8453 ? 'Base' : `Chain ${currentChainId}`
+        const expectedNetwork = isTestingMode 
+          ? `${targetNetwork.displayName} (Testnet)`
+          : `${targetNetwork.displayName} (Mainnet)`
+        const currentNetwork = (() => {
+          switch (currentChainId) {
+            case 84532: return 'Base Sepolia'
+            case 8453: return 'Base'
+            case 44787: return 'Celo Sepolia'
+            case 42220: return 'Celo'
+            case 999999999: return 'Zora Sepolia'
+            case 7777777: return 'Zora'
+            default: return `Chain ${currentChainId}`
+          }
+        })()
         
-        toast({
-          title: "Wrong Network",
-          description: `Please switch to ${expectedNetwork} in your wallet. Currently on ${currentNetwork}.`,
-          variant: "destructive",
-        })
+        // Try to automatically add and switch to the network
+        if (selectedNetwork !== 'base') {
+          try {
+            setMintStatus('Adding network to wallet...')
+            const networkAdded = await addNetworkToWallet(selectedNetwork, isTestingMode)
+            
+            if (networkAdded) {
+              toast({
+                title: "Network Added",
+                description: `${expectedNetwork} has been added to your wallet. Please try minting again.`,
+                variant: "default",
+              })
+            } else {
+              throw new Error('Failed to add network')
+            }
+          } catch (error) {
+            // Fallback to manual instructions
+            let networkInstructions = `Please switch to ${expectedNetwork} in your wallet. Currently on ${currentNetwork}.`
+            
+            if (selectedNetwork === 'zora' && isTestingMode) {
+              networkInstructions = `Add Zora Sepolia to your wallet manually: RPC: https://sepolia.rpc.zora.energy, Chain ID: 999999999, Symbol: ETH`
+            } else if (selectedNetwork === 'zora' && !isTestingMode) {
+              networkInstructions = `Add Zora Network to your wallet manually: RPC: https://rpc.zora.energy, Chain ID: 7777777, Symbol: ETH`
+            } else if (selectedNetwork === 'celo' && isTestingMode) {
+              networkInstructions = `Add Celo Sepolia to your wallet manually: RPC: https://alfajores-forno.celo-testnet.org, Chain ID: 44787, Symbol: CELO`
+            } else if (selectedNetwork === 'celo' && !isTestingMode) {
+              networkInstructions = `Add Celo Network to your wallet manually: RPC: https://forno.celo.org, Chain ID: 42220, Symbol: CELO`
+            }
+
+            toast({
+              title: "Network Switch Required",
+              description: networkInstructions,
+              variant: "destructive",
+            })
+          }
+        } else {
+          toast({
+            title: "Network Switch Required",
+            description: `Please switch to ${expectedNetwork} in your wallet. Currently on ${currentNetwork}.`,
+            variant: "destructive",
+          })
+        }
+        
         setIsLoading(false)
         setMintStatus('')
         return
@@ -400,7 +610,10 @@ function CreateNFT() {
       
       // 5. Create Art3Hub service and create collection
       setMintStatus('Creating NFT collection...')
-      const art3HubService = createZoraService(publicClient, walletClient, selectedNetwork, isTestingMode)
+      
+      // Use the target network's chain ID directly instead of relying on potentially outdated clients
+      const { createArt3HubService } = await import('@/lib/services/zora-service')
+      const art3HubService = createArt3HubService(publicClient, walletClient, selectedNetwork, isTestingMode)
       
       const collectionParams: Art3HubCollectionParams = {
         name: title,
@@ -534,21 +747,12 @@ function CreateNFT() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Network Info - Fixed to Base */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium mb-3">{t.network}</label>
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg">
-                    <div className="flex items-center justify-center gap-3">
-                      <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                      <span className="font-semibold text-blue-800">
-                        {isTestingMode ? 'Base Sepolia (Testnet)' : 'Base (Mainnet)'}
-                      </span>
-                    </div>
-                    <p className="text-center text-sm text-blue-600 mt-2">
-                      {isTestingMode ? 'Chain ID: 84532' : 'Chain ID: 8453'}
-                    </p>
-                  </div>
-                </div>
+                {/* Network Selector */}
+                <NetworkSelector
+                  selectedNetwork={selectedNetwork}
+                  onNetworkChange={setSelectedNetwork}
+                  locale={locale}
+                />
                 
                 <div>
                   <Label className="text-sm font-medium">{t.image}</Label>
@@ -659,7 +863,11 @@ function CreateNFT() {
                     <AlertDescription>
                       <div className="space-y-3 mt-2">
                         <div className="text-green-700">
-                          <p>{t.networkInfo} Base {isTestingMode ? 'Testnet' : 'Mainnet'}</p>
+                          <p>{t.networkInfo} {(() => {
+                            const { getActiveNetwork } = require('@/lib/networks')
+                            const activeNet = getActiveNetwork(selectedNetwork, isTestingMode)
+                            return `${activeNet.displayName} ${isTestingMode ? 'Testnet' : 'Mainnet'}`
+                          })()}</p>
                           <p className="text-sm mt-1">{t.nftRegistered}</p>
                           <p className="text-sm mt-1 text-blue-600">{t.ipfsNote}</p>
                           {!isTestingMode && (
@@ -706,8 +914,13 @@ function CreateNFT() {
                             <div className="text-xs text-yellow-700 space-y-1">
                               <p>• Check console logs for detailed transaction info</p>
                               <p>• Collection address: {mintResult?.contractAddress || 'Extracting...'}</p>
-                              <p>• Factory used: {process.env.NEXT_PUBLIC_ART3HUB_FACTORY_BASE_SEPOLIA}</p>
-                              <p>• If collection not found, check transaction logs on Basescan</p>
+                              <p>• Factory used: {(() => {
+                                const { getArt3HubFactoryAddress } = require('@/lib/services/zora-service')
+                                const { getActiveNetwork } = require('@/lib/networks')
+                                const activeNet = getActiveNetwork(selectedNetwork, isTestingMode)
+                                return process.env[`NEXT_PUBLIC_ART3HUB_FACTORY_${selectedNetwork.toUpperCase()}${isTestingMode ? '_SEPOLIA' : ''}`] || 'Not configured'
+                              })()}</p>
+                              <p>• If collection not found, check transaction logs on block explorer</p>
                             </div>
                           </div>
                         )}

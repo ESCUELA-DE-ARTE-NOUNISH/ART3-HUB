@@ -1,5 +1,5 @@
 import { http, createConfig } from 'wagmi'
-import { base, baseSepolia } from 'wagmi/chains'
+import { base, baseSepolia, celo, celoAlfajores } from 'wagmi/chains'
 import { frameConnector } from './connector'
 import { injected, walletConnect } from 'wagmi/connectors'
 import { defineChain } from 'viem'
@@ -39,12 +39,14 @@ const zoraSepolia = defineChain({
 })
 
 // All supported chains
-const allChains = [base, baseSepolia, zora, zoraSepolia] as const
+const allChains = [base, baseSepolia, celo, celoAlfajores, zora, zoraSepolia] as const
 
 // Create transports object for all chains using custom RPC URLs
 const transports = {
   [base.id]: http(process.env.NEXT_PUBLIC_BASE_RPC_URL),
   [baseSepolia.id]: http(process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL),
+  [celo.id]: http(process.env.NEXT_PUBLIC_CELO_RPC_URL),
+  [celoAlfajores.id]: http(process.env.NEXT_PUBLIC_CELO_SEPOLIA_RPC_URL),
   [zora.id]: http(process.env.NEXT_PUBLIC_ZORA_RPC_URL),
   [zoraSepolia.id]: http(process.env.NEXT_PUBLIC_ZORA_SEPOLIA_RPC_URL),
 } as const
@@ -60,12 +62,12 @@ export const config = createConfig({
   chains: allChains,
   transports,
   connectors: [
-    frameConnector(),
-    // Always include injected and walletConnect for fallback scenarios
+    // Prioritize injected (MetaMask) for better connection detection
     injected(),
+    frameConnector(),
     walletConnect({
       projectId,
-      showQrModal: true,
+      showQrModal: false, // Don't auto-show modal
       metadata: {
         name: 'Art3 Hub',
         description: 'AI-powered onboarding experience for visual artists entering Web3',
@@ -77,4 +79,4 @@ export const config = createConfig({
 })
 
 // Export chain definitions for use in other components
-export { base, baseSepolia, zora, zoraSepolia, allChains } 
+export { base, baseSepolia, celo, celoAlfajores, zora, zoraSepolia, allChains } 
