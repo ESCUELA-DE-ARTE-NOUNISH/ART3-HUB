@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import Header from "@/components/header"
 import { ImagePlus, Loader2, ExternalLink } from "lucide-react"
-import { useAccount, usePublicClient, useWalletClient } from "wagmi"
+import { useAccount, usePublicClient, useWalletClient, useBalance } from "wagmi"
 import { useNetworkClients } from "@/hooks/useNetworkClients"
 import { IPFSService, type NFTMetadata } from "@/lib/services/ipfs-service"
 import { createZoraService, type Art3HubCollectionParams } from "@/lib/services/zora-service"
@@ -63,7 +63,15 @@ const translations = {
     fileTooLarge: "File too large",
     fileTooLargeDesc: "Please select an image under 10MB",
     invalidFileType: "Invalid file type",
-    invalidFileTypeDesc: "Please select an image file"
+    invalidFileTypeDesc: "Please select an image file",
+    walletBalance: "Wallet Balance",
+    walletAddress: "Wallet Address",
+    copyAddress: "Copy Address",
+    addressCopied: "Address Copied!",
+    addressCopiedDesc: "Wallet address copied to clipboard",
+    insufficientFunds: "Insufficient Funds",
+    insufficientFundsDesc: "You need at least 0.002 ETH for deployment fee + gas",
+    deploymentFee: "Deployment Fee: 0.001 ETH + gas"
   },
   es: {
     title: "Crear NFT",
@@ -104,7 +112,15 @@ const translations = {
     fileTooLarge: "Archivo demasiado grande",
     fileTooLargeDesc: "Por favor selecciona una imagen menor a 10MB",
     invalidFileType: "Tipo de archivo inválido",
-    invalidFileTypeDesc: "Por favor selecciona un archivo de imagen"
+    invalidFileTypeDesc: "Por favor selecciona un archivo de imagen",
+    walletBalance: "Saldo de Billetera",
+    walletAddress: "Dirección de Billetera",
+    copyAddress: "Copiar Dirección",
+    addressCopied: "¡Dirección Copiada!",
+    addressCopiedDesc: "Dirección de billetera copiada al portapapeles",
+    insufficientFunds: "Fondos Insuficientes",
+    insufficientFundsDesc: "Necesitas al menos 0.002 ETH para tarifa de despliegue + gas",
+    deploymentFee: "Tarifa de Despliegue: 0.001 ETH + gas"
   },
   fr: {
     title: "Créer un NFT",
@@ -144,7 +160,15 @@ const translations = {
     fileTooLarge: "Fichier trop volumineux",
     fileTooLargeDesc: "Veuillez sélectionner une image de moins de 10MB",
     invalidFileType: "Type de fichier invalide",
-    invalidFileTypeDesc: "Veuillez sélectionner un fichier image"
+    invalidFileTypeDesc: "Veuillez sélectionner un fichier image",
+    walletBalance: "Solde du Portefeuille",
+    walletAddress: "Adresse du Portefeuille",
+    copyAddress: "Copier l'Adresse",
+    addressCopied: "Adresse Copiée !",
+    addressCopiedDesc: "Adresse du portefeuille copiée dans le presse-papiers",
+    insufficientFunds: "Fonds Insuffisants",
+    insufficientFundsDesc: "Vous avez besoin d'au moins 0.002 ETH pour frais de déploiement + gas",
+    deploymentFee: "Frais de Déploiement: 0.001 ETH + gas"
   },
   pt: {
     title: "Criar NFT",
@@ -184,7 +208,15 @@ const translations = {
     fileTooLarge: "Arquivo muito grande",
     fileTooLargeDesc: "Por favor selecione uma imagem menor que 10MB",
     invalidFileType: "Tipo de arquivo inválido",
-    invalidFileTypeDesc: "Por favor selecione um arquivo de imagem"
+    invalidFileTypeDesc: "Por favor selecione um arquivo de imagem",
+    walletBalance: "Saldo da Carteira",
+    walletAddress: "Endereço da Carteira",
+    copyAddress: "Copiar Endereço",
+    addressCopied: "Endereço Copiado!",
+    addressCopiedDesc: "Endereço da carteira copiado para área de transferência",
+    insufficientFunds: "Fundos Insuficientes",
+    insufficientFundsDesc: "Você precisa de pelo menos 0.002 ETH para taxa de implantação + gas",
+    deploymentFee: "Taxa de Implantação: 0.001 ETH + gas"
   }
 }
 
@@ -213,6 +245,14 @@ function CreateNFT() {
   const { data: defaultWalletClient } = useWalletClient()
   const { toast } = useToast()
   
+  // Get balance for current network
+  const { data: balance, isLoading: balanceLoading } = useBalance({
+    address: address,
+    query: {
+      enabled: !!address && isConnected,
+    }
+  })
+  
   // Get fresh clients that match the current network
   const { publicClient, walletClient, chainId: currentChainId } = useNetworkClients()
   
@@ -235,6 +275,29 @@ function CreateNFT() {
   }, [isConnected, address, connector, status, walletClient, publicClient, selectedNetwork, currentChainId])
   
   const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
+  
+  // Copy wallet address to clipboard
+  const copyAddressToClipboard = async () => {
+    if (!address) return
+    
+    try {
+      await navigator.clipboard.writeText(address)
+      toast({
+        title: t.addressCopied,
+        description: t.addressCopiedDesc,
+      })
+    } catch (error) {
+      console.error('Copy failed:', error)
+      toast({
+        title: t.copyFailed,
+        description: t.copyFailedDesc,
+        variant: "destructive",
+      })
+    }
+  }
+  
+  // Check if balance is sufficient for deployment
+  const isBalanceSufficient = balance ? parseFloat(balance.formatted) >= 0.002 : false
 
   // Helper function to add custom network to wallet
   const addNetworkToWallet = async (networkName: string, isTestingMode: boolean) => {
@@ -754,6 +817,62 @@ function CreateNFT() {
                   locale={locale}
                 />
                 
+                {/* Wallet Information */}
+                <Card className="bg-gray-50 border-gray-200">
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      {/* Wallet Address */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <Label className="text-sm font-medium text-gray-700">{t.walletAddress}</Label>
+                          <p className="text-sm font-mono text-gray-600 break-all">
+                            {address?.slice(0, 6)}...{address?.slice(-4)}
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={copyAddressToClipboard}
+                          className="ml-2"
+                        >
+                          <Copy className="h-4 w-4 mr-1" />
+                          {t.copyAddress}
+                        </Button>
+                      </div>
+                      
+                      {/* Balance Information */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <Label className="text-sm font-medium text-gray-700">{t.walletBalance}</Label>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {balanceLoading ? (
+                              <span className="animate-pulse">Loading...</span>
+                            ) : balance ? (
+                              `${parseFloat(balance.formatted).toFixed(4)} ${balance.symbol}`
+                            ) : (
+                              "0.0000 ETH"
+                            )}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-gray-500">{t.deploymentFee}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Insufficient Funds Warning */}
+                      {!balanceLoading && balance && !isBalanceSufficient && (
+                        <Alert className="border-orange-200 bg-orange-50">
+                          <AlertTitle className="text-orange-800">{t.insufficientFunds}</AlertTitle>
+                          <AlertDescription className="text-orange-700">
+                            {t.insufficientFundsDesc}
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+                
                 <div>
                   <Label className="text-sm font-medium">{t.image}</Label>
                   <div className="flex justify-center mt-2">
@@ -1028,7 +1147,7 @@ function CreateNFT() {
                 <Button
                   type="submit"
                   className="w-full bg-[#FF69B4] hover:bg-[#FF1493]"
-                  disabled={!image || !title || !description || isLoading || !isConnected}
+                  disabled={!image || !title || !description || isLoading || !isConnected || (!balanceLoading && !isBalanceSufficient)}
                 >
                   {isLoading ? (
                     <>

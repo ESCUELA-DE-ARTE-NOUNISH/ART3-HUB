@@ -344,8 +344,8 @@ export class Art3HubService {
       
       // Enhanced error handling
       if (error instanceof Error) {
-        if (error.message.includes('User rejected')) {
-          throw new Error('Transaction was rejected by user')
+        if (error.message.includes('User rejected') || error.message.includes('user rejected')) {
+          throw new Error('Transaction cancelled - you can try again when ready')
         } else if (error.message.includes('insufficient funds')) {
           throw new Error('Insufficient funds for deployment fee and gas')
         } else if (error.message.includes('network')) {
