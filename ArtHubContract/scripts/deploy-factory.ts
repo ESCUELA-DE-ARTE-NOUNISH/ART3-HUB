@@ -7,7 +7,7 @@ async function main() {
   console.log("🏭 Deploying Art3 Hub Factory System...");
 
   // Get deployment parameters from environment or use defaults
-  const DEPLOYMENT_FEE = process.env.DEPLOYMENT_FEE || ethers.parseEther("0.001"); // 0.001 ETH to create collection
+  const DEPLOYMENT_FEE = process.env.DEPLOYMENT_FEE ? ethers.parseEther(process.env.DEPLOYMENT_FEE) : ethers.parseEther("0.001"); // 0.001 ETH to create collection
   const PLATFORM_FEE_PERCENTAGE = process.env.PLATFORM_FEE_PERCENTAGE || "250"; // 2.5% platform fee
   const FACTORY_OWNER = process.env.FACTORY_OWNER || deployer.address; // Factory owner (can be changed)
   
@@ -37,7 +37,7 @@ async function main() {
   const proxyRegistryAddress = OPENSEA_PROXY_REGISTRIES[Number(network.chainId) as keyof typeof OPENSEA_PROXY_REGISTRIES] || "0x0000000000000000000000000000000000000000";
 
   console.log("📋 Factory Parameters:");
-  console.log(`   Deployment Fee: ${ethers.formatEther(DEPLOYMENT_FEE.toString())} ETH`);
+  console.log(`   Deployment Fee: ${ethers.formatEther(DEPLOYMENT_FEE)} ETH`);
   console.log(`   Platform Fee: ${PLATFORM_FEE_PERCENTAGE} basis points (${Number(PLATFORM_FEE_PERCENTAGE) / 100}%)`);
   console.log(`   Factory Owner: ${FACTORY_OWNER}`);
   console.log(`   Fee Recipient: ${deployer.address}`);
@@ -171,7 +171,7 @@ async function main() {
     deployer: deployer.address,
     deploymentTime: new Date().toISOString(),
     parameters: {
-      deploymentFee: ethers.formatEther(DEPLOYMENT_FEE.toString()),
+      deploymentFee: ethers.formatEther(DEPLOYMENT_FEE),
       platformFeePercentage: PLATFORM_FEE_PERCENTAGE,
       feeRecipient: deployer.address
     }

@@ -41,6 +41,7 @@ const translations = {
     viewImage: "View Image",
     viewMetadata: "View Metadata",
     viewTransaction: "View Transaction",
+    viewCollection: "View Collection",
     copyHash: "Copy Hash",
     copied: "Copied!",
     copiedDesc: "Hash copied to clipboard",
@@ -72,6 +73,7 @@ const translations = {
     viewImage: "Ver Imagen",
     viewMetadata: "Ver Metadatos",
     viewTransaction: "Ver Transacción",
+    viewCollection: "Ver Colección",
     copyHash: "Copiar Hash",
     copied: "¡Copiado!",
     copiedDesc: "Hash copiado al portapapeles",
@@ -96,7 +98,18 @@ const translations = {
     new: "Nouveau",
     noNftsTitle: "Pas encore de NFTs",
     noNftsDescription: "Vous n'avez pas encore frappé ou collectionné de NFTs.",
-    createFirstNft: "Créez Votre Premier NFT"
+    createFirstNft: "Créez Votre Premier NFT",
+    loading: "Chargement de vos NFTs...",
+    error: "Échec du chargement des NFTs",
+    connectWallet: "Connectez votre portefeuille pour voir vos NFTs",
+    viewImage: "Voir l'Image",
+    viewMetadata: "Voir les Métadonnées",
+    viewTransaction: "Voir la Transaction",
+    viewCollection: "Voir la Collection",
+    copyHash: "Copier le Hash",
+    copied: "Copié!",
+    copiedDesc: "Hash copié dans le presse-papiers",
+    retry: "Réessayer"
   },
   pt: {
     title: "Minha Coleção",
@@ -117,7 +130,18 @@ const translations = {
     new: "Novo",
     noNftsTitle: "Ainda Sem NFTs",
     noNftsDescription: "Você ainda não cunhou ou colecionou nenhum NFT.",
-    createFirstNft: "Crie Seu Primeiro NFT"
+    createFirstNft: "Crie Seu Primeiro NFT",
+    loading: "Carregando seus NFTs...",
+    error: "Falha ao carregar NFTs",
+    connectWallet: "Conecte sua carteira para ver seus NFTs",
+    viewImage: "Ver Imagem",
+    viewMetadata: "Ver Metadados",
+    viewTransaction: "Ver Transação",
+    viewCollection: "Ver Coleção",
+    copyHash: "Copiar Hash",
+    copied: "Copiado!",
+    copiedDesc: "Hash copiado para área de transferência",
+    retry: "Tentar Novamente"
   }
 }
 
@@ -132,6 +156,8 @@ interface NFT {
   network: string
   royalty_percentage: number
   created_at: string
+  contract_address?: string
+  token_id?: number
 }
 
 export default function MyNFTsPage() {
@@ -208,6 +234,19 @@ export default function MyNFTsPage() {
       return isTestingMode
         ? `https://sepolia.explorer.zora.energy/tx/${txHash}`
         : `https://explorer.zora.energy/tx/${txHash}`
+    }
+  }
+
+  const getBlockscoutCollectionUrl = (contractAddress: string, network: string) => {
+    const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
+    if (network?.toLowerCase().includes('base')) {
+      return isTestingMode 
+        ? `https://base-sepolia.blockscout.com/address/${contractAddress}`
+        : `https://base.blockscout.com/address/${contractAddress}`
+    } else {
+      return isTestingMode
+        ? `https://zora-sepolia.blockscout.com/address/${contractAddress}`
+        : `https://zora.blockscout.com/address/${contractAddress}`
     }
   }
 
@@ -339,34 +378,63 @@ export default function MyNFTsPage() {
                         <Badge variant="secondary" className="text-xs">{nft.network}</Badge>
                       </div>
                       <p className="text-xs text-gray-500 mb-2">{t.minted} {formatDate(nft.created_at)}</p>
-                      <div className="flex justify-between items-center">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="text-xs px-2 py-0 h-7"
-                          onClick={() => window.open(`https://gateway.pinata.cloud/ipfs/${nft.image_ipfs_hash}`, '_blank')}
-                        >
-                          {t.viewImage}
-                        </Button>
+                      <p className="text-xs text-gray-600 mb-2 truncate" title={nft.description}>{nft.description}</p>
+                      
+                      {/* Transaction and Collection Info */}
+                      <div className="space-y-2 mb-2">
+                        {nft.contract_address && (
+                          <div className="text-xs text-blue-600">
+                            <span className="font-medium">Collection:</span>
+                            <span className="font-mono ml-1 break-all">{nft.contract_address.slice(0, 10)}...{nft.contract_address.slice(-8)}</span>
+                          </div>
+                        )}
+                        <div className="text-xs text-gray-500">
+                          <span className="font-medium">TX:</span>
+                          <span className="font-mono ml-1">{nft.transaction_hash.slice(0, 10)}...{nft.transaction_hash.slice(-8)}</span>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="space-y-2">
                         <div className="flex gap-1">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="text-xs px-2 py-1 h-6 flex-1"
+                            onClick={() => window.open(`https://gateway.pinata.cloud/ipfs/${nft.image_ipfs_hash}`, '_blank')}
+                          >
+                            {t.viewImage}
+                          </Button>
                           {nft.metadata_ipfs_hash && (
                             <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-7 w-7"
+                              variant="outline" 
+                              size="sm" 
+                              className="text-xs px-2 py-1 h-6 flex-1"
                               onClick={() => window.open(`https://gateway.pinata.cloud/ipfs/${nft.metadata_ipfs_hash}`, '_blank')}
                             >
-                              <ExternalLink className="h-3 w-3" />
+                              {t.viewMetadata}
                             </Button>
                           )}
+                        </div>
+                        <div className="flex gap-1">
                           {nft.transaction_hash && (
                             <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-7 w-7"
+                              variant="outline" 
+                              size="sm" 
+                              className="text-xs px-2 py-1 h-6 flex-1"
                               onClick={() => window.open(getBlockExplorerUrl(nft.transaction_hash, nft.network), '_blank')}
                             >
-                              <Share2 className="h-3 w-3" />
+                              {t.viewTransaction}
+                            </Button>
+                          )}
+                          {nft.contract_address && (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-xs px-2 py-1 h-6 flex-1"
+                              onClick={() => window.open(getBlockscoutCollectionUrl(nft.contract_address, nft.network), '_blank')}
+                            >
+                              {t.viewCollection}
                             </Button>
                           )}
                         </div>
