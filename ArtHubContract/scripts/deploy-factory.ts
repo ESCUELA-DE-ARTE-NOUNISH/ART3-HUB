@@ -6,6 +6,10 @@ dotenv.config();
 async function main() {
   console.log("🏭 Deploying Art3 Hub Factory System...");
 
+  // Get network information and deployer first
+  const [deployer] = await ethers.getSigners();
+  const network = await ethers.provider.getNetwork();
+
   // Get deployment parameters from environment or use defaults
   const DEPLOYMENT_FEE = process.env.DEPLOYMENT_FEE ? ethers.parseEther(process.env.DEPLOYMENT_FEE) : ethers.parseEther("0.001"); // 0.001 ETH to create collection
   const PLATFORM_FEE_PERCENTAGE = process.env.PLATFORM_FEE_PERCENTAGE || "250"; // 2.5% platform fee
@@ -16,12 +20,17 @@ async function main() {
     // Base Sepolia - OpenSea doesn't have a proxy registry on testnets, use zero address
     84532: "0x0000000000000000000000000000000000000000",
     // Base Mainnet - OpenSea proxy registry
-    8453: "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC" // Base mainnet proxy registry
+    8453: "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC", // Base mainnet proxy registry
+    // Celo Sepolia - No OpenSea proxy registry on testnet
+    44787: "0x0000000000000000000000000000000000000000",
+    // Celo Mainnet - No known OpenSea proxy registry
+    42220: "0x0000000000000000000000000000000000000000",
+    // Zora Sepolia - No OpenSea proxy registry on testnet
+    999999999: "0x0000000000000000000000000000000000000000",
+    // Zora Mainnet - No known OpenSea proxy registry
+    7777777: "0x0000000000000000000000000000000000000000"
   };
   
-  // Get network information
-  const [deployer] = await ethers.getSigners();
-  const network = await ethers.provider.getNetwork();
   
   console.log(`\n🌐 Network: ${network.name} (Chain ID: ${network.chainId})`);
   console.log(`💰 Deployer: ${deployer.address}`);

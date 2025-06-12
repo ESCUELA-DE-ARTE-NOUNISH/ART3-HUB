@@ -13,7 +13,7 @@ Art3 Hub is a decentralized NFT platform that empowers artists to create and man
 - **💎 ERC-2981 Royalties**: Automatic royalty enforcement on secondary sales
 - **🌊 OpenSea Integration**: Gasless listings, automatic royalty enforcement, and full marketplace compatibility
 - **🔒 Security First**: ReentrancyGuard protection and comprehensive access controls
-- **⚡ Multi-Network**: Supports Base Mainnet and Base Sepolia testnet
+- **⚡ Multi-Network**: Supports Base, Celo, and Zora networks (mainnet and testnets)
 
 ## Architecture
 
@@ -174,12 +174,14 @@ The collection implementation contract used as template for all artist collectio
 - **Chain ID**: 8453
 - **RPC URL**: https://mainnet.base.org
 - **Explorer**: https://basescan.org
+- **Blockscout**: https://base.blockscout.com
 - **OpenSea Proxy Registry**: `0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC`
 
 ### Base Sepolia (Testnet)
 - **Chain ID**: 84532
 - **RPC URL**: https://sepolia.base.org
 - **Explorer**: https://sepolia.basescan.org
+- **Blockscout**: https://base-sepolia.blockscout.com
 - **OpenSea Proxy Registry**: Not available (testnet limitation)
 
 **Deployed Contracts:**
@@ -188,6 +190,51 @@ The collection implementation contract used as template for all artist collectio
 - **Explorer Links**: 
   - [Factory Contract](https://sepolia.basescan.org/address/0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2#code)
   - [Implementation Contract](https://sepolia.basescan.org/address/0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2#code)
+- **Blockscout Links**:
+  - [Factory Contract](https://base-sepolia.blockscout.com/address/0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2)
+  - [Implementation Contract](https://base-sepolia.blockscout.com/address/0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2)
+
+### Celo Mainnet
+- **Chain ID**: 42220
+- **RPC URL**: https://forno.celo.org
+- **Explorer**: https://celoscan.io
+- **Blockscout**: https://celo.blockscout.com
+- **OpenSea Proxy Registry**: Not available
+
+### Celo Sepolia (Testnet)
+- **Chain ID**: 44787
+- **RPC URL**: https://alfajores-forno.celo-testnet.org
+- **Explorer**: https://alfajores.celoscan.io
+- **Blockscout**: https://celo-alfajores.blockscout.com
+- **OpenSea Proxy Registry**: Not available
+
+**Deployed Contracts:**
+- **Factory Address**: `0x40eB8B66C9540Bde934e0502df1319E5F5BCC782`
+- **Implementation Address**: `0xD81d6F1C9fdcD1d89f2Ff1a85504F5743C12E117`
+- **Blockscout Links**:
+  - [Factory Contract](https://celo-alfajores.blockscout.com/address/0x40eB8B66C9540Bde934e0502df1319E5F5BCC782)
+  - [Implementation Contract](https://celo-alfajores.blockscout.com/address/0xD81d6F1C9fdcD1d89f2Ff1a85504F5743C12E117)
+
+### Zora Mainnet
+- **Chain ID**: 7777777
+- **RPC URL**: https://rpc.zora.energy
+- **Explorer**: https://explorer.zora.energy
+- **Blockscout**: https://zora.blockscout.com
+- **OpenSea Proxy Registry**: Not available
+
+### Zora Sepolia (Testnet)
+- **Chain ID**: 999999999
+- **RPC URL**: https://sepolia.rpc.zora.energy
+- **Explorer**: https://sepolia.explorer.zora.energy
+- **Blockscout**: https://zora-sepolia.blockscout.com
+- **OpenSea Proxy Registry**: Not available
+
+**Deployed Contracts:**
+- **Factory Address**: `0x4C3139A3bDf6AeC62d8b65B053e41cd738b41e8F`
+- **Implementation Address**: `0xD66D2D5F1114d6F6ee30cEbE2562806aFC23F3E6`
+- **Blockscout Links**:
+  - [Factory Contract](https://zora-sepolia.blockscout.com/address/0x4C3139A3bDf6AeC62d8b65B053e41cd738b41e8F)
+  - [Implementation Contract](https://zora-sepolia.blockscout.com/address/0xD66D2D5F1114d6F6ee30cEbE2562806aFC23F3E6)
 
 ## Deployment Guide
 
@@ -236,18 +283,42 @@ npm run test
 npm run deploy:baseSepolia
 ```
 
-This command will:
-1. Deploy Art3HubCollection implementation contract
-2. Deploy Art3HubFactory with the implementation address
-3. Configure factory with default settings
-4. Test collection creation (testnet only)
-5. Provide contract verification commands
-
 #### Deploy to Base Mainnet (Production)
 
 ```bash
 npm run deploy:base
 ```
+
+#### Deploy to Celo Sepolia (Testnet)
+
+```bash
+npm run deploy:celoSepolia
+```
+
+#### Deploy to Celo Mainnet (Production)
+
+```bash
+npm run deploy:celo
+```
+
+#### Deploy to Zora Sepolia (Testnet)
+
+```bash
+npm run deploy:zoraSepolia
+```
+
+#### Deploy to Zora Mainnet (Production)
+
+```bash
+npm run deploy:zora
+```
+
+Each deployment command will:
+1. Deploy Art3HubCollection implementation contract
+2. Deploy Art3HubFactory with the implementation address
+3. Configure factory with default settings
+4. Test collection creation (testnet only)
+5. Provide contract verification commands
 
 **⚠️ Production Deployment Checklist:**
 - [ ] Verify sufficient ETH balance for deployment (~0.02 ETH recommended)
