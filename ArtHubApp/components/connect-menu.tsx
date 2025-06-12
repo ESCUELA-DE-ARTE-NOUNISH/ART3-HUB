@@ -17,7 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { base, baseSepolia } from 'wagmi/chains'
+import { base, baseSepolia, celo, celoAlfajores, zora, zoraSepolia } from '@/lib/wagmi'
 
 export function ConnectMenu() {
   const [mounted, setMounted] = useState(false)
@@ -57,11 +57,15 @@ export function ConnectMenu() {
   })()
   const { wallets } = walletsHooks
 
-  // Get target chain from env
+  // Get all supported chains
   const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
-  const targetChain = isTestingMode ? baseSepolia : base
-  const TARGET_CHAIN_ID = targetChain.id
-  const NETWORK_NAME = targetChain.name
+  const supportedChains = isTestingMode 
+    ? [baseSepolia, celoAlfajores, zoraSepolia]
+    : [base, celo, zora]
+  
+  // Check if current chain is supported
+  const isOnSupportedChain = supportedChains.some(chain => chain.id === chainId)
+  const currentChainName = supportedChains.find(chain => chain.id === chainId)?.name || `Chain ${chainId}`
 
   useEffect(() => {
     setMounted(true)
@@ -84,10 +88,11 @@ export function ConnectMenu() {
     }
     
     if (connected) {
-      const wrongNetwork = chainId !== TARGET_CHAIN_ID
+      const wrongNetwork = !isOnSupportedChain
       setIsWrongNetwork(wrongNetwork)
       if (wrongNetwork) {
-        setError(`Please switch to ${NETWORK_NAME}`)
+        const supportedNetworkNames = supportedChains.map(chain => chain.name).join(', ')
+        setError(`Please switch to a supported network: ${supportedNetworkNames}`)
       } else {
         setError(null)
       }
@@ -95,16 +100,17 @@ export function ConnectMenu() {
       setIsWrongNetwork(false)
       setError(null)
     }
-  }, [chainId, isConnected, authenticated, wallets, isMiniKit, TARGET_CHAIN_ID, NETWORK_NAME])
+  }, [chainId, isConnected, authenticated, wallets, isMiniKit, isOnSupportedChain, supportedChains])
 
-  // Handle network switch
+  // Handle network switch - switch to first supported chain
   const handleSwitchNetwork = async () => {
     try {
       setError(null)
-      switchChain({ chainId: TARGET_CHAIN_ID })
+      const targetChain = supportedChains[0] // Default to first supported chain
+      switchChain({ chainId: targetChain.id })
     } catch (error) {
       console.error('Failed to switch network:', error)
-      setError(`Failed to switch to ${NETWORK_NAME}. Please try manually.`)
+      setError(`Failed to switch network. Please try manually.`)
     }
   }
 
@@ -202,7 +208,7 @@ export function ConnectMenu() {
                 disabled={isSwitchPending}
               >
                 <SwitchCamera className={cn("mr-2 h-4 w-4", isSwitchPending && "animate-spin")} />
-                {isSwitchPending ? 'Switching...' : `Switch to ${NETWORK_NAME}`}
+                {isSwitchPending ? 'Switching...' : `Switch Network`}
               </DropdownMenuItem>
             )}
             <DropdownMenuItem
