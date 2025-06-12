@@ -49,6 +49,7 @@ contract Art3HubFactory is Ownable, ReentrancyGuard {
     event DeploymentFeeUpdated(uint256 oldFee, uint256 newFee);
     event PlatformFeeUpdated(uint256 oldFee, uint256 newFee);
     event FeeRecipientUpdated(address oldRecipient, address newRecipient);
+    event SecondaryFeeReceived(address indexed collection, uint256 amount);
     
     // Errors
     error InsufficientDeploymentFee();
@@ -62,7 +63,7 @@ contract Art3HubFactory is Ownable, ReentrancyGuard {
         uint256 _platformFeePercentage,
         address _feeRecipient,
         address _proxyRegistryAddress
-    ) {
+    ) Ownable(msg.sender) {
         implementation = _implementation;
         deploymentFee = _deploymentFee;
         platformFeePercentage = _platformFeePercentage;
@@ -207,6 +208,13 @@ contract Art3HubFactory is Ownable, ReentrancyGuard {
         for (uint256 i = offset; i < end; i++) {
             collections[i - offset] = artistCols[i];
         }
+    }
+
+    /// @notice Receive secondary sales fees from collections
+    receive() external payable {
+        // Only accept payments from factory collections
+        require(collectionToArtist[msg.sender] != address(0), "Only factory collections can send fees");
+        emit SecondaryFeeReceived(msg.sender, msg.value);
     }
 
     // Admin functions

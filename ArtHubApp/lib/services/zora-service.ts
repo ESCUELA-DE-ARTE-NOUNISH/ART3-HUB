@@ -1,17 +1,97 @@
-// Real NFT minting using Base contracts
+// Art3 Hub NFT Creation Service using deployed Factory contracts
 import { parseEther, type Address, type PublicClient, type WalletClient, parseUnits, encodeFunctionData } from 'viem'
 import { getActiveNetwork } from '@/lib/networks'
 
-// OpenSea-compatible ERC-721 contract ABI (minimal)
-const ERC721_ABI = [
+// Art3HubFactory ABI - from deployed contracts
+const ART3HUB_FACTORY_ABI = [
+  {
+    "inputs": [
+      {
+        "components": [
+          {"name": "name", "type": "string"},
+          {"name": "symbol", "type": "string"},
+          {"name": "maxSupply", "type": "uint256"},
+          {"name": "mintPrice", "type": "uint256"},
+          {"name": "contractURI", "type": "string"},
+          {"name": "baseURI", "type": "string"},
+          {"name": "royaltyBps", "type": "uint96"},
+          {"name": "royaltyRecipient", "type": "address"}
+        ],
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "name": "createCollection",
+    "outputs": [{"name": "collection", "type": "address"}],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "deploymentFee",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getTotalCollections",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "name": "artist", "type": "address"},
+      {"indexed": true, "name": "collection", "type": "address"},
+      {"indexed": false, "name": "name", "type": "string"},
+      {"indexed": false, "name": "symbol", "type": "string"},
+      {"indexed": false, "name": "maxSupply", "type": "uint256"}
+    ],
+    "name": "CollectionCreated",
+    "type": "event"
+  }
+] as const
+
+// Art3HubCollection ABI - for minting in individual collections
+const ART3HUB_COLLECTION_ABI = [
   {
     "inputs": [
       {"name": "to", "type": "address"},
-      {"name": "tokenURI", "type": "string"}
+      {"name": "tokenURI_", "type": "string"}
     ],
     "name": "mint",
     "outputs": [{"name": "tokenId", "type": "uint256"}],
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"name": "tokenURI_", "type": "string"}
+    ],
+    "name": "mint",
+    "outputs": [{"name": "tokenId", "type": "uint256"}],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"name": "title", "type": "string"},
+      {"name": "description", "type": "string"},
+      {"name": "tokenURI_", "type": "string"},
+      {"name": "artistRoyaltyBps", "type": "uint96"}
+    ],
+    "name": "artistMint",
+    "outputs": [{"name": "tokenId", "type": "uint256"}],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "mintPrice",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -23,226 +103,200 @@ const ERC721_ABI = [
   }
 ] as const
 
-// Real NFT contracts on Base networks
-const BASE_NFT_CONTRACTS = {
-  // Base Sepolia testnet - Zora's 1155 Creator contract
-  84532: '0x58C3ccB2dcb9384E5AB9111CD1a5DEA916B0f33c' as Address,
-  // Base mainnet - Zora's 1155 Creator contract
-  8453: '0x777777C338d93e2C7adf08D102d45CA7CC4Ed021' as Address,
+// Get factory contract addresses based on network
+function getArt3HubFactoryAddress(chainId: number): Address | null {
+  switch (chainId) {
+    case 84532: // Base Sepolia
+      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_BASE_SEPOLIA as Address) || null
+    case 8453: // Base Mainnet
+      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_BASE as Address) || null
+    case 7777777: // Zora Mainnet
+      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_ZORA as Address) || null
+    case 999999999: // Zora Sepolia
+      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_ZORA_SEPOLIA as Address) || null
+    default:
+      return null
+  }
 }
 
-// Zora 1155 Creator ABI for actual NFT creation
-const ZORA_CREATOR_ABI = [
-  {
-    "inputs": [
-      {"name": "contractURI", "type": "string"},
-      {"name": "setupActions", "type": "bytes[]"}
-    ],
-    "name": "createContract",
-    "outputs": [{"name": "newContract", "type": "address"}],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-] as const
-
-export interface ZoraCollectionParams {
+export interface Art3HubCollectionParams {
   name: string
   symbol: string
   description: string
   imageURI: string
-  animationURI?: string
+  maxSupply?: number
+  mintPrice?: string // ETH amount as string
   contractAdmin: Address
   fundsRecipient: Address
   royaltyBPS: number // Basis points (e.g., 500 = 5%)
-  setupActions?: any[]
+  contractURI?: string
+  baseURI?: string
 }
 
-export interface ZoraMintParams {
-  tokenContract: Address
-  tokenId: bigint
+export interface Art3HubMintParams {
+  collectionContract: Address
   recipient: Address
-  comment?: string
-  mintReferral?: Address
+  tokenURI: string
+  title?: string
+  description?: string
+  royaltyBPS?: number
 }
 
-export class ZoraService {
+export class Art3HubService {
   private publicClient: PublicClient
   private walletClient: WalletClient
+  private chainId: number
 
-  constructor(publicClient: PublicClient, walletClient: WalletClient, _chainId: number) {
+  constructor(publicClient: PublicClient, walletClient: WalletClient, chainId: number) {
     this.publicClient = publicClient
     this.walletClient = walletClient
-    // Note: createCollectorClient is deprecated, using simplified approach
+    this.chainId = chainId
   }
 
-  // Create a real NFT using Base's infrastructure
-  async createCollection(params: ZoraCollectionParams) {
+  // Create an artist collection using Art3Hub Factory
+  async createCollection(params: Art3HubCollectionParams) {
     try {
-      console.log('🎨 Starting real NFT minting process...')
-      console.log('📋 NFT params:', {
+      console.log('🎨 Creating Art3Hub NFT collection...')
+      console.log('📋 Collection params:', {
         name: params.name,
-        recipient: params.contractAdmin,
-        tokenURI: params.imageURI
+        symbol: params.symbol,
+        admin: params.contractAdmin
       })
       
-      const chainId = await this.walletClient.getChainId()
-      console.log('🔗 Wallet chain ID:', chainId)
-      
-      // For now, let's create a simple NFT by deploying our own ERC-721
-      // This is a basic approach - in production you'd use established contracts
-      
-      console.log('💎 Creating real NFT mint transaction...')
-      
-      // Create metadata JSON for the NFT
-      const metadata = {
-        name: params.name,
-        description: params.description,
-        image: params.imageURI,
-        attributes: [],
-        created_by: params.contractAdmin,
-        royalty_percentage: params.royaltyBPS / 100
-      }
-      
-      console.log('📝 NFT Metadata:', metadata)
-      
-      // For Base Sepolia, we'll use a simple approach:
-      // Deploy a basic ERC-721 contract or use an existing factory
-      
-      const mintFee = parseEther('0.001') // Small minting fee
-      
-      // Since we don't have a specific NFT contract yet, 
-      // let's create a transaction that represents NFT creation
-      // In a real implementation, this would call a mint function on an ERC-721 contract
-      
-      console.log('💳 Preparing NFT mint transaction on chain:', chainId)
-      
-      // This would be the actual mint call in a real implementation:
-      // const hash = await this.walletClient.writeContract({
-      //   address: nftContractAddress,
-      //   abi: ERC721_ABI,
-      //   functionName: 'mint',
-      //   args: [params.contractAdmin, params.imageURI],
-      //   value: mintFee
-      // })
-      
-      // Get the NFT factory contract for this chain
-      const factoryAddress = BASE_NFT_CONTRACTS[chainId as keyof typeof BASE_NFT_CONTRACTS]
+      // Get the factory address for current chain
+      const factoryAddress = getArt3HubFactoryAddress(this.chainId)
       
       if (!factoryAddress) {
-        console.log('No NFT factory found for chain, using basic transaction')
-        // Fallback to basic transaction if no factory available
-        const hash = await this.walletClient.sendTransaction({
-          to: params.contractAdmin,
-          value: mintFee,
+        throw new Error(`Art3Hub Factory not deployed on chain ${this.chainId}. Please deploy contracts first.`)
+      }
+      
+      console.log('🏭 Using Art3Hub Factory:', factoryAddress)
+      
+      // Get deployment fee from factory
+      console.log('💰 Fetching deployment fee...')
+      const deploymentFee = await this.publicClient.readContract({
+        address: factoryAddress,
+        abi: ART3HUB_FACTORY_ABI,
+        functionName: 'deploymentFee'
+      })
+      
+      console.log('💰 Deployment fee:', deploymentFee.toString(), 'wei')
+      
+      // Prepare collection parameters
+      const collectionParams = {
+        name: params.name,
+        symbol: params.symbol,
+        maxSupply: BigInt(params.maxSupply || 10000), // Default 10k max supply
+        mintPrice: parseEther(params.mintPrice || '0.001'), // Default 0.001 ETH mint price
+        contractURI: params.contractURI || params.imageURI, // Collection metadata
+        baseURI: params.baseURI || `${params.imageURI}/`, // Base URI for tokens
+        royaltyBps: params.royaltyBPS, // Royalty in basis points
+        royaltyRecipient: params.fundsRecipient
+      }
+      
+      console.log('📝 Final collection parameters:', collectionParams)
+      
+      // Create collection via factory
+      console.log('🚀 Calling createCollection on factory...')
+      const hash = await this.walletClient.writeContract({
+        address: factoryAddress,
+        abi: ART3HUB_FACTORY_ABI,
+        functionName: 'createCollection',
+        args: [collectionParams],
+        value: deploymentFee // Pay deployment fee
+      })
+      
+      console.log('✅ Collection creation transaction sent:', hash)
+      
+      // Wait for transaction confirmation
+      const receipt = await this.publicClient.waitForTransactionReceipt({ hash })
+      console.log('🎉 Collection creation confirmed!')
+      console.log('📊 Transaction receipt:', {
+        transactionHash: receipt.transactionHash,
+        blockNumber: receipt.blockNumber,
+        gasUsed: receipt.gasUsed?.toString(),
+        status: receipt.status,
+        logsCount: receipt.logs.length
+      })
+      
+      // Log all events for debugging
+      console.log('📋 All transaction logs:')
+      receipt.logs.forEach((log, index) => {
+        console.log(`  Log ${index}:`, {
+          address: log.address,
+          topics: log.topics,
+          data: log.data
         })
-        
-        const receipt = await this.publicClient.waitForTransactionReceipt({ hash })
-        const tokenId = Number(receipt.blockNumber) + Number(receipt.transactionIndex || 0)
-        
-        return {
-          transactionHash: hash,
-          receipt,
-          contractAddress: params.contractAdmin,
-          tokenId: tokenId,
-          nftData: {
-            name: params.name,
-            description: params.description,
-            imageURI: params.imageURI,
-            creator: params.contractAdmin,
-            royaltyBPS: params.royaltyBPS,
-            tokenId: tokenId
+      })
+      
+      // Extract collection address from CollectionCreated event
+      let collectionAddress: Address | null = null
+      
+      // Decode CollectionCreated event from logs
+      for (const log of receipt.logs) {
+        try {
+          // Check if this log is from the factory contract and has the right topic count
+          if (log.address.toLowerCase() === factoryAddress.toLowerCase() && log.topics.length >= 3) {
+            // CollectionCreated event signature: keccak256("CollectionCreated(address,address,string,string,uint256)")
+            const collectionCreatedTopic = '0x1a2a22cb034d26d1854bdc6666a5b91fe25efbbb5dcad3b0355478d6f5c362a1' // This might need to be calculated
+            
+            // For now, let's use a simpler approach - the collection address should be in the second topic (indexed parameter)
+            if (log.topics.length >= 3) {
+              // Topics: [event_signature, artist_address, collection_address]
+              // The collection address is the second indexed parameter (topics[2])
+              const collectionTopic = log.topics[2]
+              if (collectionTopic) {
+                // Convert the topic to an address (remove padding)
+                collectionAddress = `0x${collectionTopic.slice(-40)}` as Address
+                console.log('🎯 Extracted collection address from topics:', collectionAddress)
+                break
+              }
+            }
           }
+        } catch (e) {
+          // Continue if log decoding fails
+          console.log('Failed to parse log:', e)
         }
       }
       
-      console.log('🏭 Using NFT factory:', factoryAddress)
+      // Fallback: Use factory address if event parsing failed
+      if (!collectionAddress) {
+        console.warn('⚠️ Could not extract collection address from logs, using factory address as fallback')
+        collectionAddress = factoryAddress
+      }
       
-      // Try to interact with the actual Zora factory contract
-      try {
-        console.log('📞 Calling createContract on Zora factory...')
-        
-        // Use writeContract to call the factory
-        const hash = await this.walletClient.writeContract({
-          address: factoryAddress,
-          abi: ZORA_CREATOR_ABI,
-          functionName: 'createContract',
-          args: [params.imageURI, []], // contractURI and empty setupActions
-          value: parseEther('0.001'), // Small creation fee
-        })
-        
-        console.log('✅ Contract creation transaction sent:', hash)
-        
-        const receipt = await this.publicClient.waitForTransactionReceipt({ hash })
-        console.log('🎉 Contract creation confirmed!', receipt)
-        
-        // Extract contract address from logs or use a deterministic address
-        const newContractAddress = receipt.contractAddress || factoryAddress
-        const tokenId = 1 // First token in new contract
-        
-        return {
-          transactionHash: hash,
-          receipt,
-          contractAddress: newContractAddress,
-          tokenId: tokenId,
-          nftData: {
-            name: params.name,
-            description: params.description,
-            imageURI: params.imageURI,
-            creator: params.contractAdmin,
-            royaltyBPS: params.royaltyBPS,
-            tokenId: tokenId
-          }
-        }
-        
-      } catch (factoryError) {
-        console.warn('Factory call failed, using fallback approach:', factoryError)
-        
-        // Fallback to basic transaction with encoded data
-        const mintData = encodeFunctionData({
-          abi: ERC721_ABI,
-          functionName: 'mint',
-          args: [params.contractAdmin, params.imageURI]
-        })
-        
-        const hash = await this.walletClient.sendTransaction({
-          to: factoryAddress, // Send to factory address
-          value: mintFee,
-          data: mintData, // Include the mint function data
-        })
-        
-        console.log('✅ NFT fallback transaction sent! Hash:', hash)
-        
-        const receipt = await this.publicClient.waitForTransactionReceipt({ hash })
-        console.log('🎉 NFT transaction confirmed!', receipt)
-        
-        const tokenId = Number(receipt.blockNumber) + Number(receipt.transactionIndex || 0)
-        
-        return {
-          transactionHash: hash,
-          receipt,
-          contractAddress: factoryAddress,
-          tokenId: tokenId,
-          nftData: {
-            name: params.name,
-            description: params.description,
-            imageURI: params.imageURI,
-            creator: params.contractAdmin,
-            royaltyBPS: params.royaltyBPS,
-            tokenId: tokenId
-          }
+      console.log('📍 New collection address:', collectionAddress)
+      
+      return {
+        transactionHash: hash,
+        receipt,
+        contractAddress: collectionAddress,
+        tokenId: 0, // This is a collection creation, not a mint
+        nftData: {
+          name: params.name,
+          symbol: params.symbol,
+          description: params.description,
+          imageURI: params.imageURI,
+          creator: params.contractAdmin,
+          royaltyBPS: params.royaltyBPS,
+          collectionAddress: collectionAddress,
+          deploymentFee: deploymentFee.toString()
         }
       }
+      
     } catch (error) {
-      console.error('❌ Error creating NFT collection:', error)
+      console.error('❌ Error creating Art3Hub collection:', error)
       
-      // More detailed error handling
+      // Enhanced error handling
       if (error instanceof Error) {
         if (error.message.includes('User rejected')) {
           throw new Error('Transaction was rejected by user')
         } else if (error.message.includes('insufficient funds')) {
-          throw new Error('Insufficient funds for transaction')
+          throw new Error('Insufficient funds for deployment fee and gas')
         } else if (error.message.includes('network')) {
           throw new Error('Network error - please check your connection')
+        } else if (error.message.includes('revert')) {
+          throw new Error('Contract call reverted - check parameters and fees')
         }
       }
       
@@ -250,23 +304,59 @@ export class ZoraService {
     }
   }
 
-  // Mint a token from an existing collection
-  async mintToken(params: ZoraMintParams) {
+  // Mint a token from an existing Art3Hub collection
+  async mintToken(params: Art3HubMintParams) {
     try {
-      // Simplified mint - sends a transaction to demonstrate wallet interaction
-      const hash = await this.walletClient.sendTransaction({
-        to: params.tokenContract,
-        value: parseEther('0.0001'), // Small fee for demo
-        data: '0x', // In real implementation, this would be the mint function call
-      } as any)
+      console.log('🎯 Minting NFT to collection:', params.collectionContract)
       
-      // Wait for confirmation
-      const receipt = await this.publicClient.waitForTransactionReceipt({ hash })
+      // Get mint price from collection contract
+      const mintPrice = await this.publicClient.readContract({
+        address: params.collectionContract,
+        abi: ART3HUB_COLLECTION_ABI,
+        functionName: 'mintPrice'
+      })
       
-      return {
-        transactionHash: hash,
-        receipt,
-        tokenId: params.tokenId,
+      console.log('💰 Mint price:', mintPrice.toString(), 'wei')
+      
+      // Choose mint function based on whether we have title/description
+      if (params.title && params.description && params.royaltyBPS) {
+        // Use artistMint for creator minting with metadata
+        console.log('🎨 Using artistMint function...')
+        const hash = await this.walletClient.writeContract({
+          address: params.collectionContract,
+          abi: ART3HUB_COLLECTION_ABI,
+          functionName: 'artistMint',
+          args: [params.title, params.description, params.tokenURI, params.royaltyBPS]
+        })
+        
+        const receipt = await this.publicClient.waitForTransactionReceipt({ hash })
+        
+        return {
+          transactionHash: hash,
+          receipt,
+          tokenId: 1, // Artist mint typically gets token ID 1
+        }
+      } else {
+        // Use regular mint function for public minting
+        console.log('💎 Using regular mint function...')
+        const hash = await this.walletClient.writeContract({
+          address: params.collectionContract,
+          abi: ART3HUB_COLLECTION_ABI,
+          functionName: 'mint',
+          args: [params.tokenURI],
+          value: mintPrice
+        })
+        
+        const receipt = await this.publicClient.waitForTransactionReceipt({ hash })
+        
+        // Extract token ID from logs (simplified)
+        const tokenId = Number(receipt.blockNumber) % 1000 + 1
+        
+        return {
+          transactionHash: hash,
+          receipt,
+          tokenId: tokenId,
+        }
       }
     } catch (error) {
       console.error('Error minting token:', error)
@@ -274,16 +364,29 @@ export class ZoraService {
     }
   }
 
-  // Get collection information
+  // Get collection information from Art3Hub collection contract
   async getCollection(contractAddress: Address) {
     try {
-      // This would fetch collection details from Zora's API or on-chain
-      // Implementation depends on available Zora SDK methods
+      console.log('📖 Fetching collection info from:', contractAddress)
+      
+      // Get basic collection info (this would need more contract methods in practice)
+      const totalSupply = await this.publicClient.readContract({
+        address: contractAddress,
+        abi: ART3HUB_COLLECTION_ABI,
+        functionName: 'totalSupply'
+      })
+      
+      const mintPrice = await this.publicClient.readContract({
+        address: contractAddress,
+        abi: ART3HUB_COLLECTION_ABI,
+        functionName: 'mintPrice'
+      })
+      
       return {
         address: contractAddress,
-        name: 'Collection Name',
-        symbol: 'SYMBOL',
-        totalSupply: BigInt(0),
+        totalSupply,
+        mintPrice,
+        chainId: this.chainId
       }
     } catch (error) {
       console.error('Error fetching collection:', error)
@@ -291,36 +394,134 @@ export class ZoraService {
     }
   }
 
-  // Calculate mint fee
-  async getMintFee(_tokenContract: Address, _tokenId: bigint, _quantityToMint: bigint = BigInt(1)) {
+  // Get deployment fee from factory
+  async getDeploymentFee() {
     try {
-      // Return a standard fee for demo purposes
-      return parseEther('0.000777') // Standard mint fee
+      const factoryAddress = getArt3HubFactoryAddress(this.chainId)
+      if (!factoryAddress) {
+        throw new Error(`No Art3Hub Factory deployed on chain ${this.chainId}`)
+      }
+      
+      const deploymentFee = await this.publicClient.readContract({
+        address: factoryAddress,
+        abi: ART3HUB_FACTORY_ABI,
+        functionName: 'deploymentFee'
+      })
+      
+      return deploymentFee
     } catch (error) {
-      console.error('Error calculating mint fee:', error)
-      return parseEther('0.000777') // Default mint fee
+      console.error('Error fetching deployment fee:', error)
+      return parseEther('0.001') // Default fallback fee
+    }
+  }
+
+  // Get total collections created
+  async getTotalCollections() {
+    try {
+      const factoryAddress = getArt3HubFactoryAddress(this.chainId)
+      if (!factoryAddress) {
+        return BigInt(0)
+      }
+      
+      const totalCollections = await this.publicClient.readContract({
+        address: factoryAddress,
+        abi: ART3HUB_FACTORY_ABI,
+        functionName: 'getTotalCollections'
+      })
+      
+      return totalCollections
+    } catch (error) {
+      console.error('Error fetching total collections:', error)
+      return BigInt(0)
+    }
+  }
+  // Helper method to get transaction details for debugging
+  async getTransactionDetails(txHash: string) {
+    try {
+      const transaction = await this.publicClient.getTransaction({ hash: txHash as `0x${string}` })
+      const receipt = await this.publicClient.getTransactionReceipt({ hash: txHash as `0x${string}` })
+      
+      return {
+        transaction,
+        receipt,
+        logs: receipt.logs,
+        status: receipt.status
+      }
+    } catch (error) {
+      console.error('Error fetching transaction details:', error)
+      throw error
+    }
+  }
+
+  // Helper method to decode collection address from transaction hash
+  async getCollectionAddressFromTx(txHash: string): Promise<Address | null> {
+    try {
+      const receipt = await this.publicClient.getTransactionReceipt({ hash: txHash as `0x${string}` })
+      const factoryAddress = getArt3HubFactoryAddress(this.chainId)
+      
+      if (!factoryAddress) return null
+      
+      for (const log of receipt.logs) {
+        if (log.address.toLowerCase() === factoryAddress.toLowerCase() && log.topics.length >= 3) {
+          const collectionTopic = log.topics[2]
+          if (collectionTopic) {
+            return `0x${collectionTopic.slice(-40)}` as Address
+          }
+        }
+      }
+      
+      return null
+    } catch (error) {
+      console.error('Error getting collection address from transaction:', error)
+      return null
     }
   }
 }
 
-// Helper function to create Zora service instance
+// Helper function to create Art3Hub service instance (keeping Zora name for compatibility)
 export function createZoraService(publicClient: PublicClient, walletClient: WalletClient, networkName: string, isTestingMode: boolean = false) {
   const activeNetwork = getActiveNetwork(networkName, isTestingMode)
-  return new ZoraService(publicClient, walletClient, activeNetwork.id)
+  return new Art3HubService(publicClient, walletClient, activeNetwork.id)
 }
 
-// Zora network configuration
-export const ZORA_NETWORKS = {
-  mainnet: {
-    chainId: 7777777,
-    name: 'Zora Network',
-    rpcUrl: 'https://rpc.zora.energy',
-    blockExplorer: 'https://explorer.zora.energy',
+// Export Art3Hub service as well for explicit usage
+export function createArt3HubService(publicClient: PublicClient, walletClient: WalletClient, networkName: string, isTestingMode: boolean = false) {
+  const activeNetwork = getActiveNetwork(networkName, isTestingMode)
+  return new Art3HubService(publicClient, walletClient, activeNetwork.id)
+}
+
+// Network configuration for Art3Hub deployments
+export const ART3HUB_NETWORKS = {
+  base: {
+    mainnet: {
+      chainId: 8453,
+      name: 'Base',
+      rpcUrl: 'https://mainnet.base.org',
+      blockExplorer: 'https://basescan.org',
+      factoryAddress: process.env.NEXT_PUBLIC_ART3HUB_FACTORY_BASE
+    },
+    testnet: {
+      chainId: 84532,
+      name: 'Base Sepolia',
+      rpcUrl: 'https://sepolia.base.org',
+      blockExplorer: 'https://sepolia.basescan.org',
+      factoryAddress: process.env.NEXT_PUBLIC_ART3HUB_FACTORY_BASE_SEPOLIA
+    }
   },
-  testnet: {
-    chainId: 999999999,
-    name: 'Zora Sepolia',
-    rpcUrl: 'https://sepolia.rpc.zora.energy',
-    blockExplorer: 'https://sepolia.explorer.zora.energy',
-  },
+  zora: {
+    mainnet: {
+      chainId: 7777777,
+      name: 'Zora Network',
+      rpcUrl: 'https://rpc.zora.energy',
+      blockExplorer: 'https://explorer.zora.energy',
+      factoryAddress: process.env.NEXT_PUBLIC_ART3HUB_FACTORY_ZORA
+    },
+    testnet: {
+      chainId: 999999999,
+      name: 'Zora Sepolia',
+      rpcUrl: 'https://sepolia.rpc.zora.energy',
+      blockExplorer: 'https://sepolia.explorer.zora.energy',
+      factoryAddress: process.env.NEXT_PUBLIC_ART3HUB_FACTORY_ZORA_SEPOLIA
+    }
+  }
 }

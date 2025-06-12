@@ -5,6 +5,47 @@ All notable changes to the Art3 Hub smart contracts will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2025-06-12
+
+### Deployed
+- **Base Sepolia Deployment**: Successfully deployed Art3 Hub factory system to Base Sepolia testnet
+- **Factory Contract**: `0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2` ([View on Basescan](https://sepolia.basescan.org/address/0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2#code))
+- **Implementation Contract**: `0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2` ([View on Basescan](https://sepolia.basescan.org/address/0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2#code))
+- **Test Collection**: `0xfae6f91fAa4B8cf54452501a7E7adBA0E6737824` - Successfully created during deployment testing
+
+### Fixed
+- **Compilation Issues**: Resolved OpenZeppelin v5.3.0 compatibility issues with override functions
+- **Deployment Script**: Fixed BigNumberish conversion errors in deployment fee handling
+- **Contract Verification**: Both contracts successfully verified on Basescan
+- **Optimizer Configuration**: Enabled Solidity optimizer with IR compilation to resolve "stack too deep" errors
+
+### Updated
+- **Hardhat Configuration**: Added optimizer settings and viaIR compilation for complex contracts
+- **README.md**: Added Base Sepolia contract addresses and verification commands
+- **Factory Owner**: Set to deployer address `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+
+### Configuration
+- **Deployment Fee**: 0.001 ETH per collection creation
+- **Platform Fee**: 2.5% (250 basis points) on primary mints
+- **Fee Recipient**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+- **Network**: Base Sepolia (Chain ID: 84532)
+- **OpenSea Proxy Registry**: `0x0000000000000000000000000000000000000000` (testnet limitation)
+
+## [1.0.1] - 2025-01-11
+
+### Updated
+- **Documentation**: Complete rewrite of README.md with comprehensive deployment guide
+- **Architecture Diagrams**: Added detailed ASCII architecture diagrams showing system flow
+- **Deployment Guide**: Added step-by-step deployment instructions with prerequisites
+- **Usage Examples**: Added code examples for artists and users
+- **Platform Economics**: Detailed fee structure and revenue flow documentation
+- **Security Guide**: Added security considerations and best practices
+- **Troubleshooting**: Added common issues and solutions section
+
+### Deprecated
+- **Art3NFT.sol**: Marked as deprecated, not part of current factory implementation
+- **Art3Hub.sol**: Marked as deprecated, replaced by factory system
+
 ## [1.0.0] - 2025-01-06
 
 ### Added
@@ -24,12 +65,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Platform-wide royalty recipient management
 
 #### OpenSea Integration & Marketplace Compatibility
-- OpenSea proxy registry integration for gasless NFT listings
-- `contractURI()` implementation for collection-level metadata
-- Metadata freezing capabilities (`freezeTokenURI`, `freezeAllMetadata`)
-- OpenSea-specific events (`PermanentURI`, `PermanentURIGlobal`)
-- Project proxy support for enhanced marketplace integrations
-- Proper interface declarations for marketplace recognition
+- **Full ERC-721 + ERC-2981 compliance** for universal marketplace support
+- **OpenSea proxy registry integration** for gasless NFT listings on Base Mainnet
+- **`contractURI()` implementation** for collection-level metadata and OpenSea collection pages
+- **Metadata freezing capabilities** (`freezeTokenURI`, `freezeAllMetadata`) for permanent metadata
+- **OpenSea-specific events** (`PermanentURI`, `PermanentURIGlobal`) for metadata permanence
+- **Project proxy support** for enhanced marketplace integrations
+- **Automatic royalty enforcement** via ERC-2981 standard on all compliant marketplaces
+- **⚠️ Note**: 1% platform fee on secondary sales only applies to custom marketplace integrations
 
 #### Multi-Network Support
 - Base Sepolia testnet configuration and deployment scripts

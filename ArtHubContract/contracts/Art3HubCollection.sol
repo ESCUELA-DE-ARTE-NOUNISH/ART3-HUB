@@ -8,6 +8,7 @@ import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import "@openzeppelin/contracts/interfaces/IERC2981.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /// @title Art3 Hub Collection - Individual artist NFT collection
 /// @notice Zora-compatible NFT collection with ERC-2981 royalties for individual artists
@@ -39,6 +40,19 @@ contract Art3HubCollection is
     // Collection stats
     uint256 public totalRevenue;
     mapping(address => uint256) public minterCount;
+    
+    // Secondary sales tracking
+    uint256 public secondaryFeePercentage; // Basis points (100 = 1%)
+    mapping(uint256 => bool) public isFirstSale; // Track if token is on first sale
+    
+    // NFT Metadata
+    struct NFTMetadata {
+        string title;
+        string description;
+        uint96 artistRoyaltyBps;
+        address artistAddress;
+    }
+    mapping(uint256 => NFTMetadata) public nftMetadata;
 
     // Events
     event TokenMinted(
@@ -46,6 +60,20 @@ contract Art3HubCollection is
         uint256 indexed tokenId, 
         string tokenURI,
         uint256 mintPrice,
+        uint256 platformFee
+    );
+    event ArtistNFTCreated(
+        address indexed artist,
+        uint256 indexed tokenId,
+        string title,
+        string description,
+        uint96 royaltyBps
+    );
+    event SecondaryFeePaid(
+        uint256 indexed tokenId,
+        address indexed from,
+        address indexed to,
+        uint256 salePrice,
         uint256 platformFee
     );
     event ContractURIUpdated(string newContractURI);
@@ -98,6 +126,7 @@ contract Art3HubCollection is
         factory = factory_;
         platformFeePercentage = platformFeePercentage_;
         _proxyRegistryAddress = proxyRegistryAddress_;
+        secondaryFeePercentage = 100; // 1% platform fee on secondary sales
         
         // Set royalty info
         _setDefaultRoyalty(royaltyRecipient_, royaltyBps_);
@@ -134,6 +163,7 @@ contract Art3HubCollection is
         // Update stats
         totalRevenue += msg.value;
         minterCount[to]++;
+        isFirstSale[tokenId] = true; // Mark as first sale
         
         // Transfer platform fee to factory
         if (platformFee > 0 && factory != address(0)) {
@@ -152,7 +182,7 @@ contract Art3HubCollection is
     /// @param tokenURI_ Metadata URI for the token
     /// @return tokenId The newly minted token ID
     function mint(string memory tokenURI_) external payable returns (uint256) {
-        return mint(msg.sender, tokenURI_);
+        return this.mint(msg.sender, tokenURI_);
     }
 
     /// @notice Owner can mint without payment (promotional)
@@ -175,8 +205,54 @@ contract Art3HubCollection is
         _setTokenURI(tokenId, tokenURI_);
         
         minterCount[to]++;
+        isFirstSale[tokenId] = true; // Mark as first sale
         
         emit TokenMinted(to, tokenId, tokenURI_, 0, 0);
+        
+        return tokenId;
+    }
+
+    /// @notice Artist creates NFT with title, description, and custom royalty
+    /// @param title NFT title
+    /// @param description NFT description  
+    /// @param tokenURI_ Metadata URI for the token
+    /// @param artistRoyaltyBps Artist royalty percentage in basis points
+    /// @return tokenId The newly minted token ID
+    function artistMint(
+        string memory title,
+        string memory description,
+        string memory tokenURI_,
+        uint96 artistRoyaltyBps
+    ) external onlyOwner returns (uint256) {
+        require(_currentTokenId < maxSupply, "Max supply reached");
+        require(bytes(title).length > 0, "Title cannot be empty");
+        require(bytes(description).length > 0, "Description cannot be empty");
+        require(bytes(tokenURI_).length > 0, "Token URI cannot be empty");
+        require(artistRoyaltyBps <= 5000, "Royalty cannot exceed 50%");
+
+        _currentTokenId++;
+        uint256 tokenId = _currentTokenId;
+        
+        // Mint to artist (owner)
+        _mint(owner(), tokenId);
+        _setTokenURI(tokenId, tokenURI_);
+        
+        // Store NFT metadata
+        nftMetadata[tokenId] = NFTMetadata({
+            title: title,
+            description: description,
+            artistRoyaltyBps: artistRoyaltyBps,
+            artistAddress: owner()
+        });
+        
+        // Set custom royalty for this token
+        _setTokenRoyalty(tokenId, owner(), artistRoyaltyBps);
+        
+        minterCount[owner()]++;
+        isFirstSale[tokenId] = true; // Mark as first sale
+        
+        emit ArtistNFTCreated(owner(), tokenId, title, description, artistRoyaltyBps);
+        emit TokenMinted(owner(), tokenId, tokenURI_, 0, 0);
         
         return tokenId;
     }
@@ -202,6 +278,7 @@ contract Art3HubCollection is
             _setTokenURI(tokenId, tokenURIs[i]);
             
             minterCount[recipients[i]]++;
+            isFirstSale[tokenId] = true; // Mark as first sale
             
             emit TokenMinted(recipients[i], tokenId, tokenURIs[i], 0, 0);
         }
@@ -264,6 +341,57 @@ contract Art3HubCollection is
         uint256 totalRevenue_
     ) {
         return (_currentTokenId, maxSupply, mintPrice, totalRevenue);
+    }
+
+    /// @notice Get NFT metadata (title, description, royalty)
+    /// @param tokenId Token ID
+    /// @return NFT metadata struct
+    function getNFTMetadata(uint256 tokenId) external view returns (NFTMetadata memory) {
+        require(_ownerOf(tokenId) != address(0), "Token does not exist");
+        return nftMetadata[tokenId];
+    }
+
+    /// @notice Handle secondary sale with platform fee (for marketplace integration)
+    /// @param tokenId Token ID being sold
+    /// @param from Current owner
+    /// @param to New owner
+    /// @param salePrice Sale price in wei
+    function processSecondarySale(
+        uint256 tokenId,
+        address from,
+        address to,
+        uint256 salePrice
+    ) external payable nonReentrant {
+        require(_ownerOf(tokenId) == from, "From address is not token owner");
+        require(to != address(0), "Cannot transfer to zero address");
+        require(msg.value >= salePrice, "Insufficient payment");
+        
+        // Calculate platform fee for secondary sales
+        uint256 platformFee = 0;
+        if (!isFirstSale[tokenId] && secondaryFeePercentage > 0 && salePrice > 0) {
+            platformFee = (salePrice * secondaryFeePercentage) / 10000;
+        }
+        
+        // Mark as no longer first sale
+        isFirstSale[tokenId] = false;
+        
+        // Transfer platform fee to factory
+        if (platformFee > 0 && factory != address(0)) {
+            (bool success, ) = payable(factory).call{value: platformFee}("");
+            require(success, "Platform fee transfer failed");
+        }
+        
+        // Send remaining amount to seller
+        uint256 sellerAmount = salePrice - platformFee;
+        if (sellerAmount > 0) {
+            (bool success, ) = payable(from).call{value: sellerAmount}("");
+            require(success, "Payment to seller failed");
+        }
+        
+        // Transfer the NFT
+        _transfer(from, to, tokenId);
+        
+        emit SecondaryFeePaid(tokenId, from, to, salePrice, platformFee);
     }
 
     // Owner management functions
@@ -353,7 +481,7 @@ contract Art3HubCollection is
     function isApprovedForAll(address owner, address operator)
         public
         view
-        override
+        override(ERC721Upgradeable, IERC721)
         returns (bool)
     {
         // Check if operator is OpenSea proxy for owner
@@ -392,7 +520,7 @@ contract Art3HubCollection is
     function supportsInterface(bytes4 interfaceId) 
         public 
         view 
-        override(ERC721Upgradeable, ERC721RoyaltyUpgradeable) 
+        override(ERC721URIStorageUpgradeable, ERC721RoyaltyUpgradeable) 
         returns (bool) 
     {
         return 
@@ -400,14 +528,6 @@ contract Art3HubCollection is
             super.supportsInterface(interfaceId);
     }
 
-    /// @notice Burn token (removes royalty info)
-    /// @param tokenId Token to burn
-    function _burn(uint256 tokenId) 
-        internal 
-        override(ERC721Upgradeable, ERC721URIStorageUpgradeable, ERC721RoyaltyUpgradeable) 
-    {
-        super._burn(tokenId);
-    }
 }
 
 /// @title ProxyRegistry - Interface for OpenSea proxy registry

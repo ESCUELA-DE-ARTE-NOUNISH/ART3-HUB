@@ -11,7 +11,7 @@ import Header from "@/components/header"
 import { ImagePlus, Loader2, ExternalLink } from "lucide-react"
 import { useAccount, usePublicClient, useWalletClient } from "wagmi"
 import { IPFSService, type NFTMetadata } from "@/lib/services/ipfs-service"
-import { createZoraService } from "@/lib/services/zora-service"
+import { createZoraService, type Art3HubCollectionParams } from "@/lib/services/zora-service"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -24,7 +24,7 @@ import { defaultLocale } from "@/config/i18n"
 const translations = {
   en: {
     title: "Create NFT",
-    subtitle: "Create an ERC-721 NFT with ERC-2981 royalties using Zora Creator Protocol",
+    subtitle: "Create an ERC-721 NFT collection with ERC-2981 royalties using Art3Hub Factory",
     image: "Image",
     clickToUpload: "Click to upload",
     dragAndDrop: "or drag and drop",
@@ -50,7 +50,7 @@ const translations = {
     copyFailed: "Copy failed",
     copyFailedDesc: "Could not copy to clipboard",
     viewExplorer: "View on Block Explorer",
-    viewOnOpenSea: "View Profile on OpenSea", 
+    viewCollection: "View Collection on Blockscout", 
     viewIPFSImage: "View Image on IPFS",
     viewIPFSMetadata: "View Metadata on IPFS",
     viewInGallery: "View in My Gallery",
@@ -65,7 +65,7 @@ const translations = {
   },
   es: {
     title: "Crear NFT",
-    subtitle: "Crear un NFT ERC-721 con regalías ERC-2981 usando el Protocolo Zora Creator",
+    subtitle: "Crear una colección NFT ERC-721 con regalías ERC-2981 usando Art3Hub Factory",
     image: "Imagen",
     clickToUpload: "Haz clic para subir",
     dragAndDrop: "o arrastra y suelta",
@@ -91,7 +91,7 @@ const translations = {
     copyFailed: "Error al copiar",
     copyFailedDesc: "No se pudo copiar al portapapeles",
     viewExplorer: "Ver en Explorador de Bloques",
-    viewOnOpenSea: "Ver Perfil en OpenSea",
+    viewCollection: "Ver Colección en Blockscout",
     viewIPFSImage: "Ver Imagen en IPFS",
     viewIPFSMetadata: "Ver Metadatos en IPFS",
     viewInGallery: "Ver en Mi Galería", 
@@ -106,7 +106,7 @@ const translations = {
   },
   fr: {
     title: "Créer un NFT",
-    subtitle: "Créer un NFT ERC-721 avec des royalties ERC-2981 en utilisant le Protocole Zora Creator",
+    subtitle: "Créer une collection NFT ERC-721 avec des royalties ERC-2981 en utilisant Art3Hub Factory",
     image: "Image",
     clickToUpload: "Cliquez pour télécharger",
     dragAndDrop: "ou glisser-déposer",
@@ -132,7 +132,7 @@ const translations = {
     copyFailed: "Échec de la copie",
     copyFailedDesc: "Impossible de copier dans le presse-papiers",
     viewExplorer: "Voir sur l'Explorateur de Blocs",
-    viewOnOpenSea: "Voir le Profil sur OpenSea",
+    viewCollection: "Voir la Collection sur Blockscout",
     viewIPFSImage: "Voir l'Image sur IPFS",
     viewIPFSMetadata: "Voir les Métadonnées sur IPFS",
     createAnother: "Créer un Autre NFT",
@@ -146,7 +146,7 @@ const translations = {
   },
   pt: {
     title: "Criar NFT",
-    subtitle: "Criar um NFT ERC-721 com royalties ERC-2981 usando o Protocolo Zora Creator",
+    subtitle: "Criar uma coleção NFT ERC-721 com royalties ERC-2981 usando Art3Hub Factory",
     image: "Imagem",
     clickToUpload: "Clique para fazer upload",
     dragAndDrop: "ou arraste e solte",
@@ -172,7 +172,7 @@ const translations = {
     copyFailed: "Falha ao copiar",
     copyFailedDesc: "Não foi possível copiar para a área de transferência",
     viewExplorer: "Ver no Explorador de Blocos",
-    viewOnOpenSea: "Ver Perfil no OpenSea",
+    viewCollection: "Ver Coleção no Blockscout",
     viewIPFSImage: "Ver Imagem no IPFS",
     viewIPFSMetadata: "Ver Metadados no IPFS",
     createAnother: "Criar Outro NFT",
@@ -251,20 +251,19 @@ function CreateNFT() {
     setMintResult(null)
   }
 
-  // Function to get OpenSea link for the specific NFT
-  const getOpenSeaLink = (result: any) => {
+  // Function to get Blockscout collection link
+  const getBlockscoutCollectionLink = (result: any) => {
     const baseUrl = isTestingMode 
-      ? 'https://testnets.opensea.io'
-      : 'https://opensea.io'
+      ? 'https://base-sepolia.blockscout.com'
+      : 'https://base.blockscout.com'
     
-    // If we have contract address and token ID, link directly to the NFT
-    if (result?.contractAddress && result?.tokenId) {
-      const network = isTestingMode ? 'base_sepolia' : 'base'
-      return `${baseUrl}/assets/${network}/${result.contractAddress}/${result.tokenId}`
+    // If we have contract address, link directly to the collection
+    if (result?.contractAddress) {
+      return `${baseUrl}/address/${result.contractAddress}`
     }
     
-    // Fallback to user's profile
-    return `${baseUrl}/account/${address}`
+    // Fallback to transaction
+    return `${baseUrl}/tx/${result?.transactionHash || ''}`
   }
 
   // Function to get IPFS gateway link for the uploaded image
@@ -399,49 +398,101 @@ function CreateNFT() {
         return
       }
       
-      // 5. Create Zora service and mint NFT
+      // 5. Create Art3Hub service and create collection
       setMintStatus('Creating NFT collection...')
-      const zoraService = createZoraService(publicClient, walletClient, selectedNetwork, isTestingMode)
+      const art3HubService = createZoraService(publicClient, walletClient, selectedNetwork, isTestingMode)
       
-      const result = await zoraService.createCollection({
+      const collectionParams: Art3HubCollectionParams = {
         name: title,
         symbol: title.replace(/\s+/g, '').toUpperCase().substring(0, 6),
         description: description,
         imageURI: metadataUpload.ipfsUrl,
+        maxSupply: 10000, // Default max supply
+        mintPrice: '0.001', // Default mint price in ETH
         contractAdmin: address,
         fundsRecipient: address,
         royaltyBPS: Math.floor(parseFloat(royaltyPercentage) * 100), // Convert percentage to basis points
-      })
+        contractURI: metadataUpload.ipfsUrl, // Collection metadata
+        baseURI: `${metadataUpload.ipfsUrl}/` // Base URI for tokens
+      }
+      
+      const result = await art3HubService.createCollection(collectionParams)
       
       setTransactionHash(result.transactionHash)
       setMintResult(result) // Store the full result for OpenSea links
       setMintStatus('') // Clear the loading status when successful
       
-      // Store NFT data in database for gallery display
+      // Try to get the actual collection address from the transaction
+      console.log('🔍 Attempting to extract collection address from transaction...')
       try {
+        const collectionAddress = await art3HubService.getCollectionAddressFromTx(result.transactionHash)
+        if (collectionAddress && collectionAddress !== result.contractAddress) {
+          console.log('🎯 Found actual collection address:', collectionAddress)
+          // Update the result with the correct collection address
+          result.contractAddress = collectionAddress
+          if (result.nftData) {
+            result.nftData.collectionAddress = collectionAddress
+          }
+          // Update the stored result
+          setMintResult(result)
+        }
+      } catch (error) {
+        console.warn('Could not extract collection address:', error)
+      }
+
+      // Store NFT data in database for gallery display (after collection address extraction)
+      try {
+        const nftData = {
+          wallet_address: address,
+          name: title,
+          description: description,
+          image_ipfs_hash: imageHash, // Use the variable we stored earlier
+          metadata_ipfs_hash: metadataHash, // Use the variable we stored earlier
+          transaction_hash: result.transactionHash,
+          network: `${selectedNetwork} ${isTestingMode ? 'testnet' : 'mainnet'}`,
+          royalty_percentage: parseFloat(royaltyPercentage),
+          contract_address: result.contractAddress || null,
+          token_id: result.tokenId || null
+        }
+        
+        console.log('💾 Storing NFT data:', nftData)
+        
         const response = await fetch('/api/nfts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            wallet_address: address,
-            name: title,
-            description: description,
-            image_ipfs_hash: imageHash, // Use the variable we stored earlier
-            metadata_ipfs_hash: metadataHash, // Use the variable we stored earlier
-            transaction_hash: result.transactionHash,
-            network: `${selectedNetwork} ${isTestingMode ? 'testnet' : 'mainnet'}`,
-            royalty_percentage: parseFloat(royaltyPercentage),
-            contract_address: result.contractAddress || null,
-            token_id: result.tokenId || null
-          })
+          body: JSON.stringify(nftData)
         })
         
         if (!response.ok) {
           const errorData = await response.json()
           console.error('Failed to store NFT in database:', errorData)
         } else {
-          const result = await response.json()
-          console.log('✅ NFT stored in database:', result)
+          const dbResult = await response.json()
+          console.log('✅ NFT stored in database:', dbResult)
+          
+          // If we have a collection address and it's different from what was initially stored, update it
+          if (result.contractAddress && nftData.contract_address !== result.contractAddress) {
+            console.log('🔄 Updating database with correct collection address...')
+            try {
+              const updateResponse = await fetch('/api/nfts/update-contract', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  transaction_hash: result.transactionHash,
+                  contract_address: result.contractAddress
+                })
+              })
+              
+              if (updateResponse.ok) {
+                const updateResult = await updateResponse.json()
+                console.log('✅ Contract address updated in database:', updateResult)
+              } else {
+                console.warn('Failed to update contract address:', await updateResponse.text())
+              }
+            } catch (updateError) {
+              console.warn('Error updating contract address:', updateError)
+            }
+          }
         }
       } catch (error) {
         console.error('Failed to store NFT in database:', error)
@@ -616,6 +667,17 @@ function CreateNFT() {
                               ⚠️ Mainnet transaction with real ETH fees
                             </p>
                           )}
+                          {mintResult?.contractAddress && (
+                            <div className="mt-2 p-2 bg-blue-50 rounded border">
+                              <p className="text-sm font-medium text-blue-800">Collection Details:</p>
+                              <p className="text-xs text-blue-600 font-mono break-all">
+                                Address: {mintResult.contractAddress}
+                              </p>
+                              <p className="text-xs text-blue-600">
+                                Symbol: {title.replace(/\s+/g, '').toUpperCase().substring(0, 6)}
+                              </p>
+                            </div>
+                          )}
                         </div>
                         
                         <div className="flex items-center gap-2 p-2 bg-white rounded border">
@@ -636,6 +698,19 @@ function CreateNFT() {
                             <Copy className="h-3 w-3" />
                           </Button>
                         </div>
+                        
+                        {/* Debug Information */}
+                        {isTestingMode && (
+                          <div className="mt-2 p-2 bg-yellow-50 rounded border border-yellow-200">
+                            <p className="text-xs font-medium text-yellow-800 mb-1">🔍 Debug Info (Testnet Only):</p>
+                            <div className="text-xs text-yellow-700 space-y-1">
+                              <p>• Check console logs for detailed transaction info</p>
+                              <p>• Collection address: {mintResult?.contractAddress || 'Extracting...'}</p>
+                              <p>• Factory used: {process.env.NEXT_PUBLIC_ART3HUB_FACTORY_BASE_SEPOLIA}</p>
+                              <p>• If collection not found, check transaction logs on Basescan</p>
+                            </div>
+                          </div>
+                        )}
                         
                         <div className="grid grid-cols-2 gap-2">
                           <Button
@@ -660,12 +735,12 @@ function CreateNFT() {
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
-                              window.open(getOpenSeaLink(mintResult), '_blank')
+                              window.open(getBlockscoutCollectionLink(mintResult), '_blank')
                             }}
                             className="flex-1"
                           >
                             <ExternalLink className="h-4 w-4 mr-1" />
-                            {t.viewOnOpenSea}
+                            {t.viewCollection}
                           </Button>
                           
                           {ipfsImageHash && (
