@@ -5,12 +5,43 @@ All notable changes to the Art3 Hub smart contracts will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2025-06-12
+
+### Deployed
+- **Celo Sepolia Deployment**: Successfully deployed Art3 Hub factory system to Celo Sepolia testnet
+  - **Factory Contract**: `0x40eB8B66C9540Bde934e0502df1319E5F5BCC782` ([View on Blockscout](https://celo-alfajores.blockscout.com/address/0x40eB8B66C9540Bde934e0502df1319E5F5BCC782))
+  - **Implementation Contract**: `0xD81d6F1C9fdcD1d89f2Ff1a85504F5743C12E117` ([View on Blockscout](https://celo-alfajores.blockscout.com/address/0xD81d6F1C9fdcD1d89f2Ff1a85504F5743C12E117))
+
+- **Zora Sepolia Deployment**: Successfully deployed Art3 Hub factory system to Zora Sepolia testnet
+  - **Factory Contract**: `0x4C3139A3bDf6AeC62d8b65B053e41cd738b41e8F` ([View on Blockscout](https://zora-sepolia.blockscout.com/address/0x4C3139A3bDf6AeC62d8b65B053e41cd738b41e8F))
+  - **Implementation Contract**: `0xD66D2D5F1114d6F6ee30cEbE2562806aFC23F3E6` ([View on Blockscout](https://zora-sepolia.blockscout.com/address/0xD66D2D5F1114d6F6ee30cEbE2562806aFC23F3E6))
+
+### Added
+- **Multi-Network Support**: Added support for Celo and Zora networks
+- **Network Configurations**: Added Celo Sepolia, Celo Mainnet, Zora Sepolia, and Zora Mainnet configurations
+- **Deployment Scripts**: Added deployment commands for new networks
+  - `npm run deploy:celoSepolia`
+  - `npm run deploy:celo`
+  - `npm run deploy:zoraSepolia`
+  - `npm run deploy:zora`
+
+### Updated
+- **README.md**: Added comprehensive network configuration section with Blockscout links
+- **Hardhat Configuration**: Extended network support with custom chain configurations
+- **Deployment Documentation**: Updated deployment guide with all supported networks
+
+### Configuration
+- **Networks Supported**: Base, Celo, and Zora (mainnet and testnets)
+- **Deployment Fee**: 0.001 ETH per collection creation (consistent across all networks)
+- **Platform Fee**: 2.5% (250 basis points) on primary mints
+- **OpenSea Proxy Registry**: Only available on Base Mainnet
+
 ## [1.0.2] - 2025-06-12
 
 ### Deployed
 - **Base Sepolia Deployment**: Successfully deployed Art3 Hub factory system to Base Sepolia testnet
-- **Factory Contract**: `0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2` ([View on Basescan](https://sepolia.basescan.org/address/0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2#code))
-- **Implementation Contract**: `0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2` ([View on Basescan](https://sepolia.basescan.org/address/0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2#code))
+- **Factory Contract**: `0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2` ([View on Basescan](https://sepolia.basescan.org/address/0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2#code) | [View on Blockscout](https://base-sepolia.blockscout.com/address/0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2))
+- **Implementation Contract**: `0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2` ([View on Basescan](https://sepolia.basescan.org/address/0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2#code) | [View on Blockscout](https://base-sepolia.blockscout.com/address/0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2))
 - **Test Collection**: `0xfae6f91fAa4B8cf54452501a7E7adBA0E6737824` - Successfully created during deployment testing
 
 ### Fixed

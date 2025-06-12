@@ -6,7 +6,11 @@
     "test": "npx hardhat test",
     "compile": "npx hardhat compile",
     "deploy:baseSepolia": "npx hardhat run scripts/deploy-factory.ts --network baseSepolia",
-    "deploy:base": "npx hardhat run scripts/deploy-factory.ts --network base"
+    "deploy:base": "npx hardhat run scripts/deploy-factory.ts --network base",
+    "deploy:celoSepolia": "npx hardhat run scripts/deploy-factory.ts --network celoSepolia",
+    "deploy:celo": "npx hardhat run scripts/deploy-factory.ts --network celo",
+    "deploy:zoraSepolia": "npx hardhat run scripts/deploy-factory.ts --network zoraSepolia",
+    "deploy:zora": "npx hardhat run scripts/deploy-factory.ts --network zora"
   },
   "keywords": [],
   "author": "",
