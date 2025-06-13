@@ -98,21 +98,22 @@ export default function LanguageSelector() {
   if (!isClient) return null
 
   return (
-    <div className="fixed top-2 right-2 z-50">
+    <div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="lg" className="flex items-center gap-2 h-10 px-3 rounded-full min-w-[100px]">
+          <Button variant="outline" size="sm" className="flex items-center gap-1 h-8 px-2 rounded-full min-w-[80px]">
             <Globe className="h-4 w-4 text-[#FF69B4]" />
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <Image
                 src={selectedLanguage.flag || "/placeholder.svg"}
                 alt={`${selectedLanguage.name} flag`}
-                width={16}
-                height={12}
+                width={14}
+                height={10}
                 className="rounded-sm"
                 style={{ height: "auto" }}
               />
-              <span className="text-xs font-medium">{selectedLanguage.nativeName}</span>
+              <span className="text-xs font-medium hidden sm:inline">{selectedLanguage.nativeName}</span>
+              <span className="text-xs font-medium sm:hidden">{selectedLanguage.code.toUpperCase()}</span>
             </div>
           </Button>
         </DropdownMenuTrigger>

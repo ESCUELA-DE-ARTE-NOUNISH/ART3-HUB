@@ -183,6 +183,7 @@ export default function MyNFTsPage() {
   const [error, setError] = useState('')
   const searchParams = useSearchParams()
   const highlightedNftId = searchParams.get("highlight")
+  const refreshParam = searchParams.get("refresh")
   
   const { address, isConnected } = useAccount()
   const { toast } = useToast()
@@ -203,6 +204,37 @@ export default function MyNFTsPage() {
       setNfts([])
     }
   }, [isConnected, address])
+
+  // Refetch NFTs when page becomes visible (e.g., when navigating back from create page)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isConnected && address) {
+        fetchNFTs()
+      }
+    }
+
+    const handleFocus = () => {
+      if (isConnected && address) {
+        fetchNFTs()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('focus', handleFocus)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('focus', handleFocus)
+    }
+  }, [isConnected, address])
+
+  // Also refetch when highlighted NFT changes or refresh param is present
+  useEffect(() => {
+    if ((highlightedNftId || refreshParam) && isConnected && address) {
+      // Small delay to ensure the new NFT is in the database
+      setTimeout(() => fetchNFTs(), 1000)
+    }
+  }, [highlightedNftId, refreshParam, isConnected, address])
 
   const fetchNFTs = async () => {
     try {
@@ -317,10 +349,10 @@ export default function MyNFTsPage() {
   if (!isConnected) {
     return (
       <div className="pb-16">
-        <div className="p-4 border-b">
-          <h1 className="text-xl font-bold text-center mt-10">{t.title}</h1>
+        <div className="p-3 sm:p-4 border-b">
+          <h1 className="text-lg sm:text-xl font-bold text-center mt-8 sm:mt-10">{t.title}</h1>
         </div>
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-3 sm:px-4 py-4">
           <div className="text-center py-10">
             <h2 className="text-2xl font-bold mb-2">{t.connectWallet}</h2>
           </div>
@@ -331,16 +363,20 @@ export default function MyNFTsPage() {
 
   return (
     <div className="pb-16">
-      <div className="p-4 border-b">
-        <h1 className="text-xl font-bold text-center mt-10">{t.title}</h1>
+      <div className="p-3 sm:p-4 border-b">
+        <h1 className="text-lg sm:text-xl font-bold text-center mt-8 sm:mt-10">{t.title}</h1>
       </div>
 
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex justify-between items-center mb-6">
+      <div className="container mx-auto px-3 sm:px-4 py-4">
+        <div className="mb-6">
           <Tabs value={selectedFilter} onValueChange={setSelectedFilter} className="w-full">
-            <TabsList className="grid grid-cols-4 mb-4">
+            <TabsList className="grid grid-cols-2 sm:grid-cols-4 gap-1 h-auto p-1">
               {t.filterOptions.map((option) => (
-                <TabsTrigger key={option.value} value={option.value} className="text-xs">
+                <TabsTrigger 
+                  key={option.value} 
+                  value={option.value} 
+                  className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-[#FF69B4] data-[state=active]:text-white"
+                >
                   {option.label}
                 </TabsTrigger>
               ))}
@@ -348,37 +384,42 @@ export default function MyNFTsPage() {
           </Tabs>
         </div>
 
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2">
+        {/* Controls - Mobile Optimized */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+          <div className="flex items-center justify-between sm:justify-start gap-2">
             <span className="text-sm text-gray-600">
               {filteredAndSortedNfts.length} of {nfts.length} NFTs
             </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant={viewMode === "grid" ? "default" : "outline"}
-              size="icon"
-              className={viewMode === "grid" ? "bg-[#FF69B4] hover:bg-[#FF1493]" : ""}
-              onClick={() => setViewMode("grid")}
-            >
-              <Grid className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "outline"}
-              size="icon"
-              className={viewMode === "list" ? "bg-[#FF69B4] hover:bg-[#FF1493]" : ""}
-              onClick={() => setViewMode("list")}
-            >
-              <List className="h-4 w-4" />
-            </Button>
+            
+            {/* View Mode Controls - Always visible on mobile */}
+            <div className="flex items-center gap-1">
+              <Button
+                variant={viewMode === "grid" ? "default" : "outline"}
+                size="sm"
+                className={`h-8 w-8 p-0 ${viewMode === "grid" ? "bg-[#FF69B4] hover:bg-[#FF1493]" : ""}`}
+                onClick={() => setViewMode("grid")}
+              >
+                <Grid className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "default" : "outline"}
+                size="sm"
+                className={`h-8 w-8 p-0 ${viewMode === "list" ? "bg-[#FF69B4] hover:bg-[#FF1493]" : ""}`}
+                onClick={() => setViewMode("list")}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
+          {/* Sort Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-1">
-                <Filter className="h-4 w-4 mr-1" />
-                {currentSortOption?.label}
-                <ChevronDown className="h-4 w-4 ml-1" />
+              <Button variant="outline" className="flex items-center gap-1 text-sm h-8">
+                <Filter className="h-3 w-3" />
+                <span className="hidden sm:inline">{currentSortOption?.label}</span>
+                <span className="sm:hidden">Sort</span>
+                <ChevronDown className="h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -406,7 +447,7 @@ export default function MyNFTsPage() {
         ) : nfts.length > 0 ? (
           <>
             {filteredAndSortedNfts.length > 0 ? (
-              <div className={viewMode === "grid" ? "grid grid-cols-2 gap-4" : "space-y-4"}>
+              <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4" : "space-y-3 sm:space-y-4"}>
                 {filteredAndSortedNfts.map((nft) => (
               <Card
                 key={nft.id}
@@ -429,7 +470,7 @@ export default function MyNFTsPage() {
                         <Badge className="absolute top-2 right-2 bg-[#9ACD32]">{t.new}</Badge>
                       )}
                     </div>
-                    <CardContent className="p-3">
+                    <CardContent className="p-3 sm:p-4">
                       <div className="flex justify-between items-start mb-1">
                         <h3 className="font-semibold text-sm truncate">{nft.name}</h3>
                         <Badge variant="secondary" className="text-xs">{nft.network}</Badge>
@@ -451,13 +492,13 @@ export default function MyNFTsPage() {
                         </div>
                       </div>
 
-                      {/* Action Buttons */}
+                      {/* Action Buttons - Mobile Optimized */}
                       <div className="space-y-2">
-                        <div className="flex gap-1">
+                        <div className="flex gap-2">
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="text-xs px-2 py-1 h-6 flex-1"
+                            className="text-xs px-2 py-2 h-8 flex-1 min-h-[32px]"
                             onClick={() => window.open(`https://gateway.pinata.cloud/ipfs/${nft.image_ipfs_hash}`, '_blank')}
                           >
                             {t.viewImage}
@@ -466,19 +507,19 @@ export default function MyNFTsPage() {
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              className="text-xs px-2 py-1 h-6 flex-1"
+                              className="text-xs px-2 py-2 h-8 flex-1 min-h-[32px]"
                               onClick={() => window.open(`https://gateway.pinata.cloud/ipfs/${nft.metadata_ipfs_hash}`, '_blank')}
                             >
                               {t.viewMetadata}
                             </Button>
                           )}
                         </div>
-                        <div className="flex gap-1">
+                        <div className="flex gap-2">
                           {nft.transaction_hash && (
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              className="text-xs px-2 py-1 h-6 flex-1"
+                              className="text-xs px-2 py-2 h-8 flex-1 min-h-[32px]"
                               onClick={() => window.open(getBlockExplorerUrl(nft.transaction_hash, nft.network), '_blank')}
                             >
                               {t.viewTransaction}
@@ -488,7 +529,7 @@ export default function MyNFTsPage() {
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              className="text-xs px-2 py-1 h-6 flex-1"
+                              className="text-xs px-2 py-2 h-8 flex-1 min-h-[32px]"
                               onClick={() => window.open(getBlockscoutCollectionUrl(nft.contract_address, nft.network), '_blank')}
                             >
                               {t.viewCollection}
@@ -499,32 +540,49 @@ export default function MyNFTsPage() {
                     </CardContent>
                   </>
                 ) : (
-                  <div className="flex p-3">
-                    <div className="relative h-20 w-20 rounded-md overflow-hidden flex-shrink-0">
-                      <Image src={nft.image || "/placeholder.svg"} alt={nft.title} fill className="object-cover" />
+                  /* List View - Mobile Optimized */
+                  <div className="flex p-3 sm:p-4 gap-3">
+                    <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-md overflow-hidden flex-shrink-0">
+                      <img 
+                        src={`https://gateway.pinata.cloud/ipfs/${nft.image_ipfs_hash}`} 
+                        alt={nft.name} 
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/placeholder.svg'
+                        }}
+                      />
                       {highlightedNftId === nft.id && (
                         <Badge className="absolute top-1 right-1 bg-[#9ACD32] text-xs">{t.new}</Badge>
                       )}
                     </div>
-                    <div className="ml-3 flex-grow">
-                      <div className="flex justify-between items-start">
-                        <h3 className="font-semibold">{nft.title}</h3>
-                        <span className="text-xs font-medium text-[#FF69B4]">{nft.price}</span>
+                    <div className="flex-grow min-w-0">
+                      <div className="flex justify-between items-start mb-1">
+                        <h3 className="font-semibold text-sm truncate pr-2">{nft.name}</h3>
+                        <Badge variant="secondary" className="text-xs flex-shrink-0">{nft.network}</Badge>
                       </div>
-                      <p className="text-xs text-gray-500 mb-1">{nft.description}</p>
-                      <p className="text-xs text-gray-500 mb-2">{t.minted} {nft.mintedAt}</p>
-                      <div className="flex justify-between items-center">
-                        <Button variant="outline" size="sm" className="text-xs px-2 py-0 h-7">
-                          {t.details}
+                      <p className="text-xs text-gray-600 mb-1 line-clamp-2">{nft.description}</p>
+                      <p className="text-xs text-gray-500 mb-2">{t.minted} {formatDate(nft.created_at)}</p>
+                      
+                      {/* Action Buttons for List View */}
+                      <div className="flex flex-wrap gap-1">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-xs px-2 py-1 h-7"
+                          onClick={() => window.open(`https://gateway.pinata.cloud/ipfs/${nft.image_ipfs_hash}`, '_blank')}
+                        >
+                          {t.viewImage}
                         </Button>
-                        <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" className="h-7 w-7">
-                            <Share2 className="h-3 w-3" />
+                        {nft.transaction_hash && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="text-xs px-2 py-1 h-7"
+                            onClick={() => window.open(getBlockExplorerUrl(nft.transaction_hash, nft.network), '_blank')}
+                          >
+                            {t.viewTransaction}
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7">
-                            <ExternalLink className="h-3 w-3" />
-                          </Button>
-                        </div>
+                        )}
                       </div>
                     </div>
                   </div>
