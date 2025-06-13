@@ -11,38 +11,67 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
   const [showGif, setShowGif] = useState(true)
   const [showLogo, setShowLogo] = useState(false)
   const [gifLoaded, setGifLoaded] = useState(false)
+  const [fadeOut, setFadeOut] = useState(false)
+  const [gifError, setGifError] = useState(false)
+
+  // Log environment info for debugging
+  useEffect(() => {
+    console.log("SplashScreen mounted")
+    console.log("User Agent:", navigator.userAgent)
+    console.log("Window context:", window !== window.parent ? "iframe" : "top-level")
+  }, [])
 
   useEffect(() => {
-    // Set a timer for GIF duration (10 seconds)
+    // Set a timer for GIF duration (6 seconds)
     let gifTimer: NodeJS.Timeout
+    let fadeTimer: NodeJS.Timeout
     
     if (gifLoaded) {
-      console.log("GIF loaded, starting 10-second timer")
+      console.log("GIF loaded, starting 6-second timer")
+      // Start fade out 500ms before the end
+      fadeTimer = setTimeout(() => {
+        setFadeOut(true)
+      }, 5500) // Start fade out at 5.5 seconds
+      
       gifTimer = setTimeout(() => {
         console.log("GIF timer completed, moving to logo")
         handleGifEnd()
-      }, 10000) // 10 seconds for GIF display
+      }, 6000) // 6 seconds for GIF display
     }
 
-    // Timeout to skip splash if GIF takes too long to load (8 seconds)
+    // Timeout to skip splash if GIF takes too long to load (5 seconds)
     const loadTimeout = setTimeout(() => {
       if (!gifLoaded) {
         console.log("GIF loading timeout, skipping to logo")
         handleGifEnd()
       }
-    }, 8000)
+    }, 5000)
 
     return () => {
       if (gifTimer) clearTimeout(gifTimer)
+      if (fadeTimer) clearTimeout(fadeTimer)
       clearTimeout(loadTimeout)
     }
   }, [gifLoaded])
 
   // Preload the GIF to improve loading performance
   useEffect(() => {
-    const img = new window.Image()
-    img.src = "/assets/eanounish.gif"
-    console.log("Preloading GIF...")
+    try {
+      const img = new window.Image()
+      img.src = "/assets/eanounish.gif"
+      console.log("Preloading GIF...")
+      
+      // Add additional error handling for Farcaster environment
+      img.onerror = () => {
+        console.log("GIF preload failed, will try direct loading")
+      }
+      
+      img.onload = () => {
+        console.log("GIF preload successful")
+      }
+    } catch (error) {
+      console.log("Error during GIF preload:", error)
+    }
   }, [])
 
   const handleGifLoaded = () => {
@@ -53,6 +82,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
   const handleGifEnd = () => {
     setShowGif(false)
     setShowLogo(true)
+    setFadeOut(false) // Reset fade out state
     
     // Show logo for 2 seconds then close splash
     setTimeout(() => {
@@ -62,6 +92,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
   const handleGifError = (error: any) => {
     console.log("GIF loading failed:", error)
+    setGifError(true)
     // If GIF fails to load, show logo immediately
     handleGifEnd()
   }
@@ -81,13 +112,25 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
       onClick={handleSkip}
     >
       {showGif && (
-        <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+        <div className={`relative w-full h-full flex items-center justify-center overflow-hidden transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100 animate-fade-in'}`}>
           {/* Loading indicator while GIF loads */}
-          {!gifLoaded && (
+          {!gifLoaded && !gifError && (
             <div className="absolute inset-0 flex items-center justify-center bg-black">
               <div className="flex flex-col items-center gap-4">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
                 <p className="text-white text-sm opacity-70">Loading...</p>
+              </div>
+            </div>
+          )}
+
+          {/* Fallback when GIF fails to load */}
+          {gifError && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black">
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-24 h-24 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center animate-pulse">
+                  <span className="text-white text-2xl font-bold">A3</span>
+                </div>
+                <p className="text-white text-sm opacity-70">Art3 Hub</p>
               </div>
             </div>
           )}

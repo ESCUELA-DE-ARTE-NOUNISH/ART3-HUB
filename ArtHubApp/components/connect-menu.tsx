@@ -71,6 +71,15 @@ export function ConnectMenu() {
     setMounted(true)
   }, [])
 
+  // Auto-connect in MiniKit environment
+  useEffect(() => {
+    if (mounted && isMiniKit && !isConnected && connectors.length > 0) {
+      // Auto-connect with the first available connector (should be Farcaster)
+      const farcasterConnector = connectors.find(c => c.id === 'farcaster') || connectors[0]
+      connect({ connector: farcasterConnector })
+    }
+  }, [mounted, isMiniKit, isConnected, connectors, connect])
+
   // Check if we're on the wrong network
   useEffect(() => {
     const hasPrivy = !!process.env.NEXT_PUBLIC_PRIVY_APP_ID
@@ -229,36 +238,6 @@ export function ConnectMenu() {
     )
   }
 
-  const handleConnect = async () => {
-    try {
-      setError(null)
-      
-      if (isMiniKit) {
-        // In MiniKit, let it handle the connection automatically
-        // MiniKit automatically uses Farcaster connector or falls back to CoinbaseWallet
-        if (connectors.length > 0) {
-          connect({ connector: connectors[0] })
-        } else {
-          throw new Error('No connectors available in MiniKit')
-        }
-      } else {
-        // For browser mode, fallback to regular wallet connectors
-        const injectedConnector = connectors.find(c => c.id === 'injected')
-        const walletConnectConnector = connectors.find(c => c.id === 'walletConnect')
-        
-        if (injectedConnector && window.ethereum) {
-          connect({ connector: injectedConnector })
-        } else if (walletConnectConnector) {
-          connect({ connector: walletConnectConnector })
-        } else {
-          throw new Error('No suitable wallet connector found')
-        }
-      }
-    } catch (error) {
-      console.error('Failed to connect wallet:', error)
-      setError('Failed to connect wallet. Please try again.')
-    }
-  }
 
   const handleSocialConnect = async () => {
     try {
@@ -280,19 +259,19 @@ export function ConnectMenu() {
 
   // Determine which UI to show based on environment
   if (isMiniKit) {
-    // MiniKit environment - show simple connect button
+    // MiniKit environment - auto-connecting, show connecting state
     return (
       <div className="flex flex-col items-end gap-2">
         <Button
-          onClick={handleConnect}
+          disabled
           className={cn(
-            "bg-pink-500 hover:bg-pink-600",
+            "bg-pink-500/50",
             "text-white",
             "flex items-center gap-2"
           )}
         >
-          <Wallet className="h-4 w-4" />
-          Join
+          <Wallet className="h-4 w-4 animate-pulse" />
+          Connecting...
         </Button>
         {error && (
           <p className="text-sm text-red-500 animate-fade-in">
