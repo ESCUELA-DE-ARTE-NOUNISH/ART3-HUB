@@ -5,6 +5,140 @@ All notable changes to the Art3 Hub Frontend Application will be documented in t
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2025-06-13
+
+### 🔍 NFT Discovery & Marketplace Features
+
+#### Added
+- **Explore Page**: Complete NFT discovery and marketplace functionality
+  - **Advanced Search**: Search NFTs by name, description, or artist name
+  - **Category Filtering**: Filter by 15+ art categories (Digital Art, Photography, 3D Art, etc.)
+  - **Multi-Sort Options**: Sort by trending (view count), latest, or popular (likes)
+  - **Artist Discovery**: Browse top artists and view their collections
+  - **Category Statistics**: Real-time category counts and popularity metrics
+
+#### Enhanced NFT Creation
+- **Artist Name Field**: Capture and store artist identity with auto-population from user profiles
+- **Category Selection**: Choose from 15+ predefined art categories during creation
+- **Enhanced Metadata**: Improved NFT metadata structure with categorization support
+
+#### Database Schema Enhancements
+```sql
+-- New NFT table fields added:
+ALTER TABLE nfts ADD COLUMN artist_name TEXT;
+ALTER TABLE nfts ADD COLUMN category TEXT DEFAULT 'Digital Art';
+ALTER TABLE nfts ADD COLUMN tags TEXT[];
+ALTER TABLE nfts ADD COLUMN view_count INTEGER DEFAULT 0;
+ALTER TABLE nfts ADD COLUMN likes_count INTEGER DEFAULT 0;
+```
+
+#### API Improvements
+- **Enhanced `/api/nfts` Endpoint**:
+  - Search functionality across name, description, and artist fields
+  - Category and artist filtering support
+  - Multiple sorting options (trending, latest, popular)
+  - Pagination with load-more functionality
+  - Real-time statistics and counts
+
+#### User Experience Enhancements
+- **NFT Detail Modal**: View full NFT information with artist details and statistics
+- **Trending System**: Discover popular NFTs based on view counts and engagement
+- **Category Browse**: Explore NFTs by art category with live statistics
+- **Artist Pages**: Click-to-filter by specific artists across the platform
+- **Real-time Search**: Instant search results with debounced API calls
+
+### 🎨 Platform Features
+
+#### Multi-Language Support
+- **Complete Translation Coverage**: All new explore features translated to EN/ES/FR/PT
+- **Consistent Terminology**: Unified art category names across all languages
+- **Cultural Localization**: Adapted interface elements for different regions
+
+#### Performance Optimizations
+- **Database Indexing**: Optimized indexes for fast search and filtering operations
+- **IPFS Integration**: Efficient image loading with fallback error handling
+- **Pagination**: Load-more functionality prevents overwhelming the interface
+- **Caching Strategy**: Optimized data fetching for better user experience
+
+### 🔧 Technical Improvements
+
+#### Database Functions Added
+```sql
+-- Helper functions for engagement tracking:
+CREATE FUNCTION increment_nft_view_count(nft_id UUID);
+CREATE FUNCTION increment_nft_likes(nft_id UUID);  
+CREATE FUNCTION decrement_nft_likes(nft_id UUID);
+```
+
+#### Component Architecture
+- **Reusable Search Components**: Modular search and filter components
+- **Enhanced Card Layouts**: Improved NFT display cards with metadata
+- **Loading States**: Comprehensive loading and error state management
+- **Modal System**: Reusable modal components for NFT details
+
+#### API Architecture
+- **Query Optimization**: Efficient database queries with proper indexing
+- **Error Handling**: Comprehensive error handling for all edge cases
+- **Response Formatting**: Consistent API response structure across endpoints
+- **Rate Limiting**: Prepared for future rate limiting on search endpoints
+
+### 🛡️ Data Migration
+
+#### Required Database Migration
+- **Migration File**: `database/migration-add-artist-category.sql`
+- **Backward Compatibility**: Safe migration with `IF NOT EXISTS` clauses
+- **Data Preservation**: Existing NFT records automatically updated with default values
+- **Index Creation**: Performance indexes created for all new searchable fields
+
+#### Migration Steps
+1. **Artist Name Population**: Existing NFTs get artist names from user profiles or wallet addresses
+2. **Category Assignment**: Default category 'Digital Art' applied to existing records
+3. **Index Creation**: Search and sorting indexes created for optimal performance
+4. **Function Setup**: Database functions for engagement tracking installed
+
+### 🎯 User Workflows
+
+#### NFT Discovery Flow
+1. **Browse Explore Page**: View trending, latest, or popular NFTs
+2. **Use Search**: Find specific NFTs, artists, or collections
+3. **Filter by Category**: Browse art by specific categories
+4. **Discover Artists**: Find artists and explore their complete works
+5. **View Details**: Click any NFT to see full information and metadata
+
+#### Enhanced Creation Flow
+1. **Upload Artwork**: Standard image upload process
+2. **Add Metadata**: Title, description, artist name, and category selection
+3. **Deploy Collection**: Create collection with enhanced metadata
+4. **Automatic Discovery**: NFT immediately appears in explore page and search results
+
+### 📊 Statistics & Analytics
+
+#### Platform Metrics
+- **Category Distribution**: Real-time counts of NFTs per category
+- **Artist Rankings**: Top artists by NFT creation count
+- **Trending Analysis**: View-based trending calculations
+- **Search Analytics**: Popular search terms and filter usage
+
+#### Performance Metrics
+- **Search Speed**: Optimized for sub-100ms search response times
+- **Image Loading**: IPFS gateway optimization with error handling
+- **Database Performance**: Indexed queries for fast filtering and sorting
+
+### 🔄 Migration Guide
+
+#### For Existing Installations
+1. **Run Database Migration**: Execute `migration-add-artist-category.sql`
+2. **Update Environment**: No new environment variables required
+3. **Restart Application**: New features available immediately after migration
+4. **Verify Functionality**: Test search, filtering, and category browsing
+
+#### Breaking Changes
+- **None**: All changes are backward compatible
+- **Database Schema**: Additive changes only, existing data preserved
+- **API Endpoints**: Enhanced with new parameters, existing calls unchanged
+
+---
+
 ## [2.0.0] - 2025-06-12
 
 ### 🚀 Major Smart Contract Integration Update

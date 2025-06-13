@@ -7,6 +7,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Header from "@/components/header"
 import { ImagePlus, Loader2, ExternalLink } from "lucide-react"
 import { useAccount, usePublicClient, useWalletClient, useBalance } from "wagmi"
@@ -35,6 +36,10 @@ const translations = {
     titlePlaceholder: "Give your NFT a name",
     description: "Description",
     descriptionPlaceholder: "Tell the story behind your creation",
+    artistName: "Artist Name",
+    artistPlaceholder: "Your artist name or pseudonym",
+    category: "Category",
+    selectCategory: "Select a category",
     royalty: "Royalty Percentage",
     royaltyPlaceholder: "5.0",
     royaltyHelp: "Royalty you'll receive on secondary sales (0-10%)",
@@ -84,6 +89,10 @@ const translations = {
     titlePlaceholder: "Dale un nombre a tu NFT",
     description: "Descripción",
     descriptionPlaceholder: "Cuenta la historia detrás de tu creación",
+    artistName: "Nombre del Artista",
+    artistPlaceholder: "Tu nombre artístico o seudónimo",
+    category: "Categoría",
+    selectCategory: "Selecciona una categoría",
     royalty: "Porcentaje de Regalías",
     royaltyPlaceholder: "5.0",
     royaltyHelp: "Regalías que recibirás en ventas secundarias (0-10%)",
@@ -133,6 +142,10 @@ const translations = {
     titlePlaceholder: "Donnez un nom à votre NFT",
     description: "Description",
     descriptionPlaceholder: "Racontez l'histoire derrière votre création",
+    artistName: "Nom de l'Artiste",
+    artistPlaceholder: "Votre nom d'artiste ou pseudonyme",
+    category: "Catégorie",
+    selectCategory: "Sélectionnez une catégorie",
     royalty: "Pourcentage de Royalties",
     royaltyPlaceholder: "5.0",
     royaltyHelp: "Royalties que vous recevrez sur les ventes secondaires (0-10%)",
@@ -181,6 +194,10 @@ const translations = {
     titlePlaceholder: "Dê um nome ao seu NFT",
     description: "Descrição",
     descriptionPlaceholder: "Conte a história por trás da sua criação",
+    artistName: "Nome do Artista",
+    artistPlaceholder: "Seu nome artístico ou pseudônimo",
+    category: "Categoria",
+    selectCategory: "Selecione uma categoria",
     royalty: "Porcentagem de Royalty",
     royaltyPlaceholder: "5.0",
     royaltyHelp: "Royalty que você receberá nas vendas secundárias (0-10%)",
@@ -220,6 +237,25 @@ const translations = {
   }
 }
 
+// NFT Categories for selection
+const categories = [
+  "Digital Art",
+  "Photography", 
+  "Illustrations",
+  "3D Art",
+  "Pixel Art",
+  "Animation",
+  "Abstract",
+  "Portrait",
+  "Landscape",
+  "Street Art",
+  "Pop Art",
+  "Surreal",
+  "Gaming",
+  "Music",
+  "Video"
+]
+
 function CreateNFT() {
   const params = useParams()
   const router = useRouter()
@@ -231,6 +267,8 @@ function CreateNFT() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
+  const [artistName, setArtistName] = useState("")
+  const [category, setCategory] = useState("Digital Art")
   const [royaltyPercentage, setRoyaltyPercentage] = useState("5")
   const [selectedNetwork, setSelectedNetwork] = useState("base")
   const [isLoading, setIsLoading] = useState(false)
@@ -422,6 +460,8 @@ function CreateNFT() {
     setImageFile(null)
     setTitle("")
     setDescription("")
+    setArtistName("")
+    setCategory("Digital Art")
     setRoyaltyPercentage("5")
     setMintStatus('')
     setTransactionHash('')
@@ -486,6 +526,40 @@ function CreateNFT() {
     setLocale(currentLocale)
     setT(translations[currentLocale as keyof typeof translations] || translations.en)
   }, [params])
+
+  // Load user profile data when wallet connects
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (address && isConnected && !artistName) {
+        try {
+          const response = await fetch('/api/user-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ wallet_address: address })
+          })
+          
+          if (response.ok) {
+            const userData = await response.json()
+            if (userData.success && userData.profile) {
+              // Set artist name from profile if available
+              if (userData.profile.name) {
+                setArtistName(userData.profile.name)
+              } else {
+                // Fallback to abbreviated wallet address
+                setArtistName(`Artist ${address.slice(0, 6)}`)
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Failed to load user profile:', error)
+          // Fallback to abbreviated wallet address
+          setArtistName(`Artist ${address.slice(0, 6)}`)
+        }
+      }
+    }
+    
+    loadUserProfile()
+  }, [address, isConnected, artistName])
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -723,6 +797,8 @@ function CreateNFT() {
           wallet_address: address,
           name: title,
           description: description,
+          artist_name: artistName,
+          category: category,
           image_ipfs_hash: imageHash, // Use the variable we stored earlier
           metadata_ipfs_hash: metadataHash, // Use the variable we stored earlier
           transaction_hash: result.transactionHash,
@@ -943,6 +1019,40 @@ function CreateNFT() {
                     className="mt-2 text-base resize-none"
                   />
                 </div>
+
+                {/* Artist Name */}
+                <div>
+                  <Label htmlFor="artistName" className="text-sm font-medium">
+                    {t.artistName}
+                  </Label>
+                  <Input
+                    id="artistName"
+                    value={artistName}
+                    onChange={(e) => setArtistName(e.target.value)}
+                    placeholder={t.artistPlaceholder}
+                    required
+                    className="mt-2 text-base"
+                  />
+                </div>
+
+                {/* Category Selection */}
+                <div>
+                  <Label htmlFor="category" className="text-sm font-medium">
+                    {t.category}
+                  </Label>
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger className="mt-2">
+                      <SelectValue placeholder={t.selectCategory} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 
                 {/* Royalty Percentage */}
                 <div>
@@ -1149,7 +1259,7 @@ function CreateNFT() {
                 <Button
                   type="submit"
                   className="w-full bg-[#FF69B4] hover:bg-[#FF1493] h-12 text-base font-medium"
-                  disabled={!image || !title || !description || isLoading || !isConnected || (!balanceLoading && !isBalanceSufficient)}
+                  disabled={!image || !title || !description || !artistName || isLoading || !isConnected || (!balanceLoading && !isBalanceSufficient)}
                 >
                   {isLoading ? (
                     <>
