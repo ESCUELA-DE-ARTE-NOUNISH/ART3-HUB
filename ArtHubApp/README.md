@@ -7,6 +7,7 @@ A modern, multi-platform Web3 NFT creation and marketplace platform built with N
 ### Core Functionality
 - **🎨 NFT Collection Creation**: Deploy your own ERC-721 collections via Art3Hub Factory
 - **🔍 NFT Discovery & Marketplace**: Explore, search, and discover NFTs with advanced filtering
+- **🎬 Branded Splash Screen**: Animated GIF intro with logo transition for premium app experience
 - **🌐 Multi-Network Support**: Base and Zora networks (mainnet + testnet)
 - **📱 Multi-Platform**: Browser, mobile, and Farcaster frame compatibility
 - **🌍 Internationalization**: Support for English, Spanish, French, and Portuguese
@@ -41,12 +42,17 @@ ArtHubApp/
 │   │   └── ...
 │   └── api/               # Backend API routes
 ├── components/            # Reusable UI components
+│   ├── splash-screen.tsx  # Animated GIF splash screen
+│   ├── app-wrapper.tsx    # Client-side app wrapper
+│   └── ui/                # shadcn/ui components
 ├── lib/                   # Core services and utilities
 │   ├── services/          # Web3 and API services
 │   └── utils/             # Helper functions
 ├── providers/             # React context providers
 ├── hooks/                 # Custom React hooks
 ├── messages/              # i18n translation files
+├── public/                # Static assets
+│   └── assets/            # Media files (GIF, images)
 └── database/              # SQL schemas and migrations
 ```
 
@@ -202,6 +208,13 @@ ArtHubApp/
 - **Personal Gallery**: View all created NFTs and collections
 - **Transaction History**: Complete record of all blockchain interactions
 - **Collection Analytics**: Track mints, revenue, and engagement
+
+### Branded App Experience
+- **Animated Splash Screen**: 10-second branded GIF animation on app startup
+- **Seamless Transitions**: GIF → Logo → Main interface with smooth animations
+- **Mobile Optimized**: Vertical (9:16) aspect ratio for TikTok-style display
+- **Session Memory**: Shows once per browser session for optimal UX
+- **Skip Functionality**: Tap anywhere to skip to main interface
 
 ### AI Learning Assistant
 - **Web3 Education**: Learn about NFTs, blockchain, and crypto

@@ -5,6 +5,116 @@ All notable changes to the Art3 Hub Frontend Application will be documented in t
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2025-06-13
+
+### 🎬 Branded App Experience & Splash Screen
+
+#### Added
+- **Animated Splash Screen**: Premium app intro with branded GIF animation
+  - **10-second animated sequence** with vertical (9:16) TikTok-style display
+  - **Seamless logo transition** after GIF completion
+  - **Session-based display** - shows once per browser session
+  - **Universal compatibility** - works on all browsers and devices
+- **Interactive Features**:
+  - **Tap-to-skip functionality** - click anywhere to skip to main interface
+  - **Loading indicators** with smooth animations
+  - **Error handling** with graceful fallbacks
+  - **Mobile optimization** with responsive design
+
+#### Technical Implementation
+- **Client-side rendering** with proper SSR handling
+- **GIF optimization** using Next.js Image component with `unoptimized` flag
+- **Session storage management** for optimal user experience
+- **Performance optimized** with GIF preloading
+
+#### Components Added
+```typescript
+// New components for splash screen functionality:
+├── components/
+│   ├── splash-screen.tsx    # Main splash screen with GIF animation
+│   └── app-wrapper.tsx      # Client-side wrapper with session management
+```
+
+#### Assets Integration
+- **Media file structure**: `/public/assets/eanounish.gif`
+- **Logo integration**: `/public/images/logo.png`
+- **Responsive sizing**: Adapts to all screen sizes and orientations
+
+### 🔧 Technical Improvements
+
+#### Browser Compatibility
+- **Eliminated autoplay restrictions** - GIFs play immediately without user interaction
+- **Universal format support** - Works across all browsers and mobile devices
+- **No codec dependencies** - No need for video format compatibility
+- **Simplified implementation** - Removed complex video controls and fallbacks
+
+#### Performance Enhancements
+- **Faster loading times** compared to video implementation
+- **Reduced complexity** - No video player or autoplay policy handling
+- **Better mobile performance** - Native GIF support on iOS/Android
+- **Preloading optimization** - Background loading for instant display
+
+#### Error Handling
+- **Graceful degradation** - Falls back to logo if GIF fails to load
+- **Timeout protection** - 8-second loading timeout with automatic fallback
+- **Console logging** for debugging and monitoring
+- **Retry mechanisms** for network connectivity issues
+
+### 🎨 User Experience Improvements
+
+#### Visual Design
+- **Vertical aspect ratio** optimized for mobile-first experience
+- **Smooth transitions** between splash, logo, and main interface
+- **Professional branding** with consistent Art3 Hub visual identity
+- **Loading state management** with spinner and progress indicators
+
+#### Interaction Design
+- **Intuitive skip functionality** - clear "Tap to skip" indicator
+- **No user barriers** - automatic playback without permission prompts
+- **Consistent behavior** across all platforms and browsers
+- **Session awareness** - remembers user preference within session
+
+### 🛠️ Development Experience
+
+#### Code Organization
+- **Modular components** - Separated splash logic from main app
+- **Clean architecture** - AppWrapper handles client-side logic
+- **TypeScript support** - Full type safety and IntelliSense
+- **Reusable patterns** - Can be easily extended or modified
+
+#### Documentation
+- **Updated README** with splash screen information
+- **Video optimization guide** - Migration from video to GIF approach
+- **Implementation examples** - Clear code samples and usage patterns
+
+### 🔄 Migration Notes
+
+#### From Video to GIF
+- **No breaking changes** - Splash screen is completely new functionality
+- **Improved reliability** - Eliminates video autoplay issues
+- **Better performance** - Faster loading and universal compatibility
+- **Simplified maintenance** - No codec or browser-specific handling needed
+
+#### Asset Requirements
+```bash
+# Required asset structure:
+/public/
+├── assets/
+│   └── eanounish.gif        # Main animated splash screen
+└── images/
+    └── logo.png             # Logo for transition sequence
+```
+
+#### Browser Support
+| Feature | Support Status | Notes |
+|---------|---------------|-------|
+| GIF Animation | ✅ Universal | Works on all browsers |
+| Session Storage | ✅ Universal | Fallback for older browsers |
+| Touch Events | ✅ Universal | Mobile and desktop support |
+| Responsive Design | ✅ Universal | Adapts to all screen sizes |
+
+---
+
 ## [2.1.0] - 2025-06-13
 
 ### 🔍 NFT Discovery & Marketplace Features

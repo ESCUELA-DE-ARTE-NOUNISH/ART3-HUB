@@ -11,6 +11,7 @@ import HtmlWithLang from "@/components/html-with-lang";
 
 import { Wallet } from "@/components/wallet"
 import { PrivyAppProvider } from "@/providers/PrivyProvider"
+import AppWrapper from "@/components/app-wrapper"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -57,21 +58,23 @@ export default function LocalizedRootLayout({
         <ThemeProvider attribute="class" defaultTheme="light">
           <Providers>
             <PrivyAppProvider>
-              <div className="flex flex-col min-h-screen">
-                {/* Header with wallet and language selector */}
-                <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b">
-                  <div className="flex justify-end items-center px-2 sm:px-3 py-2 gap-1 sm:gap-2">
-                    <LanguageSelector />
-                    <Wallet />
+              <AppWrapper>
+                <div className="flex flex-col min-h-screen">
+                  {/* Header with wallet and language selector */}
+                  <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b">
+                    <div className="flex justify-end items-center px-2 sm:px-3 py-2 gap-1 sm:gap-2">
+                      <LanguageSelector />
+                      <Wallet />
+                    </div>
                   </div>
+                  
+                  {/* Main content with top padding to account for fixed header */}
+                  <main className="flex-1 pt-12 sm:pt-14">
+                    {children}
+                  </main>
+                  <Navigation />
                 </div>
-                
-                {/* Main content with top padding to account for fixed header */}
-                <main className="flex-1 pt-12 sm:pt-14">
-                  {children}
-                </main>
-                <Navigation />
-                </div>
+              </AppWrapper>
             </PrivyAppProvider>
           </Providers>
         </ThemeProvider>
