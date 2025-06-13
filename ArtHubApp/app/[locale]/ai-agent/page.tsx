@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useParams } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
+import Header from "@/components/header"
 
 type Message = {
   role: "user" | "assistant"
@@ -180,45 +181,52 @@ export default function AIAgent() {
   }
 
   return (
-    <div className="pb-16 flex flex-col h-screen">
-      <div className="p-4 border-b">
-        <h1 className="text-xl font-bold text-center mt-10">{headerTitle[currentLocale] || headerTitle[defaultLocale]}</h1>
-      </div>
+    <div className="flex flex-col h-full">
+      <Header 
+        title={headerTitle[currentLocale] || headerTitle[defaultLocale]}
+        showBack={true}
+        backUrl={`/${currentLocale}`}
+      />
 
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="space-y-4">
+      {/* Conversation area - takes remaining space between header and input area */}
+      <div className="flex-1 overflow-y-auto p-2 sm:p-4 min-h-0 pb-2">
+        <div className="space-y-2 sm:space-y-3 max-w-4xl mx-auto">
           {messages.map((message, index) => (
             <Card
               key={index}
-              className={`p-3 max-w-[85%] ${
-                message.role === "user" ? "ml-auto bg-[#FF69B4] text-white" : "mr-auto bg-[#9ACD32] text-white"
+              className={`p-2.5 sm:p-4 max-w-[90%] sm:max-w-[80%] rounded-2xl ${
+                message.role === "user" ? "ml-auto bg-[#FF69B4] text-white shadow-lg" : "mr-auto bg-[#9ACD32] text-white shadow-lg"
               }`}
             >
-              {message.content}
+              <div className="text-sm sm:text-base leading-relaxed break-words">
+                {message.content}
+              </div>
             </Card>
           ))}
           {isLoading && (
-            <Card className="p-3 max-w-[85%] mr-auto bg-[#9ACD32] text-white">
-              <div className="flex space-x-2">
+            <Card className="p-2.5 sm:p-4 max-w-[90%] sm:max-w-[80%] mr-auto bg-[#9ACD32] text-white shadow-lg rounded-2xl">
+              <div className="flex space-x-2 items-center">
                 <div className="w-2 h-2 rounded-full bg-white animate-bounce"></div>
                 <div className="w-2 h-2 rounded-full bg-white animate-bounce" style={{ animationDelay: "0.2s" }}></div>
                 <div className="w-2 h-2 rounded-full bg-white animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+                <span className="text-sm ml-2 opacity-80">Thinking...</span>
               </div>
             </Card>
           )}
           {error && (
-            <Alert variant="destructive" className="mt-4">
+            <Alert variant="destructive" className="mt-3 mx-1 sm:mx-2">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription className="text-sm">{error}</AlertDescription>
             </Alert>
           )}
           <div ref={messagesEndRef}></div>
         </div>
       </div>
 
-      <div className="p-4 border-t bg-white">
+      {/* Fixed input area positioned just above bottom navigation */}
+      <div className="fixed bottom-16 left-0 right-0 p-3 sm:p-4 border-t bg-white/95 backdrop-blur-sm">
         {rateLimitInfo && rateLimitInfo.remaining < rateLimitInfo.limit && (
-          <div className="text-xs text-gray-500 mb-2">
+          <div className="text-xs text-gray-500 mb-2 px-1">
             {rateLimitInfo.remaining} {currentLocale === 'en' ? 'requests remaining' : currentLocale === 'es' ? 'solicitudes restantes' : currentLocale === 'fr' ? 'requêtes restantes' : 'solicitações restantes'} ({currentLocale === 'en' ? 'resets in' : currentLocale === 'es' ? 'se reinicia en' : currentLocale === 'fr' ? 'réinitialise dans' : 'redefine em'} {Math.ceil((rateLimitInfo.reset || 60) / 1000)} {currentLocale === 'en' ? 'seconds' : currentLocale === 'es' ? 'segundos' : currentLocale === 'fr' ? 'secondes' : 'segundos'})
           </div>
         )}
@@ -227,10 +235,10 @@ export default function AIAgent() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={placeholderText[currentLocale] || placeholderText[defaultLocale]}
-            className="flex-1"
+            className="flex-1 text-sm sm:text-base min-h-[44px]"
             disabled={isLoading}
           />
-          <Button type="submit" size="icon" className="bg-[#9ACD32] hover:bg-[#7CFC00]" disabled={isLoading}>
+          <Button type="submit" size="icon" className="bg-[#FF69B4] hover:bg-[#FF1493] min-w-[44px] min-h-[44px]" disabled={isLoading}>
             <Send className="h-4 w-4" />
           </Button>
         </form>

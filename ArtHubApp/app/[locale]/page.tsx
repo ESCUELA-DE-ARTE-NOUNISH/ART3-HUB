@@ -283,24 +283,63 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-4 py-8">
-      <header className="text-center mb-12">
-        <div className="flex items-center justify-center mt-2">
+    <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-4 py-2">
+      <header className="text-center mt-2">
+        <div className="flex items-center justify-center">
           <Image
             src="/images/logo.png"
             alt="Escuela de Arte Nounish Logo"
-            width={120}
-            height={120}
-            className="rounded-full"
+            width={140}
+            height={140}
+            className="rounded-sm"
           />
         </div>
+        {/*
         <h1 className="text-4xl font-bold text-pink-500">
           {messages.title}
         </h1>
-        <p className="mt-2 text-lg text-gray-600">
-          {messages.subtitle}
-        </p>
+        */}
+        {/* <p className=" text-xl text-gray-600">
+          <strong>{messages.subtitle}</strong>
+        </p> */}
       </header>
+
+      {/* Unlock Your Creative Future */}
+      <div className="md:mt-2 w-full text-center">
+        <h2 className="text-2xl font-bold text-pink-500  md:mb-8">{messages.unlock.title}</h2>
+        
+        <div className="bg-pink-50 rounded-lg p-6 shadow-sm mb-6">
+          <div className="flex items-center justify-center mb-2">
+            <Sparkles className="text-pink-500 mr-2" size={24} />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">{messages.unlock.opportunities}</h3>
+          <p className="text-gray-600">{messages.unlock.description}</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <div className="flex flex-col items-center">
+              <Sparkles className="text-pink-500 mb-2" size={20} />
+              <h4 className="font-medium">{messages.unlock.freedom}</h4>
+              <p className="text-sm text-gray-500">{messages.unlock.freedomDesc}</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <Crown className="text-lime-500 mb-2" size={20} />
+              <h4 className="font-medium">{messages.unlock.royalties}</h4>
+              <p className="text-sm text-gray-500">{messages.unlock.royaltiesDesc}</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <Globe className="text-pink-500 mb-2" size={20} />
+              <h4 className="font-medium">{messages.unlock.community}</h4>
+              <p className="text-sm text-gray-500">{messages.unlock.communityDesc}</p>
+            </div>
+          </div>
+          
+          <Link href={`/${locale}/opportunities`}>
+            <Button className="mt-6 bg-gradient-to-r from-pink-500 to-lime-500 hover:from-pink-600 hover:to-lime-600 text-white">
+              {messages.unlock.explore} <ArrowRight size={16} className="ml-2" />
+            </Button>
+          </Link>
+        </div>
+      </div>
 
       <div className="w-full space-y-6">
         {/* AI Education Agent */}
@@ -350,45 +389,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Unlock Your Creative Future */}
-      <div className="mt-12 w-full text-center">
-        <h2 className="text-2xl font-bold text-pink-500 mb-8">{messages.unlock.title}</h2>
-        
-        <div className="bg-pink-50 rounded-lg p-6 shadow-sm mb-6">
-          <div className="flex items-center justify-center mb-2">
-            <Sparkles className="text-pink-500 mr-2" size={24} />
-          </div>
-          <h3 className="text-lg font-semibold mb-2">{messages.unlock.opportunities}</h3>
-          <p className="text-gray-600">{messages.unlock.description}</p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <div className="flex flex-col items-center">
-              <Sparkles className="text-pink-500 mb-2" size={20} />
-              <h4 className="font-medium">{messages.unlock.freedom}</h4>
-              <p className="text-sm text-gray-500">{messages.unlock.freedomDesc}</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <Crown className="text-lime-500 mb-2" size={20} />
-              <h4 className="font-medium">{messages.unlock.royalties}</h4>
-              <p className="text-sm text-gray-500">{messages.unlock.royaltiesDesc}</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <Globe className="text-pink-500 mb-2" size={20} />
-              <h4 className="font-medium">{messages.unlock.community}</h4>
-              <p className="text-sm text-gray-500">{messages.unlock.communityDesc}</p>
-            </div>
-          </div>
-          
-          <Link href={`/${locale}/opportunities`}>
-            <Button className="mt-6 bg-gradient-to-r from-pink-500 to-lime-500 hover:from-pink-600 hover:to-lime-600 text-white">
-              {messages.unlock.explore} <ArrowRight size={16} className="ml-2" />
-            </Button>
-          </Link>
-        </div>
-      </div>
 
       {/* Footer */}
-      <footer className="mt-4 mb-12 text-center text-sm text-gray-500">
+      <footer className="mt-4 mb-24 text-center text-sm text-gray-500">
         <p>{messages.footer.created}</p>
         <p>{messages.footer.built}</p>
       </footer>

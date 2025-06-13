@@ -18,7 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { CheckCircle2, Copy } from "lucide-react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import { NetworkSelector } from "@/components/network-selector"
 
@@ -222,6 +222,7 @@ const translations = {
 
 function CreateNFT() {
   const params = useParams()
+  const router = useRouter()
   const [locale, setLocale] = useState<string>(defaultLocale)
   const [t, setT] = useState(translations.en)
   
@@ -795,21 +796,20 @@ function CreateNFT() {
     <div className="pb-16">
       <Header title={t.title} />
 
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <Card className="max-w-2xl mx-auto">
-          <CardHeader>
-            <CardTitle>{t.title}</CardTitle>
-            <CardDescription>
+          <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
+            <CardDescription className="text-sm sm:text-base text-center">
               {t.subtitle}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-4 sm:px-6 pb-6">
             {!isConnected ? (
               <div className="text-center py-8">
                 <p className="text-muted-foreground mb-4">{t.walletRequired}</p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 {/* Network Selector */}
                 <NetworkSelector
                   selectedNetwork={selectedNetwork}
@@ -819,11 +819,11 @@ function CreateNFT() {
                 
                 {/* Wallet Information */}
                 <Card className="bg-gray-50 border-gray-200">
-                  <CardContent className="p-4">
+                  <CardContent className="p-3 sm:p-4">
                     <div className="space-y-3">
                       {/* Wallet Address */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div className="flex-1 min-w-0">
                           <Label className="text-sm font-medium text-gray-700">{t.walletAddress}</Label>
                           <p className="text-sm font-mono text-gray-600 break-all">
                             {address?.slice(0, 6)}...{address?.slice(-4)}
@@ -834,7 +834,7 @@ function CreateNFT() {
                           variant="outline"
                           size="sm"
                           onClick={copyAddressToClipboard}
-                          className="ml-2"
+                          className="w-full sm:w-auto"
                         >
                           <Copy className="h-4 w-4 mr-1" />
                           {t.copyAddress}
@@ -842,7 +842,7 @@ function CreateNFT() {
                       </div>
                       
                       {/* Balance Information */}
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <div className="flex-1">
                           <Label className="text-sm font-medium text-gray-700">{t.walletBalance}</Label>
                           <p className="text-sm font-semibold text-gray-900">
@@ -855,7 +855,7 @@ function CreateNFT() {
                             )}
                           </p>
                         </div>
-                        <div className="text-right">
+                        <div className="text-left sm:text-right">
                           <p className="text-xs text-gray-500">{t.deploymentFee}</p>
                         </div>
                       </div>
@@ -881,7 +881,7 @@ function CreateNFT() {
                         <img
                           src={image || "/placeholder.svg"}
                           alt="NFT Preview"
-                          className="w-full h-64 object-cover rounded-lg border"
+                          className="w-full h-48 sm:h-64 object-cover rounded-lg border"
                         />
                         <Button
                           type="button"
@@ -894,13 +894,14 @@ function CreateNFT() {
                         </Button>
                       </div>
                     ) : (
-                      <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 border-gray-300">
-                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <ImagePlus className="w-10 h-10 mb-3 text-gray-400" />
-                          <p className="mb-2 text-sm text-gray-500">
-                            <span className="font-semibold">{t.clickToUpload}</span> {t.dragAndDrop}
+                      <label className="flex flex-col items-center justify-center w-full h-48 sm:h-64 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 border-gray-300">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6 px-4">
+                          <ImagePlus className="w-8 h-8 sm:w-10 sm:h-10 mb-3 text-gray-400" />
+                          <p className="mb-2 text-sm text-gray-500 text-center">
+                            <span className="font-semibold">{t.clickToUpload}</span> 
+                            <span className="hidden sm:inline"> {t.dragAndDrop}</span>
                           </p>
-                          <p className="text-xs text-gray-500">{t.imageFormats}</p>
+                          <p className="text-xs text-gray-500 text-center">{t.imageFormats}</p>
                         </div>
                         <Input
                           id="dropzone-file"
@@ -924,7 +925,7 @@ function CreateNFT() {
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder={t.titlePlaceholder}
                     required
-                    className="mt-2"
+                    className="mt-2 text-base"
                   />
                 </div>
 
@@ -937,9 +938,9 @@ function CreateNFT() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder={t.descriptionPlaceholder}
-                    rows={5}
+                    rows={4}
                     required
-                    className="mt-2"
+                    className="mt-2 text-base resize-none"
                   />
                 </div>
                 
@@ -957,7 +958,7 @@ function CreateNFT() {
                     value={royaltyPercentage}
                     onChange={(e) => setRoyaltyPercentage(e.target.value)}
                     placeholder={t.royaltyPlaceholder}
-                    className="mt-2"
+                    className="mt-2 text-base"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
                     {t.royaltyHelp}
@@ -1044,7 +1045,7 @@ function CreateNFT() {
                           </div>
                         )}
                         
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="flex flex-col sm:grid sm:grid-cols-2 gap-2">
                           <Button
                             type="button"
                             variant="outline"
@@ -1054,7 +1055,7 @@ function CreateNFT() {
                               e.stopPropagation()
                               window.open(getBlockExplorerUrl(transactionHash), '_blank')
                             }}
-                            className="flex-1"
+                            className="w-full h-10"
                           >
                             <ExternalLink className="h-4 w-4 mr-1" />
                             {t.viewExplorer}
@@ -1069,7 +1070,7 @@ function CreateNFT() {
                               e.stopPropagation()
                               window.open(getBlockscoutCollectionLink(mintResult), '_blank')
                             }}
-                            className="flex-1"
+                            className="w-full h-10"
                           >
                             <ExternalLink className="h-4 w-4 mr-1" />
                             {t.viewCollection}
@@ -1085,7 +1086,7 @@ function CreateNFT() {
                                 e.stopPropagation()
                                 window.open(`https://gateway.pinata.cloud/ipfs/${ipfsImageHash}`, '_blank')
                               }}
-                              className="flex-1"
+                              className="w-full h-10"
                             >
                               <ExternalLink className="h-4 w-4 mr-1" />
                               {t.viewIPFSImage}
@@ -1102,7 +1103,7 @@ function CreateNFT() {
                                 e.stopPropagation()
                                 window.open(`https://gateway.pinata.cloud/ipfs/${ipfsMetadataHash}`, '_blank')
                               }}
-                              className="flex-1"
+                              className="w-full h-10"
                             >
                               <ExternalLink className="h-4 w-4 mr-1" />
                               {t.viewIPFSMetadata}
@@ -1110,7 +1111,7 @@ function CreateNFT() {
                           )}
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="flex flex-col sm:grid sm:grid-cols-2 gap-2">
                           <Button
                             type="button"
                             variant="outline"
@@ -1118,9 +1119,10 @@ function CreateNFT() {
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
-                              window.location.href = `/${locale}/my-nfts`
+                              // Navigate with a timestamp parameter to force refresh
+                              router.push(`/${locale}/my-nfts?refresh=${Date.now()}`)
                             }}
-                            className="flex-1"
+                            className="w-full h-10"
                           >
                             {t.viewInGallery}
                           </Button>
@@ -1134,7 +1136,7 @@ function CreateNFT() {
                               e.stopPropagation()
                               resetForm()
                             }}
-                            className="flex-1 bg-[#FF69B4] hover:bg-[#FF1493]"
+                            className="w-full h-10 bg-[#FF69B4] hover:bg-[#FF1493]"
                           >
                             {t.createAnother}
                           </Button>
@@ -1146,7 +1148,7 @@ function CreateNFT() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-[#FF69B4] hover:bg-[#FF1493]"
+                  className="w-full bg-[#FF69B4] hover:bg-[#FF1493] h-12 text-base font-medium"
                   disabled={!image || !title || !description || isLoading || !isConnected || (!balanceLoading && !isBalanceSufficient)}
                 >
                   {isLoading ? (

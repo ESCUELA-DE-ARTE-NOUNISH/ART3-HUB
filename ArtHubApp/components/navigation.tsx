@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Home, Search, Grid3X3, User, Image } from "lucide-react"
+import { Home, Search, Grid3X3, User, Image, Bot } from "lucide-react"
 import { usePathname, useParams, useRouter } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import { useAccount, useConnect } from 'wagmi'
@@ -78,13 +78,17 @@ export default function Navigation() {
              locale === 'pt' ? 'Explorar' : 
              locale === 'fr' ? 'Explorer' : 'Explore',
              
-    profile: locale === 'es' ? 'Perfil' : 
-             locale === 'pt' ? 'Perfil' : 
-             locale === 'fr' ? 'Profil' : 'Profile',
+    aiAgent: locale === 'es' ? 'IA Agente' : 
+             locale === 'pt' ? 'IA Agente' : 
+             locale === 'fr' ? 'Agent IA' : 'AI Agent',
              
     myNfts: locale === 'es' ? 'Mis NFTs' : 
             locale === 'pt' ? 'Meus NFTs' : 
-            locale === 'fr' ? 'Mes NFTs' : 'My NFTs'
+            locale === 'fr' ? 'Mes NFTs' : 'My NFTs',
+             
+    profile: locale === 'es' ? 'Perfil' : 
+             locale === 'pt' ? 'Perfil' : 
+             locale === 'fr' ? 'Profil' : 'Profile'
   }
 
   // Wallet required messages
@@ -195,21 +199,27 @@ export default function Navigation() {
   return (
     <div className="fixed bottom-0 left-0 right-0 border-t bg-white">
       <div className="flex justify-around py-2">
-        <Link href={getLocalizedPath("/")} className="flex flex-col items-center px-2 py-1">
+        <Link href={getLocalizedPath("/")} className="flex flex-col items-center px-1 py-1">
           <Home className={`h-5 w-5 ${isActive("/") ? "text-[#FF69B4]" : "text-gray-500"}`} />
           <span className={`text-xs mt-1 ${isActive("/") ? "text-[#FF69B4] font-medium" : "text-gray-500"}`}>
             {labels.home}
           </span>
         </Link>
-        <Link href={getLocalizedPath("/explore")} className="flex flex-col items-center px-2 py-1">
+        <Link href={getLocalizedPath("/explore")} className="flex flex-col items-center px-1 py-1">
           <Search className={`h-5 w-5 ${isActive("/explore") ? "text-[#FF69B4]" : "text-gray-500"}`} />
           <span className={`text-xs mt-1 ${isActive("/explore") ? "text-[#FF69B4] font-medium" : "text-gray-500"}`}>
             {labels.explore}
           </span>
         </Link>
+        <Link href={getLocalizedPath("/ai-agent")} className="flex flex-col items-center px-1 py-1">
+          <Bot className={`h-5 w-5 ${isActive("/ai-agent") ? "text-[#FF69B4]" : "text-gray-500"}`} />
+          <span className={`text-xs mt-1 ${isActive("/ai-agent") ? "text-[#FF69B4] font-medium" : "text-gray-500"}`}>
+            {labels.aiAgent}
+          </span>
+        </Link>
         <button 
           onClick={() => handleProtectedNavigation("/my-nfts")} 
-          className="flex flex-col items-center px-2 py-1"
+          className="flex flex-col items-center px-1 py-1"
         >
           <Image className={`h-5 w-5 ${isActive("/my-nfts") ? "text-[#FF69B4]" : "text-gray-500"}`} />
           <span
@@ -220,7 +230,7 @@ export default function Navigation() {
         </button>
         <button 
           onClick={() => handleProtectedNavigation("/profile")} 
-          className="flex flex-col items-center px-2 py-1"
+          className="flex flex-col items-center px-1 py-1"
         >
           <User className={`h-5 w-5 ${isActive("/profile") ? "text-[#FF69B4]" : "text-gray-500"}`} />
           <span className={`text-xs mt-1 ${isActive("/profile") ? "text-[#FF69B4] font-medium" : "text-gray-500"}`}>

@@ -207,7 +207,7 @@ export function NetworkSelector({ selectedNetwork, onNetworkChange, locale = 'en
         </div>
       )}
       
-      <div className="flex gap-2 flex-wrap justify-center">
+      <div className="flex gap-2 flex-wrap justify-center sm:justify-start">
         {SUPPORTED_NETWORKS.map((network) => {
           const activeNetwork = getActiveNetwork(network.name, isTestingMode)
           const isSelected = selectedNetwork === network.name

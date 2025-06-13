@@ -58,11 +58,16 @@ export default function LocalizedRootLayout({
           <Providers>
             <PrivyAppProvider>
               <div className="flex flex-col min-h-screen">
-                <div className="flex mx-auto px-4">
-                  <Wallet />
-                  <LanguageSelector />
+                {/* Header with wallet and language selector */}
+                <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b">
+                  <div className="flex justify-end items-center px-2 sm:px-3 py-2 gap-1 sm:gap-2">
+                    <LanguageSelector />
+                    <Wallet />
+                  </div>
                 </div>
-                <main className="flex-1">
+                
+                {/* Main content with top padding to account for fixed header */}
+                <main className="flex-1 pt-12 sm:pt-14">
                   {children}
                 </main>
                 <Navigation />
