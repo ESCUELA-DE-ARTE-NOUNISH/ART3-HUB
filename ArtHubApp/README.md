@@ -6,6 +6,7 @@ A modern, multi-platform Web3 NFT creation and marketplace platform built with N
 
 ### Core Functionality
 - **🎨 NFT Collection Creation**: Deploy your own ERC-721 collections via Art3Hub Factory
+- **🔍 NFT Discovery & Marketplace**: Explore, search, and discover NFTs with advanced filtering
 - **🌐 Multi-Network Support**: Base and Zora networks (mainnet + testnet)
 - **📱 Multi-Platform**: Browser, mobile, and Farcaster frame compatibility
 - **🌍 Internationalization**: Support for English, Spanish, French, and Portuguese
@@ -34,6 +35,7 @@ ArtHubApp/
 ├── app/                    # Next.js App Router
 │   ├── [locale]/          # Internationalized routes
 │   │   ├── create/        # NFT creation page
+│   │   ├── explore/       # NFT discovery & marketplace
 │   │   ├── my-nfts/       # User gallery
 │   │   ├── ai-agent/      # AI assistant
 │   │   └── ...
@@ -102,7 +104,14 @@ ArtHubApp/
 5. **Database Setup**
    Run the SQL migrations in your Supabase project:
    ```sql
-   -- See database/schema.sql for complete setup
+   -- Initial schema setup
+   \i database/schema.sql
+   
+   -- Add NFT tables
+   \i database/nfts-table.sql
+   
+   -- Add explore page functionality (required for v2.0.0+)
+   \i database/migration-add-artist-category.sql
    ```
 
 6. **Start Development Server**
@@ -178,9 +187,16 @@ ArtHubApp/
 
 ### NFT Collection Creation
 1. **Upload Artwork**: Drag & drop image files (PNG, JPG, GIF - max 10MB)
-2. **Add Metadata**: Title, description, and royalty percentage
+2. **Add Metadata**: Title, description, artist name, category, and royalty percentage
 3. **Deploy Collection**: Automatic factory contract interaction
 4. **Share & Mint**: Collection becomes immediately available for minting
+
+### NFT Discovery & Exploration
+- **Advanced Search**: Search by NFT name, artist, or description
+- **Category Filtering**: Browse by art category (Digital Art, Photography, 3D Art, etc.)
+- **Trending System**: Discover popular NFTs based on views and engagement
+- **Artist Discovery**: Find and explore works by specific artists
+- **Real-time Statistics**: View counts, likes, and popularity metrics
 
 ### Gallery & Management
 - **Personal Gallery**: View all created NFTs and collections
@@ -212,8 +228,8 @@ npm run db:seed      # Seed database with test data
 ### API Routes
 
 #### NFT Management
-- `POST /api/nfts` - Create NFT record
-- `GET /api/nfts` - List user NFTs
+- `POST /api/nfts` - Create NFT record with artist and category metadata
+- `GET /api/nfts` - List and filter NFTs (supports search, category, artist, sorting)
 - `PUT /api/nfts/[id]` - Update NFT data
 - `DELETE /api/nfts/[id]` - Delete NFT record
 

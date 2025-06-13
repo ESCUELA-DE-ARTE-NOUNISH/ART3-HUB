@@ -11,12 +11,16 @@ export async function POST(request: NextRequest) {
     const { 
       wallet_address, 
       name, 
-      description, 
+      description,
+      artist_name,
+      category,
       image_ipfs_hash, 
       metadata_ipfs_hash, 
       transaction_hash,
       network,
-      royalty_percentage 
+      royalty_percentage,
+      contract_address,
+      token_id
     } = await request.json()
 
     if (!wallet_address || !name || !image_ipfs_hash) {
@@ -30,11 +34,15 @@ export async function POST(request: NextRequest) {
         wallet_address: wallet_address.toLowerCase(),
         name,
         description,
+        artist_name,
+        category: category || 'Digital Art',
         image_ipfs_hash,
         metadata_ipfs_hash,
         transaction_hash,
         network,
         royalty_percentage: parseFloat(royalty_percentage) || 0,
+        contract_address,
+        token_id,
         created_at: new Date().toISOString()
       })
       .select()
@@ -62,24 +70,83 @@ export async function GET(request: NextRequest) {
     }
     const { searchParams } = new URL(request.url)
     const wallet_address = searchParams.get('wallet_address')
+    const search = searchParams.get('search')
+    const category = searchParams.get('category')
+    const artist = searchParams.get('artist')
+    const sortBy = searchParams.get('sortBy') || 'created_at' // trending, latest, popular
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const offset = parseInt(searchParams.get('offset') || '0')
 
-    if (!wallet_address) {
-      return NextResponse.json({ error: 'Wallet address required' }, { status: 400 })
+    let query = supabase.from('nfts').select('*')
+
+    // Filter by wallet address if provided (for user's personal gallery)
+    if (wallet_address) {
+      query = query.eq('wallet_address', wallet_address.toLowerCase())
     }
 
-    // Fetch NFTs for the wallet
-    const { data, error } = await supabase
-      .from('nfts')
-      .select('*')
-      .eq('wallet_address', wallet_address.toLowerCase())
-      .order('created_at', { ascending: false })
+    // Search functionality (search in name, description, artist_name)
+    if (search) {
+      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%,artist_name.ilike.%${search}%`)
+    }
+
+    // Filter by category
+    if (category && category !== 'all') {
+      query = query.eq('category', category)
+    }
+
+    // Filter by artist
+    if (artist) {
+      query = query.eq('artist_name', artist)
+    }
+
+    // Sorting
+    switch (sortBy) {
+      case 'trending':
+        query = query.order('view_count', { ascending: false }).order('created_at', { ascending: false })
+        break
+      case 'popular':
+        query = query.order('likes_count', { ascending: false }).order('created_at', { ascending: false })
+        break
+      case 'latest':
+      default:
+        query = query.order('created_at', { ascending: false })
+        break
+    }
+
+    // Apply pagination
+    query = query.range(offset, offset + limit - 1)
+
+    const { data, error } = await query
 
     if (error) {
       console.error('Database error:', error)
       return NextResponse.json({ error: 'Failed to fetch NFTs' }, { status: 500 })
     }
 
-    return NextResponse.json({ nfts: data || [] })
+    // Get total count for pagination (only if not filtering by wallet_address)
+    let totalCount = 0
+    if (!wallet_address) {
+      let countQuery = supabase.from('nfts').select('*', { count: 'exact', head: true })
+      
+      if (search) {
+        countQuery = countQuery.or(`name.ilike.%${search}%,description.ilike.%${search}%,artist_name.ilike.%${search}%`)
+      }
+      if (category && category !== 'all') {
+        countQuery = countQuery.eq('category', category)
+      }
+      if (artist) {
+        countQuery = countQuery.eq('artist_name', artist)
+      }
+
+      const { count } = await countQuery
+      totalCount = count || 0
+    }
+
+    return NextResponse.json({ 
+      nfts: data || [], 
+      totalCount,
+      hasMore: data && data.length === limit
+    })
 
   } catch (error) {
     console.error('Error fetching NFTs:', error)
