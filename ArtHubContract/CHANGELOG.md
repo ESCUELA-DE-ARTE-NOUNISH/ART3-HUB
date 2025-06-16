@@ -5,6 +5,249 @@ All notable changes to the Art3 Hub smart contracts will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-01-16
+
+### 🚀 **Major Release: Art3Hub V2 - Subscription-Based Platform**
+
+Art3Hub V2 introduces a complete paradigm shift from pay-per-deployment to subscription-based NFT creation with gasless experiences and enhanced artist onboarding.
+
+### 🆕 Added
+
+#### Subscription Management System
+- **SubscriptionManager.sol**: Core subscription logic with free and premium tiers
+  - **Plan Gratuito (Free)**: 1 gasless NFT mint, basic educational access, guided Web3 onboarding
+  - **Plan Master ($4.99/month)**: 10 NFTs/month, exclusive workshops, enhanced visibility, full AI agent access
+- **USDC Payment Processing**: Accept stable coin payments for subscriptions
+- **Quota Tracking**: Automated NFT minting limits per subscription tier
+- **Subscription Expiration**: Time-based subscription management with automatic renewals
+- **No Deployment Fees**: Collection creation included in subscription plans (eliminates 0.001 ETH fee from V1)
+
+#### Gasless Transaction Infrastructure
+- **Art3HubCollectionV2.sol**: Enhanced ERC721 with gasless minting capabilities
+- **Art3HubFactoryV2.sol**: Gasless collection deployment using meta-transactions
+- **GaslessRelayer.sol**: Meta-transaction relayer with EIP-712 signature verification
+- **EIP-712 Typed Data**: Secure signature-based transactions for gasless operations
+- **Batch Operations**: Support for batch gasless transactions
+
+#### Enhanced NFT Collections
+- **Subscription Integration**: Automatic validation of minting quotas before NFT creation
+- **Meta-transaction Support**: EIP-712 signatures for gasless minting
+- **Artist Control**: Artists retain full control over their collections
+- **OpenSea Compatibility**: Full OpenSea integration with gasless listing support
+- **Royalty Management**: Enhanced ERC-2981 implementation with flexible royalty settings
+
+#### AI Agent Integration Support
+- **Subscription-based Access**: Different AI capabilities based on subscription tier
+- **Smart Contract Hooks**: Built-in support for AI agent interaction tracking
+- **Usage Analytics**: Track AI agent usage per subscription plan
+
+#### Advanced Security Features
+- **Nonce-based Replay Protection**: Prevent transaction replay attacks
+- **Deadline Expiration**: Time-limited signature validity
+- **Authorized Relayer System**: Controlled access to gasless transaction execution
+- **Signature Verification**: Comprehensive EIP-712 signature validation
+
+#### Developer Experience Improvements
+- **Comprehensive Test Suite**: 100+ tests covering all V2 functionality
+- **TypeChain Integration**: Full type-safe contract interactions
+- **Deployment Scripts**: Automated V2 contract deployment across all networks
+- **Gas Optimization**: Significant gas savings through improved contract design
+
+### 🔧 Technical Specifications
+
+#### New Smart Contracts
+- **SubscriptionManager.sol** - Subscription and quota management
+- **Art3HubCollectionV2.sol** - Enhanced NFT collections with gasless features
+- **Art3HubFactoryV2.sol** - Factory with subscription validation and gasless deployment
+- **GaslessRelayer.sol** - Meta-transaction relayer infrastructure
+
+#### Contract Features
+- **EIP-712 Compliance**: Structured data signing for gasless transactions
+- **Minimal Proxy Pattern**: Continued gas efficiency with 90% deployment cost reduction
+- **Upgradeable Architecture**: Future-proof design with upgrade capabilities
+- **Multi-network Support**: Deploy across Base, Zora, and Celo networks
+
+#### Gasless Transaction Flow
+```
+User → Signs EIP-712 Message → Relayer → Validates Signature → Executes Transaction → Blockchain
+```
+
+#### Subscription Model
+```
+Artist → Subscribes to Plan → Gets Quota → Creates Collection → Mints NFTs → Quota Decreases
+```
+
+### 📋 Subscription Plans
+
+#### Plan Gratuito (Free Tier)
+- **Price**: Free
+- **Duration**: 365 days
+- **NFT Limit**: 1 gasless mint
+- **Collection Creation**: ✅ Included (no deployment fee)
+- **Features**: Basic education, guided onboarding, limited AI access
+- **Gasless**: ✅ Yes
+
+#### Plan Master (Premium Tier)
+- **Price**: $4.99/month (in USDC)
+- **Duration**: 30 days
+- **NFT Limit**: 10 gasless mints per month
+- **Collection Creation**: ✅ Unlimited collections included (no deployment fees)
+- **Features**: Workshops, enhanced visibility, reputation system, full AI access
+- **Gasless**: ✅ Yes
+
+### 💰 Fee Model Changes
+
+#### V2 vs V1 Fee Structure
+- **V1 Model**: 0.001 ETH deployment fee per collection + 2.5% platform fee on mints
+- **V2 Model**: Subscription-based access (no deployment fees) + 2.5% platform fee on mints
+- **Cost Comparison**: 
+  - V1: $3+ per collection (at current ETH prices) + ongoing fees
+  - V2: $0-4.99/month for unlimited collections + ongoing fees
+
+### 🌐 Network Support
+
+#### Supported Networks
+- **Base Mainnet** (8453) & **Base Sepolia** (84532)
+- **Zora Mainnet** (7777777) & **Zora Sepolia** (999999999)
+- **Celo Mainnet** (42220) & **Celo Alfajores** (44787)
+
+#### Deployed Contracts - V2.0.0
+
+##### Base Sepolia (84532) - January 16, 2025 ✅ **VERIFIED**
+- **SubscriptionManager**: [`0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4`](https://sepolia.basescan.org/address/0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4#code)
+- **Art3HubCollectionV2 Implementation**: [`0x41BE244598b4B8329ff68bD242C2fa58a9084e26`](https://sepolia.basescan.org/address/0x41BE244598b4B8329ff68bD242C2fa58a9084e26#code)
+- **Art3HubFactoryV2**: [`0x75Ed9ACB51D2BEaCfD6c76099D63d3a0009F4a40`](https://sepolia.basescan.org/address/0x75Ed9ACB51D2BEaCfD6c76099D63d3a0009F4a40#code)
+- **GaslessRelayer**: [`0x5116F90f3a26c7d825bE6Aa74544187b43c52a56`](https://sepolia.basescan.org/address/0x5116F90f3a26c7d825bE6Aa74544187b43c52a56#code)
+- **USDC Token**: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
+- **Deployer**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+- **Platform Fee**: 2.5%
+- **Blockscout**: [All contracts](https://base-sepolia.blockscout.com/)
+
+##### Zora Sepolia (999999999) - January 16, 2025 ✅ **VERIFIED**
+- **SubscriptionManager**: [`0xf1D63b42fb8c4887d6deB34c5fba81B18Bd2e3Ea`](https://sepolia.explorer.zora.energy/address/0xf1D63b42fb8c4887d6deB34c5fba81B18Bd2e3Ea#code)
+- **Art3HubCollectionV2 Implementation**: [`0x2f302E1604E3657035C1EADa450582fA4417f598`](https://sepolia.explorer.zora.energy/address/0x2f302E1604E3657035C1EADa450582fA4417f598#code)
+- **Art3HubFactoryV2**: [`0x270B8770F59c767ff55595e893c7E16A88347FE9`](https://sepolia.explorer.zora.energy/address/0x270B8770F59c767ff55595e893c7E16A88347FE9#code)
+- **GaslessRelayer**: [`0xA68f7C09EdBF3aD3705ECc652E132BAeD2a29F85`](https://sepolia.explorer.zora.energy/address/0xA68f7C09EdBF3aD3705ECc652E132BAeD2a29F85#code)
+- **USDC Token**: `0xCccCCccc7021b32EBb4e8C08314bD62F7c653EC4` (placeholder)
+- **Deployer**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+- **Platform Fee**: 2.5%
+- **Blockscout**: [All contracts](https://zora-sepolia.blockscout.com/)
+
+#### Configuration Details
+- **OpenSea Proxy Registry**: `0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC` (both networks)
+- **Platform Fee Recipient**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+- **Platform Fee**: 2.5% (unchanged from V1)
+- **Deployment Fees**: ❌ Eliminated (subscription-based access)
+- **Gasless Transactions**: Enabled on all deployed networks
+- **Subscription Processing**: USDC-based payment system
+- **Factory Authorization**: Automatic configuration during deployment
+- **Celo Mainnet** (42220) & **Celo Alfajores** (44787)
+
+#### Payment Tokens
+- **USDC**: Primary payment token for subscriptions
+- **Network-specific USDC addresses** configured per deployment
+
+### 🔄 Migration & Compatibility
+
+#### V1 to V2 Relationship
+- **Independent Systems**: V2 runs alongside V1 without conflicts
+- **No Migration Required**: Existing V1 collections continue functioning
+- **Artist Choice**: Artists can use both V1 and V2 simultaneously
+- **Feature Parity**: V2 includes all V1 features plus subscription benefits
+
+#### Choosing Between Versions
+**Use V2 for**:
+- New artist onboarding with gasless experience
+- Subscription-based business models
+- AI agent integration requirements
+- Enhanced user experience with meta-transactions
+
+**Use V1 for**:
+- Existing collections (maintain as-is)
+- Traditional pay-per-deployment models
+- Simple NFT needs without subscriptions
+
+### 📚 Documentation
+
+#### New Documentation Files
+- **README_V2.md**: Complete V2 documentation with integration examples
+- **Updated README.md**: Dual-version documentation with migration guidance
+- **Test Suite**: Comprehensive testing documentation and examples
+
+#### Integration Examples
+- Frontend integration with subscription management
+- Gasless minting implementation
+- Subscription status checking
+- Meta-transaction signing and execution
+
+### 🚀 Deployment Commands
+
+#### V2 Deployment
+```bash
+# Deploy V2 contracts to any supported network
+npx hardhat run scripts/deploy-v2-contracts.ts --network [NETWORK]
+
+# Example networks: baseSepolia, base, zoraSepolia, zora, celoSepolia, celo
+```
+
+#### Contract Verification
+```bash
+# V2 contracts include automated verification commands in deployment output
+# Example for Base Sepolia:
+npx hardhat verify --network baseSepolia [ADDRESS] [CONSTRUCTOR_ARGS]
+```
+
+### 🔐 Security Enhancements
+
+#### Access Control Improvements
+- **Subscription-based Access**: Only valid subscribers can mint NFTs
+- **Authorized Relayers**: Controlled gasless transaction execution
+- **Time-limited Signatures**: Prevent old signature reuse
+- **Nonce Management**: Comprehensive replay attack protection
+
+#### Audit Considerations
+- **EIP-712 Implementation**: Industry-standard meta-transaction security
+- **Fee Limits**: Capped fees prevent excessive charges
+- **Emergency Controls**: Owner-controlled emergency functions for security incidents
+
+### 💰 Business Model Innovation
+
+#### Revenue Streams
+- **Subscription Revenue**: Monthly recurring revenue from premium plans
+- **Platform Fees**: Continued fee collection on NFT mints
+- **Enhanced Value**: Gasless experience increases user adoption and retention
+
+#### Artist Benefits
+- **Reduced Barriers**: Free tier removes entry barriers for new artists
+- **Enhanced Features**: Premium tier provides advanced capabilities
+- **Gasless Experience**: Improved UX increases artist satisfaction and platform stickiness
+
+### 📈 Performance Improvements
+
+#### Gas Optimization
+- **Batch Operations**: Multiple operations in single transaction
+- **Optimized Storage**: Efficient data structures reduce gas costs
+- **Proxy Pattern**: Continued 90% gas savings on collection deployment
+
+#### User Experience
+- **Gasless Onboarding**: Artists can start without owning ETH
+- **Instant Transactions**: Meta-transactions provide immediate feedback
+- **Subscription Management**: Clear quota tracking and renewal processes
+
+### 🎯 Future Roadmap Integration
+
+#### AI Agent Compatibility
+- **Built-in Hooks**: Smart contracts ready for AI agent integration
+- **Usage Tracking**: Monitor AI agent interactions per subscription
+- **Tiered Access**: Different AI capabilities based on subscription level
+
+#### Analytics & Insights
+- **Subscription Metrics**: Track subscription conversions and retention
+- **Usage Analytics**: Monitor NFT creation patterns by subscription tier
+- **Revenue Attribution**: Track revenue by subscription plan and network
+
+---
+
 ## [1.0.3] - 2025-06-12
 
 ### Deployed
