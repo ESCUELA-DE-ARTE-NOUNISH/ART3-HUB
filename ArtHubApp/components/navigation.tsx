@@ -78,9 +78,9 @@ export default function Navigation() {
              locale === 'pt' ? 'Explorar' : 
              locale === 'fr' ? 'Explorer' : 'Explore',
              
-    aiAgent: locale === 'es' ? 'IA Agente' : 
-             locale === 'pt' ? 'IA Agente' : 
-             locale === 'fr' ? 'Agent IA' : 'AI Agent',
+    aiAgent: locale === 'es' ? 'Agente' : 
+             locale === 'pt' ? 'Agente' : 
+             locale === 'fr' ? 'Agent' : 'Agent',
              
     myNfts: locale === 'es' ? 'Mis NFTs' : 
             locale === 'pt' ? 'Meus NFTs' : 
@@ -211,12 +211,12 @@ export default function Navigation() {
             {labels.explore}
           </span>
         </Link>
-        <Link href={getLocalizedPath("/ai-agent")} className="flex flex-col items-center px-1 py-1">
+        {/* <Link href={getLocalizedPath("/ai-agent")} className="flex flex-col items-center px-1 py-1">
           <Bot className={`h-5 w-5 ${isActive("/ai-agent") ? "text-[#FF69B4]" : "text-gray-500"}`} />
           <span className={`text-xs mt-1 ${isActive("/ai-agent") ? "text-[#FF69B4] font-medium" : "text-gray-500"}`}>
             {labels.aiAgent}
           </span>
-        </Link>
+        </Link> */}
         <button 
           onClick={() => handleProtectedNavigation("/my-nfts")} 
           className="flex flex-col items-center px-1 py-1"
