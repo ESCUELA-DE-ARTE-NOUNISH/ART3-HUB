@@ -14,6 +14,9 @@ export default function AppWrapper({ children }: AppWrapperProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [isFarcaster, setIsFarcaster] = useState(false)
 
+  // Check if splash screen is enabled via environment variable
+  const splashEnabled = process.env.NEXT_PUBLIC_ENABLE_SPLASH_SCREEN !== 'false'
+
   // Use MiniKit context to detect Farcaster environment
   const { context } = useMiniKit()
   const isMiniKit = !!context
@@ -56,8 +59,12 @@ export default function AppWrapper({ children }: AppWrapperProps) {
     // Small delay to ensure proper hydration
     const timer = setTimeout(() => {
       try {
-        // In Farcaster, always show splash (ignore sessionStorage)
-        if (farcasterDetected) {
+        // If splash screen is disabled via env var, never show it
+        if (!splashEnabled) {
+          console.log('Splash screen disabled via environment variable')
+          setShowSplash(false)
+        } else if (farcasterDetected) {
+          // In Farcaster, always show splash (ignore sessionStorage)
           console.log('Farcaster environment detected, showing splash')
           setShowSplash(true)
         } else {
@@ -69,14 +76,14 @@ export default function AppWrapper({ children }: AppWrapperProps) {
         }
       } catch (error) {
         console.log('Error accessing sessionStorage:', error)
-        // If sessionStorage fails, show splash
-        setShowSplash(true)
+        // If sessionStorage fails, show splash only if enabled
+        setShowSplash(splashEnabled)
       }
       setIsLoading(false)
     }, 100)
 
     return () => clearTimeout(timer)
-  }, [isMiniKit])
+  }, [isMiniKit, splashEnabled])
 
   const handleSplashComplete = () => {
     try {
