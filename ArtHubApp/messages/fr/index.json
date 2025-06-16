@@ -23,7 +23,7 @@
     "createNft": {
       "title": "Créer et Frapper des NFTs",
       "description": "Téléchargez votre œuvre d'art et frappez-la en tant que NFT sur la blockchain Base.",
-      "button": "Créer un NFT"
+      "button": "Créer"
     },
     "wallet": {
       "title": "Gérer le Portefeuille",

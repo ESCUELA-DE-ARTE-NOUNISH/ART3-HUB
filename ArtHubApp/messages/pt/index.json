@@ -23,7 +23,7 @@
     "createNft": {
       "title": "Criar e Cunhar NFTs",
       "description": "Faça upload da sua obra de arte e cunhe-a como NFT na blockchain Base.",
-      "button": "Criar NFT"
+      "button": "Criar"
     },
     "wallet": {
       "title": "Gerenciar Carteira",

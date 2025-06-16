@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { defaultLocale } from '@/config/i18n'
 import Link from 'next/link'
-import { ArrowRight, Sparkles, Crown, Globe } from 'lucide-react'
+import { ArrowRight, Sparkles, Crown, Globe, Camera, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { useUserProfile } from '@/hooks/useUserProfile'
@@ -108,7 +108,7 @@ export default function Home() {
     createNft: {
       title: "Create & Mint NFTs",
       description: "Upload your artwork and mint it as an NFT on the Base blockchain.",
-      button: "Create NFT"
+      button: "Create"
     },
     wallet: {
       title: "Manage Wallet",
@@ -285,12 +285,19 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-4 py-2">
       <header className="text-center mt-2">
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center my-8">
           <Image
             src="/images/logo.png"
             alt="Escuela de Arte Nounish Logo"
-            width={140}
-            height={140}
+            width={160}
+            height={160}
+            className="rounded-sm"
+          />
+          <Image
+            src="/images/esnounish.png"
+            alt="Escuela de Arte Nounish Logo"
+            width={180}
+            height={180}
             className="rounded-sm"
           />
         </div>
@@ -304,46 +311,55 @@ export default function Home() {
         </p> */}
       </header>
 
-      {/* Unlock Your Creative Future */}
-      <div className="md:mt-2 w-full text-center">
-        <h2 className="text-2xl font-bold text-pink-500  md:mb-8">{messages.unlock.title}</h2>
-        
-        <div className="bg-pink-50 rounded-lg p-6 shadow-sm mb-6">
-          <div className="flex items-center justify-center mb-2">
-            <Sparkles className="text-pink-500 mr-2" size={24} />
+      {/* Hero Section */}
+      <div className="w-full mb-8">
+        <div className="bg-gradient-to-br from-pink-50 via-white to-lime-50 rounded-2xl p-6 shadow-lg border border-pink-100">
+          <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
+            {/* Left side - Title, Description, and Features */}
+            <div className="flex-1 text-center lg:text-left">
+              <div className="flex items-center justify-center lg:justify-start mb-3">
+                <Sparkles className="text-pink-500 mr-2" size={28} />
+                <h2 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-pink-500 to-lime-500 bg-clip-text text-transparent">
+                  {messages.unlock.title}
+                </h2>
+              </div>
+              
+              <p className="text-base lg:text-lg text-gray-700 leading-relaxed mb-4">
+                {messages.unlock.description}
+              </p>
+              
+              {/* Feature badges */}
+              <div className="flex flex-wrap justify-center lg:justify-start gap-3">
+                <div className="flex items-center bg-white rounded-full px-3 py-2 shadow-sm border border-pink-100">
+                  <Sparkles className="text-pink-500 mr-2" size={16} />
+                  <span className="text-xs lg:text-sm font-medium text-gray-700">{messages.unlock.freedom}</span>
+                </div>
+                <div className="flex items-center bg-white rounded-full px-3 py-2 shadow-sm border border-lime-100">
+                  <Crown className="text-lime-500 mr-2" size={16} />
+                  <span className="text-xs lg:text-sm font-medium text-gray-700">{messages.unlock.royalties}</span>
+                </div>
+                <div className="flex items-center bg-white rounded-full px-3 py-2 shadow-sm border border-pink-100">
+                  <Globe className="text-pink-500 mr-2" size={16} />
+                  <span className="text-xs lg:text-sm font-medium text-gray-700">{messages.unlock.community}</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Right side - CTA Button */}
+            <div className="flex-shrink-0 lg:ml-8">
+              <Link href={`/${locale}/opportunities`}>
+                <Button className="bg-gradient-to-r from-pink-500 to-lime-500 hover:from-pink-600 hover:to-lime-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  {messages.unlock.explore} <ArrowRight size={18} className="ml-2" />
+                </Button>
+              </Link>
+            </div>
           </div>
-          <h3 className="text-lg font-semibold mb-2">{messages.unlock.opportunities}</h3>
-          <p className="text-gray-600">{messages.unlock.description}</p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <div className="flex flex-col items-center">
-              <Sparkles className="text-pink-500 mb-2" size={20} />
-              <h4 className="font-medium">{messages.unlock.freedom}</h4>
-              <p className="text-sm text-gray-500">{messages.unlock.freedomDesc}</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <Crown className="text-lime-500 mb-2" size={20} />
-              <h4 className="font-medium">{messages.unlock.royalties}</h4>
-              <p className="text-sm text-gray-500">{messages.unlock.royaltiesDesc}</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <Globe className="text-pink-500 mb-2" size={20} />
-              <h4 className="font-medium">{messages.unlock.community}</h4>
-              <p className="text-sm text-gray-500">{messages.unlock.communityDesc}</p>
-            </div>
-          </div>
-          
-          <Link href={`/${locale}/opportunities`}>
-            <Button className="mt-6 bg-gradient-to-r from-pink-500 to-lime-500 hover:from-pink-600 hover:to-lime-600 text-white">
-              {messages.unlock.explore} <ArrowRight size={16} className="ml-2" />
-            </Button>
-          </Link>
         </div>
       </div>
 
       <div className="w-full space-y-6">
         {/* AI Education Agent */}
-        <div className="border border-lime-300 rounded-lg p-6 bg-white shadow-sm">
+        {/* <div className="border border-lime-300 rounded-lg p-6 bg-white shadow-sm">
           <h2 className="text-xl font-semibold text-lime-500">{messages.aiAgent.title}</h2>
           <p className="mt-2 text-gray-600">{messages.aiAgent.description}</p>
           <Link href={`/${locale}/ai-agent`}>
@@ -351,10 +367,10 @@ export default function Home() {
               {messages.aiAgent.button}
             </Button>
           </Link>
-        </div>
+        </div> */}
 
         {/* Create & Mint NFTs */}
-        <div className="border border-pink-300 rounded-lg p-6 bg-white shadow-sm">
+        {/* <div className="border border-pink-300 rounded-lg p-6 bg-white shadow-sm">
           <h2 className="text-xl font-semibold text-pink-500">{messages.createNft.title}</h2>
           <p className="mt-2 text-gray-600">{messages.createNft.description}</p>
           <Button 
@@ -363,7 +379,7 @@ export default function Home() {
           >
             {messages.createNft.button}
           </Button>
-        </div>
+        </div> */}
 
         {/* Manage Wallet */}
         {/* <div className="border border-pink-300 rounded-lg p-6 bg-white shadow-sm">
@@ -377,7 +393,7 @@ export default function Home() {
         </div> */}
 
         {/* My NFTs */}
-        <div className="border border-lime-300 rounded-lg p-6 bg-white shadow-sm">
+        {/* <div className="border border-lime-300 rounded-lg p-6 bg-white shadow-sm">
           <h2 className="text-xl font-semibold text-lime-500">{messages.myNfts.title}</h2>
           <p className="mt-2 text-gray-600">{messages.myNfts.description}</p>
           <Button 
@@ -386,7 +402,7 @@ export default function Home() {
           >
             {messages.myNfts.button}
           </Button>
-        </div>
+        </div> */}
       </div>
 
 
@@ -395,6 +411,20 @@ export default function Home() {
         <p>{messages.footer.created}</p>
         <p>{messages.footer.built}</p>
       </footer>
+
+      {/* Floating Create NFT Button */}
+      <div className="fixed bottom-24 right-6 z-50">
+        <Button
+          onClick={handleCreateNftClick}
+          className="w-16 h-16 rounded-full bg-gradient-to-r from-pink-500 to-lime-500 hover:from-pink-600 hover:to-lime-600 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 flex flex-col items-center justify-center gap-1 group"
+          aria-label="Create NFT"
+        >
+          <Camera size={24} className="group-hover:scale-90 transition-transform duration-200" />
+          <span className="font-semibold text-xs">
+          {messages.createNft.button}
+          </span>
+        </Button>
+      </div>
 
       {/* Wallet Connection Required Alert Dialog */}
       <AlertDialog open={showWalletAlert} onOpenChange={setShowWalletAlert}>
