@@ -285,12 +285,12 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-4 py-2">
       <header className="text-center mt-2">
-        <div className="flex items-center justify-center my-8">
+        <div className="flex items-center justify-center my-2 lg:my-8">
           <Image
             src="/images/logo.png"
             alt="Escuela de Arte Nounish Logo"
-            width={130}
-            height={130}
+            width={110}
+            height={110}
             className="rounded-sm"
           />
           {/* <Image
