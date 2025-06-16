@@ -2,9 +2,48 @@
 
 ## Overview
 
-Art3 Hub is a decentralized NFT platform that empowers artists to create and manage their own NFT collections with minimal technical overhead. The platform uses a factory-based architecture that deploys gas-efficient, fully-featured NFT collections for individual artists while maintaining platform-wide standards and revenue sharing.
+Art3 Hub is a decentralized NFT platform that empowers artists to create and manage their own NFT collections with minimal technical overhead. The platform offers two contract versions:
 
-### Key Features
+- **V1 (Legacy)**: Pay-per-deployment model (0.001 ETH fee) with traditional gas-based operations
+- **V2 (Current)**: Subscription-based model (no deployment fees) with gasless minting and enhanced features
+
+## Contract Versions
+
+### 🚀 **Art3Hub V2 - Subscription-Based Platform** (Recommended)
+
+The V2 platform introduces a subscription model designed to onboard artists into Web3 with gasless experiences and tiered access to platform features.
+
+**Quick Start with V2**: See [README_V2.md](./README_V2.md) for complete V2 documentation.
+
+#### Subscription Plans
+
+**Plan Gratuito (Free)**:
+- ✅ 1 gasless NFT mint
+- ✅ Basic educational content access
+- ✅ Guided Web3 onboarding
+- ✅ Limited AI agent access for initial guidance
+
+**Plan Master ($4.99/month)**:
+- ✅ Up to 10 gasless NFTs per month
+- ✅ Exclusive virtual workshops
+- ✅ Enhanced gallery visibility
+- ✅ Reputation system and rewards
+- ✅ Full AI agent access with personalized recommendations
+
+#### V2 Key Features
+- **🆓 No Deployment Fees**: Collection creation included in subscription plans
+- **🆓 Gasless Minting**: Meta-transaction support for seamless UX
+- **📋 Subscription Management**: Automated quota tracking and payment processing
+- **🎯 Tiered Access**: Different capabilities based on subscription level
+- **🤖 AI Integration**: Built-in support for AI agent interactions
+- **⚡ Enhanced Performance**: Optimized gas usage and batch operations
+- **🔒 Advanced Security**: EIP-712 signatures and comprehensive access controls
+
+### 📚 **Art3Hub V1 - Legacy Platform**
+
+The original platform uses a factory-based architecture that deploys gas-efficient, fully-featured NFT collections for individual artists while maintaining platform-wide standards and revenue sharing.
+
+#### V1 Key Features
 
 - **🏭 Factory Pattern**: Gas-efficient collection deployment using OpenZeppelin's Clones library
 - **👑 Artist Ownership**: Each artist owns and controls their individual collection contract
@@ -14,6 +53,109 @@ Art3 Hub is a decentralized NFT platform that empowers artists to create and man
 - **🌊 OpenSea Integration**: Gasless listings, automatic royalty enforcement, and full marketplace compatibility
 - **🔒 Security First**: ReentrancyGuard protection and comprehensive access controls
 - **⚡ Multi-Network**: Supports Base, Celo, and Zora networks (mainnet and testnets)
+
+## Migration Guide
+
+### V1 to V2 Migration
+
+V2 contracts are completely independent from V1 and don't require migration. Both versions can coexist:
+
+- **V1 Collections**: Continue to function normally with existing features (still requires 0.001 ETH deployment fee)
+- **V2 Collections**: New subscription-based collections with enhanced features (no deployment fees)
+- **Artists**: Can use both V1 and V2 simultaneously for different collections
+- **Fee Model Change**: V2 eliminates per-collection deployment fees in favor of subscription-based access
+
+### Choosing the Right Version
+
+**Use V2 for**:
+- New artist onboarding with gasless experience
+- Subscription-based revenue models (no deployment fees)
+- AI agent integration requirements
+- Enhanced user experience features
+- Multiple collections under one subscription
+
+**Use V1 for**:
+- Existing collections (continue as-is)
+- One-time collection creation (0.001 ETH deployment fee)
+- Traditional pay-per-deployment models
+- Simple NFT collection needs without ongoing subscriptions
+
+## V2 Deployed Contracts
+
+### Base Sepolia (Testnet)
+- **Chain ID**: 84532
+- **Deployment Date**: January 16, 2025
+- **Status**: ✅ **All contracts verified**
+- **SubscriptionManager**: `0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4`
+- **Art3HubCollectionV2 Implementation**: `0x41BE244598b4B8329ff68bD242C2fa58a9084e26`
+- **Art3HubFactoryV2**: `0x75Ed9ACB51D2BEaCfD6c76099D63d3a0009F4a40`
+- **GaslessRelayer**: `0x5116F90f3a26c7d825bE6Aa74544187b43c52a56`
+- **USDC Token**: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
+- **BaseScan Links** (Verified):
+  - [SubscriptionManager](https://sepolia.basescan.org/address/0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4#code)
+  - [CollectionV2 Implementation](https://sepolia.basescan.org/address/0x41BE244598b4B8329ff68bD242C2fa58a9084e26#code)
+  - [FactoryV2](https://sepolia.basescan.org/address/0x75Ed9ACB51D2BEaCfD6c76099D63d3a0009F4a40#code)
+  - [GaslessRelayer](https://sepolia.basescan.org/address/0x5116F90f3a26c7d825bE6Aa74544187b43c52a56#code)
+- **Blockscout Links**:
+  - [SubscriptionManager](https://base-sepolia.blockscout.com/address/0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4)
+  - [CollectionV2 Implementation](https://base-sepolia.blockscout.com/address/0x41BE244598b4B8329ff68bD242C2fa58a9084e26)
+  - [FactoryV2](https://base-sepolia.blockscout.com/address/0x75Ed9ACB51D2BEaCfD6c76099D63d3a0009F4a40)
+  - [GaslessRelayer](https://base-sepolia.blockscout.com/address/0x5116F90f3a26c7d825bE6Aa74544187b43c52a56)
+
+### Zora Sepolia (Testnet)
+- **Chain ID**: 999999999
+- **Deployment Date**: January 16, 2025
+- **Status**: ✅ **All contracts verified**
+- **SubscriptionManager**: `0xf1D63b42fb8c4887d6deB34c5fba81B18Bd2e3Ea`
+- **Art3HubCollectionV2 Implementation**: `0x2f302E1604E3657035C1EADa450582fA4417f598`
+- **Art3HubFactoryV2**: `0x270B8770F59c767ff55595e893c7E16A88347FE9`
+- **GaslessRelayer**: `0xA68f7C09EdBF3aD3705ECc652E132BAeD2a29F85`
+- **USDC Token**: `0xCccCCccc7021b32EBb4e8C08314bD62F7c653EC4` (placeholder)
+- **Zora Explorer Links** (Verified):
+  - [SubscriptionManager](https://sepolia.explorer.zora.energy/address/0xf1D63b42fb8c4887d6deB34c5fba81B18Bd2e3Ea#code)
+  - [CollectionV2 Implementation](https://sepolia.explorer.zora.energy/address/0x2f302E1604E3657035C1EADa450582fA4417f598#code)
+  - [FactoryV2](https://sepolia.explorer.zora.energy/address/0x270B8770F59c767ff55595e893c7E16A88347FE9#code)
+  - [GaslessRelayer](https://sepolia.explorer.zora.energy/address/0xA68f7C09EdBF3aD3705ECc652E132BAeD2a29F85#code)
+- **Blockscout Links**:
+  - [SubscriptionManager](https://zora-sepolia.blockscout.com/address/0xf1D63b42fb8c4887d6deB34c5fba81B18Bd2e3Ea)
+  - [CollectionV2 Implementation](https://zora-sepolia.blockscout.com/address/0x2f302E1604E3657035C1EADa450582fA4417f598)
+  - [FactoryV2](https://zora-sepolia.blockscout.com/address/0x270B8770F59c767ff55595e893c7E16A88347FE9)
+  - [GaslessRelayer](https://zora-sepolia.blockscout.com/address/0xA68f7C09EdBF3aD3705ECc652E132BAeD2a29F85)
+
+### V2 Deployment Commands
+
+Deploy V2 contracts to any supported network:
+
+```bash
+# Base Sepolia
+npx hardhat run scripts/deploy-v2-contracts.ts --network baseSepolia
+
+# Zora Sepolia  
+npx hardhat run scripts/deploy-v2-contracts.ts --network zoraSepolia
+
+# Other networks (configured in hardhat.config.ts)
+npx hardhat run scripts/deploy-v2-contracts.ts --network [networkName]
+```
+
+### V2 Contract Verification
+
+```bash
+# Base Sepolia Verification
+npx hardhat verify --network baseSepolia 0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4 "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f"
+npx hardhat verify --network baseSepolia 0x41BE244598b4B8329ff68bD242C2fa58a9084e26 "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC"
+npx hardhat verify --network baseSepolia 0x75Ed9ACB51D2BEaCfD6c76099D63d3a0009F4a40 "0x41BE244598b4B8329ff68bD242C2fa58a9084e26" "0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4" "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC" "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f" "250"
+npx hardhat verify --network baseSepolia 0x5116F90f3a26c7d825bE6Aa74544187b43c52a56
+
+# Zora Sepolia Verification
+npx hardhat verify --network zoraSepolia 0xf1D63b42fb8c4887d6deB34c5fba81B18Bd2e3Ea "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f"
+npx hardhat verify --network zoraSepolia 0x2f302E1604E3657035C1EADa450582fA4417f598 "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC"
+npx hardhat verify --network zoraSepolia 0x270B8770F59c767ff55595e893c7E16A88347FE9 "0x2f302E1604E3657035C1EADa450582fA4417f598" "0xf1D63b42fb8c4887d6deB34c5fba81B18Bd2e3Ea" "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC" "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f" "250"
+npx hardhat verify --network zoraSepolia 0xA68f7C09EdBF3aD3705ECc652E132BAeD2a29F85
+```
+
+---
+
+# V1 Documentation (Legacy Platform)
 
 ## Architecture
 
