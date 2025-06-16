@@ -349,10 +349,10 @@ export default function MyNFTsPage() {
   if (!isConnected) {
     return (
       <div className="pb-16">
-        <div className="p-3 sm:p-4 border-b">
-          <h1 className="text-lg sm:text-xl font-bold text-center mt-8 sm:mt-10">{t.title}</h1>
+        <div className="p-4 border-b">
+          <h1 className="text-xl md:text-2xl font-bold text-center mt-10">{t.title}</h1>
         </div>
-        <div className="container mx-auto px-3 sm:px-4 py-4">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 max-w-7xl">
           <div className="text-center py-10">
             <h2 className="text-2xl font-bold mb-2">{t.connectWallet}</h2>
           </div>
@@ -363,19 +363,19 @@ export default function MyNFTsPage() {
 
   return (
     <div className="pb-16">
-      <div className="p-3 sm:p-4 border-b">
-        <h1 className="text-lg sm:text-xl font-bold text-center mt-8 sm:mt-10">{t.title}</h1>
+      <div className="p-4 border-b">
+        <h1 className="text-xl md:text-2xl font-bold text-center mt-10">{t.title}</h1>
       </div>
 
-      <div className="container mx-auto px-3 sm:px-4 py-4">
-        <div className="mb-6">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 max-w-7xl">
+        <div className="mb-6 md:mb-8">
           <Tabs value={selectedFilter} onValueChange={setSelectedFilter} className="w-full">
-            <TabsList className="grid grid-cols-2 sm:grid-cols-4 gap-1 h-auto p-1">
+            <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-1 h-auto p-1 max-w-2xl mx-auto">
               {t.filterOptions.map((option) => (
                 <TabsTrigger 
                   key={option.value} 
                   value={option.value} 
-                  className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-[#FF69B4] data-[state=active]:text-white"
+                  className="text-xs md:text-sm px-2 py-2 data-[state=active]:bg-[#FF69B4] data-[state=active]:text-white"
                 >
                   {option.label}
                 </TabsTrigger>
@@ -384,19 +384,19 @@ export default function MyNFTsPage() {
           </Tabs>
         </div>
 
-        {/* Controls - Mobile Optimized */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-          <div className="flex items-center justify-between sm:justify-start gap-2">
-            <span className="text-sm text-gray-600">
+        {/* Controls - Desktop Optimized */}
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6 md:mb-8">
+          <div className="flex items-center justify-between md:justify-start gap-4">
+            <span className="text-sm md:text-base text-gray-600">
               {filteredAndSortedNfts.length} of {nfts.length} NFTs
             </span>
             
-            {/* View Mode Controls - Always visible on mobile */}
+            {/* View Mode Controls */}
             <div className="flex items-center gap-1">
               <Button
                 variant={viewMode === "grid" ? "default" : "outline"}
                 size="sm"
-                className={`h-8 w-8 p-0 ${viewMode === "grid" ? "bg-[#FF69B4] hover:bg-[#FF1493]" : ""}`}
+                className={`h-8 w-8 md:h-10 md:w-10 p-0 ${viewMode === "grid" ? "bg-[#FF69B4] hover:bg-[#FF1493]" : ""}`}
                 onClick={() => setViewMode("grid")}
               >
                 <Grid className="h-4 w-4" />
@@ -404,7 +404,7 @@ export default function MyNFTsPage() {
               <Button
                 variant={viewMode === "list" ? "default" : "outline"}
                 size="sm"
-                className={`h-8 w-8 p-0 ${viewMode === "list" ? "bg-[#FF69B4] hover:bg-[#FF1493]" : ""}`}
+                className={`h-8 w-8 md:h-10 md:w-10 p-0 ${viewMode === "list" ? "bg-[#FF69B4] hover:bg-[#FF1493]" : ""}`}
                 onClick={() => setViewMode("list")}
               >
                 <List className="h-4 w-4" />
@@ -415,11 +415,11 @@ export default function MyNFTsPage() {
           {/* Sort Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-1 text-sm h-8">
-                <Filter className="h-3 w-3" />
+              <Button variant="outline" className="flex items-center gap-2 text-sm md:text-base h-8 md:h-10 px-3 md:px-4">
+                <Filter className="h-3 w-3 md:h-4 md:w-4" />
                 <span className="hidden sm:inline">{currentSortOption?.label}</span>
                 <span className="sm:hidden">Sort</span>
-                <ChevronDown className="h-3 w-3" />
+                <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -447,21 +447,22 @@ export default function MyNFTsPage() {
         ) : nfts.length > 0 ? (
           <>
             {filteredAndSortedNfts.length > 0 ? (
-              <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4" : "space-y-3 sm:space-y-4"}>
+              <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6" : "space-y-4 md:space-y-6"}>
                 {filteredAndSortedNfts.map((nft) => (
               <Card
                 key={nft.id}
-                className={`overflow-hidden ${
+                className={`overflow-hidden hover:shadow-lg transition-shadow ${
                   highlightedNftId === nft.id ? "border-[#9ACD32] border-2 shadow-lg" : ""
                 }`}
               >
                 {viewMode === "grid" ? (
                   <>
                     <div className="aspect-square relative">
-                      <img 
+                      <Image 
                         src={`https://gateway.pinata.cloud/ipfs/${nft.image_ipfs_hash}`} 
                         alt={nft.name} 
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = '/placeholder.svg'
                         }}
@@ -470,47 +471,49 @@ export default function MyNFTsPage() {
                         <Badge className="absolute top-2 right-2 bg-[#9ACD32]">{t.new}</Badge>
                       )}
                     </div>
-                    <CardContent className="p-3 sm:p-4">
-                      <div className="flex justify-between items-start mb-1">
-                        <h3 className="font-semibold text-sm truncate">{nft.name}</h3>
-                        <Badge variant="secondary" className="text-xs">{nft.network}</Badge>
+                    <CardContent className="p-3 md:p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-semibold text-sm md:text-base truncate pr-2">{nft.name}</h3>
+                        <Badge variant="secondary" className="text-xs flex-shrink-0">{nft.network}</Badge>
                       </div>
-                      <p className="text-xs text-gray-500 mb-2">{t.minted} {formatDate(nft.created_at)}</p>
-                      <p className="text-xs text-gray-600 mb-2 truncate" title={nft.description}>{nft.description}</p>
+                      <p className="text-xs md:text-sm text-gray-500 mb-2">{t.minted} {formatDate(nft.created_at)}</p>
+                      <p className="text-xs md:text-sm text-gray-600 mb-3 line-clamp-2" title={nft.description}>{nft.description}</p>
                       
                       {/* Transaction and Collection Info */}
-                      <div className="space-y-2 mb-2">
+                      <div className="space-y-1 md:space-y-2 mb-3">
                         {nft.contract_address && (
-                          <div className="text-xs text-blue-600">
+                          <div className="text-xs md:text-sm text-blue-600">
                             <span className="font-medium">Collection:</span>
                             <span className="font-mono ml-1 break-all">{nft.contract_address.slice(0, 10)}...{nft.contract_address.slice(-8)}</span>
                           </div>
                         )}
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs md:text-sm text-gray-500">
                           <span className="font-medium">TX:</span>
                           <span className="font-mono ml-1">{nft.transaction_hash.slice(0, 10)}...{nft.transaction_hash.slice(-8)}</span>
                         </div>
                       </div>
 
-                      {/* Action Buttons - Mobile Optimized */}
+                      {/* Action Buttons - Responsive Design */}
                       <div className="space-y-2">
                         <div className="flex gap-2">
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="text-xs px-2 py-2 h-8 flex-1 min-h-[32px]"
+                            className="text-xs md:text-sm px-2 md:px-3 py-2 h-8 md:h-9 flex-1"
                             onClick={() => window.open(`https://gateway.pinata.cloud/ipfs/${nft.image_ipfs_hash}`, '_blank')}
                           >
-                            {t.viewImage}
+                            <span className="hidden md:inline">{t.viewImage}</span>
+                            <span className="md:hidden">Image</span>
                           </Button>
                           {nft.metadata_ipfs_hash && (
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              className="text-xs px-2 py-2 h-8 flex-1 min-h-[32px]"
+                              className="text-xs md:text-sm px-2 md:px-3 py-2 h-8 md:h-9 flex-1"
                               onClick={() => window.open(`https://gateway.pinata.cloud/ipfs/${nft.metadata_ipfs_hash}`, '_blank')}
                             >
-                              {t.viewMetadata}
+                              <span className="hidden md:inline">{t.viewMetadata}</span>
+                              <span className="md:hidden">Meta</span>
                             </Button>
                           )}
                         </div>
@@ -519,20 +522,22 @@ export default function MyNFTsPage() {
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              className="text-xs px-2 py-2 h-8 flex-1 min-h-[32px]"
+                              className="text-xs md:text-sm px-2 md:px-3 py-2 h-8 md:h-9 flex-1"
                               onClick={() => window.open(getBlockExplorerUrl(nft.transaction_hash, nft.network), '_blank')}
                             >
-                              {t.viewTransaction}
+                              <span className="hidden md:inline">{t.viewTransaction}</span>
+                              <span className="md:hidden">TX</span>
                             </Button>
                           )}
                           {nft.contract_address && (
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              className="text-xs px-2 py-2 h-8 flex-1 min-h-[32px]"
-                              onClick={() => window.open(getBlockscoutCollectionUrl(nft.contract_address, nft.network), '_blank')}
+                              className="text-xs md:text-sm px-2 md:px-3 py-2 h-8 md:h-9 flex-1"
+                              onClick={() => nft.contract_address && window.open(getBlockscoutCollectionUrl(nft.contract_address, nft.network), '_blank')}
                             >
-                              {t.viewCollection}
+                              <span className="hidden md:inline">{t.viewCollection}</span>
+                              <span className="md:hidden">Collection</span>
                             </Button>
                           )}
                         </div>
@@ -540,13 +545,14 @@ export default function MyNFTsPage() {
                     </CardContent>
                   </>
                 ) : (
-                  /* List View - Mobile Optimized */
-                  <div className="flex p-3 sm:p-4 gap-3">
-                    <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-md overflow-hidden flex-shrink-0">
-                      <img 
+                  /* List View - Enhanced for Desktop */
+                  <div className="flex p-3 md:p-4 gap-3 md:gap-4">
+                    <div className="relative h-16 w-16 md:h-24 md:w-24 rounded-md overflow-hidden flex-shrink-0">
+                      <Image 
                         src={`https://gateway.pinata.cloud/ipfs/${nft.image_ipfs_hash}`} 
                         alt={nft.name} 
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = '/placeholder.svg'
                         }}
@@ -556,31 +562,69 @@ export default function MyNFTsPage() {
                       )}
                     </div>
                     <div className="flex-grow min-w-0">
-                      <div className="flex justify-between items-start mb-1">
-                        <h3 className="font-semibold text-sm truncate pr-2">{nft.name}</h3>
+                      <div className="flex justify-between items-start mb-1 md:mb-2">
+                        <h3 className="font-semibold text-sm md:text-base truncate pr-2">{nft.name}</h3>
                         <Badge variant="secondary" className="text-xs flex-shrink-0">{nft.network}</Badge>
                       </div>
-                      <p className="text-xs text-gray-600 mb-1 line-clamp-2">{nft.description}</p>
-                      <p className="text-xs text-gray-500 mb-2">{t.minted} {formatDate(nft.created_at)}</p>
+                      <p className="text-xs md:text-sm text-gray-600 mb-1 md:mb-2 line-clamp-2">{nft.description}</p>
+                      <p className="text-xs md:text-sm text-gray-500 mb-2 md:mb-3">{t.minted} {formatDate(nft.created_at)}</p>
+                      
+                      {/* Transaction and Collection Info for List View */}
+                      <div className="hidden md:block space-y-1 mb-3">
+                        {nft.contract_address && (
+                          <div className="text-sm text-blue-600">
+                            <span className="font-medium">Collection:</span>
+                            <span className="font-mono ml-1">{nft.contract_address.slice(0, 10)}...{nft.contract_address.slice(-8)}</span>
+                          </div>
+                        )}
+                        <div className="text-sm text-gray-500">
+                          <span className="font-medium">TX:</span>
+                          <span className="font-mono ml-1">{nft.transaction_hash.slice(0, 10)}...{nft.transaction_hash.slice(-8)}</span>
+                        </div>
+                      </div>
                       
                       {/* Action Buttons for List View */}
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-1 md:gap-2">
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="text-xs px-2 py-1 h-7"
+                          className="text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 h-7 md:h-8"
                           onClick={() => window.open(`https://gateway.pinata.cloud/ipfs/${nft.image_ipfs_hash}`, '_blank')}
                         >
-                          {t.viewImage}
+                          <span className="hidden md:inline">{t.viewImage}</span>
+                          <span className="md:hidden">Image</span>
                         </Button>
                         {nft.transaction_hash && (
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="text-xs px-2 py-1 h-7"
+                            className="text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 h-7 md:h-8"
                             onClick={() => window.open(getBlockExplorerUrl(nft.transaction_hash, nft.network), '_blank')}
                           >
-                            {t.viewTransaction}
+                            <span className="hidden md:inline">{t.viewTransaction}</span>
+                            <span className="md:hidden">TX</span>
+                          </Button>
+                        )}
+                        {nft.metadata_ipfs_hash && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 h-7 md:h-8"
+                            onClick={() => window.open(`https://gateway.pinata.cloud/ipfs/${nft.metadata_ipfs_hash}`, '_blank')}
+                          >
+                            <span className="hidden md:inline">{t.viewMetadata}</span>
+                            <span className="md:hidden">Meta</span>
+                          </Button>
+                        )}
+                        {nft.contract_address && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 h-7 md:h-8"
+                            onClick={() => nft.contract_address && window.open(getBlockscoutCollectionUrl(nft.contract_address, nft.network), '_blank')}
+                          >
+                            <span className="hidden md:inline">{t.viewCollection}</span>
+                            <span className="md:hidden">Collection</span>
                           </Button>
                         )}
                       </div>
@@ -591,12 +635,13 @@ export default function MyNFTsPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-10">
-                <h2 className="text-xl font-semibold mb-2">{t.noFilterResults}</h2>
-                <p className="text-gray-600 mb-4">{t.noFilterResultsDesc}</p>
+              <div className="text-center py-10 md:py-16">
+                <h2 className="text-xl md:text-2xl font-semibold mb-2">{t.noFilterResults}</h2>
+                <p className="text-gray-600 mb-4 md:mb-6 text-sm md:text-base">{t.noFilterResultsDesc}</p>
                 <Button 
                   onClick={() => setSelectedFilter("all")} 
                   variant="outline"
+                  className="h-10 md:h-12 px-4 md:px-6"
                 >
                   {t.showAllNfts}
                 </Button>
@@ -604,10 +649,10 @@ export default function MyNFTsPage() {
             )}
           </>
         ) : (
-          <div className="text-center py-10">
-            <h2 className="text-2xl font-bold mb-2">{t.noNftsTitle}</h2>
-            <p className="text-gray-600 mb-6">{t.noNftsDescription}</p>
-            <Button className="bg-[#9ACD32] hover:bg-[#7CFC00]">{t.createFirstNft}</Button>
+          <div className="text-center py-10 md:py-16">
+            <h2 className="text-2xl md:text-3xl font-bold mb-2 md:mb-4">{t.noNftsTitle}</h2>
+            <p className="text-gray-600 mb-6 md:mb-8 text-sm md:text-base">{t.noNftsDescription}</p>
+            <Button className="bg-[#9ACD32] hover:bg-[#7CFC00] h-10 md:h-12 px-4 md:px-6">{t.createFirstNft}</Button>
           </div>
         )}
       </div>
