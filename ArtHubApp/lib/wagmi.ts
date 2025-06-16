@@ -62,9 +62,10 @@ export const config = createConfig({
   chains: allChains,
   transports,
   connectors: [
-    // Prioritize injected (MetaMask) for better connection detection
-    injected(),
+    // Prioritize frameConnector for Farcaster environments
     frameConnector(),
+    // Injected (MetaMask) for browser environments
+    injected(),
     walletConnect({
       projectId,
       showQrModal: false, // Don't auto-show modal

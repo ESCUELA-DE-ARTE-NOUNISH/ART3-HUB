@@ -65,18 +65,22 @@ export function ConnectMenu() {
   
   // Check if current chain is supported
   const isOnSupportedChain = supportedChains.some(chain => chain.id === chainId)
-  const currentChainName = supportedChains.find(chain => chain.id === chainId)?.name || `Chain ${chainId}`
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Auto-connect in MiniKit environment
+  // Auto-connect in MiniKit environment with Farcaster connector only
   useEffect(() => {
     if (mounted && isMiniKit && !isConnected && connectors.length > 0) {
-      // Auto-connect with the first available connector (should be Farcaster)
-      const farcasterConnector = connectors.find(c => c.id === 'farcaster') || connectors[0]
-      connect({ connector: farcasterConnector })
+      // Only use Farcaster connector in MiniKit environment
+      const farcasterConnector = connectors.find(c => c.id === 'farcaster')
+      if (farcasterConnector) {
+        console.log('Auto-connecting with Farcaster connector in MiniKit')
+        connect({ connector: farcasterConnector })
+      } else {
+        console.warn('Farcaster connector not found in MiniKit environment')
+      }
     }
   }, [mounted, isMiniKit, isConnected, connectors, connect])
 
