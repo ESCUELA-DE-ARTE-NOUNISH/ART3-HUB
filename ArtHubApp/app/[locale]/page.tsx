@@ -289,15 +289,15 @@ export default function Home() {
           <Image
             src="/images/logo.png"
             alt="Escuela de Arte Nounish Logo"
-            width={160}
-            height={160}
+            width={130}
+            height={130}
             className="rounded-sm"
           />
           <Image
             src="/images/esnounish.png"
             alt="Escuela de Arte Nounish Logo"
-            width={180}
-            height={180}
+            width={160}
+            height={160}
             className="rounded-sm"
           />
         </div>
