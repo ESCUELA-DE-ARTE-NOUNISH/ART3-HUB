@@ -329,24 +329,24 @@ export default function ExplorePage() {
   return (
     <div className="pb-16">
       <div className="p-4 border-b">
-        <h1 className="text-xl font-bold text-center mt-10">{t.title}</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-center mt-10">{t.title}</h1>
       </div>
 
       {showConfetti && <Confetti />}
 
-      <div className="container mx-auto px-4 py-4">
-        <form onSubmit={handleSearch} className="mb-6">
-          <div className="relative">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 max-w-7xl">
+        <form onSubmit={handleSearch} className="mb-6 md:mb-8">
+          <div className="relative max-w-2xl mx-auto">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t.searchPlaceholder}
-              className="pl-10"
+              className="pl-10 h-12 md:h-14 text-base"
             />
             <Button
               type="submit"
-              className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-[#FF69B4] hover:bg-[#FF1493] h-8 px-3"
+              className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-[#FF69B4] hover:bg-[#FF1493] h-10 md:h-12 px-4 md:px-6"
             >
               {t.searchButton}
             </Button>
@@ -354,12 +354,12 @@ export default function ExplorePage() {
         </form>
 
         {/* Filters */}
-        <div className="mb-6 space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4">
+        <div className="mb-6 md:mb-8 space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4 max-w-4xl mx-auto">
             <div className="flex-1">
               <label className="text-sm font-medium text-gray-700 mb-2 block">{t.categories}</label>
               <Select value={selectedCategory} onValueChange={handleCategoryFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="h-10 md:h-12">
                   <SelectValue placeholder={t.allCategories} />
                 </SelectTrigger>
                 <SelectContent>
@@ -376,17 +376,17 @@ export default function ExplorePage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="trending" className="flex items-center gap-1">
-              <TrendingUp className="h-4 w-4" />
+          <TabsList className="grid w-full grid-cols-3 mb-6 md:mb-8 max-w-md mx-auto">
+            <TabsTrigger value="trending" className="flex items-center gap-1 text-xs md:text-sm">
+              <TrendingUp className="h-3 w-3 md:h-4 md:w-4" />
               <span>{t.trending}</span>
             </TabsTrigger>
-            <TabsTrigger value="artists" className="flex items-center gap-1">
-              <Users className="h-4 w-4" />
+            <TabsTrigger value="artists" className="flex items-center gap-1 text-xs md:text-sm">
+              <Users className="h-3 w-3 md:h-4 md:w-4" />
               <span>{t.artists}</span>
             </TabsTrigger>
-            <TabsTrigger value="categories" className="flex items-center gap-1">
-              <Tag className="h-4 w-4" />
+            <TabsTrigger value="categories" className="flex items-center gap-1 text-xs md:text-sm">
+              <Tag className="h-3 w-3 md:h-4 md:w-4" />
               <span>{t.categories}</span>
             </TabsTrigger>
           </TabsList>
@@ -405,10 +405,10 @@ export default function ExplorePage() {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                   {nfts.map((nft) => (
-                    <Card key={nft.id} className="overflow-hidden">
-                      <div className="aspect-video relative">
+                    <Card key={nft.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className="aspect-square md:aspect-[4/3] relative">
                         <Image 
                           src={getImageUrl(nft.image_ipfs_hash)} 
                           alt={nft.name} 
@@ -419,18 +419,22 @@ export default function ExplorePage() {
                           }}
                         />
                       </div>
-                      <CardContent className="p-4">
+                      <CardContent className="p-3 md:p-4">
                         <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <h3 className="font-semibold">{nft.name}</h3>
-                            <p className="text-sm text-gray-500">{t.by} {nft.artist_name}</p>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-semibold text-sm md:text-base truncate">{nft.name}</h3>
+                            <p className="text-xs md:text-sm text-gray-500 truncate">{t.by} {nft.artist_name}</p>
                             <p className="text-xs text-gray-400">{nft.category}</p>
                             {nft.view_count > 0 && (
                               <p className="text-xs text-blue-500">{nft.view_count} views</p>
                             )}
                           </div>
                         </div>
-                        <Button className="w-full bg-[#9ACD32] hover:bg-[#7CFC00]" onClick={() => viewNFT(nft)}>
+                        <Button 
+                          className="w-full bg-[#9ACD32] hover:bg-[#7CFC00] text-sm md:text-base" 
+                          size="sm"
+                          onClick={() => viewNFT(nft)}
+                        >
                           View NFT
                         </Button>
                       </CardContent>
@@ -461,22 +465,22 @@ export default function ExplorePage() {
 
           <TabsContent value="artists" className="space-y-4">
             <h2 className="text-xl font-semibold mb-4">{t.popularArtists}</h2>
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {artists.map((artist) => (
-                <Card key={artist.artist_name} className="overflow-hidden">
+                <Card key={artist.artist_name} className="overflow-hidden hover:shadow-lg transition-shadow">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-4">
-                      <div className="relative h-16 w-16 rounded-full overflow-hidden bg-gradient-to-br from-[#FF69B4] to-[#9ACD32] flex items-center justify-center">
-                        <span className="text-white font-bold text-lg">
+                      <div className="relative h-12 w-12 md:h-16 md:w-16 rounded-full overflow-hidden bg-gradient-to-br from-[#FF69B4] to-[#9ACD32] flex items-center justify-center flex-shrink-0">
+                        <span className="text-white font-bold text-sm md:text-lg">
                           {artist.artist_name.charAt(0).toUpperCase()}
                         </span>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold">{artist.artist_name}</h3>
-                        <p className="text-sm text-gray-500">{artist.nft_count} {t.nftsCreated}</p>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm md:text-base truncate">{artist.artist_name}</h3>
+                        <p className="text-xs md:text-sm text-gray-500">{artist.nft_count} {t.nftsCreated}</p>
                       </div>
                       <Button 
-                        className="bg-[#9ACD32] hover:bg-[#7CFC00]" 
+                        className="bg-[#9ACD32] hover:bg-[#7CFC00] flex-shrink-0" 
                         size="sm"
                         onClick={() => {
                           handleCategoryFilter('all')
@@ -484,7 +488,8 @@ export default function ExplorePage() {
                           handleTabChange('trending')
                         }}
                       >
-                        View Works
+                        <span className="hidden md:inline">View Works</span>
+                        <span className="md:hidden">View</span>
                       </Button>
                     </div>
                   </CardContent>
@@ -495,7 +500,7 @@ export default function ExplorePage() {
 
           <TabsContent value="categories" className="space-y-4">
             <h2 className="text-xl font-semibold mb-4">{t.browseCategories}</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {categoriesWithCount.map((category) => (
                 <Card 
                   key={category.name} 
@@ -505,9 +510,9 @@ export default function ExplorePage() {
                     handleTabChange('trending')
                   }}
                 >
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold">{category.name}</h3>
-                    <p className="text-sm text-gray-500">{category.count} {t.items}</p>
+                  <CardContent className="p-3 md:p-4">
+                    <h3 className="font-semibold text-sm md:text-base">{category.name}</h3>
+                    <p className="text-xs md:text-sm text-gray-500">{category.count} {t.items}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -518,18 +523,18 @@ export default function ExplorePage() {
 
       {/* NFT Detail Dialog */}
       <Dialog open={selectedNFT !== null} onOpenChange={closeNFTDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md md:max-w-lg lg:max-w-xl">
           {selectedNFT && (
             <>
               <DialogHeader>
-                <DialogTitle>{selectedNFT.name}</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-lg md:text-xl">{selectedNFT.name}</DialogTitle>
+                <DialogDescription className="text-sm md:text-base">
                   {t.by} {selectedNFT.artist_name} • {selectedNFT.category}
                 </DialogDescription>
               </DialogHeader>
-              <div className="py-6">
+              <div className="py-4 md:py-6">
                 <div className="flex flex-col items-center gap-4 mb-6">
-                  <div className="relative w-full max-w-sm aspect-square rounded-lg overflow-hidden">
+                  <div className="relative w-full max-w-sm md:max-w-md aspect-square rounded-lg overflow-hidden">
                     <Image
                       src={getImageUrl(selectedNFT.image_ipfs_hash)}
                       alt={selectedNFT.name}
@@ -541,13 +546,13 @@ export default function ExplorePage() {
                     />
                   </div>
                   <div className="text-center w-full">
-                    <h3 className="font-semibold text-lg">{selectedNFT.name}</h3>
-                    <p className="text-sm text-gray-500">{t.by} {selectedNFT.artist_name}</p>
-                    <p className="text-xs text-gray-400 mt-1">{selectedNFT.category}</p>
+                    <h3 className="font-semibold text-lg md:text-xl">{selectedNFT.name}</h3>
+                    <p className="text-sm md:text-base text-gray-500">{t.by} {selectedNFT.artist_name}</p>
+                    <p className="text-xs md:text-sm text-gray-400 mt-1">{selectedNFT.category}</p>
                     {selectedNFT.description && (
-                      <p className="text-sm text-gray-600 mt-2">{selectedNFT.description}</p>
+                      <p className="text-sm md:text-base text-gray-600 mt-2 px-2">{selectedNFT.description}</p>
                     )}
-                    <div className="flex justify-center gap-4 mt-4 text-xs text-gray-500">
+                    <div className="flex justify-center gap-4 mt-4 text-xs md:text-sm text-gray-500">
                       {selectedNFT.view_count > 0 && (
                         <span>{selectedNFT.view_count} views</span>
                       )}
@@ -555,7 +560,7 @@ export default function ExplorePage() {
                         <span>{selectedNFT.likes_count} likes</span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-400 mt-2">
+                    <p className="text-xs md:text-sm text-gray-400 mt-2">
                       Created on {new Date(selectedNFT.created_at).toLocaleDateString()}
                     </p>
                   </div>
