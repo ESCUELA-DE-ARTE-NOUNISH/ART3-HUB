@@ -13,35 +13,43 @@ export function frameConnector() {
     type: frameConnector.type,
 
     async setup() {
-      // Only auto-connect in Farcaster context, not in browser
-      try {
-        const context = await sdk.context;
-        if (context?.client?.clientFid) {
-          this.connect({ chainId: config.chains[0].id });
-        }
-      } catch (error) {
-        // Not in Farcaster context, don't auto-connect
-        console.log('Not in Farcaster context, skipping auto-connect');
-      }
+      // Don't auto-connect in setup to avoid popups
+      // Connection will be handled explicitly by the connect-menu component
+      console.log('Farcaster frameConnector setup completed');
     },
     async connect({ chainId } = {}) {
-      const provider = await this.getProvider();
-      const accounts = await provider.request({
-        method: "eth_requestAccounts",
-      });
+      try {
+        // Verify we're in Farcaster context before connecting
+        const context = await sdk.context;
+        if (!context?.client?.clientFid) {
+          throw new Error('Not in Farcaster context');
+        }
 
-      let currentChainId = await this.getChainId();
-      if (chainId && currentChainId !== chainId) {
-        const chain = await this.switchChain!({ chainId });
-        currentChainId = chain.id;
+        const provider = await this.getProvider();
+        
+        // In Farcaster, the wallet should already be authorized, so this shouldn't show a popup
+        const accounts = await provider.request({
+          method: "eth_requestAccounts",
+        });
+
+        let currentChainId = await this.getChainId();
+        if (chainId && currentChainId !== chainId) {
+          const chain = await this.switchChain!({ chainId });
+          currentChainId = chain.id;
+        }
+
+        connected = true;
+        console.log('Farcaster wallet connected successfully');
+
+        return {
+          accounts: accounts.map((x) => getAddress(x)),
+          chainId: currentChainId,
+        };
+      } catch (error) {
+        console.error('Failed to connect Farcaster wallet:', error);
+        connected = false;
+        throw error;
       }
-
-      connected = true;
-
-      return {
-        accounts: accounts.map((x) => getAddress(x)),
-        chainId: currentChainId,
-      };
     },
     async disconnect() {
       connected = false;
@@ -60,12 +68,23 @@ export function frameConnector() {
       return fromHex(hexChainId, "number");
     },
     async isAuthorized() {
-      if (!connected) {
+      try {
+        // Check if we're in Farcaster context first
+        const context = await sdk.context;
+        if (!context?.client?.clientFid) {
+          return false;
+        }
+
+        if (!connected) {
+          return false;
+        }
+
+        const accounts = await this.getAccounts();
+        return !!accounts.length;
+      } catch (error) {
+        console.error('Error checking Farcaster authorization:', error);
         return false;
       }
-
-      const accounts = await this.getAccounts();
-      return !!accounts.length;
     },
     async switchChain({ chainId }) {
       const provider = await this.getProvider();
