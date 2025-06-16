@@ -23,7 +23,7 @@
     "createNft": {
       "title": "Create & Mint NFTs",
       "description": "Upload your artwork and mint it as an NFT on the Base blockchain.",
-      "button": "Create NFT"
+      "button": "Create"
     },
     "wallet": {
       "title": "Manage Wallet",

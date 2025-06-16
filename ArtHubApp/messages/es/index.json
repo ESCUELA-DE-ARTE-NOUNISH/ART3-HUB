@@ -23,7 +23,7 @@
     "createNft": {
       "title": "Crear y Acuñar NFTs",
       "description": "Sube tu obra de arte y acúñala como NFT en la blockchain de Base.",
-      "button": "Crear NFT"
+      "button": "Crear"
     },
     "wallet": {
       "title": "Administrar Billetera",
