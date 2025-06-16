@@ -293,13 +293,13 @@ export default function Home() {
             height={130}
             className="rounded-sm"
           />
-          <Image
+          {/* <Image
             src="/images/esnounish.png"
             alt="Escuela de Arte Nounish Logo"
             width={160}
             height={160}
             className="rounded-sm"
-          />
+          /> */}
         </div>
         {/*
         <h1 className="text-4xl font-bold text-pink-500">
