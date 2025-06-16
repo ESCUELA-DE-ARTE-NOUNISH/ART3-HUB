@@ -887,13 +887,12 @@ function CreateNFT() {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 {/* Network Selector */}
-                {/*}
                 <NetworkSelector
                   selectedNetwork={selectedNetwork}
                   onNetworkChange={setSelectedNetwork}
                   locale={locale}
                 />
-                */}
+               
                 
                 {/* Wallet Information */}
                 <Card className="bg-gray-50 border-gray-200">
