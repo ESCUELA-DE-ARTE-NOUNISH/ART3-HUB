@@ -121,16 +121,16 @@ export default function Home() {
       button: "View Collection"
     },
     unlock: {
-      title: "Unlock Your Creative Future in Web3",
-      opportunities: "Check out opportunities for artists on Web3",
-      description: "Discover how Web3 is revolutionizing the art world with new income streams, direct fan connections, and ownership of your creative work.",
+      title: "Unlock Your Creative Future",
+      opportunities: "Check out opportunities for artists",
+      description: "Discover how is revolutionizing the art world with new income streams, direct fan connections, and ownership of your creative work.",
       freedom: "Creative Freedom",
       freedomDesc: "Mint and sell your art without gatekeepers",
       royalties: "Royalties",
       royaltiesDesc: "Earn from secondary sales of your work",
       community: "Global Community",
       communityDesc: "Connect with collectors worldwide",
-      explore: "Explore Web3 Opportunities"
+      explore: "Explore Opportunities"
     },
     footer: {
       created: "Created by Escuela de Arte Nourish",
@@ -347,7 +347,7 @@ export default function Home() {
             
             {/* Right side - CTA Button */}
             <div className="flex-shrink-0 lg:ml-8">
-              <Link href={`/${locale}/opportunities`}>
+              <Link href={`/${locale}/ai-agent`}>
                 <Button className="bg-gradient-to-r from-pink-500 to-lime-500 hover:from-pink-600 hover:to-lime-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                   {messages.unlock.explore} <ArrowRight size={18} className="ml-2" />
                 </Button>
