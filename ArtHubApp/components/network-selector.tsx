@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { SUPPORTED_NETWORKS, getActiveNetwork, type NetworkConfig } from '@/lib/networks'
 import { useSwitchChain, useChainId, useAccount, useConfig } from 'wagmi'
 import { useToast } from '@/hooks/use-toast'
+import { useMiniKit } from '@coinbase/onchainkit/minikit'
 
 interface NetworkSelectorProps {
   selectedNetwork: string
@@ -14,74 +15,22 @@ interface NetworkSelectorProps {
 }
 
 export function NetworkSelector({ selectedNetwork, onNetworkChange, locale = 'en' }: NetworkSelectorProps) {
-  const { isPending } = useSwitchChain()
+  const { switchChain, isPending } = useSwitchChain()
   const currentChainId = useChainId()
   const { isConnected } = useAccount()
   const config = useConfig()
   const { toast } = useToast()
+  const { context } = useMiniKit()
+  const isMiniKit = !!context
   const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [manualChainId, setManualChainId] = useState<number | undefined>(currentChainId)
+  const [detectedChainId, setDetectedChainId] = useState<number | undefined>(currentChainId)
+  const toastShownRef = useRef<number | undefined>()
   
-  // Use manual chain ID if available, otherwise use wagmi chain ID
-  const effectiveChainId = manualChainId || currentChainId
+  // Use detected chain ID as fallback when wagmi is slow to update
+  const effectiveChainId = detectedChainId || currentChainId
   
-  console.log('NetworkSelector render:', {
-    currentChainId,
-    manualChainId,
-    effectiveChainId,
-    isConnected,
-    selectedNetwork,
-    isTestingMode,
-    isPending,
-    refreshTrigger,
-    configuredChains: config.chains.map(c => ({ id: c.id, name: c.name }))
-  })
-
-  // Force refresh when chain changes - but don't auto-update selected network
-  useEffect(() => {
-    console.log('Chain ID changed to:', currentChainId)
-    setRefreshTrigger(prev => prev + 1)
-    // Note: No longer auto-updating selected network - user controls this now
-  }, [currentChainId, effectiveChainId])
-
-  // Listen to MetaMask chain changes directly
-  useEffect(() => {
-    const ethereum = (window as any).ethereum
-    if (!ethereum) return
-
-    const handleChainChanged = (chainId: string) => {
-      console.log('MetaMask chain changed to:', chainId, 'decimal:', parseInt(chainId, 16))
-      const newChainId = parseInt(chainId, 16)
-      
-      // Update manual chain ID to force UI updates
-      setManualChainId(newChainId)
-      
-      // Force refresh the component
-      setRefreshTrigger(prev => prev + 1)
-      
-      // Update selected network based on new chain
-      const matchingNetwork = SUPPORTED_NETWORKS.find(n => {
-        const activeNet = getActiveNetwork(n.name, isTestingMode)
-        return activeNet.id === newChainId
-      })
-      
-      if (matchingNetwork) {
-        console.log('MetaMask changed to network:', matchingNetwork.name)
-        onNetworkChange(matchingNetwork.name)
-      } else {
-        console.log('No matching network found for chainId:', newChainId)
-      }
-    }
-
-    ethereum.on('chainChanged', handleChainChanged)
-
-    return () => {
-      ethereum.removeListener('chainChanged', handleChainChanged)
-    }
-  }, [isTestingMode, onNetworkChange])
-
-  // Translations
+  // Translations - moved up to avoid initialization issues
   const translations = {
     en: {
       selectNetwork: 'Select Network',
@@ -110,51 +59,318 @@ export function NetworkSelector({ selectedNetwork, onNetworkChange, locale = 'en
   }
 
   const t = translations[locale as keyof typeof translations] || translations.en
+  
+  // Function to add/switch networks to MetaMask
+  const addOrSwitchNetworkInMetaMask = async (chainId: number) => {
+    if (typeof window === 'undefined') {
+      throw new Error('Window not available')
+    }
 
+    // Get ethereum provider - try multiple approaches
+    const ethereum = (window as any).ethereum || (window as any).web3?.currentProvider
+    
+    if (!ethereum) {
+      throw new Error('No Ethereum provider found. Please install MetaMask.')
+    }
 
-  const handleNetworkSelect = (network: NetworkConfig) => {
+    let networkParams
+    
+    switch (chainId) {
+      case 999999999: // Zora Sepolia
+        networkParams = {
+          chainId: '0x3B9AC9FF',
+          chainName: 'Zora Sepolia',
+          nativeCurrency: {
+            name: 'Ethereum',
+            symbol: 'ETH',
+            decimals: 18,
+          },
+          rpcUrls: ['https://sepolia.rpc.zora.energy'],
+          blockExplorerUrls: ['https://sepolia.explorer.zora.energy'],
+        }
+        break
+      case 7777777: // Zora Mainnet
+        networkParams = {
+          chainId: '0x76ADF1',
+          chainName: 'Zora',
+          nativeCurrency: {
+            name: 'Ethereum',
+            symbol: 'ETH',
+            decimals: 18,
+          },
+          rpcUrls: ['https://rpc.zora.energy'],
+          blockExplorerUrls: ['https://explorer.zora.energy'],
+        }
+        break
+      case 84532: // Base Sepolia
+        networkParams = {
+          chainId: '0x14A34', // 84532 in hex
+          chainName: 'Base Sepolia',
+          nativeCurrency: {
+            name: 'Ethereum',
+            symbol: 'ETH',
+            decimals: 18,
+          },
+          rpcUrls: ['https://sepolia.base.org'],
+          blockExplorerUrls: ['https://sepolia.basescan.org'],
+        }
+        break
+      case 8453: // Base Mainnet
+        networkParams = {
+          chainId: '0x2105', // 8453 in hex
+          chainName: 'Base',
+          nativeCurrency: {
+            name: 'Ethereum',
+            symbol: 'ETH',
+            decimals: 18,
+          },
+          rpcUrls: ['https://mainnet.base.org'],
+          blockExplorerUrls: ['https://basescan.org'],
+        }
+        break
+      default:
+        throw new Error(`Unsupported network: ${chainId}`)
+    }
+
+    console.log('Attempting to add network:', networkParams)
+
+    try {
+      // First try to switch to the network (in case it already exists)
+      try {
+        await ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: networkParams.chainId }],
+        })
+        console.log(`Switched to existing ${networkParams.chainName}`)
+        return chainId // Return the chain ID for immediate UI update
+      } catch (switchError: any) {
+        // If network doesn't exist (error 4902), we'll add it below
+        if (switchError.code !== 4902) {
+          throw switchError
+        }
+        console.log(`${networkParams.chainName} doesn't exist, adding it...`)
+      }
+
+      // Add the network if it doesn't exist
+      await ethereum.request({
+        method: 'wallet_addEthereumChain',
+        params: [networkParams],
+      })
+      console.log(`Added ${networkParams.chainName} to MetaMask`)
+      return chainId // Return the chain ID for immediate UI update
+      
+    } catch (error: any) {
+      console.error('Failed to add/switch network:', error)
+      
+      // Handle specific error codes
+      if (error.code === 4001) {
+        throw new Error('User rejected the request')
+      } else if (error.code === -32602) {
+        throw new Error('Invalid parameters')
+      } else if (error.code === -32603) {
+        throw new Error('Internal error - please try again or add the network manually')
+      } else {
+        throw new Error(error.message || 'Failed to add network')
+      }
+    }
+  }
+  
+  console.log('NetworkSelector render:', {
+    currentChainId,
+    effectiveChainId,
+    isConnected,
+    selectedNetwork,
+    isTestingMode,
+    isPending,
+    refreshTrigger,
+    configuredChains: config.chains.map(c => ({ id: c.id, name: c.name }))
+  })
+
+  // Sync detected chain ID with wagmi when wagmi updates
+  useEffect(() => {
+    if (currentChainId) {
+      setDetectedChainId(currentChainId)
+    }
+  }, [currentChainId])
+
+  // Force refresh when chain changes and show success message if it matches selected network
+  useEffect(() => {
+    console.log('Chain ID changed to:', currentChainId)
+    
+    setRefreshTrigger(prev => prev + 1)
+    
+    // Check if the new chain matches the selected network and show success (avoid duplicates)
+    if (currentChainId && isConnected && currentChainId !== toastShownRef.current) {
+      const selectedNetworkConfig = SUPPORTED_NETWORKS.find(n => n.name === selectedNetwork)
+      if (selectedNetworkConfig) {
+        const activeNetwork = getActiveNetwork(selectedNetworkConfig.name, isTestingMode)
+        if (currentChainId === activeNetwork.id) {
+          // Network switch was successful
+          toastShownRef.current = currentChainId
+          toast({
+            title: t.networkSwitched,
+            description: `Successfully switched to ${activeNetwork.displayName}`,
+            variant: "default",
+          })
+        }
+      }
+    }
+  }, [currentChainId, selectedNetwork, isConnected, isTestingMode])
+
+  // Listen to MetaMask chain changes directly
+  useEffect(() => {
+    const ethereum = (window as any).ethereum
+    if (!ethereum) return
+
+    const handleChainChanged = (chainId: string) => {
+      console.log('MetaMask chain changed to:', chainId, 'decimal:', parseInt(chainId, 16))
+      const newChainId = parseInt(chainId, 16)
+      
+      // Immediately update detected chain ID for faster UI response
+      setDetectedChainId(newChainId)
+      
+      // Force refresh the component
+      setRefreshTrigger(prev => prev + 1)
+      
+      // Update selected network based on new chain
+      const matchingNetwork = SUPPORTED_NETWORKS.find(n => {
+        const activeNet = getActiveNetwork(n.name, isTestingMode)
+        return activeNet.id === newChainId
+      })
+      
+      if (matchingNetwork) {
+        console.log('MetaMask changed to network:', matchingNetwork.name)
+        onNetworkChange(matchingNetwork.name)
+      } else {
+        console.log('No matching network found for chainId:', newChainId)
+      }
+    }
+
+    ethereum.on('chainChanged', handleChainChanged)
+
+    return () => {
+      ethereum.removeListener('chainChanged', handleChainChanged)
+    }
+  }, [isTestingMode, onNetworkChange])
+
+  const handleNetworkSelect = async (network: NetworkConfig) => {
     const activeNetwork = getActiveNetwork(network.name, isTestingMode)
     
     console.log('Network selected in UI:', {
       networkName: network.name,
       targetChainId: activeNetwork.id,
       displayName: activeNetwork.displayName,
-      isTestingMode
+      isTestingMode,
+      currentChainId,
+      isConnected
     })
     
-    // Simply update the selected network preference - no automatic switching
+    // Update the selected network preference
     onNetworkChange(network.name)
     
-    // Show helpful information about the selected network
+    // Check if we need to switch networks or just update the UI
     if (isConnected) {
-      toast({
-        title: `${activeNetwork.displayName} Selected`,
-        description: `Switch to ${activeNetwork.displayName} in your wallet before minting. Chain ID: ${activeNetwork.id}`,
-        variant: "default",
+      console.log('Network switching check:', {
+        currentChainId,
+        targetChainId: activeNetwork.id,
+        detectedChainId,
+        effectiveChainId,
+        networkName: activeNetwork.displayName,
+        isMiniKit,
+        needsSwitch: currentChainId !== activeNetwork.id
       })
       
-      // For Zora networks, provide additional helpful info
-      if (activeNetwork.id === 999999999) {
-        setTimeout(() => {
+      // If MetaMask is already on the target network but UI shows wrong network, fix the UI
+      if (currentChainId === activeNetwork.id && detectedChainId !== activeNetwork.id) {
+        console.log('MetaMask is already on target network, updating UI')
+        setDetectedChainId(activeNetwork.id)
+        setRefreshTrigger(prev => prev + 1)
+        toast({
+          title: 'Network Updated',
+          description: `Already on ${activeNetwork.displayName}`,
+          variant: "default",
+        })
+      }
+      // If we need to actually switch networks
+      else if (currentChainId !== activeNetwork.id) {
+        console.log('Attempting to switch chain:', {
+          from: currentChainId,
+          to: activeNetwork.id,
+          networkName: activeNetwork.displayName,
+          isMiniKit,
+          switchChainAvailable: !!switchChain
+        })
+        
+        try {
+          // Check if switchChain is available
+          if (!switchChain) {
+            throw new Error('switchChain function not available')
+          }
+          
+          if (isMiniKit) {
+            console.log('Switching chain in MiniKit environment')
+            // In MiniKit, just attempt the switch without adding network
+            switchChain({ chainId: activeNetwork.id })
+          } else {
+            // For all networks in browser, handle directly through MetaMask for better reliability
+            toast({
+              title: 'Switching Network...',
+              description: `Switching to ${activeNetwork.displayName}`,
+              variant: "default",
+            })
+            const switchedChainId = await addOrSwitchNetworkInMetaMask(activeNetwork.id)
+            
+            // Immediately update the detected chain ID for faster UI response
+            if (switchedChainId) {
+              setDetectedChainId(switchedChainId)
+              setRefreshTrigger(prev => prev + 1)
+            }
+          }
+          
+        } catch (error) {
+          console.error('Failed to switch network:', error)
+          
+          // More specific error handling for different environments
+          let errorMessage = `Please manually switch to ${activeNetwork.displayName} in your wallet. Chain ID: ${activeNetwork.id}`
+          
+          if (isMiniKit) {
+            errorMessage = `Unable to switch networks automatically in Farcaster. Please use the network selector in your Farcaster wallet to switch to ${activeNetwork.displayName}.`
+          } else if (error instanceof Error) {
+            errorMessage = `Failed to switch: ${error.message}. Please try manually switching to ${activeNetwork.displayName} in your wallet.`
+          }
+          
           toast({
-            title: 'Zora Sepolia Network Details',
-            description: `RPC: https://sepolia.rpc.zora.energy | Block Explorer: https://sepolia.explorer.zora.energy`,
-            variant: "default",
+            title: t.switchFailed,
+            description: errorMessage,
+            variant: "destructive",
           })
-        }, 2000)
-      } else if (activeNetwork.id === 7777777) {
-        setTimeout(() => {
-          toast({
-            title: 'Zora Network Details',
-            description: `RPC: https://rpc.zora.energy | Block Explorer: https://explorer.zora.energy`,
-            variant: "default",
-          })
-        }, 2000)
+          
+          // Show network details for manual switching (only for non-MiniKit)
+          if (!isMiniKit) {
+            if (activeNetwork.id === 999999999) {
+              setTimeout(() => {
+                toast({
+                  title: 'Zora Sepolia Network Details',
+                  description: `RPC: https://sepolia.rpc.zora.energy | Chain ID: 999999999`,
+                  variant: "default",
+                })
+              }, 2000)
+            } else if (activeNetwork.id === 7777777) {
+              setTimeout(() => {
+                toast({
+                  title: 'Zora Network Details',
+                  description: `RPC: https://rpc.zora.energy | Chain ID: 7777777`,
+                  variant: "default",
+                })
+              }, 2000)
+            }
+          }
+        }
       }
     } else {
       toast({
         title: `${activeNetwork.displayName} Selected`,
-        description: 'Connect your wallet and switch to this network to mint NFTs.',
+        description: 'Connect your wallet to switch to this network.',
         variant: "default",
       })
     }
@@ -207,7 +423,7 @@ export function NetworkSelector({ selectedNetwork, onNetworkChange, locale = 'en
         </div>
       )}
       
-      {/* <div className="flex gap-2 flex-wrap justify-center sm:justify-start">
+      <div className="flex gap-2 flex-wrap justify-center sm:justify-start">
         {SUPPORTED_NETWORKS.map((network) => {
           const activeNetwork = getActiveNetwork(network.name, isTestingMode)
           const isSelected = selectedNetwork === network.name
@@ -246,7 +462,7 @@ export function NetworkSelector({ selectedNetwork, onNetworkChange, locale = 'en
             </Button>
           )
         })}
-      </div> */}
+      </div>
       
       <div className="flex items-center justify-between mt-3">
         <div className="flex items-center gap-2">
