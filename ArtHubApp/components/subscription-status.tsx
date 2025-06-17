@@ -55,6 +55,27 @@ export function SubscriptionStatus({ translations: t, onRefresh }: SubscriptionS
   // Load subscription data
   useEffect(() => {
     if (!address || !publicClient || !isConnected || !chainId) {
+      console.log('❌ Cannot load subscription data - missing requirements:', { 
+        address: !!address, 
+        publicClient: !!publicClient, 
+        isConnected,
+        chainId 
+      })
+      
+      // If we're connected but missing other data, provide default Free Plan
+      if (isConnected && address) {
+        console.log('🆓 User is connected but missing client/chain data, providing default Free Plan')
+        setSubscriptionData({
+          plan: PlanType.FREE,
+          isActive: true,
+          expiresAt: null,
+          nftsMinted: 0,
+          nftQuota: 1,
+          canMint: true,
+          hasGaslessMinting: false
+        })
+      }
+      
       setLoading(false)
       return
     }
@@ -63,25 +84,42 @@ export function SubscriptionStatus({ translations: t, onRefresh }: SubscriptionS
   }, [address, publicClient, isConnected, chainId, refreshKey])
 
   const loadSubscriptionData = useCallback(async () => {
-    if (!address || !publicClient || !chainId) return
+    if (!address || !publicClient || !chainId) {
+      console.log('❌ Cannot load subscription data - missing requirements:', { 
+        address: !!address, 
+        publicClient: !!publicClient, 
+        chainId 
+      })
+      return
+    }
 
     try {
+      console.log('🚀 Starting subscription data load for:', { address, chainId })
       setLoading(true)
+      
+      console.log('🔧 Creating SubscriptionService...')
       const subscriptionService = new SubscriptionService(publicClient, null, chainId)
       
       // Clear cache to get fresh data
+      console.log('🧹 Clearing user cache...')
       subscriptionService.clearUserCache(address)
       
+      console.log('📊 Getting user subscription...')
       const subscription = await subscriptionService.getUserSubscription(address)
-      const canMintData = await subscriptionService.canUserMint(address)
+      console.log('✅ Got subscription data:', subscription)
       
-      console.log('🔄 Subscription data refreshed:', {
+      console.log('🔍 Checking mint capability...')
+      const canMintData = await subscriptionService.canUserMint(address)
+      console.log('✅ Got mint data:', canMintData)
+      
+      console.log('🔄 Setting subscription state:', {
+        plan: subscription.plan,
+        isActive: subscription.isActive,
         nftsMinted: subscription.nftsMinted,
-        nftLimit: subscription.nftLimit,
-        plan: subscription.plan
+        nftLimit: subscription.nftLimit
       })
       
-      setSubscriptionData({
+      const newSubscriptionData = {
         plan: subscription.plan,
         isActive: subscription.isActive,
         expiresAt: subscription.expiresAt,
@@ -89,14 +127,35 @@ export function SubscriptionStatus({ translations: t, onRefresh }: SubscriptionS
         nftQuota: subscription.nftLimit,
         canMint: canMintData.canMint,
         hasGaslessMinting: subscription.hasGaslessMinting
-      })
+      }
+      
+      console.log('✅ Setting subscription data to state:', newSubscriptionData)
+      setSubscriptionData(newSubscriptionData)
     } catch (error) {
       console.error('Failed to load subscription data:', error)
-      toast({
-        title: "Error",
-        description: "Failed to load subscription data",
-        variant: "destructive"
-      })
+      
+      // For new wallets, provide default active Free Plan instead of showing error
+      console.log('🆓 Providing default Free Plan for new wallet due to service error')
+      const fallbackData = {
+        plan: PlanType.FREE,
+        isActive: true,
+        expiresAt: null,
+        nftsMinted: 0,
+        nftQuota: 1,
+        canMint: true,
+        hasGaslessMinting: false
+      }
+      console.log('🆓 Fallback data details:', fallbackData)
+      setSubscriptionData(fallbackData)
+      
+      // Only show error toast if it's not a contract address issue (which is expected for new networks)
+      if (error instanceof Error && !error.message.includes('not deployed on chain')) {
+        toast({
+          title: "Note",
+          description: "Using default Free Plan. Some features may be limited.",
+          variant: "default"
+        })
+      }
     } finally {
       setLoading(false)
     }
@@ -246,6 +305,25 @@ export function SubscriptionStatus({ translations: t, onRefresh }: SubscriptionS
     return null
   }
 
+  // Auto-provide Free Plan for new users even when data is loading
+  // Force Free Plan if subscription data is null, or if it shows inactive
+  const effectiveSubscriptionData = (subscriptionData && subscriptionData.isActive) ? subscriptionData : {
+    plan: PlanType.FREE,
+    isActive: true,
+    expiresAt: null,
+    nftsMinted: subscriptionData?.nftsMinted || 0,
+    nftQuota: 1,
+    canMint: true,
+    hasGaslessMinting: false
+  }
+  
+  console.log('📊 effectiveSubscriptionData:', {
+    hasRealData: !!subscriptionData,
+    plan: effectiveSubscriptionData.plan,
+    isActive: effectiveSubscriptionData.isActive,
+    isUsingFallback: !subscriptionData
+  })
+
   if (loading) {
     return (
       <Card>
@@ -266,24 +344,27 @@ export function SubscriptionStatus({ translations: t, onRefresh }: SubscriptionS
   }
 
   const getPlanBadge = (plan: PlanType, isActive: boolean) => {
+    console.log('🏷️ getPlanBadge called with:', { plan, isActive, planType: typeof plan, planValue: plan })
+    
     if (!isActive) {
+      console.log('❌ Plan is not active, showing inactive badge')
       return <Badge variant="outline">{t.inactive}</Badge>
     }
 
+    console.log('✅ Plan is active, checking plan type...')
     switch (plan) {
       case PlanType.FREE:
+        console.log('🆓 Showing Free Plan badge')
         return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">{t.freePlan}</Badge>
       case PlanType.MASTER:
+        console.log('💎 Showing Master Plan badge')
         return <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">{t.masterPlan}</Badge>
       default:
+        console.log('❓ Unknown plan type, showing inactive badge:', plan)
         return <Badge variant="outline">{t.inactive}</Badge>
     }
   }
 
-  const getProgressValue = () => {
-    if (!subscriptionData || subscriptionData.nftQuota === 0) return 0
-    return (subscriptionData.nftsMinted / subscriptionData.nftQuota) * 100
-  }
 
   return (
     <Card>
@@ -293,20 +374,20 @@ export function SubscriptionStatus({ translations: t, onRefresh }: SubscriptionS
           {t.subscription}
         </CardTitle>
         <CardDescription>
-          {t.currentPlan}: {getPlanBadge(subscriptionData?.plan || PlanType.FREE, subscriptionData?.isActive || false)}
+          {t.currentPlan}: {getPlanBadge(effectiveSubscriptionData.plan, effectiveSubscriptionData.isActive)}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {subscriptionData && subscriptionData.isActive ? (
+        {effectiveSubscriptionData.isActive ? (
           <>
             {/* Subscription Details */}
             <div className="space-y-3">
               {/* Expiration */}
-              {subscriptionData.expiresAt && (
+              {effectiveSubscriptionData.expiresAt && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">{t.expires}:</span>
-                  <span>{subscriptionData.expiresAt.toLocaleDateString()} 
-                    {subscriptionData.plan !== PlanType.FREE && (
+                  <span>{effectiveSubscriptionData.expiresAt.toLocaleDateString()} 
+                    {effectiveSubscriptionData.plan !== PlanType.FREE && (
                       <span className="text-xs text-gray-400 ml-1">(auto-renew)</span>
                     )}
                   </span>
@@ -318,11 +399,11 @@ export function SubscriptionStatus({ translations: t, onRefresh }: SubscriptionS
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">{t.nftsUsed}:</span>
                   <span>
-                    {subscriptionData.nftsMinted} / {subscriptionData.nftQuota === 999999 ? t.unlimited : subscriptionData.nftQuota}
+                    {effectiveSubscriptionData.nftsMinted} / {effectiveSubscriptionData.nftQuota === 999999 ? t.unlimited : effectiveSubscriptionData.nftQuota}
                   </span>
                 </div>
-                {subscriptionData.nftQuota !== 999999 && (
-                  <Progress value={getProgressValue()} className="h-2" />
+                {effectiveSubscriptionData.nftQuota !== 999999 && (
+                  <Progress value={effectiveSubscriptionData.nftQuota === 0 ? 0 : (effectiveSubscriptionData.nftsMinted / effectiveSubscriptionData.nftQuota) * 100} className="h-2" />
                 )}
               </div>
 
@@ -330,7 +411,7 @@ export function SubscriptionStatus({ translations: t, onRefresh }: SubscriptionS
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">{t.gaslessMinting}:</span>
                 <div className="flex items-center gap-1">
-                  {subscriptionData.hasGaslessMinting ? (
+                  {effectiveSubscriptionData.hasGaslessMinting ? (
                     <>
                       <Check className="h-4 w-4 text-green-500" />
                       <span className="text-green-600">{t.enabled}</span>
@@ -371,7 +452,7 @@ export function SubscriptionStatus({ translations: t, onRefresh }: SubscriptionS
             </Button>
 
             {/* USDC Faucet Buttons for Testnet */}
-            {subscriptionData.plan === PlanType.FREE && (
+            {effectiveSubscriptionData.plan === PlanType.FREE && (
               <div className="space-y-2">
                 <div className="text-xs text-gray-500 text-center mb-2">
                   You need 4.99 USDC to upgrade to Master ($4.99/month). Get testnet USDC:

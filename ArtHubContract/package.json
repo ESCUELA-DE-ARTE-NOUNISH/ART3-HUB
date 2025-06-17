@@ -5,12 +5,21 @@
   "scripts": {
     "test": "npx hardhat test",
     "compile": "npx hardhat compile",
-    "deploy:baseSepolia": "npx hardhat run scripts/deploy-factory.ts --network baseSepolia",
-    "deploy:base": "npx hardhat run scripts/deploy-factory.ts --network base",
-    "deploy:celoSepolia": "npx hardhat run scripts/deploy-factory.ts --network celoSepolia",
-    "deploy:celo": "npx hardhat run scripts/deploy-factory.ts --network celo",
-    "deploy:zoraSepolia": "npx hardhat run scripts/deploy-factory.ts --network zoraSepolia",
-    "deploy:zora": "npx hardhat run scripts/deploy-factory.ts --network zora"
+    "deploy:baseSepolia": "npx hardhat run scripts/deploy-art3hub-v3.ts --network baseSepolia",
+    "deploy:base": "npx hardhat run scripts/deploy-art3hub-v3.ts --network base",
+    "deploy:celoSepolia": "npx hardhat run scripts/deploy-art3hub-v3.ts --network celoSepolia",
+    "deploy:celo": "npx hardhat run scripts/deploy-art3hub-v3.ts --network celo",
+    "deploy:zoraSepolia": "npx hardhat run scripts/deploy-art3hub-v3.ts --network zoraSepolia",
+    "deploy:zora": "npx hardhat run scripts/deploy-art3hub-v3.ts --network zora",
+    "verify:baseSepolia": "npx hardhat run scripts/verify-contracts.ts --network baseSepolia",
+    "verify:celoSepolia": "npx hardhat run scripts/verify-contracts.ts --network celoSepolia",
+    "verify:zoraSepolia": "npx hardhat run scripts/verify-contracts.ts --network zoraSepolia",
+    "test:nft:base": "npx hardhat run scripts/test-nft-creation.ts --network baseSepolia",
+    "test:nft:zora": "npx hardhat run scripts/test-nft-zora.ts --network zoraSepolia",
+    "test:nft:celo": "npx hardhat run scripts/test-nft-celo.ts --network celoSepolia",
+    "check:balances": "npx hardhat run scripts/check-balances.ts",
+    "fund:relayer": "npx hardhat run scripts/fund-relayer.ts",
+    "flatten": "npx hardhat flatten contracts/Art3HubSubscriptionV3.sol > flattened/Art3HubSubscriptionV3_flat.sol && npx hardhat flatten contracts/Art3HubFactoryV3.sol > flattened/Art3HubFactoryV3_flat.sol && npx hardhat flatten contracts/Art3HubCollectionV3.sol > flattened/Art3HubCollectionV3_flat.sol"
   },
   "keywords": [],
   "author": "",
@@ -18,7 +27,8 @@
   "description": "Art3 Hub NFT Factory and Collection Contracts",
   "dependencies": {
     "@openzeppelin/contracts": "^5.1.0",
-    "@openzeppelin/contracts-upgradeable": "^5.1.0"
+    "@openzeppelin/contracts-upgradeable": "^5.1.0",
+    "axios": "^1.10.0"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
