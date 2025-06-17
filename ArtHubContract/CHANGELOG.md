@@ -5,6 +5,33 @@ All notable changes to the Art3 Hub smart contracts will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2025-06-17
+
+### 🔧 **Critical Bug Fixes & Production Stability**
+
+#### ABI Function Signature Corrections
+- **Fixed Critical ABI Mismatch**: Corrected function name from `getUserSubscription` to `getSubscription` in SubscriptionManager contract
+- **Fixed Return Type Handling**: Updated from 4-field tuple to 6 individual values for proper subscription data parsing
+- **Enhanced Error Handling**: Improved transaction revert detection and error message reporting
+- **Subscription Status Validation**: Fixed subscription data reconciliation between blockchain and database
+
+#### Production Testing & Verification
+- **Master Plan Upgrade Flow**: Successfully tested USDC payment processing and subscription upgrades
+- **Transaction Simulation**: Added comprehensive transaction simulation before execution
+- **Contract Function Validation**: All subscription manager functions verified and tested on Base Sepolia
+- **Database Integration**: Fixed NFT count synchronization between blockchain state and application database
+
+#### Documentation Updates
+- **Contract Verification Status**: Updated all contract verification statuses with latest testing confirmation
+- **Last Updated**: June 17, 2025 (V2 subscription system fixes)
+- **Testing Status**: All contracts verified and tested in production environment
+
+#### Deployment Status
+- **Base Sepolia Contracts**: All V2 contracts operational and verified
+- **SubscriptionManager**: [`0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4`](https://sepolia.basescan.org/address/0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4#code) ✅ **TESTED & VERIFIED**
+- **Art3HubFactoryV2**: [`0x75Ed9ACB51D2BEaCfD6c76099D63d3a0009F4a40`](https://sepolia.basescan.org/address/0x75Ed9ACB51D2BEaCfD6c76099D63d3a0009F4a40#code) ✅ **TESTED & VERIFIED**
+- **USDC Integration**: Confirmed working with contract `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
+
 ## [2.0.0] - 2025-01-16
 
 ### 🚀 **Major Release: Art3Hub V2 - Subscription-Based Platform**

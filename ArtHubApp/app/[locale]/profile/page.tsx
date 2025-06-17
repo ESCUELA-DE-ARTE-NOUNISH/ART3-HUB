@@ -11,6 +11,7 @@ import { useParams } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import { useUserProfile } from "@/hooks/useUserProfile"
 import { ProfileEditForm } from "@/components/profile-edit-form"
+import { SubscriptionStatus } from "@/components/subscription-status"
 
 // Custom Verified Star Component
 function VerifiedStar() {
@@ -40,7 +41,22 @@ const translations = {
     exploreMarketplace: "Explore Marketplace",
     noAchievements: "No achievements yet",
     keepExploring: "Keep exploring to earn achievements",
-    bio: "Bio"
+    bio: "Bio",
+    subscription: "Subscription",
+    currentPlan: "Current Plan",
+    freePlan: "Free",
+    masterPlan: "Master",
+    inactive: "Inactive",
+    expires: "Expires",
+    nftsUsed: "NFTs Used",
+    unlimited: "Unlimited",
+    gaslessMinting: "Gasless Minting",
+    enabled: "Enabled",
+    disabled: "Disabled",
+    upgrade: "Upgrade to Master",
+    subscribeMaster: "Subscribe to Master",
+    loading: "Loading",
+    month: "month"
   },
   es: {
     title: "Perfil",
@@ -58,7 +74,22 @@ const translations = {
     exploreMarketplace: "Explorar Mercado",
     noAchievements: "Sin logros aún",
     keepExploring: "Sigue explorando para ganar logros",
-    bio: "Biografía"
+    bio: "Biografía",
+    subscription: "Suscripción",
+    currentPlan: "Plan Actual",
+    freePlan: "Gratis",
+    masterPlan: "Master",
+    inactive: "Inactivo",
+    expires: "Expira",
+    nftsUsed: "NFTs Usados",
+    unlimited: "Ilimitado",
+    gaslessMinting: "Minteo Sin Gas",
+    enabled: "Activado",
+    disabled: "Desactivado",
+    upgrade: "Actualizar a Master",
+    subscribeMaster: "Suscribirse a Master",
+    loading: "Cargando",
+    month: "mes"
   },
   fr: {
     title: "Profil",
@@ -76,7 +107,22 @@ const translations = {
     exploreMarketplace: "Explorer le Marché",
     noAchievements: "Pas encore de réalisations",
     keepExploring: "Continuez à explorer pour gagner des réalisations",
-    bio: "Biographie"
+    bio: "Biographie",
+    subscription: "Abonnement",
+    currentPlan: "Plan Actuel",
+    freePlan: "Gratuit",
+    masterPlan: "Master",
+    inactive: "Inactif",
+    expires: "Expire",
+    nftsUsed: "NFTs Utilisés",
+    unlimited: "Illimité",
+    gaslessMinting: "Minage Sans Gaz",
+    enabled: "Activé",
+    disabled: "Désactivé",
+    upgrade: "Passer à Master",
+    subscribeMaster: "S'abonner à Master",
+    loading: "Chargement",
+    month: "mois"
   },
   pt: {
     title: "Perfil",
@@ -94,7 +140,22 @@ const translations = {
     exploreMarketplace: "Explorar Mercado",
     noAchievements: "Nenhuma conquista ainda",
     keepExploring: "Continue explorando para ganhar conquistas",
-    bio: "Biografia"
+    bio: "Biografia",
+    subscription: "Assinatura",
+    currentPlan: "Plano Atual",
+    freePlan: "Grátis",
+    masterPlan: "Master",
+    inactive: "Inativo",
+    expires: "Expira",
+    nftsUsed: "NFTs Usados",
+    unlimited: "Ilimitado",
+    gaslessMinting: "Mintagem Sem Gás",
+    enabled: "Ativado",
+    disabled: "Desativado",
+    upgrade: "Atualizar para Master",
+    subscribeMaster: "Assinar Master",
+    loading: "Carregando",
+    month: "mês"
   }
 }
 
@@ -314,6 +375,17 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+      </div>
+      
+      {/* Subscription Status Section */}
+      <div className="container mx-auto px-4 mt-8">
+        <SubscriptionStatus 
+          translations={t} 
+          onRefresh={() => {
+            // Refresh profile data as well
+            refreshProfile()
+          }}
+        />
       </div>
       
       {/* Tabs for NFTs and Achievements */}

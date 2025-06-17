@@ -200,7 +200,7 @@ export default function MyCollectionPage() {
         ) : (
           <div className="text-center py-10">
             <h2 className="text-2xl font-bold mb-2">No NFTs Yet</h2>
-            <p className="text-gray-600 mb-6">You haven't minted or collected any NFTs yet.</p>
+            <p className="text-gray-600 mb-6">You haven&apos;t minted or collected any NFTs yet.</p>
             <Button className="bg-[#9ACD32] hover:bg-[#7CFC00]">Create Your First NFT</Button>
           </div>
         )}

@@ -3,21 +3,24 @@
 import type React from "react"
 import dynamic from "next/dynamic"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import Header from "@/components/header"
 import { NetworkSelector } from "@/components/network-selector"
-import { ImagePlus, Loader2, ExternalLink } from "lucide-react"
+import { ImagePlus, Loader2, ExternalLink, Crown, Gift, AlertCircle } from "lucide-react"
 import { useAccount, usePublicClient, useWalletClient } from "wagmi"
 import { IPFSService, type NFTMetadata } from "@/lib/services/ipfs-service"
-import { createZoraService } from "@/lib/services/zora-service"
+import { createArt3HubV2ServiceWithSubscription } from "@/lib/services/art3hub-v2-service"
+import { SubscriptionService, PlanType, type SubscriptionInfo } from "@/lib/services/subscription-service"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { CheckCircle2, Copy } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
 
 function CreateNFT() {
   // Form state
@@ -30,8 +33,11 @@ function CreateNFT() {
   const [isLoading, setIsLoading] = useState(false)
   const [mintStatus, setMintStatus] = useState<string>('')
   const [transactionHash, setTransactionHash] = useState<string>('')
-  const [ipfsImageHash, setIpfsImageHash] = useState<string>('')
-  const [ipfsMetadataHash, setIpfsMetadataHash] = useState<string>('')
+  
+  // Subscription state
+  const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null)
+  const [loadingSubscription, setLoadingSubscription] = useState(false)
+  const [needsSubscription, setNeedsSubscription] = useState(false)
   
   // Wagmi hooks
   const { address, isConnected } = useAccount()
@@ -40,6 +46,33 @@ function CreateNFT() {
   const { toast } = useToast()
   
   const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
+  
+  // Load user subscription when wallet connects
+  useEffect(() => {
+    if (!isConnected || !address || !publicClient) {
+      setSubscription(null)
+      return
+    }
+
+    const loadSubscription = async () => {
+      setLoadingSubscription(true)
+      try {
+        if (publicClient) {
+          const subscriptionService = new SubscriptionService(publicClient, walletClient, 84532) // Default to Base Sepolia for testing
+          const userSubscription = await subscriptionService.getUserSubscription(address)
+          setSubscription(userSubscription)
+          setNeedsSubscription(!userSubscription.isActive)
+        }
+      } catch (error) {
+        console.error('Error loading subscription:', error)
+        setNeedsSubscription(true)
+      } finally {
+        setLoadingSubscription(false)
+      }
+    }
+
+    loadSubscription()
+  }, [isConnected, address, publicClient, walletClient])
   
   // Function to get block explorer URL
   const getBlockExplorerUrl = (txHash: string) => {
@@ -103,6 +136,44 @@ function CreateNFT() {
     }
   }
 
+  // Function to subscribe to free plan
+  const handleSubscribeToFreePlan = async () => {
+    if (!isConnected || !address || !walletClient || !publicClient) {
+      toast({
+        title: "Wallet not connected",
+        description: "Please connect your wallet to subscribe",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setLoadingSubscription(true)
+    try {
+      const subscriptionService = new SubscriptionService(publicClient, walletClient, 84532)
+      await subscriptionService.subscribeToFreePlan()
+      
+      toast({
+        title: "Subscription activated!",
+        description: "You now have access to create 1 NFT collection with gasless minting",
+      })
+      
+      // Reload subscription data
+      const userSubscription = await subscriptionService.getUserSubscription(address)
+      setSubscription(userSubscription)
+      setNeedsSubscription(false)
+      
+    } catch (error) {
+      console.error('Error subscribing to free plan:', error)
+      toast({
+        title: "Subscription failed",
+        description: error instanceof Error ? error.message : "Failed to activate free plan",
+        variant: "destructive",
+      })
+    } finally {
+      setLoadingSubscription(false)
+    }
+  }
+
   // Function to manually reset the form
   const resetForm = () => {
     setImage(null)
@@ -114,20 +185,6 @@ function CreateNFT() {
     setTransactionHash('')
   }
 
-  // Function to get OpenSea link for the NFT
-  const getOpenSeaLink = (_txHash: string) => {
-    const baseUrl = isTestingMode 
-      ? selectedNetwork === 'base' 
-        ? 'https://testnets.opensea.io'
-        : 'https://testnets.opensea.io'
-      : selectedNetwork === 'base'
-        ? 'https://opensea.io'
-        : 'https://opensea.io'
-    
-    // Link to user's profile to see their NFTs
-    return `${baseUrl}/account/${address}`
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -135,6 +192,25 @@ function CreateNFT() {
       toast({
         title: "Wallet not connected",
         description: "Please connect your wallet to create an NFT",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Check subscription first
+    if (needsSubscription || !subscription?.isActive) {
+      toast({
+        title: "Subscription required",
+        description: "Please activate your free plan to create NFT collections",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (subscription.remainingNFTs <= 0) {
+      toast({
+        title: "NFT limit reached",
+        description: `You've used all ${subscription.nftLimit} NFTs for your ${subscription.planName}. Upgrade to Master plan for more NFTs.`,
         variant: "destructive",
       })
       return
@@ -173,13 +249,12 @@ function CreateNFT() {
       const metadataUpload = await IPFSService.uploadMetadata(metadata)
       setMintStatus('Creating collection on blockchain...')
       
-      // 4. Create Zora service and mint NFT
+      // 4. Create Art3Hub V2 service and create collection + mint NFT
       if (!walletClient) {
         throw new Error('Wallet client not available')
       }
       
-      console.log('📱 Wallet client available:', !!walletClient)
-      console.log('🌐 Public client available:', !!publicClient)
+      console.log('📱 Using Art3Hub V2 service...')
       console.log('🏪 Selected network:', selectedNetwork)
       console.log('🧪 Testing mode:', isTestingMode)
       
@@ -199,7 +274,7 @@ function CreateNFT() {
       if (currentChainId !== targetNetwork.id) {
         toast({
           title: "Wrong Network",
-          description: `Please switch to ${targetNetwork.displayName} in your wallet before minting`,
+          description: `Please switch to ${targetNetwork.displayName} in your wallet before creating NFT`,
           variant: "destructive",
         })
         setIsLoading(false)
@@ -207,21 +282,33 @@ function CreateNFT() {
         return
       }
       
-      setMintStatus('Creating NFT collection...')
-      const zoraService = createZoraService(publicClient, walletClient, selectedNetwork, isTestingMode)
+      setMintStatus('Creating NFT collection (no fees with subscription)...')
+      const { art3hubService } = createArt3HubV2ServiceWithSubscription(publicClient, walletClient, selectedNetwork, isTestingMode)
       
-      const result = await zoraService.createCollection({
+      // Create collection first
+      const collectionResult = await art3hubService.createCollection({
         name: title,
         symbol: title.replace(/\s+/g, '').toUpperCase().substring(0, 6),
         description: description,
         imageURI: metadataUpload.ipfsUrl,
-        contractAdmin: address,
-        fundsRecipient: address,
+        externalUrl: '',
+        artist: address,
+        royaltyRecipient: address,
         royaltyBPS: Math.floor(parseFloat(royaltyPercentage) * 100), // Convert percentage to basis points
       })
       
-      setTransactionHash(result.transactionHash)
-      setMintStatus('NFT created successfully!')
+      setMintStatus('Minting NFT to collection...')
+      
+      // Mint NFT to the newly created collection
+      const mintResult = await art3hubService.mintNFT({
+        collectionContract: collectionResult.contractAddress,
+        recipient: address,
+        tokenURI: metadataUpload.ipfsUrl,
+        gasless: true
+      })
+      
+      setTransactionHash(mintResult.transactionHash)
+      setMintStatus('NFT created successfully with gasless transaction!')
       
       // Store NFT data in database for gallery display
       try {
@@ -232,21 +319,30 @@ function CreateNFT() {
             wallet_address: address,
             name: title,
             description: description,
-            image_ipfs_hash: ipfsImageHash,
-            metadata_ipfs_hash: ipfsMetadataHash,
-            transaction_hash: result.transactionHash,
+            image_ipfs_hash: imageUpload.ipfsHash,
+            metadata_ipfs_hash: metadataUpload.ipfsHash,
+            transaction_hash: mintResult.transactionHash,
+            collection_address: collectionResult.contractAddress,
             network: `${selectedNetwork} ${isTestingMode ? 'testnet' : 'mainnet'}`,
-            royalty_percentage: parseFloat(royaltyPercentage)
+            chain_id: targetNetwork.id,
+            royalty_percentage: parseFloat(royaltyPercentage),
+            mint_type: 'gasless',
+            subscription_plan_used: subscription.planName
           })
         })
         console.log('✅ NFT stored in database')
       } catch (error) {
         console.error('Failed to store NFT in database:', error)
-        // Don't fail the main process if database storage fails
       }
       
-      // Success message stays visible until user manually closes it
-      // No automatic timeout - user controls when to reset the form
+      // Refresh subscription data to show updated quota
+      try {
+        const subscriptionService = new SubscriptionService(publicClient, walletClient, targetNetwork.id)
+        const updatedSubscription = await subscriptionService.getUserSubscription(address)
+        setSubscription(updatedSubscription)
+      } catch (error) {
+        console.warn('Failed to refresh subscription data:', error)
+      }
       
     } catch (error) {
       console.error('Error creating NFT:', error)
@@ -268,9 +364,12 @@ function CreateNFT() {
       <div className="container mx-auto px-4 py-6">
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <CardTitle>Create Your NFT</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              Create Your NFT 
+              <Badge variant="secondary">V2 - Subscription Based</Badge>
+            </CardTitle>
             <CardDescription>
-              Create an ERC-721 NFT with ERC-2981 royalties using Zora Creator Protocol
+              Create gasless NFT collections with your subscription - no deployment fees required!
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -279,187 +378,235 @@ function CreateNFT() {
                 <p className="text-muted-foreground mb-4">Please connect your wallet to create an NFT</p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Network Selection */}
-                <NetworkSelector 
-                  selectedNetwork={selectedNetwork}
-                  onNetworkChange={setSelectedNetwork}
-                />
-                
-                <div>
-                  <Label className="text-sm font-medium">Image</Label>
-            <div className="flex justify-center">
-              {image ? (
-                <div className="relative w-full max-w-xs">
-                  <img
-                    src={image || "/placeholder.svg"}
-                    alt="NFT Preview"
-                    className="w-full h-64 object-cover rounded-lg border"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="absolute bottom-2 right-2"
-                    onClick={() => setImage(null)}
-                  >
-                    Change
-                  </Button>
-                </div>
-              ) : (
-                <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 border-gray-300">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <ImagePlus className="w-10 h-10 mb-3 text-gray-400" />
-                    <p className="mb-2 text-sm text-gray-500">
-                      <span className="font-semibold">Click to upload</span> or drag and drop
-                    </p>
-                    <p className="text-xs text-gray-500">PNG, JPG or GIF (MAX. 10MB)</p>
-                  </div>
-                  <Input
-                    id="dropzone-file"
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                  />
-                </label>
-              )}
-            </div>
-                </div>
+              <>
+                {/* Subscription Status Card */}
+                <Card className="mb-6">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold">Subscription Status</h3>
+                      {loadingSubscription && <Loader2 className="h-4 w-4 animate-spin" />}
+                    </div>
+                    
+                    {subscription ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {subscription.plan === PlanType.FREE ? (
+                              <Gift className="h-5 w-5 text-green-500" />
+                            ) : (
+                              <Crown className="h-5 w-5 text-yellow-500" />
+                            )}
+                            <span className="font-medium">{subscription.planName}</span>
+                          </div>
+                          <Badge variant={subscription.isActive ? "default" : "destructive"}>
+                            {subscription.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                        </div>
+                        
+                        {subscription.isActive && (
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>NFTs Used</span>
+                              <span>{subscription.nftsMinted}/{subscription.nftLimit}</span>
+                            </div>
+                            <Progress 
+                              value={(subscription.nftsMinted / subscription.nftLimit) * 100} 
+                              className="h-2"
+                            />
+                            <p className="text-sm text-muted-foreground">
+                              {subscription.remainingNFTs} gasless NFTs remaining this period
+                            </p>
+                          </div>
+                        )}
+                        
+                        {subscription.expiresAt && (
+                          <p className="text-sm text-muted-foreground">
+                            {subscription.plan === PlanType.MASTER ? 'Expires' : 'Active until'}: {subscription.expiresAt.toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                    ) : needsSubscription ? (
+                      <Alert>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Subscription Required</AlertTitle>
+                        <AlertDescription className="mt-2">
+                          <p className="mb-3">
+                            Art3Hub V2 uses a subscription model. Get started with our free plan to create your first NFT collection with gasless minting!
+                          </p>
+                          <Button 
+                            onClick={handleSubscribeToFreePlan}
+                            disabled={loadingSubscription}
+                            size="sm"
+                          >
+                            {loadingSubscription ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                Activating...
+                              </>
+                            ) : (
+                              <>
+                                <Gift className="h-4 w-4 mr-2" />
+                                Activate Free Plan
+                              </>
+                            )}
+                          </Button>
+                        </AlertDescription>
+                      </Alert>
+                    ) : null}
+                  </CardContent>
+                </Card>
 
-                <div>
-                  <Label htmlFor="title" className="text-sm font-medium">
-                    Title
-                  </Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Give your NFT a name"
-              required
-            />
-                </div>
-
-                <div>
-                  <Label htmlFor="description" className="text-sm font-medium">
-                    Description
-                  </Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Tell the story behind your creation"
-              rows={5}
-              required
-            />
-                </div>
-                
-                {/* Royalty Percentage */}
-                <div>
-                  <Label htmlFor="royalty" className="text-sm font-medium">
-                    Royalty Percentage
-                  </Label>
-                  <Input
-                    id="royalty"
-                    type="number"
-                    min="0"
-                    max="10"
-                    step="0.1"
-                    value={royaltyPercentage}
-                    onChange={(e) => setRoyaltyPercentage(e.target.value)}
-                    placeholder="5.0"
-                    className="mt-2"
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Network Selection */}
+                  <NetworkSelector 
+                    selectedNetwork={selectedNetwork}
+                    onNetworkChange={setSelectedNetwork}
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Royalty you'll receive on secondary sales (0-10%)
-                  </p>
-                </div>
-
-                {/* Mint Status */}
-                {mintStatus && (
-                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                      <span className="text-blue-800">{mintStatus}</span>
+                  
+                  <div>
+                    <Label className="text-sm font-medium">Image</Label>
+                    <div className="flex justify-center">
+                      {image ? (
+                        <div className="relative w-full max-w-xs">
+                          <img
+                            src={image}
+                            alt="NFT Preview"
+                            className="w-full h-64 object-cover rounded-lg border"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-2 right-2"
+                            onClick={() => {
+                              setImage(null)
+                              setImageFile(null)
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+                          <ImagePlus className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                          <Label htmlFor="image-upload" className="cursor-pointer">
+                            <span className="text-sm text-muted-foreground">Click to upload image</span>
+                          </Label>
+                          <Input
+                            id="image-upload"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
-                )}
-                
-                {/* Success Alert with Transaction Hash */}
-                {transactionHash && (
-                  <Alert className="border-green-200 bg-green-50">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    <AlertTitle className="text-green-800">NFT Created Successfully!</AlertTitle>
-                    <AlertDescription>
-                      <div className="space-y-3 mt-2">
-                        <p className="text-green-700">
-                          Your NFT has been minted on {selectedNetwork === 'base' ? 'Base' : 'Zora'} {isTestingMode ? 'Testnet' : 'Mainnet'}
-                        </p>
-                        
-                        <div className="flex items-center gap-2 p-2 bg-white rounded border">
-                          <span className="text-xs font-mono text-gray-600 break-all flex-1">
-                            {transactionHash}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => copyToClipboard(transactionHash)}
-                            className="h-6 w-6 p-0"
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.open(getBlockExplorerUrl(transactionHash), '_blank')}
-                            className="flex-1"
-                          >
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            View on Block Explorer
-                          </Button>
-                          
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.open(getOpenSeaLink(transactionHash), '_blank')}
-                            className="flex-1"
-                          >
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            View on OpenSea
-                          </Button>
-                        </div>
-                        
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={resetForm}
-                          className="w-full bg-[#FF69B4] hover:bg-[#FF1493]"
-                        >
-                          Create Another NFT
-                        </Button>
-                      </div>
-                    </AlertDescription>
-                  </Alert>
-                )}
 
-                <Button
-                  type="submit"
-                  className="w-full bg-[#FF69B4] hover:bg-[#FF1493]"
-                  disabled={!image || !title || !description || isLoading || !isConnected}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating NFT...
-                    </>
-                  ) : (
-                    "Create NFT"
+                  <div>
+                    <Label htmlFor="title" className="text-sm font-medium">Title</Label>
+                    <Input
+                      id="title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="Enter NFT title"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+                    <Textarea
+                      id="description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Describe your NFT"
+                      className="min-h-[100px]"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="royalty" className="text-sm font-medium">Royalty Percentage</Label>
+                    <Input
+                      id="royalty"
+                      type="number"
+                      min="0"
+                      max="50"
+                      step="0.1"
+                      value={royaltyPercentage}
+                      onChange={(e) => setRoyaltyPercentage(e.target.value)}
+                      placeholder="5.0"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Royalty percentage for secondary sales (0-50%)
+                    </p>
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isLoading || needsSubscription || !subscription?.isActive || subscription?.remainingNFTs <= 0}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {mintStatus}
+                      </>
+                    ) : needsSubscription || !subscription?.isActive ? (
+                      "Activate Subscription First"
+                    ) : subscription?.remainingNFTs <= 0 ? (
+                      "NFT Limit Reached - Upgrade Plan"
+                    ) : (
+                      `Create Gasless NFT (${subscription?.remainingNFTs} remaining)`
+                    )}
+                  </Button>
+
+                  {transactionHash && (
+                    <Alert>
+                      <CheckCircle2 className="h-4 w-4" />
+                      <AlertTitle>NFT Created Successfully!</AlertTitle>
+                      <AlertDescription>
+                        <div className="space-y-2 mt-2">
+                          <p>Your NFT has been created with gasless transaction.</p>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => copyToClipboard(transactionHash)}
+                            >
+                              <Copy className="h-4 w-4 mr-1" />
+                              Copy TX Hash
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              asChild
+                            >
+                              <a 
+                                href={getBlockExplorerUrl(transactionHash)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <ExternalLink className="h-4 w-4 mr-1" />
+                                View on Explorer
+                              </a>
+                            </Button>
+                          </div>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={resetForm}
+                            className="w-full mt-3"
+                          >
+                            Create Another NFT
+                          </Button>
+                        </div>
+                      </AlertDescription>
+                    </Alert>
                   )}
-                </Button>
-              </form>
+                </form>
+              </>
             )}
           </CardContent>
         </Card>
@@ -468,21 +615,5 @@ function CreateNFT() {
   )
 }
 
-// Export as dynamic component to avoid SSR issues with wagmi hooks
-export default dynamic(() => Promise.resolve(CreateNFT), {
-  ssr: false,
-  loading: () => (
-    <div className="pb-16">
-      <Header title="Create NFT" />
-      <div className="container mx-auto px-4 py-6">
-        <Card className="max-w-2xl mx-auto">
-          <CardContent className="p-8">
-            <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF69B4]"></div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  ),
-})
+// Use dynamic import to avoid SSR issues
+export default dynamic(() => Promise.resolve(CreateNFT), { ssr: false })

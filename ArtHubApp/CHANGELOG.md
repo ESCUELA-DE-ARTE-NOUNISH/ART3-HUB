@@ -5,6 +5,185 @@ All notable changes to the Art3 Hub Frontend Application will be documented in t
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2025-06-17
+
+### 🚀 V2 Subscription System & Gasless Minting
+
+#### Major Features Added
+- **Subscription-Based Architecture**: Complete V2 system with tiered subscription plans
+  - **Free Plan**: 1 NFT per year with standard gas fees
+  - **Master Plan**: $4.99/month, 10 NFTs per month with gasless minting
+- **Gasless Minting**: EIP-712 meta-transactions for premium subscribers
+- **USDC Payment Integration**: Monthly recurring subscriptions using USDC on Base Sepolia
+- **Real-time Subscription Status**: Live subscription tracking with usage limits
+
+#### Smart Contract Integration V2
+- **Subscription Manager**: [`0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4`](https://sepolia.basescan.org/address/0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4#code)
+- **Factory V2**: Enhanced with subscription-based minting controls
+- **Collection V2**: EIP-712 support for gasless minting via meta-transactions
+- **USDC Integration**: [`0x036CbD53842c5426634e7929541eC2318f3dCF7e`](https://sepolia.basescan.org/address/0x036CbD53842c5426634e7929541eC2318f3dCF7e#code)
+
+#### Frontend Components Added
+- **Subscription Status Component**: Real-time plan display with usage tracking
+- **Plan Upgrade Interface**: USDC approval and subscription management
+- **Profile Integration**: Subscription information in user profiles
+- **NFT Quota Tracking**: Visual progress bars for monthly/yearly limits
+
+#### Technical Implementation
+```typescript
+// New subscription service integration:
+const subscriptionService = new SubscriptionService(publicClient, walletClient, chainId)
+
+// Check subscription status
+const subscription = await subscriptionService.getUserSubscription(userAddress)
+
+// Subscribe to plans
+await subscriptionService.subscribeToFreePlan()
+await subscriptionService.subscribeToMasterPlan() // Requires USDC approval
+
+// Gasless minting for Master plan users
+await art3HubService.mintTokenV2({
+  collectionContract,
+  recipient,
+  tokenURI,
+  title,
+  description,
+  royaltyBPS,
+  useMetaTransaction: true // Gasless for premium users
+})
+```
+
+### 🔧 Critical Bug Fixes
+
+#### Subscription System Debugging
+- **Fixed ABI Mismatch**: Corrected `getUserSubscription` → `getSubscription` function name
+- **Fixed Return Type**: Updated from 4-field tuple to 6 individual values
+- **Fixed Transaction Flow**: Resolved Master plan subscription upgrade issues
+- **Fixed Rate Limiting**: Implemented proper cache management to prevent RPC overflow
+
+#### Function Signature Corrections
+```typescript
+// Before (Incorrect):
+functionName: 'getUserSubscription'
+outputs: [{ components: [...], type: 'tuple' }]
+
+// After (Correct):
+functionName: 'getSubscription'  
+outputs: [
+  { name: 'plan', type: 'uint8' },
+  { name: 'expiresAt', type: 'uint256' },
+  { name: 'nftsMinted', type: 'uint256' },
+  { name: 'nftLimit', type: 'uint256' },
+  { name: 'isActive', type: 'bool' },
+  { name: 'isExpired', type: 'bool' }
+]
+```
+
+#### Performance Optimizations
+- **Cache Management**: Extended cache duration from 30s to 60s to reduce RPC calls
+- **Rate Limit Handling**: Graceful fallback to cached data when RPC limits are hit
+- **Retry Logic Removal**: Eliminated infinite retry loops causing request floods
+- **Error Handling**: Improved error differentiation and user feedback
+
+### 🎨 User Experience Enhancements
+
+#### Subscription Interface
+- **Plan Comparison**: Clear Free vs Master plan feature comparison
+- **Usage Tracking**: Real-time NFT usage with progress indicators
+- **Upgrade Flow**: Streamlined USDC approval and subscription process
+- **Status Indicators**: Visual badges for plan type and subscription status
+
+#### Profile Page Integration
+- **Subscription Card**: Dedicated subscription management section
+- **Real-time Updates**: Automatic refresh after subscription changes
+- **Payment History**: Transaction tracking for subscription payments
+- **Upgrade Prompts**: Clear calls-to-action for plan upgrades
+
+### 🛡️ Security & Reliability
+
+#### Payment Security
+- **USDC Approval Management**: Safe token allowance handling
+- **Transaction Simulation**: Pre-flight checks to prevent failed transactions
+- **Error Recovery**: Graceful handling of payment failures
+- **Balance Verification**: Real-time USDC balance checking
+
+#### Smart Contract Security
+- **Access Control**: Proper subscription validation for minting
+- **Meta-transaction Security**: EIP-712 signature validation
+- **Subscription Verification**: On-chain validation of user plan status
+- **Rate Limiting**: Contract-level usage tracking and enforcement
+
+### 📊 Database Enhancements
+
+#### Subscription Tracking
+```sql
+-- Enhanced user tracking for subscription usage
+ALTER TABLE nfts ADD COLUMN subscription_plan TEXT DEFAULT 'free';
+ALTER TABLE nfts ADD COLUMN gas_fee_paid BOOLEAN DEFAULT true;
+ALTER TABLE nfts ADD COLUMN meta_transaction_hash TEXT;
+```
+
+#### Analytics Integration
+- **Usage Metrics**: Track NFT creation by subscription plan
+- **Conversion Tracking**: Monitor Free to Master plan upgrades
+- **Revenue Analytics**: USDC payment tracking and reporting
+- **Performance Metrics**: Gasless transaction success rates
+
+### 🔄 Environment Configuration
+
+#### New Environment Variables
+```bash
+# V2 Contract Addresses
+NEXT_PUBLIC_SUBSCRIPTION_MANAGER_BASE_SEPOLIA=0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4
+NEXT_PUBLIC_USDC_84532=0x036CbD53842c5426634e7929541eC2318f3dCF7e
+
+# V2 Factory (Enhanced)
+NEXT_PUBLIC_ART3HUB_FACTORY_V2_BASE_SEPOLIA=0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2
+NEXT_PUBLIC_ART3HUB_IMPLEMENTATION_V2_BASE_SEPOLIA=0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2
+```
+
+### 🧪 Testing & Quality Assurance
+
+#### Subscription Flow Testing
+- **End-to-End Testing**: Complete subscription upgrade flow verified
+- **Payment Testing**: USDC approval and payment flow tested
+- **Gasless Minting**: Meta-transaction functionality validated
+- **Error Scenarios**: Failed payments and network issues handled
+
+#### Performance Testing
+- **RPC Load Testing**: Cache management under high load
+- **Transaction Testing**: Concurrent subscription operations
+- **Mobile Testing**: Subscription interface on mobile devices
+- **Cross-browser Testing**: Payment flows across different browsers
+
+### 🔄 Migration Guide
+
+#### For Existing Users
+1. **Automatic Free Plan**: All existing users automatically receive Free Plan (1 NFT/year)
+2. **Backwards Compatibility**: Existing NFTs and collections remain functional
+3. **Optional Upgrade**: Users can upgrade to Master Plan for additional benefits
+4. **Data Preservation**: All existing data and collections preserved
+
+#### Breaking Changes
+- **Minting Flow**: Enhanced with subscription validation
+- **Payment System**: USDC integration for premium features
+- **Contract Addresses**: New V2 contracts for enhanced functionality
+
+#### Development Migration
+```bash
+# Update environment variables for V2
+cp .env.example .env
+# Add new V2 contract addresses
+
+# Database migration
+psql -d your_database -f database/complete-nfts-migration.sql
+
+# Restart application
+npm run dev
+```
+
+---
+
 ## [2.2.0] - 2025-06-13
 
 ### 🎬 Branded App Experience & Splash Screen

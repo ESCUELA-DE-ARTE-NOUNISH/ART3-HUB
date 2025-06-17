@@ -70,7 +70,7 @@ export default function MyNFTs() {
         ) : (
           <div className="text-center py-10">
             <h2 className="text-2xl font-bold mb-2">No NFTs Yet</h2>
-            <p className="text-gray-600 mb-6">You haven't minted any NFTs yet. Create your first NFT to get started.</p>
+            <p className="text-gray-600 mb-6">You haven&apos;t minted any NFTs yet. Create your first NFT to get started.</p>
             <Link href="/create">
               <Button className="bg-[#9ACD32] hover:bg-[#7CFC00]">Create Your First NFT</Button>
             </Link>

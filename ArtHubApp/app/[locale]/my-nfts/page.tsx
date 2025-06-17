@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { defaultLocale } from "@/config/i18n"
 import { useAccount } from 'wagmi'
 import { useToast } from '@/hooks/use-toast'
+import { getOpenSeaLinkFromNFT } from '@/lib/opensea-utils'
 
 // Translation content
 const translations = {
@@ -42,6 +43,7 @@ const translations = {
     viewMetadata: "View Metadata",
     viewTransaction: "View Transaction",
     viewCollection: "View Collection",
+    viewOnOpenSea: "View on OpenSea",
     copyHash: "Copy Hash",
     copied: "Copied!",
     copiedDesc: "Hash copied to clipboard",
@@ -77,6 +79,7 @@ const translations = {
     viewMetadata: "Ver Metadatos",
     viewTransaction: "Ver Transacción",
     viewCollection: "Ver Colección",
+    viewOnOpenSea: "Ver en OpenSea",
     copyHash: "Copiar Hash",
     copied: "¡Copiado!",
     copiedDesc: "Hash copiado al portapapeles",
@@ -112,6 +115,7 @@ const translations = {
     viewMetadata: "Voir les Métadonnées",
     viewTransaction: "Voir la Transaction",
     viewCollection: "Voir la Collection",
+    viewOnOpenSea: "Voir sur OpenSea",
     copyHash: "Copier le Hash",
     copied: "Copié!",
     copiedDesc: "Hash copié dans le presse-papiers",
@@ -147,6 +151,7 @@ const translations = {
     viewMetadata: "Ver Metadados",
     viewTransaction: "Ver Transação",
     viewCollection: "Ver Coleção",
+    viewOnOpenSea: "Ver no OpenSea",
     copyHash: "Copiar Hash",
     copied: "Copiado!",
     copiedDesc: "Hash copiado para área de transferência",
@@ -541,6 +546,21 @@ export default function MyNFTsPage() {
                             </Button>
                           )}
                         </div>
+                        {/* OpenSea button - only show if we can generate a link */}
+                        {(() => {
+                          const openSeaLink = getOpenSeaLinkFromNFT(nft)
+                          return openSeaLink ? (
+                            <Button 
+                              variant="default" 
+                              size="sm" 
+                              className="text-xs md:text-sm px-2 md:px-3 py-2 h-8 md:h-9 w-full bg-[#2081E2] hover:bg-[#1868B7] text-white"
+                              onClick={() => window.open(openSeaLink, '_blank')}
+                            >
+                              <ExternalLink className="h-3 w-3 mr-1" />
+                              <span>{t.viewOnOpenSea}</span>
+                            </Button>
+                          ) : null
+                        })()}
                       </div>
                     </CardContent>
                   </>
@@ -627,6 +647,21 @@ export default function MyNFTsPage() {
                             <span className="md:hidden">Collection</span>
                           </Button>
                         )}
+                        {(() => {
+                          const openSeaLink = getOpenSeaLinkFromNFT(nft)
+                          return openSeaLink ? (
+                            <Button 
+                              variant="default" 
+                              size="sm" 
+                              className="text-xs md:text-sm px-2 md:px-3 py-1 md:py-2 h-7 md:h-8 bg-[#2081E2] hover:bg-[#1868B7] text-white"
+                              onClick={() => window.open(openSeaLink, '_blank')}
+                            >
+                              <ExternalLink className="h-3 w-3 mr-1" />
+                              <span className="hidden md:inline">{t.viewOnOpenSea}</span>
+                              <span className="md:hidden">OpenSea</span>
+                            </Button>
+                          ) : null
+                        })()}
                       </div>
                     </div>
                   </div>

@@ -27,24 +27,44 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Insert NFT record into database
+    // Insert NFT record into database - handle missing columns gracefully
+    const insertData: any = {
+      wallet_address: wallet_address.toLowerCase(),
+      name,
+      description,
+      image_ipfs_hash,
+      metadata_ipfs_hash,
+      transaction_hash,
+      network,
+      royalty_percentage: parseFloat(royalty_percentage) || 0,
+      contract_address,
+      token_id,
+      created_at: new Date().toISOString()
+    }
+
+    // Try to add artist_name and category if they exist in the table
+    try {
+      // Test if the columns exist by attempting a select
+      const { error: testError } = await supabase
+        .from('nfts')
+        .select('artist_name, category')
+        .limit(1)
+
+      if (!testError) {
+        // Columns exist, add them to the insert data
+        insertData.artist_name = artist_name
+        insertData.category = category || 'Digital Art'
+        console.log('✅ Adding artist_name and category to NFT data')
+      } else {
+        console.log('⚠️ artist_name and category columns do not exist, skipping')
+      }
+    } catch (e) {
+      console.log('⚠️ Could not check for artist_name and category columns')
+    }
+
     const { data, error } = await supabase
       .from('nfts')
-      .insert({
-        wallet_address: wallet_address.toLowerCase(),
-        name,
-        description,
-        artist_name,
-        category: category || 'Digital Art',
-        image_ipfs_hash,
-        metadata_ipfs_hash,
-        transaction_hash,
-        network,
-        royalty_percentage: parseFloat(royalty_percentage) || 0,
-        contract_address,
-        token_id,
-        created_at: new Date().toISOString()
-      })
+      .insert(insertData)
       .select()
 
     if (error) {
