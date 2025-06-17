@@ -85,7 +85,8 @@ V2 contracts are completely independent from V1 and don't require migration. Bot
 ### Base Sepolia (Testnet)
 - **Chain ID**: 84532
 - **Deployment Date**: January 16, 2025
-- **Status**: ✅ **All contracts verified**
+- **Last Updated**: June 17, 2025 (V2 subscription system fixes)
+- **Status**: ✅ **All contracts verified and tested**
 - **SubscriptionManager**: `0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4`
 - **Art3HubCollectionV2 Implementation**: `0x41BE244598b4B8329ff68bD242C2fa58a9084e26`
 - **Art3HubFactoryV2**: `0x75Ed9ACB51D2BEaCfD6c76099D63d3a0009F4a40`

@@ -6,6 +6,7 @@ A modern, multi-platform Web3 NFT creation and marketplace platform built with N
 
 ### Core Functionality
 - **🎨 NFT Collection Creation**: Deploy your own ERC-721 collections via Art3Hub Factory
+- **💎 Subscription-Based Minting**: Gasless NFT creation with tiered subscription plans
 - **🔍 NFT Discovery & Marketplace**: Explore, search, and discover NFTs with advanced filtering
 - **🎬 Branded Splash Screen**: Animated GIF intro with logo transition for premium app experience
 - **🌐 Multi-Network Support**: Base and Zora networks (mainnet + testnet)
@@ -15,10 +16,16 @@ A modern, multi-platform Web3 NFT creation and marketplace platform built with N
 - **🤖 AI Assistant**: Educational Web3 learning companion
 
 ### Smart Contract Integration
-- **Art3Hub Factory**: Gas-efficient NFT collection deployment using minimal proxy pattern
+- **Art3Hub Factory V2**: Gas-efficient NFT collection deployment with subscription-based minting
+- **Subscription Manager**: USDC-based monthly subscription plans for gasless NFT creation
 - **ERC-2981 Royalties**: Automatic royalty enforcement on secondary sales
 - **OpenSea Compatible**: Full marketplace integration with gasless listings
+- **EIP-712 Meta-Transactions**: Gasless minting for premium subscribers
 - **Real-time Fees**: Dynamic deployment fee fetching from contracts
+
+### Subscription Plans
+- **Free Plan**: 1 NFT per year, standard gas fees
+- **Master Plan**: $4.99/month, 10 NFTs per month, gasless minting with meta-transactions
 
 ## 🏗️ Architecture
 
@@ -99,9 +106,11 @@ ArtHubApp/
    NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
    NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
 
-   # Smart Contract Addresses
-   NEXT_PUBLIC_ART3HUB_FACTORY_BASE_SEPOLIA=0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2
-   NEXT_PUBLIC_ART3HUB_IMPLEMENTATION_BASE_SEPOLIA=0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2
+   # Smart Contract Addresses (V2)
+   NEXT_PUBLIC_ART3HUB_FACTORY_V2_BASE_SEPOLIA=0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2
+   NEXT_PUBLIC_ART3HUB_IMPLEMENTATION_V2_BASE_SEPOLIA=0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2
+   NEXT_PUBLIC_SUBSCRIPTION_MANAGER_BASE_SEPOLIA=0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4
+   NEXT_PUBLIC_USDC_84532=0x036CbD53842c5426634e7929541eC2318f3dCF7e
 
    # Network Mode (true for testnet, false for mainnet)
    NEXT_PUBLIC_IS_TESTING_MODE=true
@@ -134,14 +143,31 @@ ArtHubApp/
 ### Deployed Contracts
 
 #### Base Sepolia (Testnet)
-- **Factory Contract**: [`0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2`](https://sepolia.basescan.org/address/0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2#code)
-- **Implementation**: [`0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2`](https://sepolia.basescan.org/address/0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2#code)
+- **Factory V2 Contract**: [`0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2`](https://sepolia.basescan.org/address/0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2#code)
+- **Collection V2 Implementation**: [`0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2`](https://sepolia.basescan.org/address/0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2#code)
+- **Subscription Manager**: [`0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4`](https://sepolia.basescan.org/address/0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4#code)
+- **USDC Token (Base Sepolia)**: [`0x036CbD53842c5426634e7929541eC2318f3dCF7e`](https://sepolia.basescan.org/address/0x036CbD53842c5426634e7929541eC2318f3dCF7e#code)
 - **Chain ID**: 84532
 - **Explorer**: [Base Sepolia Scan](https://sepolia.basescan.org)
 
 ### Contract Integration Flow
 
-1. **Collection Creation**
+1. **Subscription Management**
+   ```typescript
+   const subscriptionService = new SubscriptionService(publicClient, walletClient, chainId)
+   
+   // Check user's subscription status
+   const subscription = await subscriptionService.getUserSubscription(userAddress)
+   console.log(`Plan: ${subscription.planName}, NFTs: ${subscription.nftsMinted}/${subscription.nftLimit}`)
+   
+   // Subscribe to Free Plan (1 NFT/year)
+   const freeHash = await subscriptionService.subscribeToFreePlan()
+   
+   // Upgrade to Master Plan ($4.99/month, 10 NFTs/month, gasless)
+   const masterHash = await subscriptionService.subscribeToMasterPlan()
+   ```
+
+2. **Collection Creation**
    ```typescript
    const art3HubService = createArt3HubService(publicClient, walletClient, 'base', true)
    
@@ -158,15 +184,17 @@ ArtHubApp/
    })
    ```
 
-2. **NFT Minting**
+3. **NFT Minting (V2 with Subscription)**
    ```typescript
-   const mintResult = await art3HubService.mintToken({
+   // For Master Plan subscribers - gasless minting with meta-transactions
+   const mintResult = await art3HubService.mintTokenV2({
      collectionContract: result.contractAddress,
      recipient: userAddress,
      tokenURI: "ipfs://QmTokenHash...",
      title: "Artwork Title",
      description: "Artwork description",
-     royaltyBPS: 1500 // 15% for this specific NFT
+     royaltyBPS: 1500, // 15% for this specific NFT
+     useMetaTransaction: true // Gasless for premium subscribers
    })
    ```
 
