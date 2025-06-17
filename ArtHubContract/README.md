@@ -2,42 +2,51 @@
 
 ## Overview
 
-Art3 Hub is a decentralized NFT platform that empowers artists to create and manage their own NFT collections with minimal technical overhead. The platform offers two contract versions:
+Art3 Hub is a decentralized NFT platform that empowers artists to create and manage their own NFT collections with minimal technical overhead. The platform offers three contract versions:
 
 - **V1 (Legacy)**: Pay-per-deployment model (0.001 ETH fee) with traditional gas-based operations
-- **V2 (Current)**: Subscription-based model (no deployment fees) with gasless minting and enhanced features
+- **V2 (Legacy)**: First subscription-based model with gasless minting (deprecated)
+- **V3 (Current)**: Advanced subscription platform with built-in gasless functionality and multi-chain support
 
 ## Contract Versions
 
-### 🚀 **Art3Hub V2 - Subscription-Based Platform** (Recommended)
+### 🚀 **Art3Hub V3 - Advanced Subscription Platform** (Recommended)
 
-The V2 platform introduces a subscription model designed to onboard artists into Web3 with gasless experiences and tiered access to platform features.
+The V3 platform introduces a complete gasless NFT ecosystem with built-in subscription management, auto-enrollment, and multi-chain support designed for seamless Web3 onboarding.
 
-**Quick Start with V2**: See [README_V2.md](./README_V2.md) for complete V2 documentation.
+**Key V3 Improvements:**
+- Built-in gasless functionality (no separate relayer contracts needed)
+- Auto-enrollment system for new users
+- Enhanced OpenSea compatibility with contract-level metadata
+- Multi-chain USDC payment integration
+- EIP-712 meta-transactions for all operations
+- Optimized gas usage and deployment costs
 
-#### Subscription Plans
+#### V3 Subscription Plans
 
 **Plan Gratuito (Free)**:
-- ✅ 1 gasless NFT mint
+- ✅ 1 gasless NFT mint per year
+- ✅ Auto-enrollment on first platform interaction
 - ✅ Basic educational content access
 - ✅ Guided Web3 onboarding
-- ✅ Limited AI agent access for initial guidance
+- ✅ OpenSea compatible collections
 
-**Plan Master ($4.99/month)**:
+**Plan Master ($4.99/month USDC)**:
 - ✅ Up to 10 gasless NFTs per month
-- ✅ Exclusive virtual workshops
+- ✅ Auto-renewal with USDC payments
 - ✅ Enhanced gallery visibility
-- ✅ Reputation system and rewards
-- ✅ Full AI agent access with personalized recommendations
+- ✅ Priority customer support
+- ✅ Advanced analytics dashboard
 
-#### V2 Key Features
-- **🆓 No Deployment Fees**: Collection creation included in subscription plans
-- **🆓 Gasless Minting**: Meta-transaction support for seamless UX
-- **📋 Subscription Management**: Automated quota tracking and payment processing
-- **🎯 Tiered Access**: Different capabilities based on subscription level
-- **🤖 AI Integration**: Built-in support for AI agent interactions
-- **⚡ Enhanced Performance**: Optimized gas usage and batch operations
-- **🔒 Advanced Security**: EIP-712 signatures and comprehensive access controls
+#### V3 Key Features
+- **🆓 True Gasless Experience**: All transactions including collection creation are gasless
+- **🔄 Auto-Enrollment**: New users automatically enrolled in Free plan
+- **💳 USDC Payments**: Seamless subscription payments via USDC across all chains
+- **⚡ Built-in Meta-Transactions**: EIP-712 signatures for all operations
+- **🌍 Multi-Chain Support**: Base, Zora, and Celo networks with unified experience
+- **🎨 OpenSea Compatible**: Enhanced metadata and proxy registry integration
+- **📊 Smart Quota Management**: Automated tracking and enforcement
+- **🔒 Enterprise Security**: Advanced access controls and audit trail
 
 ### 📚 **Art3Hub V1 - Legacy Platform**
 
@@ -80,79 +89,117 @@ V2 contracts are completely independent from V1 and don't require migration. Bot
 - Traditional pay-per-deployment models
 - Simple NFT collection needs without ongoing subscriptions
 
-## V2 Deployed Contracts
+## V3 Deployed Contracts (Current)
 
 ### Base Sepolia (Testnet)
 - **Chain ID**: 84532
-- **Deployment Date**: January 16, 2025
-- **Last Updated**: June 17, 2025 (V2 subscription system fixes)
+- **Deployment Date**: June 17, 2025
 - **Status**: ✅ **All contracts verified and tested**
-- **SubscriptionManager**: `0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4`
-- **Art3HubCollectionV2 Implementation**: `0x41BE244598b4B8329ff68bD242C2fa58a9084e26`
-- **Art3HubFactoryV2**: `0x75Ed9ACB51D2BEaCfD6c76099D63d3a0009F4a40`
-- **GaslessRelayer**: `0x5116F90f3a26c7d825bE6Aa74544187b43c52a56`
+- **SubscriptionManager**: `0x4189c14EfcfB71CAAb5Bb6cd162504a37DF2b4Dc`
+- **Factory**: `0x2634b3389c0CBc733bE05ba459A0C2e844594161`
+- **Collection Implementation**: `0xC02C22986839b9F70E8c1a1aBDB7721f3739d034`
 - **USDC Token**: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
+- **Treasury Wallet**: `0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9`
+- **Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1`
+- **Test Collection**: `0x5FffF0Cd84c2D09e590E3523df6daE4F2cAe2B58` (Frogy Test Collection)
 - **BaseScan Links** (Verified):
-  - [SubscriptionManager](https://sepolia.basescan.org/address/0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4#code)
-  - [CollectionV2 Implementation](https://sepolia.basescan.org/address/0x41BE244598b4B8329ff68bD242C2fa58a9084e26#code)
-  - [FactoryV2](https://sepolia.basescan.org/address/0x75Ed9ACB51D2BEaCfD6c76099D63d3a0009F4a40#code)
-  - [GaslessRelayer](https://sepolia.basescan.org/address/0x5116F90f3a26c7d825bE6Aa74544187b43c52a56#code)
-- **Blockscout Links**:
-  - [SubscriptionManager](https://base-sepolia.blockscout.com/address/0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4)
-  - [CollectionV2 Implementation](https://base-sepolia.blockscout.com/address/0x41BE244598b4B8329ff68bD242C2fa58a9084e26)
-  - [FactoryV2](https://base-sepolia.blockscout.com/address/0x75Ed9ACB51D2BEaCfD6c76099D63d3a0009F4a40)
-  - [GaslessRelayer](https://base-sepolia.blockscout.com/address/0x5116F90f3a26c7d825bE6Aa74544187b43c52a56)
+  - [SubscriptionManager](https://sepolia.basescan.org/address/0x4189c14EfcfB71CAAb5Bb6cd162504a37DF2b4Dc#code)
+  - [Factory](https://sepolia.basescan.org/address/0x2634b3389c0CBc733bE05ba459A0C2e844594161#code)
+  - [Collection Implementation](https://sepolia.basescan.org/address/0xC02C22986839b9F70E8c1a1aBDB7721f3739d034#code)
+  - [Test Collection](https://sepolia.basescan.org/address/0x5FffF0Cd84c2D09e590E3523df6daE4F2cAe2B58)
+  - [OpenSea Testnet](https://testnets.opensea.io/assets/base-sepolia/0x5FffF0Cd84c2D09e590E3523df6daE4F2cAe2B58/1)
 
 ### Zora Sepolia (Testnet)
 - **Chain ID**: 999999999
-- **Deployment Date**: January 16, 2025
-- **Status**: ✅ **All contracts verified**
-- **SubscriptionManager**: `0xf1D63b42fb8c4887d6deB34c5fba81B18Bd2e3Ea`
-- **Art3HubCollectionV2 Implementation**: `0x2f302E1604E3657035C1EADa450582fA4417f598`
-- **Art3HubFactoryV2**: `0x270B8770F59c767ff55595e893c7E16A88347FE9`
-- **GaslessRelayer**: `0xA68f7C09EdBF3aD3705ECc652E132BAeD2a29F85`
-- **USDC Token**: `0xCccCCccc7021b32EBb4e8C08314bD62F7c653EC4` (placeholder)
-- **Zora Explorer Links** (Verified):
-  - [SubscriptionManager](https://sepolia.explorer.zora.energy/address/0xf1D63b42fb8c4887d6deB34c5fba81B18Bd2e3Ea#code)
-  - [CollectionV2 Implementation](https://sepolia.explorer.zora.energy/address/0x2f302E1604E3657035C1EADa450582fA4417f598#code)
-  - [FactoryV2](https://sepolia.explorer.zora.energy/address/0x270B8770F59c767ff55595e893c7E16A88347FE9#code)
-  - [GaslessRelayer](https://sepolia.explorer.zora.energy/address/0xA68f7C09EdBF3aD3705ECc652E132BAeD2a29F85#code)
-- **Blockscout Links**:
-  - [SubscriptionManager](https://zora-sepolia.blockscout.com/address/0xf1D63b42fb8c4887d6deB34c5fba81B18Bd2e3Ea)
-  - [CollectionV2 Implementation](https://zora-sepolia.blockscout.com/address/0x2f302E1604E3657035C1EADa450582fA4417f598)
-  - [FactoryV2](https://zora-sepolia.blockscout.com/address/0x270B8770F59c767ff55595e893c7E16A88347FE9)
-  - [GaslessRelayer](https://zora-sepolia.blockscout.com/address/0xA68f7C09EdBF3aD3705ECc652E132BAeD2a29F85)
+- **Deployment Date**: June 17, 2025
+- **Status**: ✅ **All contracts deployed and tested**
+- **SubscriptionManager**: `0x20D07582c3cB6a0b32Aa8be59456c6BBBaDD993D`
+- **Factory**: `0x47105E80363960Ef9C3f641dA4056281E963d3CB`
+- **Collection Implementation**: `0x4Cf261D4F37F4d5870e6172108b1eEfE1592daCd`
+- **USDC Token**: `0xCccCCccc7021b32EBb4e8C08314bD62F7c653EC4`
+- **Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1`
+- **Test Collection**: `0xd5E8804A4bA5e1b56b1d4d9258625EC5e836E71E` (Zora Frogy Collection)
+- **Zora Explorer Links**:
+  - [SubscriptionManager](https://sepolia.explorer.zora.energy/address/0x20D07582c3cB6a0b32Aa8be59456c6BBBaDD993D)
+  - [Factory](https://sepolia.explorer.zora.energy/address/0x47105E80363960Ef9C3f641dA4056281E963d3CB)
+  - [Collection Implementation](https://sepolia.explorer.zora.energy/address/0x4Cf261D4F37F4d5870e6172108b1eEfE1592daCd)
+  - [Test Collection](https://sepolia.explorer.zora.energy/address/0xd5E8804A4bA5e1b56b1d4d9258625EC5e836E71E)
 
-### V2 Deployment Commands
+### Celo Alfajores (Testnet)
+- **Chain ID**: 44787
+- **Deployment Date**: June 17, 2025
+- **Status**: ✅ **All contracts verified and tested**
+- **SubscriptionManager**: `0xFf85176d8BDA8Ead51d9A67a4e1c0dDDDF695C30`
+- **Factory**: `0x996Cc8EE4a9E43B27bFfdB8274B24d61B30B188E`
+- **Collection Implementation**: `0xB482D3298f34423E98A67A54DE5d33612f200918`
+- **USDC Token**: `0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B`
+- **Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1`
+- **Test Collection**: `0x4C089EAdE043A3b98c7dFBFf9a70632A6D84ba19` (Celo Frogy Collection)
+- **Celo Explorer Links** (Verified):
+  - [SubscriptionManager](https://alfajores.celoscan.io/address/0xFf85176d8BDA8Ead51d9A67a4e1c0dDDDF695C30#code)
+  - [Factory](https://alfajores.celoscan.io/address/0x996Cc8EE4a9E43B27bFfdB8274B24d61B30B188E#code)
+  - [Collection Implementation](https://alfajores.celoscan.io/address/0xB482D3298f34423E98A67A54DE5d33612f200918#code)
+  - [Test Collection](https://alfajores.celoscan.io/address/0x4C089EAdE043A3b98c7dFBFf9a70632A6D84ba19)
 
-Deploy V2 contracts to any supported network:
+---
+
+## V2 Deployed Contracts (Legacy)
+
+### Base Sepolia (Testnet) - V2 Legacy
+- **Status**: 🟡 **Legacy - Use V3 for new deployments**
+
+### V3 Deployment Commands
+
+Deploy V3 contracts to any supported network:
 
 ```bash
 # Base Sepolia
-npx hardhat run scripts/deploy-v2-contracts.ts --network baseSepolia
+npm run deploy:baseSepolia
 
 # Zora Sepolia  
-npx hardhat run scripts/deploy-v2-contracts.ts --network zoraSepolia
+npm run deploy:zoraSepolia
 
-# Other networks (configured in hardhat.config.ts)
-npx hardhat run scripts/deploy-v2-contracts.ts --network [networkName]
+# Celo Alfajores
+npm run deploy:celoSepolia
+
+# Mainnet deployments (when ready)
+npm run deploy:base
+npm run deploy:zora
+npm run deploy:celo
 ```
 
-### V2 Contract Verification
+### V3 Contract Verification
 
 ```bash
 # Base Sepolia Verification
-npx hardhat verify --network baseSepolia 0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4 "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f"
-npx hardhat verify --network baseSepolia 0x41BE244598b4B8329ff68bD242C2fa58a9084e26 "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC"
-npx hardhat verify --network baseSepolia 0x75Ed9ACB51D2BEaCfD6c76099D63d3a0009F4a40 "0x41BE244598b4B8329ff68bD242C2fa58a9084e26" "0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4" "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC" "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f" "250"
-npx hardhat verify --network baseSepolia 0x5116F90f3a26c7d825bE6Aa74544187b43c52a56
+npm run verify:baseSepolia
 
-# Zora Sepolia Verification
-npx hardhat verify --network zoraSepolia 0xf1D63b42fb8c4887d6deB34c5fba81B18Bd2e3Ea "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f"
-npx hardhat verify --network zoraSepolia 0x2f302E1604E3657035C1EADa450582fA4417f598 "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC"
-npx hardhat verify --network zoraSepolia 0x270B8770F59c767ff55595e893c7E16A88347FE9 "0x2f302E1604E3657035C1EADa450582fA4417f598" "0xf1D63b42fb8c4887d6deB34c5fba81B18Bd2e3Ea" "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC" "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f" "250"
-npx hardhat verify --network zoraSepolia 0xA68f7C09EdBF3aD3705ECc652E132BAeD2a29F85
+# Zora Sepolia Verification (Manual Blockscout)
+npm run verify:zoraSepolia
+
+# Celo Alfajores Verification
+npm run verify:celoSepolia
+
+# Generate flattened files for manual verification
+npm run flatten
 ```
+
+### V3 NFT Testing Commands
+
+```bash
+# Test NFT creation on different networks
+npm run test:nft:base   # Base Sepolia
+npm run test:nft:zora   # Zora Sepolia
+npm run test:nft:celo   # Celo Alfajores
+
+# Check gasless relayer balances
+npm run check:balances -- --network [network]
+
+# Fund gasless relayers
+npm run fund:relayer -- --network [network]
+```
+
+See [VERIFICATION_GUIDE.md](./VERIFICATION_GUIDE.md) for detailed verification instructions.
 
 ---
 

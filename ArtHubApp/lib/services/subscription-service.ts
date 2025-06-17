@@ -178,14 +178,21 @@ export class SubscriptionService {
     this.chainId = chainId
     
     const managerAddress = getSubscriptionManagerAddress(chainId)
+    console.log('🔍 Looking for SubscriptionManager on chain', chainId, ':', managerAddress)
+    
     if (!managerAddress) {
-      throw new Error(`SubscriptionManager not deployed on chain ${chainId}`)
+      console.warn(`⚠️ SubscriptionManager not deployed on chain ${chainId}, using fallback mode`)
+      // Use a placeholder address - the service will provide default Free Plan for all users
+      this.subscriptionManagerAddress = '0x0000000000000000000000000000000000000000' as Address
+    } else {
+      this.subscriptionManagerAddress = managerAddress
+      console.log('✅ SubscriptionManager found:', managerAddress)
     }
-    this.subscriptionManagerAddress = managerAddress
     
     console.log('🔧 SubscriptionService initialized:', {
       chainId,
       subscriptionManager: this.subscriptionManagerAddress,
+      isUsingFallback: this.subscriptionManagerAddress === '0x0000000000000000000000000000000000000000',
       hasWallet: !!walletClient
     })
   }
@@ -194,6 +201,22 @@ export class SubscriptionService {
   async getUserSubscription(userAddress: Address): Promise<SubscriptionInfo> {
     try {
       console.log('📋 Getting subscription for user:', userAddress)
+      
+      // If no valid contract address, return default Free Plan
+      if (this.subscriptionManagerAddress === '0x0000000000000000000000000000000000000000') {
+        console.log('🆓 No subscription contract available, returning default Free Plan')
+        const defaultPlan = {
+          plan: PlanType.FREE,
+          planName: 'Free Plan',
+          expiresAt: null,
+          nftsMinted: 0,
+          nftLimit: 1,
+          isActive: true,
+          hasGaslessMinting: false,
+          remainingNFTs: 1
+        }
+        return defaultPlan
+      }
       
       // Check cache first
       const cacheKey = `subscription_${userAddress}_${this.chainId}`
@@ -394,12 +417,29 @@ export class SubscriptionService {
     try {
       console.log('🆓 Subscribing to free plan...')
       
+      // Estimate gas for free plan subscription
+      console.log('⛽ Estimating gas for free plan subscription...')
+      const gasEstimate = await this.publicClient.estimateContractGas({
+        address: this.subscriptionManagerAddress,
+        abi: SUBSCRIPTION_MANAGER_ABI,
+        functionName: 'subscribeToFreePlan',
+        account: this.walletClient.account!
+      })
+      
+      // Add 20% buffer to gas estimate for safety
+      const gasLimit = gasEstimate + (gasEstimate * BigInt(20) / BigInt(100))
+      console.log('⛽ Free plan subscription gas estimation:', {
+        estimated: gasEstimate.toString(),
+        withBuffer: gasLimit.toString()
+      })
+      
       const hash = await this.walletClient.writeContract({
         address: this.subscriptionManagerAddress,
         abi: SUBSCRIPTION_MANAGER_ABI,
         functionName: 'subscribeToFreePlan',
         chain: this.publicClient.chain,
-        account: this.walletClient.account!
+        account: this.walletClient.account!,
+        gas: gasLimit
       })
 
       console.log('✅ Free plan subscription transaction sent:', hash)
@@ -796,7 +836,24 @@ export class SubscriptionService {
       }
 
       const remainingNFTs = Math.max(0, subscription.nftLimit - actualNftsMinted)
-      const canMint = subscription.isActive && remainingNFTs > 0
+      
+      // Be more lenient with minting validation - allow Free Plan access for new users
+      let canMint = subscription.isActive && remainingNFTs > 0
+      
+      // If user is not active but has Free Plan (new user case), allow minting if within limits
+      if (!canMint && subscription.plan === PlanType.FREE && remainingNFTs > 0) {
+        console.log('🆓 Allowing Free Plan minting for new user (not explicitly subscribed but within limits)')
+        canMint = true
+      }
+
+      console.log('🔍 Final mint capability:', {
+        isActive: subscription.isActive,
+        plan: subscription.plan,
+        actualNftsMinted,
+        nftLimit: subscription.nftLimit,
+        remainingNFTs,
+        canMint
+      })
 
       return {
         canMint,
@@ -818,13 +875,31 @@ export class SubscriptionService {
     try {
       console.log(`📝 Recording ${amount} NFT mint for user:`, userAddress)
       
+      // Estimate gas for recording NFT mint
+      console.log('⛽ Estimating gas for NFT mint recording...')
+      const gasEstimate = await this.publicClient.estimateContractGas({
+        address: this.subscriptionManagerAddress,
+        abi: SUBSCRIPTION_MANAGER_ABI,
+        functionName: 'recordNFTMint',
+        args: [userAddress, BigInt(amount)],
+        account: this.walletClient.account!
+      })
+      
+      // Add 20% buffer to gas estimate for safety
+      const gasLimit = gasEstimate + (gasEstimate * BigInt(20) / BigInt(100))
+      console.log('⛽ NFT mint recording gas estimation:', {
+        estimated: gasEstimate.toString(),
+        withBuffer: gasLimit.toString()
+      })
+      
       const hash = await this.walletClient.writeContract({
         address: this.subscriptionManagerAddress,
         abi: SUBSCRIPTION_MANAGER_ABI,
         functionName: 'recordNFTMint',
         args: [userAddress, BigInt(amount)],
         chain: this.publicClient.chain,
-        account: this.walletClient.account!
+        account: this.walletClient.account!,
+        gas: gasLimit
       })
 
       console.log('✅ NFT mint record transaction sent:', hash)
