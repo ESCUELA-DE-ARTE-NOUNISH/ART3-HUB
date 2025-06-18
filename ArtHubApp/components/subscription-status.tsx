@@ -387,7 +387,7 @@ export function SubscriptionStatus({ translations: t, onRefresh }: SubscriptionS
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">{t.expires}:</span>
                   <span>{effectiveSubscriptionData.expiresAt.toLocaleDateString()} 
-                    {effectiveSubscriptionData.plan !== PlanType.FREE && (
+                    {effectiveSubscriptionData.plan !== 'FREE' && (
                       <span className="text-xs text-gray-400 ml-1">(auto-renew)</span>
                     )}
                   </span>
@@ -452,7 +452,7 @@ export function SubscriptionStatus({ translations: t, onRefresh }: SubscriptionS
             </Button>
 
             {/* USDC Faucet Buttons for Testnet */}
-            {effectiveSubscriptionData.plan === PlanType.FREE && (
+            {effectiveSubscriptionData.plan === 'FREE' && (
               <div className="space-y-2">
                 <div className="text-xs text-gray-500 text-center mb-2">
                   You need 4.99 USDC to upgrade to Master ($4.99/month). Get testnet USDC:

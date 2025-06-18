@@ -11,7 +11,7 @@ import { useParams } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import { useUserProfile } from "@/hooks/useUserProfile"
 import { ProfileEditForm } from "@/components/profile-edit-form"
-import { SubscriptionStatus } from "@/components/subscription-status"
+import { SubscriptionStatusV3 } from "@/components/subscription-status-v3"
 
 // Custom Verified Star Component
 function VerifiedStar() {
@@ -379,7 +379,7 @@ export default function ProfilePage() {
       
       {/* Subscription Status Section */}
       <div className="container mx-auto px-4 mt-8">
-        <SubscriptionStatus 
+        <SubscriptionStatusV3 
           translations={t} 
           onRefresh={() => {
             // Refresh profile data as well
