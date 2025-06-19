@@ -269,8 +269,8 @@ export function ConnectMenu() {
             "flex items-center gap-2"
           )}
         >
-          <Wallet className="h-4 w-4" />
-          Connect Wallet
+          <User className="h-4 w-4" />
+          Join Now
         </Button>
         {error && (
           <p className="text-sm text-red-500 animate-fade-in">
@@ -317,11 +317,11 @@ export function ConnectMenu() {
           "flex items-center gap-2"
         )}
       >
-        <Wallet className="h-4 w-4" />
+        <User className="h-4 w-4" />
         Login Unavailable
       </Button>
       <p className="text-sm text-red-500">
-        Privy is not configured
+        Login is not configured
       </p>
     </div>
   )

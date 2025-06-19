@@ -46,7 +46,7 @@ export default function Navigation() {
       return wagmiConnected
     } else if (hasPrivy) {
       // In browser with Privy, check Privy authentication
-      return authenticated && wallets.length > 0
+      return authenticated
     } else {
       // Fallback to wagmi
       return wagmiConnected
@@ -78,35 +78,35 @@ export default function Navigation() {
 
   // Wallet required messages
   const walletMessages = {
-    title: locale === 'es' ? 'Por favor, Unete para Continuar' :
-           locale === 'pt' ? 'Por favor, Faça Conectar para Continuar' :
-           locale === 'fr' ? 'Veuillez vous Connecter pour Continuer' :
+    title: locale === 'es' ? 'Por favor, Únete para Continuar' :
+           locale === 'pt' ? 'Por favor, Junte-se para Continuar' :
+           locale === 'fr' ? 'Veuillez Rejoindre pour Continuer' :
            'Please Join to Proceed',
     
-    description: locale === 'es' ? 'Necesitas conectar tu billetera para acceder a tu perfil y colección.' :
-                 locale === 'pt' ? 'Você precisa conectar sua carteira para acessar seu perfil e coleção.' :
-                 locale === 'fr' ? 'Vous devez connecter votre portefeuille pour accéder à votre profil et collection.' :
-                 'You need to connect your wallet to access your profile and collection.',
+    description: locale === 'es' ? 'Necesitas unirte a Art3 Hub para acceder a tu perfil y colección.' :
+                 locale === 'pt' ? 'Você precisa se juntar ao Art3 Hub para acessar seu perfil e coleção.' :
+                 locale === 'fr' ? 'Vous devez rejoindre Art3 Hub pour accéder à votre profil et collection.' :
+                 'You need to join Art3 Hub to access your profile and collection.',
     
-    connectButton: locale === 'es' ? 'Conectar Billetera' :
-                   locale === 'pt' ? 'Conectar Carteira' :
-                   locale === 'fr' ? 'Connecter le Portefeuille' :
-                   'Connect Wallet',
+    connectButton: locale === 'es' ? 'Únete Ahora' :
+                   locale === 'pt' ? 'Juntar-se Agora' :
+                   locale === 'fr' ? 'Rejoindre Maintenant' :
+                   'Join Now',
     
     cancel: locale === 'es' ? 'Cancelar' :
             locale === 'pt' ? 'Cancelar' :
             locale === 'fr' ? 'Annuler' :
             'Cancel',
     
-    connectionFailed: locale === 'es' ? 'Conexión Fallida' :
-                      locale === 'pt' ? 'Falha na Conexão' :
+    connectionFailed: locale === 'es' ? 'Error de Inicio de Sesión' :
+                      locale === 'pt' ? 'Falha no Login' :
                       locale === 'fr' ? 'Connexion Échouée' :
-                      'Connection Failed',
+                      'Login Failed',
     
-    connectionFailedDescription: locale === 'es' ? 'No se pudo conectar la billetera. Por favor, intenta de nuevo.' :
-                                 locale === 'pt' ? 'Falha ao conectar carteira. Por favor, tente novamente.' :
-                                 locale === 'fr' ? 'Échec de la connexion du portefeuille. Veuillez réessayer.' :
-                                 'Failed to connect wallet. Please try again.'
+    connectionFailedDescription: locale === 'es' ? 'No se pudo iniciar sesión. Por favor, intenta de nuevo.' :
+                                 locale === 'pt' ? 'Falha ao fazer login. Por favor, tente novamente.' :
+                                 locale === 'fr' ? 'Échec de la connexion. Veuillez réessayer.' :
+                                 'Failed to join. Please try again.'
   }
 
   // Function to check if a path is active, accounting for locale prefixes
