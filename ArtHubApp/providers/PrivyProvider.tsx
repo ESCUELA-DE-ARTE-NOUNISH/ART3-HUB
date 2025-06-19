@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { base, baseSepolia } from 'wagmi/chains'
 import { privyWagmiConfig } from '@/lib/privy-wagmi'
 import { useMiniKit } from '@coinbase/onchainkit/minikit'
+import React, { createContext, useContext } from 'react'
 
 // Get default chain based on testing mode
 const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
@@ -13,6 +14,36 @@ const targetChain = isTestingMode ? baseSepolia : base
 
 // Create a client for react-query
 const queryClient = new QueryClient()
+
+// Fallback context for when Privy is not available
+const FallbackPrivyContext = createContext({
+  authenticated: false,
+  login: () => {},
+  logout: () => {},
+  user: null,
+})
+
+const FallbackWalletsContext = createContext({
+  wallets: [],
+})
+
+// Fallback providers for MiniKit mode
+function FallbackPrivyProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <FallbackPrivyContext.Provider value={{
+      authenticated: false,
+      login: () => {},
+      logout: () => {},
+      user: null,
+    }}>
+      <FallbackWalletsContext.Provider value={{ wallets: [] }}>
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      </FallbackWalletsContext.Provider>
+    </FallbackPrivyContext.Provider>
+  )
+}
 
 interface PrivyAppProviderProps {
   children: React.ReactNode
@@ -25,9 +56,9 @@ export function PrivyAppProvider({ children }: PrivyAppProviderProps) {
     const { context } = useMiniKit()
     const isMiniKit = !!context
     
-    // If no Privy app ID is provided or we're in MiniKit, render children without Privy
+    // If no Privy app ID is provided or we're in MiniKit, use fallback provider
     if (!appId || isMiniKit) {
-      return <>{children}</>
+      return <FallbackPrivyProvider>{children}</FallbackPrivyProvider>
     }
 
     // For browser mode with Privy
@@ -60,7 +91,7 @@ export function PrivyAppProvider({ children }: PrivyAppProviderProps) {
     console.warn('MiniKit hook failed, using fallback provider setup:', error)
     
     if (!appId) {
-      return <>{children}</>
+      return <FallbackPrivyProvider>{children}</FallbackPrivyProvider>
     }
 
     return (

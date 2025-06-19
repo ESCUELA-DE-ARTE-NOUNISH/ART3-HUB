@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
-import { usePrivy, useWallets } from '@privy-io/react-auth'
+import { useSafePrivy, useSafeWallets } from '@/hooks/useSafePrivy'
 import { useMiniKit } from '@coinbase/onchainkit/minikit'
 import { ApiService } from '@/lib/services/api-service'
 import type { UserProfile } from '@/lib/supabase'
@@ -17,24 +17,9 @@ export function useUserProfile() {
   const { context } = useMiniKit()
   const isMiniKit = !!context
 
-  // Privy hooks (safe to call even without provider)
-  const privyHooks = (() => {
-    try {
-      return usePrivy()
-    } catch {
-      return { authenticated: false }
-    }
-  })()
-  const { authenticated } = privyHooks
-
-  const walletsHooks = (() => {
-    try {
-      return useWallets()
-    } catch {
-      return { wallets: [] }
-    }
-  })()
-  const { wallets } = walletsHooks
+  // Safe Privy hooks that handle MiniKit mode
+  const { authenticated } = useSafePrivy()
+  const { wallets } = useSafeWallets()
 
   // Determine the current wallet address based on environment
   const getCurrentWalletAddress = (): string | null => {

@@ -10,7 +10,7 @@ import Image from 'next/image'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { useToast } from '@/hooks/use-toast'
 import { useAccount, useConnect } from 'wagmi'
-import { usePrivy, useWallets } from '@privy-io/react-auth'
+import { useSafePrivy, useSafeWallets } from '@/hooks/useSafePrivy'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -56,24 +56,9 @@ export default function Home() {
   const { connect, connectors } = useConnect()
   const { toast } = useToast()
   
-  // Privy hooks (safe to call even without provider)
-  const privyHooks = (() => {
-    try {
-      return usePrivy()
-    } catch {
-      return { authenticated: false, login: () => {} }
-    }
-  })()
-  const { authenticated, login } = privyHooks
-
-  const walletsHooks = (() => {
-    try {
-      return useWallets()
-    } catch {
-      return { wallets: [] }
-    }
-  })()
-  const { wallets } = walletsHooks
+  // Safe Privy hooks that handle MiniKit mode
+  const { authenticated, login } = useSafePrivy()
+  const { wallets } = useSafeWallets()
   
   // Determine if user is actually connected based on environment
   const isActuallyConnected = (() => {
