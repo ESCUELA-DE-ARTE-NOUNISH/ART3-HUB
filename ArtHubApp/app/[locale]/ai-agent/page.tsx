@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef, useEffect, useMemo } from "react"
+import { useState, useRef, useEffect, useMemo, Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Send, AlertCircle } from "lucide-react"
@@ -74,7 +74,7 @@ const headerTitle: Record<string, string> = {
   pt: "Agente Educativo"
 }
 
-export default function AIAgent() {
+function AIAgentContent() {
   const params = useParams()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -113,13 +113,15 @@ export default function AIAgent() {
   
   // Initialize userId on client side only to avoid hydration mismatch
   useEffect(() => {
-    const storedId = localStorage.getItem('chatUserId')
-    if (storedId) {
-      setUserId(storedId)
-    } else {
-      const newId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
-      localStorage.setItem('chatUserId', newId)
-      setUserId(newId)
+    if (typeof window !== 'undefined') {
+      const storedId = localStorage.getItem('chatUserId')
+      if (storedId) {
+        setUserId(storedId)
+      } else {
+        const newId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+        localStorage.setItem('chatUserId', newId)
+        setUserId(newId)
+      }
     }
   }, [])
 
@@ -139,9 +141,11 @@ export default function AIAgent() {
         setError(null)
 
         // Clear the URL parameter
-        const url = new URL(window.location.href)
-        url.searchParams.delete('q')
-        router.replace(url.pathname + url.search, { scroll: false })
+        if (typeof window !== 'undefined') {
+          const url = new URL(window.location.href)
+          url.searchParams.delete('q')
+          router.replace(url.pathname + url.search, { scroll: false })
+        }
 
         // Submit to AI
         fetch('/api/chat', {
@@ -312,5 +316,27 @@ export default function AIAgent() {
         </form>
       </div>
     </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-center p-8">
+        <div className="flex space-x-2">
+          <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"></div>
+          <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+          <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function AIAgent() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <AIAgentContent />
+    </Suspense>
   )
 } 
