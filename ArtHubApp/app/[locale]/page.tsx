@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { defaultLocale } from '@/config/i18n'
 import Link from 'next/link'
-import { ArrowRight, Sparkles, Crown, Globe, Camera, Upload } from 'lucide-react'
+import { ArrowRight, Sparkles, Crown, Globe, Camera, Upload, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import Image from 'next/image'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { useToast } from '@/hooks/use-toast'
@@ -50,6 +52,7 @@ export default function Home() {
   const router = useRouter()
   const [locale, setLocale] = useState<string>(defaultLocale)
   const [showWalletAlert, setShowWalletAlert] = useState(false)
+  const [chatInput, setChatInput] = useState('')
   
   // Get user wallet connection status - check both wagmi and Privy
   const { isConnected: wagmiConnected, address: wagmiAddress } = useAccount()
@@ -115,7 +118,8 @@ export default function Home() {
       royaltiesDesc: "Earn from secondary sales of your work",
       community: "Global Community",
       communityDesc: "Connect with collectors worldwide",
-      explore: "Explore Opportunities"
+      explore: "Explore Opportunities",
+      chatPlaceholder: "Ask to explore opportunities, create an NFT, or discover new paths for your art..."
     },
     footer: {
       created: "Created by Escuela de Arte Nourish",
@@ -267,16 +271,26 @@ export default function Home() {
     }
   }
 
+  // Handle chat submission
+  const handleChatSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!chatInput.trim()) return
+    
+    // For now, redirect to AI agent with the query
+    // In the future, this could handle the chat directly on this page
+    router.push(`/${locale}/ai-agent?q=${encodeURIComponent(chatInput)}`)
+  }
+
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-4 py-2">
       <header className="text-center mt-2">
-        <div className="flex items-center justify-center my-2 lg:my-8">
+        <div className="flex items-center justify-center my-1 md:my-2 lg:my-8">
           <Image
             src="/images/logo.png"
             alt="Escuela de Arte Nounish Logo"
             width={110}
             height={110}
-            className="rounded-sm"
+            className="rounded-sm w-16 h-16 md:w-32 md:h-32 lg:w-40 lg:h-40"
           />
           {/* <Image
             src="/images/esnounish.png"
@@ -299,44 +313,59 @@ export default function Home() {
       {/* Hero Section */}
       <div className="w-full mb-8">
         <div className="bg-gradient-to-br from-pink-50 via-white to-lime-50 rounded-2xl p-6 shadow-lg border border-pink-100">
-          <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
-            {/* Left side - Title, Description, and Features */}
-            <div className="flex-1 text-center lg:text-left">
-              <div className="flex items-center justify-center lg:justify-start mb-3">
-                <Sparkles className="text-pink-500 mr-2" size={28} />
-                <h2 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-pink-500 to-lime-500 bg-clip-text text-transparent">
-                  {messages.unlock.title}
-                </h2>
+          <div className="flex flex-col items-center text-center space-y-6">
+            {/* Title */}
+            <div className="flex items-center justify-center mb-3">
+              <Sparkles className="text-pink-500 mr-2" size={28} />
+              <h2 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-pink-500 to-lime-500 bg-clip-text text-transparent">
+                {messages.unlock.title}
+              </h2>
+            </div>
+            
+            {/* Description */}
+            <p className="text-base lg:text-lg text-gray-700 leading-relaxed max-w-2xl hidden md:block">
+              {messages.unlock.description}
+            </p>
+            
+            {/* Feature badges */}
+            <div className="flex flex-wrap justify-center gap-3">
+              <div className="flex items-center bg-white rounded-full px-3 py-2 shadow-sm border border-pink-100">
+                <Sparkles className="text-pink-500 mr-2" size={16} />
+                <span className="text-xs lg:text-sm font-medium text-gray-700">{messages.unlock.freedom}</span>
               </div>
-              
-              <p className="text-base lg:text-lg text-gray-700 leading-relaxed mb-4">
-                {messages.unlock.description}
-              </p>
-              
-              {/* Feature badges */}
-              <div className="flex flex-wrap justify-center lg:justify-start gap-3">
-                <div className="flex items-center bg-white rounded-full px-3 py-2 shadow-sm border border-pink-100">
-                  <Sparkles className="text-pink-500 mr-2" size={16} />
-                  <span className="text-xs lg:text-sm font-medium text-gray-700">{messages.unlock.freedom}</span>
-                </div>
-                <div className="flex items-center bg-white rounded-full px-3 py-2 shadow-sm border border-lime-100">
-                  <Crown className="text-lime-500 mr-2" size={16} />
-                  <span className="text-xs lg:text-sm font-medium text-gray-700">{messages.unlock.royalties}</span>
-                </div>
-                <div className="flex items-center bg-white rounded-full px-3 py-2 shadow-sm border border-pink-100">
-                  <Globe className="text-pink-500 mr-2" size={16} />
-                  <span className="text-xs lg:text-sm font-medium text-gray-700">{messages.unlock.community}</span>
-                </div>
+              <div className="flex items-center bg-white rounded-full px-3 py-2 shadow-sm border border-lime-100">
+                <Crown className="text-lime-500 mr-2" size={16} />
+                <span className="text-xs lg:text-sm font-medium text-gray-700">{messages.unlock.royalties}</span>
+              </div>
+              <div className="flex items-center bg-white rounded-full px-3 py-2 shadow-sm border border-pink-100">
+                <Globe className="text-pink-500 mr-2" size={16} />
+                <span className="text-xs lg:text-sm font-medium text-gray-700">{messages.unlock.community}</span>
               </div>
             </div>
             
-            {/* Right side - CTA Button */}
-            <div className="flex-shrink-0 lg:ml-8">
-              <Link href={`/${locale}/ai-agent`}>
-                <Button className="bg-gradient-to-r from-pink-500 to-lime-500 hover:from-pink-600 hover:to-lime-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                  {messages.unlock.explore} <ArrowRight size={18} className="ml-2" />
+            {/* Chat Interface */}
+            <div className="w-full max-w-2xl">
+              <form onSubmit={handleChatSubmit} className="relative">
+                <Textarea
+                  placeholder={messages.unlock.chatPlaceholder}
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  className="w-full min-h-[120px] px-4 py-3 pr-14 rounded-2xl border border-gray-200 focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition-all duration-200 resize-none text-base leading-relaxed"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      handleChatSubmit(e)
+                    }
+                  }}
+                />
+                <Button
+                  type="submit"
+                  disabled={!chatInput.trim()}
+                  className="absolute bottom-3 right-3 bg-gradient-to-r from-pink-500 to-lime-500 hover:from-pink-600 hover:to-lime-600 text-white w-10 h-10 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
+                >
+                  <Send size={16} />
                 </Button>
-              </Link>
+              </form>
             </div>
           </div>
         </div>
