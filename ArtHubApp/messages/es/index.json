@@ -14,10 +14,10 @@
   },
   "home": {
     "title": "ART3 HUB",
-    "subtitle": "Tu puente hacia la creatividad en Web3",
+    "subtitle": "Tu puente hacia la creatividad del arte digital",
     "aiAgent": {
       "title": "Agente Educativo",
-      "description": "Aprende sobre Web3, NFTs y blockchain con nuestro asistente de IA.",
+      "description": "Aprende sobre Art3 Hub, NFTs y arte digital con nuestro asistente.",
       "button": "Hacer Preguntas"
     },
     "createNft": {
@@ -26,9 +26,9 @@
       "button": "Crear"
     },
     "wallet": {
-      "title": "Administrar Billetera",
-      "description": "Configura y administra tu billetera Web3 para acuñación y transacciones.",
-      "button": "Billetera"
+      "title": "Administrar Cuenta",
+      "description": "Configura y administra tu cuenta para crear y gestionar NFTs.",
+      "button": "Cuenta"
     },
     "myNfts": {
       "title": "Mis NFTs",
@@ -48,20 +48,20 @@
       "explore": "Explorar Oportunidades",
       "chatPlaceholder": "Pregunta sobre oportunidades, crear un NFT, o descubre nuevos caminos para tu arte...",
       "chatSubmitted": "¡Pregunta enviada!",
-      "redirectingToAgent": "Redirigiendo al agente de IA..."
+      "redirectingToAgent": "Redirigiendo al asistente de Art3 Hub..."
     },
     "footer": {
       "created": "Creado por Escuela de Arte Nounish",
       "built": "Construido con ❤️ desde LATAM"
     },
     "walletRequired": {
-      "title": "Por favor, Inicia Sesión para Continuar",
-      "description": "Necesitas conectar tu billetera para crear NFTs y acceder a funciones premium.",
-      "connectButton": "Conectar Billetera",
-      "createNftMessage": "Conecta tu billetera primero para crear NFTs",
-      "viewNftsMessage": "Conecta tu billetera primero para ver tus NFTs",
-      "connectionFailed": "Conexión Fallida",
-      "connectionFailedDescription": "No se pudo conectar la billetera. Por favor, intenta de nuevo."
+      "title": "Por favor, Únete para Continuar",
+      "description": "Necesitas unirte a Art3 Hub para crear NFTs y acceder a funciones premium.",
+      "connectButton": "Únete Ahora",
+      "createNftMessage": "Únete a Art3 Hub primero para crear NFTs",
+      "viewNftsMessage": "Únete a Art3 Hub primero para ver tus NFTs",
+      "connectionFailed": "Error de Inicio de Sesión",
+      "connectionFailedDescription": "No se pudo iniciar sesión. Por favor, intenta de nuevo."
     }
   }
 } 

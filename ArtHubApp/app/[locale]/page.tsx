@@ -72,7 +72,7 @@ export default function Home() {
       return wagmiConnected
     } else if (hasPrivy) {
       // In browser with Privy, check Privy authentication
-      return authenticated && wallets.length > 0
+      return authenticated
     } else {
       // Fallback to wagmi
       return wagmiConnected
@@ -80,7 +80,7 @@ export default function Home() {
   })()
   const [messages, setMessages] = useState({
     title: "ART3 HUB",
-    subtitle: "Your bridge to Web3 creativity",
+    subtitle: "Your bridge to digital art creativity",
     common: {
       loading: "Loading...",
       error: "An error occurred",
@@ -90,7 +90,7 @@ export default function Home() {
     },
     aiAgent: {
       title: "Education Agent",
-      description: "Learn about Web3, NFTs, and blockchain with our AI assistant.",
+      description: "Learn about Art3 Hub, NFTs, and digital art with our helpful assistant.",
       button: "Ask Questions"
     },
     createNft: {
@@ -99,9 +99,9 @@ export default function Home() {
       button: "Create"
     },
     wallet: {
-      title: "Manage Wallet",
-      description: "Set up and manage your Web3 wallet for minting and transactions.",
-      button: "Wallet"
+      title: "Manage Account",
+      description: "Set up and manage your account for creating and managing NFTs.",
+      button: "Account"
     },
     myNfts: {
       title: "My NFTs",
@@ -121,7 +121,7 @@ export default function Home() {
       explore: "Explore Opportunities",
       chatPlaceholder: "Ask to explore opportunities, create an NFT, or discover new paths for your art...",
       chatSubmitted: "Question submitted!",
-      redirectingToAgent: "Redirecting to AI agent..."
+      redirectingToAgent: "Redirecting to Art3 Hub assistant..."
     },
     footer: {
       created: "Created by Escuela de Arte Nounish",
@@ -129,12 +129,12 @@ export default function Home() {
     },
     walletRequired: {
       title: "Please Join to Proceed",
-      description: "You need to connect your wallet to create NFTs and access premium features.",
-      connectButton: "Connect Wallet",
-      createNftMessage: "Connect your wallet first to create NFTs",
-      viewNftsMessage: "Connect your wallet first to view your NFTs",
-      connectionFailed: "Connection Failed",
-      connectionFailedDescription: "Failed to connect wallet. Please try again."
+      description: "You need to join Art3 Hub to create NFTs and access premium features.",
+      connectButton: "Join Now",
+      createNftMessage: "Join Art3 Hub first to create NFTs",
+      viewNftsMessage: "Join Art3 Hub first to view your NFTs",
+      connectionFailed: "Login Failed",
+      connectionFailedDescription: "Failed to join. Please try again."
     }
   })
 

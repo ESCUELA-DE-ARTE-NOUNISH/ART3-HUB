@@ -13,11 +13,11 @@
     "close": "Fermer"
   },
   "home": {
-    "title": "Bienvenue sur ArtHub",
-    "subtitle": "Expérience d'intégration alimentée par l'IA pour les artistes visuels entrant dans le Web3",
+    "title": "ART3 HUB",
+    "subtitle": "Votre pont vers la créativité de l'art numérique",
     "aiAgent": {
       "title": "Agent Éducatif",
-      "description": "Apprenez sur Web3, les NFTs et la blockchain avec notre assistant IA.",
+      "description": "Apprenez sur Art3 Hub, les NFTs et l'art numérique avec notre assistant.",
       "button": "Poser des Questions"
     },
     "createNft": {
@@ -26,9 +26,9 @@
       "button": "Créer"
     },
     "wallet": {
-      "title": "Gérer le Portefeuille",
-      "description": "Configurez et gérez votre portefeuille Web3 pour la frappe et les transactions.",
-      "button": "Portefeuille"
+      "title": "Gérer le Compte",
+      "description": "Configurez et gérez votre compte pour créer et gérer des NFTs.",
+      "button": "Compte"
     },
     "myNfts": {
       "title": "Mes NFTs",
@@ -48,20 +48,20 @@
       "explore": "Explorer les Opportunités",
       "chatPlaceholder": "Demandez à explorer les opportunités, créer un NFT, ou découvrir de nouveaux chemins pour votre art...",
       "chatSubmitted": "Question envoyée !",
-      "redirectingToAgent": "Redirection vers l'agent IA..."
+      "redirectingToAgent": "Redirection vers l'assistant Art3 Hub..."
     },
     "footer": {
       "created": "Créé par Escuela de Arte Nounish",
       "built": "Construit avec ❤️ depuis l'Amérique Latine"
     },
     "walletRequired": {
-      "title": "Veuillez vous Connecter pour Continuer",
-      "description": "Vous devez connecter votre portefeuille pour créer des NFTs et accéder aux fonctionnalités premium.",
-      "connectButton": "Connecter le Portefeuille",
-      "createNftMessage": "Connectez d'abord votre portefeuille pour créer des NFTs",
-      "viewNftsMessage": "Connectez d'abord votre portefeuille pour voir vos NFTs",
+      "title": "Veuillez Rejoindre pour Continuer",
+      "description": "Vous devez rejoindre Art3 Hub pour créer des NFTs et accéder aux fonctionnalités premium.",
+      "connectButton": "Rejoindre Maintenant",
+      "createNftMessage": "Rejoignez d'abord Art3 Hub pour créer des NFTs",
+      "viewNftsMessage": "Rejoignez d'abord Art3 Hub pour voir vos NFTs",
       "connectionFailed": "Connexion Échouée",
-      "connectionFailedDescription": "Échec de la connexion du portefeuille. Veuillez réessayer."
+      "connectionFailedDescription": "Échec de la connexion. Veuillez réessayer."
     }
   }
 } 
