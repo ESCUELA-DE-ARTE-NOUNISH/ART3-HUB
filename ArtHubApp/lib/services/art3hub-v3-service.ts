@@ -156,6 +156,13 @@ const ART3HUB_SUBSCRIPTION_V3_ABI = [
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "inputs": [{"name": "user", "type": "address"}],
+    "name": "getUserNonce",
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
   }
 ] as const
 
@@ -257,6 +264,7 @@ export interface Art3HubV3MintParams {
 export interface V3CollectionCreationResult {
   transactionHash: string
   contractAddress: Address
+  gasless?: boolean
   collectionData: {
     name: string
     symbol: string
@@ -469,7 +477,78 @@ export class Art3HubV3Service {
     }
   }
 
-  // Approve USDC spending
+  // Check if USDC supports EIP-2612 permits (gasless approval)
+  async checkUSDCPermitSupport(): Promise<boolean> {
+    const usdcAddress = this.getUSDCAddress()
+    
+    try {
+      // Check if USDC has permit function (EIP-2612)
+      await this.publicClient.readContract({
+        address: usdcAddress,
+        abi: [
+          {
+            "inputs": [],
+            "name": "DOMAIN_SEPARATOR",
+            "outputs": [{"name": "", "type": "bytes32"}],
+            "stateMutability": "view",
+            "type": "function"
+          }
+        ] as const,
+        functionName: 'DOMAIN_SEPARATOR'
+      })
+      
+      console.log('✅ USDC supports EIP-2612 permits (gasless approval)')
+      return true
+    } catch (error) {
+      console.log('❌ USDC does not support EIP-2612 permits, using gasless relayer approval')
+      return false
+    }
+  }
+
+  // Gasless USDC approval via relayer
+  async approveUSDCGasless(amount: bigint = BigInt('4990000')): Promise<string> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client not available')
+    }
+
+    try {
+      console.log('💰 Gasless USDC approval via relayer...', {
+        spender: this.subscriptionAddress,
+        amount: amount.toString()
+      })
+
+      // Call gasless approval via relayer
+      const relayerResponse = await fetch('/api/gasless-relay', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'approveUSDC',
+          userAddress: this.walletClient.account!.address,
+          spender: this.subscriptionAddress,
+          amount: amount.toString(),
+          chainId: this.chainId
+        })
+      })
+
+      if (!relayerResponse.ok) {
+        const errorData = await relayerResponse.json()
+        throw new Error(`Relayer failed: ${JSON.stringify(errorData)}`)
+      }
+
+      const result = await relayerResponse.json()
+      
+      console.log('✅ Gasless USDC approval successful!', result)
+      return result.transactionHash
+      
+    } catch (error) {
+      console.error('❌ Error in gasless USDC approval:', error)
+      throw new Error(`Failed to approve USDC (gasless): ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
+  // Approve USDC spending (fallback regular method)
   async approveUSDC(amount: bigint = BigInt('4990000')): Promise<string> {
     if (!this.walletClient) {
       throw new Error('Wallet client not available')
@@ -513,6 +592,102 @@ export class Art3HubV3Service {
     } catch (error) {
       console.error('❌ Error approving USDC:', error)
       throw new Error(`Failed to approve USDC: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
+  // Gasless upgrade to Master Plan - relayer pays gas, user pays USDC
+  async upgradeToMasterPlanGasless(autoRenew: boolean = false): Promise<{
+    approvalHash?: string
+    subscriptionHash: string
+    gasless: boolean
+  }> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client not available')
+    }
+
+    try {
+      console.log('💎 Starting V3 Master Plan GASLESS upgrade for $4.99 USDC...')
+      
+      const userAddress = this.walletClient.account!.address
+      
+      // Check USDC balance and allowance
+      console.log('💰 Checking USDC balance and allowance...')
+      const usdcStatus = await this.checkUSDCStatus(userAddress)
+      
+      console.log('💰 USDC Status:', {
+        balance: (Number(usdcStatus.balance) / 1000000).toFixed(2),
+        allowance: (Number(usdcStatus.allowance) / 1000000).toFixed(2),
+        hasEnoughBalance: usdcStatus.hasEnoughBalance,
+        hasEnoughAllowance: usdcStatus.hasEnoughAllowance
+      })
+
+      // Check if user has enough USDC
+      if (!usdcStatus.hasEnoughBalance) {
+        throw new Error(`Insufficient USDC balance. You have $${(Number(usdcStatus.balance) / 1000000).toFixed(2)} USDC but need $4.99 USDC to upgrade to Master Plan.`)
+      }
+
+      let approvalHash: string | undefined
+
+      // Approve USDC spending if needed (user pays small gas fee for approval only)
+      if (!usdcStatus.hasEnoughAllowance) {
+        console.log('💰 USDC allowance insufficient, requesting approval...')
+        console.log('⛽ Note: User will pay small gas fee (~$0.50) for USDC approval only')
+        
+        // Use regular approval (user pays gas) - this is the only reliable way
+        // since gasless approval would approve relayer's USDC, not user's USDC
+        approvalHash = await this.approveUSDC()
+        
+        console.log('✅ USDC approval confirmed, subscription upgrade will be gasless')
+      } else {
+        console.log('✅ USDC allowance already sufficient')
+      }
+
+      // Call gasless subscription upgrade via relayer
+      console.log('💎 Submitting gasless Master Plan upgrade to relayer...')
+      const relayerResponse = await fetch('/api/gasless-relay', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'upgradeSubscription',
+          userAddress,
+          autoRenew,
+          chainId: this.chainId
+        })
+      })
+
+      if (!relayerResponse.ok) {
+        const errorData = await relayerResponse.json()
+        throw new Error(`Relayer failed: ${JSON.stringify(errorData)}`)
+      }
+
+      const result = await relayerResponse.json()
+      
+      console.log('✅ Gasless Master Plan upgrade successful!', result)
+      
+      return {
+        approvalHash,
+        subscriptionHash: result.transactionHash,
+        gasless: true
+      }
+      
+    } catch (error) {
+      console.error('❌ Error upgrading to V3 Master plan (gasless):', error)
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Insufficient USDC balance')) {
+          throw error // Re-throw our custom balance error
+        } else if (error.message.includes('allowance')) {
+          throw new Error('USDC approval failed. Please try the upgrade again.')
+        } else if (error.message.includes('balance')) {
+          throw new Error('Insufficient USDC balance. You need $4.99 USDC to upgrade to Master Plan.')
+        } else if (error.message.includes('Payment failed')) {
+          throw new Error('USDC payment failed. Please check your balance and try again.')
+        }
+      }
+      
+      throw new Error(`Failed to upgrade to Master Plan (gasless): ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
@@ -653,8 +828,40 @@ export class Art3HubV3Service {
         royaltyFeeNumerator: royaltyFeeNumerator.toString()
       })
       
-      // V3 has built-in gasless functionality, so we just call createCollection
+      // Check if user has gasless collection creation capability
+      const subscription = await this.getUserSubscription(params.artist)
+      console.log('🔍 Checking gasless collection capability:', {
+        plan: subscription.plan,
+        hasGaslessMinting: subscription.hasGaslessMinting,
+        isActive: subscription.isActive
+      })
+      
+      if (subscription.hasGaslessMinting) {
+        // Use gasless collection creation
+        console.log('🆓 Using TRUE gasless collection creation - relayer pays gas')
+        
+        // Step 1: Create and sign the collection voucher
+        console.log('📝 Step 1: Creating EIP-712 collection voucher...')
+        const { voucher, signature } = await this.createCollectionVoucher(params)
+        
+        // Step 2: Submit to relayer
+        console.log('🚀 Step 2: Submitting to gasless relayer...')
+        const result = await this.submitGaslessCollectionVoucher(voucher, signature)
+        
+        console.log('✅ Gasless collection creation completed successfully!')
+        
+        return {
+          transactionHash: result.transactionHash,
+          contractAddress: result.contractAddress,
+          gasless: true
+        }
+      }
+      
+      // Fallback: Regular collection creation (requires gas)
+      console.log('⚠️  Using regular collection creation - user will pay gas fees')
+      console.log('💡 Tip: Subscribe to any plan for gasless collection creation!')
       console.log('🔍 Simulating V3 collection creation...')
+      
       await this.publicClient.simulateContract({
         address: this.factoryAddress,
         abi: ART3HUB_FACTORY_V3_ABI_EXTENDED,
@@ -761,14 +968,311 @@ export class Art3HubV3Service {
     }
   }
 
-  // Mint an NFT to an existing V3 collection
+  // Create gasless mint voucher (EIP-712 signature)
+  async createMintVoucher(params: Art3HubV3MintParams): Promise<{
+    voucher: {
+      collection: Address
+      to: Address
+      tokenURI: string
+      nonce: bigint
+      deadline: bigint
+    }
+    signature: string
+  }> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client not available')
+    }
+
+    try {
+      console.log('🎯 Creating gasless mint voucher for collection:', params.collectionContract)
+      
+      // Get user nonce from factory contract (not subscription)
+      const nonceResult = await this.publicClient.readContract({
+        address: this.factoryAddress,
+        abi: [
+          {
+            "inputs": [{"name": "user", "type": "address"}],
+            "name": "userNonces",
+            "outputs": [{"name": "", "type": "uint256"}],
+            "stateMutability": "view",
+            "type": "function"
+          }
+        ] as const,
+        functionName: 'userNonces',
+        args: [this.walletClient.account!.address]
+      })
+      
+      // Ensure nonce is bigint
+      const nonce = BigInt(nonceResult.toString())
+      
+      // Set deadline (1 hour from now)
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600)
+      
+      const voucher = {
+        collection: params.collectionContract,
+        to: params.recipient,
+        tokenURI: params.tokenURI,
+        nonce,
+        deadline
+      }
+      
+      console.log('📝 Voucher details:', voucher)
+      
+      // EIP-712 domain
+      const domain = {
+        name: 'Art3HubFactoryV3',
+        version: '1',
+        chainId: this.chainId,
+        verifyingContract: this.factoryAddress
+      }
+      
+      // EIP-712 types
+      const types = {
+        MintVoucher: [
+          { name: 'collection', type: 'address' },
+          { name: 'to', type: 'address' },
+          { name: 'tokenURI', type: 'string' },
+          { name: 'nonce', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' }
+        ]
+      }
+      
+      console.log('🔐 Requesting EIP-712 signature...')
+      
+      // Sign the voucher
+      const signature = await this.walletClient.signTypedData({
+        account: this.walletClient.account!,
+        domain,
+        types,
+        primaryType: 'MintVoucher',
+        message: voucher
+      })
+      
+      console.log('✅ Voucher signed successfully')
+      
+      return { voucher, signature }
+      
+    } catch (error) {
+      console.error('❌ Error creating mint voucher:', error)
+      throw new Error(`Failed to create mint voucher: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
+  // Submit voucher to gasless relayer
+  async submitGaslessVoucher(voucher: any, signature: string): Promise<V3MintResult> {
+    try {
+      console.log('🚀 Submitting voucher to gasless relayer...')
+      
+      // Convert BigInt values to strings for JSON serialization
+      const serializableVoucher = {
+        ...voucher,
+        nonce: voucher.nonce.toString(),
+        deadline: voucher.deadline.toString()
+      }
+      
+      // Send to relayer API endpoint
+      const response = await fetch('/api/gasless-relay', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          type: 'mint',
+          voucher: serializableVoucher,
+          signature,
+          chainId: this.chainId
+        })
+      })
+      
+      if (!response.ok) {
+        const error = await response.text()
+        throw new Error(`Relayer failed: ${error}`)
+      }
+      
+      const result = await response.json()
+      console.log('✅ Gasless mint successful:', result)
+      
+      return {
+        transactionHash: result.transactionHash,
+        tokenId: result.tokenId,
+        gasless: true
+      }
+      
+    } catch (error) {
+      console.error('❌ Error submitting gasless voucher:', error)
+      throw new Error(`Gasless mint failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
+  // Create collection voucher for gasless collection creation
+  async createCollectionVoucher(params: Art3HubV3CollectionParams): Promise<{
+    voucher: {
+      name: string
+      symbol: string
+      description: string
+      image: string
+      externalUrl: string
+      artist: Address
+      royaltyRecipient: Address
+      royaltyFeeNumerator: bigint
+      nonce: bigint
+      deadline: bigint
+    }
+    signature: string
+  }> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client not available')
+    }
+
+    try {
+      console.log('🎯 Creating gasless collection voucher for:', params.name)
+      
+      // Get user nonce for factory
+      const nonceResult = await this.publicClient.readContract({
+        address: this.factoryAddress,
+        abi: [
+          {
+            "inputs": [{"name": "user", "type": "address"}],
+            "name": "userNonces",
+            "outputs": [{"name": "", "type": "uint256"}],
+            "stateMutability": "view",
+            "type": "function"
+          }
+        ] as const,
+        functionName: 'userNonces',
+        args: [this.walletClient.account!.address]
+      })
+      
+      // Ensure nonce is bigint
+      const nonce = BigInt(nonceResult.toString())
+      
+      // Set deadline (1 hour from now)
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600)
+      
+      // Convert royalty BPS to fee numerator
+      const royaltyFeeNumerator = BigInt(params.royaltyBPS)
+      
+      const voucher = {
+        name: params.name,
+        symbol: params.symbol,
+        description: params.description,
+        image: params.imageURI,
+        externalUrl: params.externalUrl || '',
+        artist: params.artist,
+        royaltyRecipient: params.royaltyRecipient,
+        royaltyFeeNumerator,
+        nonce,
+        deadline
+      }
+      
+      console.log('📝 Collection voucher details:', voucher)
+      
+      // EIP-712 domain
+      const domain = {
+        name: 'Art3HubFactoryV3',
+        version: '1',
+        chainId: this.chainId,
+        verifyingContract: this.factoryAddress
+      } as const
+      
+      // EIP-712 types
+      const types = {
+        CollectionVoucher: [
+          { name: 'name', type: 'string' },
+          { name: 'symbol', type: 'string' },
+          { name: 'description', type: 'string' },
+          { name: 'image', type: 'string' },
+          { name: 'externalUrl', type: 'string' },
+          { name: 'artist', type: 'address' },
+          { name: 'royaltyRecipient', type: 'address' },
+          { name: 'royaltyFeeNumerator', type: 'uint96' },
+          { name: 'nonce', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' }
+        ]
+      } as const
+      
+      // Sign the voucher
+      const signature = await this.walletClient.signTypedData({
+        account: this.walletClient.account!,
+        domain,
+        types,
+        primaryType: 'CollectionVoucher',
+        message: voucher
+      })
+      
+      console.log('✅ Collection voucher signed successfully')
+      
+      return { voucher, signature }
+      
+    } catch (error) {
+      console.error('❌ Error creating collection voucher:', error)
+      throw new Error(`Failed to create collection voucher: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
+  // Submit collection voucher to gasless relayer
+  async submitGaslessCollectionVoucher(voucher: any, signature: string): Promise<V3CollectionCreationResult> {
+    try {
+      console.log('🚀 Submitting collection voucher to gasless relayer...')
+      
+      // Convert BigInt values to strings for JSON serialization
+      const serializableVoucher = {
+        ...voucher,
+        royaltyFeeNumerator: voucher.royaltyFeeNumerator.toString(),
+        nonce: voucher.nonce.toString(),
+        deadline: voucher.deadline.toString()
+      }
+      
+      // Send to relayer API endpoint
+      const response = await fetch('/api/gasless-relay', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          type: 'createCollection',
+          voucher: serializableVoucher,
+          signature,
+          chainId: this.chainId
+        })
+      })
+      
+      if (!response.ok) {
+        const error = await response.text()
+        throw new Error(`Relayer failed: ${error}`)
+      }
+      
+      const result = await response.json()
+      console.log('✅ Gasless collection creation successful:', result)
+      
+      return {
+        transactionHash: result.transactionHash,
+        contractAddress: result.contractAddress,
+        gasless: true,
+        collectionData: {
+          name: voucher.name,
+          symbol: voucher.symbol,
+          description: voucher.description,
+          imageURI: voucher.image,
+          artist: voucher.artist,
+          royaltyBPS: Number(voucher.royaltyFeeNumerator)
+        }
+      }
+      
+    } catch (error) {
+      console.error('❌ Error submitting gasless collection voucher:', error)
+      throw new Error(`Gasless collection creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
+  // Mint an NFT to an existing V3 collection (now truly gasless)
   async mintNFT(params: Art3HubV3MintParams): Promise<V3MintResult> {
     if (!this.walletClient) {
       throw new Error('Wallet client not available')
     }
 
     try {
-      console.log('🎯 Minting NFT via V3 factory to collection:', params.collectionContract)
+      console.log('🎯 Starting gasless mint via V3 voucher system for collection:', params.collectionContract)
       
       // V3 contracts automatically handle subscription management
       // Free Plan: 1 NFT/month (auto-enrolled)
@@ -922,11 +1426,39 @@ export class Art3HubV3Service {
         throw validationError
       }
 
-      // WORKAROUND: Due to authorization issue in V3 contracts, mint directly to collection
-      // The factory's recordNFTMint function is not accessible to the factory itself
-      // NOTE: This requires user to pay gas fees (not truly gasless)
-      console.log('⚠️  Using direct collection mint due to V3 contract authorization issue')
-      console.log('⚠️  User will need to pay gas fees for this transaction')
+      // Check if user has gasless minting capability (Master plan)
+      const subscription = await this.getUserSubscription(params.recipient)
+      console.log('🔍 Checking gasless capability:', {
+        plan: subscription.plan,
+        hasGaslessMinting: subscription.hasGaslessMinting,
+        nftsMinted: subscription.nftsMinted,
+        nftLimit: subscription.nftLimit
+      })
+      
+      if (subscription.hasGaslessMinting) {
+        // V3 gasless minting: User only signs, relayer pays gas
+        console.log('🆓 Using TRUE gasless minting - user only pays $4.99 USDC subscription')
+        
+        // Step 1: Create and sign the voucher
+        console.log('📝 Step 1: Creating EIP-712 voucher...')
+        const { voucher, signature } = await this.createMintVoucher(params)
+        
+        // Step 2: Submit to relayer
+        console.log('🚀 Step 2: Submitting to gasless relayer...')
+        const result = await this.submitGaslessVoucher(voucher, signature)
+        
+        console.log('✅ Gasless mint completed successfully!')
+        
+        return {
+          transactionHash: result.transactionHash,
+          tokenId: 1, // V3 collections start with token ID 1
+          gasless: true
+        }
+      }
+      
+      // Fallback: Direct collection minting (requires gas)
+      console.log('⚠️  Using direct collection mint - user will pay gas fees')
+      console.log('💡 Tip: Upgrade to Master plan for gasless minting!')
       console.log('🔍 Simulating V3 direct collection mint transaction...')
       
       const COLLECTION_MINT_ABI = [

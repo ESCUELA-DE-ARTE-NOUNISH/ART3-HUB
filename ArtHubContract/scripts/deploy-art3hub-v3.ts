@@ -14,37 +14,46 @@ async function main() {
   
   console.log("🌐 Deploying to chain ID:", chainId.toString());
 
+  // Get configuration from environment variables
+  const treasuryWallet = process.env.TREASURY_WALLET;
+  const gaslessRelayerWallet = process.env.GASLESS_RELAYER;
+  
+  if (!treasuryWallet) {
+    throw new Error("TREASURY_WALLET not set in environment");
+  }
+  if (!gaslessRelayerWallet) {
+    throw new Error("GASLESS_RELAYER not set in environment");
+  }
+
   // Network-specific configuration
   let usdcAddress: string;
-  let treasuryWallet: string;
-  let gaslessRelayerWallet: string;
   let networkName: string;
 
   if (chainId === 84532n) { // Base Sepolia (Testnet)
-    usdcAddress = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
+    usdcAddress = process.env.USDC_ADDRESS_BASE_SEPOLIA || "";
     networkName = "Base Sepolia";
   } else if (chainId === 8453n) { // Base Mainnet
-    usdcAddress = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+    usdcAddress = process.env.USDC_ADDRESS_BASE_MAINNET || "";
     networkName = "Base Mainnet";
   } else if (chainId === 999999999n) { // Zora Sepolia (Testnet)
-    usdcAddress = "0xCccCCccc7021b32EBb4e8C08314bD62F7c653EC4";
+    usdcAddress = process.env.USDC_ADDRESS_ZORA_SEPOLIA || "";
     networkName = "Zora Sepolia";
   } else if (chainId === 7777777n) { // Zora Mainnet
-    usdcAddress = "0xCccCCccc7021b32EBb4e8C08314bD62F7c653EC4";
+    usdcAddress = process.env.USDC_ADDRESS_ZORA_MAINNET || "";
     networkName = "Zora Mainnet";
   } else if (chainId === 44787n) { // Celo Alfajores (Testnet)
-    usdcAddress = "0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B"; // Celo Alfajores USDC
+    usdcAddress = process.env.USDC_ADDRESS_CELO_ALFAJORES || "";
     networkName = "Celo Alfajores";
   } else if (chainId === 42220n) { // Celo Mainnet
-    usdcAddress = "0xef4229c8c3250C675F21BCefa42f58EfbfF6002a"; // Celo Mainnet USDC
+    usdcAddress = process.env.USDC_ADDRESS_CELO_MAINNET || "";
     networkName = "Celo Mainnet";
   } else {
     throw new Error(`Unsupported network: ${chainId}. Supported: Base (8453, 84532), Zora (7777777, 999999999), Celo (42220, 44787)`);
   }
-
-  // Common configuration (same across all networks)
-  treasuryWallet = "0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9"; // Replace with your treasury
-  gaslessRelayerWallet = "0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1"; // Your relayer wallet
+  
+  if (!usdcAddress) {
+    throw new Error(`USDC address not configured for network ${networkName}`);
+  }
 
   console.log("📋 Configuration:");
   console.log("  - Network:", networkName);
@@ -53,13 +62,14 @@ async function main() {
   console.log("  - Gasless Relayer:", gaslessRelayerWallet);
   console.log("  - Initial Owner:", deployer.address);
 
-  // 1. Deploy Subscription Manager
+  // 1. Deploy Subscription Manager (without factory address initially)
   console.log("\n1️⃣ Deploying Art3HubSubscriptionV3...");
   const SubscriptionFactory = await ethers.getContractFactory("Art3HubSubscriptionV3");
   const subscription = await SubscriptionFactory.deploy(
     usdcAddress,
     treasuryWallet,
     gaslessRelayerWallet,
+    ethers.ZeroAddress, // Factory address will be set later
     deployer.address
   ) as Art3HubSubscriptionV3;
   
@@ -80,11 +90,17 @@ async function main() {
   const factoryAddress = await factory.getAddress();
   console.log("✅ Art3HubFactoryV3 deployed to:", factoryAddress);
 
-  // 3. Get Collection Implementation Address
+  // 3. Update subscription contract with factory address
+  console.log("\n3️⃣ Updating subscription contract with factory address...");
+  const updateFactoryTx = await subscription.updateFactoryContract(factoryAddress);
+  await updateFactoryTx.wait();
+  console.log("✅ Factory address updated in subscription contract");
+
+  // 4. Get Collection Implementation Address
   const collectionImplementation = await factory.collectionImplementation();
   console.log("✅ Art3HubCollectionV3 implementation:", collectionImplementation);
 
-  // 4. Verify initial configuration
+  // 5. Verify initial configuration
   console.log("\n🔍 Verifying configuration...");
   
   const planConfig = await subscription.getPlanConfig(0); // FREE plan
@@ -101,10 +117,10 @@ async function main() {
     gasless: masterPlanConfig[2]
   });
 
-  // 5. Test auto-enrollment functionality
+  // 6. Test auto-enrollment functionality
   console.log("\n🧪 Testing auto-enrollment...");
   try {
-    const testUser = "0x1234567890123456789012345678901234567890"; // Dummy address
+    const testUser = process.env.TEST_USER_ADDRESS || "0x1234567890123456789012345678901234567890";
     const canMint = await subscription.canUserMint(testUser, 1);
     console.log("Can new user mint?", canMint);
   } catch (error) {

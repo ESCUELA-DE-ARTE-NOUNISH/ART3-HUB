@@ -284,18 +284,18 @@ export function SubscriptionStatusV3({ translations: t, onRefresh }: Subscriptio
       if (!usdcStatus.hasEnoughAllowance) {
         toast({
           title: "USDC Approval Required",
-          description: "Please approve USDC spending in your wallet...",
+          description: "Please approve USDC spending (~$0.50 gas). Subscription upgrade will be gasless!",
         })
       } else {
         toast({
           title: "Upgrading to Master Plan",
-          description: "Please confirm the $4.99 USDC payment in your wallet...",
+          description: "Processing gasless subscription upgrade...",
         })
       }
       
-      // Upgrade to V3 Master Plan (handles approval flow automatically)
-      console.log('💎 Upgrading to V3 Master plan...')
-      const result = await art3hubV3Service.upgradeToMasterPlan(false) // No auto-renew for now
+      // Upgrade to V3 Master Plan (gasless - relayer pays gas)
+      console.log('💎 Upgrading to V3 Master plan (gasless)...')
+      const result = await art3hubV3Service.upgradeToMasterPlanGasless(false) // No auto-renew for now
       console.log('✅ V3 Master plan upgrade result:', result)
       
       toast({

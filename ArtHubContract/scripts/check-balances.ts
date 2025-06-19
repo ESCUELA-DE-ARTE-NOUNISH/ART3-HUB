@@ -5,10 +5,14 @@ async function main() {
   const chainId = Number(await hre.network.provider.send("eth_chainId"));
   console.log(`🌐 Checking balances on chain ID: ${chainId}`);
 
-  // Important addresses
-  const DEPLOYER = "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f";
-  const GASLESS_RELAYER = "0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1";
-  const TREASURY = "0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9";
+  // Important addresses from environment
+  const DEPLOYER = process.env.INITIAL_OWNER;
+  const GASLESS_RELAYER = process.env.GASLESS_RELAYER;
+  const TREASURY = process.env.TREASURY_WALLET;
+  
+  if (!DEPLOYER || !GASLESS_RELAYER || !TREASURY) {
+    throw new Error("Missing required environment variables: INITIAL_OWNER, GASLESS_RELAYER, TREASURY_WALLET");
+  }
 
   // Get network name
   let networkName = "Unknown";
@@ -68,17 +72,17 @@ async function main() {
   console.log("=" .repeat(50));
   
   if (chainId === 84532) {
-    console.log("SubscriptionManager: 0x4189c14EfcfB71CAAb5Bb6cd162504a37DF2b4Dc");
-    console.log("Factory: 0x2634b3389c0CBc733bE05ba459A0C2e844594161");
-    console.log("Collection Implementation: 0xC02C22986839b9F70E8c1a1aBDB7721f3739d034");
+    console.log(`SubscriptionManager: ${process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V3_84532 || 'Not configured'}`);
+    console.log(`Factory: ${process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V3_84532 || 'Not configured'}`);
+    console.log(`Collection Implementation: ${process.env.NEXT_PUBLIC_ART3HUB_COLLECTION_V3_IMPL_84532 || 'Not configured'}`);
   } else if (chainId === 999999999) {
-    console.log("SubscriptionManager: 0x20D07582c3cB6a0b32Aa8be59456c6BBBaDD993D");
-    console.log("Factory: 0x47105E80363960Ef9C3f641dA4056281E963d3CB");
-    console.log("Collection Implementation: 0x4Cf261D4F37F4d5870e6172108b1eEfE1592daCd");
+    console.log(`SubscriptionManager: ${process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V3_999999999 || 'Not configured'}`);
+    console.log(`Factory: ${process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V3_999999999 || 'Not configured'}`);
+    console.log(`Collection Implementation: ${process.env.NEXT_PUBLIC_ART3HUB_COLLECTION_V3_IMPL_999999999 || 'Not configured'}`);
   } else if (chainId === 44787) {
-    console.log("SubscriptionManager: 0xFf85176d8BDA8Ead51d9A67a4e1c0dDDDF695C30");
-    console.log("Factory: 0x996Cc8EE4a9E43B27bFfdB8274B24d61B30B188E");
-    console.log("Collection Implementation: 0xB482D3298f34423E98A67A54DE5d33612f200918");
+    console.log(`SubscriptionManager: ${process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V3_44787 || 'Not configured'}`);
+    console.log(`Factory: ${process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V3_44787 || 'Not configured'}`);
+    console.log(`Collection Implementation: ${process.env.NEXT_PUBLIC_ART3HUB_COLLECTION_V3_IMPL_44787 || 'Not configured'}`);
   }
 }
 

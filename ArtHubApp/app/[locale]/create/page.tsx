@@ -28,7 +28,7 @@ import { getOpenSeaLink, parseNetworkString } from "@/lib/opensea-utils"
 const translations = {
   en: {
     title: "Create NFT",
-    subtitle: "Create NFTs with gasless minting using your Art3Hub V2 subscription",
+    subtitle: "Create NFTs with TRUE gasless minting - you only pay for USDC subscription upgrades",
     image: "Image",
     clickToUpload: "Click to upload",
     dragAndDrop: "or drag and drop",
@@ -741,11 +741,16 @@ function CreateNFT() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!isConnected || !address || !walletClient || !publicClient) {
+    // Use fallback wallet client if network-specific one is not available  
+    const activeWalletClient = walletClient || defaultWalletClient
+    
+    if (!isConnected || !address || !activeWalletClient || !publicClient) {
       console.error('Missing required clients:', {
         isConnected,
         address: !!address,
         walletClient: !!walletClient,
+        defaultWalletClient: !!defaultWalletClient,
+        activeWalletClient: !!activeWalletClient,
         publicClient: !!publicClient
       })
       toast({
@@ -799,7 +804,7 @@ function CreateNFT() {
       const targetNetwork = getActiveNetwork(selectedNetwork, isTestingMode)
       
       // Get the actual chain ID from the wallet
-      const currentChainId = await walletClient.getChainId()
+      const currentChainId = await activeWalletClient.getChainId()
       
       console.log('🔍 Detailed network information:', {
         selectedNetwork,
@@ -807,7 +812,7 @@ function CreateNFT() {
         targetChainId: targetNetwork.id,
         currentChainId,
         isTestingMode,
-        walletClientChain: walletClient.chain?.id,
+        walletClientChain: activeWalletClient.chain?.id,
         publicClientChain: publicClient?.chain?.id
       })
       
@@ -817,7 +822,7 @@ function CreateNFT() {
         currentChainId,
         isTestingMode,
         targetNetwork,
-        walletClientChain: walletClient.chain?.id
+        walletClientChain: activeWalletClient.chain?.id
       })
       
       if (currentChainId !== targetNetwork.id) {
@@ -920,7 +925,7 @@ function CreateNFT() {
       setMintStatus('Creating NFT (requires gas fees)...')
       
       // Create Art3Hub V3 service
-      const { art3hubV3Service } = createArt3HubV3ServiceWithUtils(publicClient, walletClient, selectedNetwork, isTestingMode)
+      const { art3hubV3Service } = createArt3HubV3ServiceWithUtils(publicClient, activeWalletClient, selectedNetwork, isTestingMode)
       
       const collectionParams = {
         name: title,
