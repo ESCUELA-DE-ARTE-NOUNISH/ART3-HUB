@@ -74,3 +74,25 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Fix for SVG elements receiving invalid size values */
+@layer utilities {
+  svg[width="small"] {
+    width: 1rem !important;
+  }
+  svg[height="small"] {
+    height: 1rem !important;
+  }
+  svg[width="medium"] {
+    width: 1.5rem !important;
+  }
+  svg[height="medium"] {
+    height: 1.5rem !important;
+  }
+  svg[width="large"] {
+    width: 2rem !important;
+  }
+  svg[height="large"] {
+    height: 2rem !important;
+  }
+}

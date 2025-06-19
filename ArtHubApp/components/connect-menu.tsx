@@ -8,8 +8,7 @@ import { Wallet, LogOut, ChevronDown, SwitchCamera, User, CheckCircle, XCircle }
 import { cn } from "@/lib/utils"
 import { truncateEthAddress } from "@/lib/utils"
 import { useMiniKit } from '@coinbase/onchainkit/minikit'
-import { usePrivy } from '@privy-io/react-auth'
-import { useWallets } from '@privy-io/react-auth'
+import { useSafePrivy, useSafeWallets } from '@/hooks/useSafePrivy'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import {
   DropdownMenu,
@@ -37,25 +36,9 @@ export function ConnectMenu() {
   // User profile tracking
   const { userProfile, isProfileComplete } = useUserProfile()
   
-  // Privy hooks (safe to call even without provider)
-  const privyHooks = (() => {
-    try {
-      return usePrivy()
-    } catch {
-      return { login: () => {}, logout: () => {}, authenticated: false }
-    }
-  })()
-  const { login, logout, authenticated } = privyHooks
-  
-  // Privy wallets hook
-  const walletsHooks = (() => {
-    try {
-      return useWallets()
-    } catch {
-      return { wallets: [] }
-    }
-  })()
-  const { wallets } = walletsHooks
+  // Safe Privy hooks that handle MiniKit mode
+  const { login, logout, authenticated } = useSafePrivy()
+  const { wallets } = useSafeWallets()
 
   // Get all supported chains
   const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
@@ -70,19 +53,18 @@ export function ConnectMenu() {
     setMounted(true)
   }, [])
 
-  // Auto-connect in MiniKit environment with Farcaster connector only
+  // Note: Removed auto-connection to prevent user rejection errors
+  // Users will need to manually connect their wallet in MiniKit
   useEffect(() => {
-    if (mounted && isMiniKit && !isConnected && connectors.length > 0) {
-      // Only use Farcaster connector in MiniKit environment
+    if (mounted && isMiniKit && connectors.length > 0) {
       const farcasterConnector = connectors.find(c => c.id === 'farcaster')
       if (farcasterConnector) {
-        console.log('Auto-connecting with Farcaster connector in MiniKit')
-        connect({ connector: farcasterConnector })
+        console.log('Farcaster connector available in MiniKit (manual connection required)')
       } else {
         console.warn('Farcaster connector not found in MiniKit environment')
       }
     }
-  }, [mounted, isMiniKit, isConnected, connectors, connect])
+  }, [mounted, isMiniKit, connectors])
 
   // Check if we're on the wrong network
   useEffect(() => {
@@ -263,19 +245,24 @@ export function ConnectMenu() {
 
   // Determine which UI to show based on environment
   if (isMiniKit) {
-    // MiniKit environment - auto-connecting, show connecting state
+    // MiniKit environment - show manual connect button
     return (
       <div className="flex flex-col items-end gap-2">
         <Button
-          disabled
+          onClick={() => {
+            const farcasterConnector = connectors.find(c => c.id === 'farcaster')
+            if (farcasterConnector) {
+              connect({ connector: farcasterConnector })
+            }
+          }}
           className={cn(
-            "bg-pink-500/50",
+            "bg-pink-500 hover:bg-pink-600",
             "text-white",
             "flex items-center gap-2"
           )}
         >
-          <Wallet className="h-4 w-4 animate-pulse" />
-          Connecting...
+          <Wallet className="h-4 w-4" />
+          Connect Wallet
         </Button>
         {error && (
           <p className="text-sm text-red-500 animate-fade-in">

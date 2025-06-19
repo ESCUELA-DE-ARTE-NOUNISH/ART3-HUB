@@ -5,7 +5,7 @@ import { Home, Search, Grid3X3, User, Image, Bot } from "lucide-react"
 import { usePathname, useParams, useRouter } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import { useAccount, useConnect } from 'wagmi'
-import { usePrivy, useWallets } from '@privy-io/react-auth'
+import { useSafePrivy, useSafeWallets } from '@/hooks/useSafePrivy'
 import { useMiniKit } from '@coinbase/onchainkit/minikit'
 import { useToast } from '@/hooks/use-toast'
 import { useState } from 'react'
@@ -33,24 +33,9 @@ export default function Navigation() {
   const { connect, connectors } = useConnect()
   const { context } = useMiniKit()
 
-  // Privy hooks (safe to call even without provider)
-  const privyHooks = (() => {
-    try {
-      return usePrivy()
-    } catch {
-      return { authenticated: false, login: () => {} }
-    }
-  })()
-  const { authenticated, login } = privyHooks
-
-  const walletsHooks = (() => {
-    try {
-      return useWallets()
-    } catch {
-      return { wallets: [] }
-    }
-  })()
-  const { wallets } = walletsHooks
+  // Safe Privy hooks that handle MiniKit mode
+  const { authenticated, login } = useSafePrivy()
+  const { wallets } = useSafeWallets()
 
   // Determine if user is actually connected based on environment
   const isActuallyConnected = (() => {
