@@ -71,7 +71,7 @@ export function PrivyAppProvider({ children }: PrivyAppProviderProps) {
             accentColor: '#ec4899', // Pink color to match your theme
             logo: process.env.NEXT_PUBLIC_IMAGE_URL || '',
           },
-          loginMethods: ['email', 'google', 'twitter', 'discord', 'github', 'wallet'],
+          loginMethods: ['email', 'google', 'instagram', 'twitter', 'wallet'],
           defaultChain: targetChain,
           supportedChains: [base, baseSepolia],
           embeddedWallets: {
