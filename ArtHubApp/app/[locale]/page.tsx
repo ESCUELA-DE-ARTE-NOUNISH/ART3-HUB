@@ -218,18 +218,18 @@ export default function Home() {
   }
 
   // Handle My NFTs button click with wallet connection check
-  const handleMyNftsClick = (e: React.MouseEvent) => {
-    e.preventDefault()
+  // const handleMyNftsClick = (e: React.MouseEvent) => {
+  //   e.preventDefault()
     
-    if (!isActuallyConnected) {
-      // Show alert dialog that wallet connection is required
-      setShowWalletAlert(true)
-      return
-    }
+  //   if (!isActuallyConnected) {
+  //     // Show alert dialog that wallet connection is required
+  //     setShowWalletAlert(true)
+  //     return
+  //   }
     
-    // If connected, navigate to my-nfts page
-    router.push(`/${locale}/my-nfts`)
-  }
+  //   // If connected, navigate to my-nfts page
+  //   router.push(`/${locale}/my-nfts`)
+  // }
 
   // Handle wallet connection from the alert dialog
   const handleWalletConnect = async () => {
@@ -296,7 +296,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-4 py-2">
+    <div className="flex flex-col items-center justify-center w-full max-w-3xl mx-auto px-4 py-2">
       <header className="text-center mt-2">
         <div className="flex items-center justify-center my-1 md:my-2 lg:my-8">
           <Image
@@ -306,22 +306,7 @@ export default function Home() {
             height={110}
             className="rounded-sm w-16 h-16 md:w-32 md:h-32 lg:w-40 lg:h-40"
           />
-          {/* <Image
-            src="/images/esnounish.png"
-            alt="Escuela de Arte Nounish Logo"
-            width={160}
-            height={160}
-            className="rounded-sm"
-          /> */}
         </div>
-        {/*
-        <h1 className="text-4xl font-bold text-pink-500">
-          {messages.title}
-        </h1>
-        */}
-        {/* <p className=" text-xl text-gray-600">
-          <strong>{messages.subtitle}</strong>
-        </p> */}
       </header>
 
       {/* Hero Section */}
@@ -381,33 +366,12 @@ export default function Home() {
                 </Button>
               </form>
             </div>
+
           </div>
         </div>
       </div>
 
       <div className="w-full space-y-6">
-        {/* AI Education Agent */}
-        {/* <div className="border border-lime-300 rounded-lg p-6 bg-white shadow-sm">
-          <h2 className="text-xl font-semibold text-lime-500">{messages.aiAgent.title}</h2>
-          <p className="mt-2 text-gray-600">{messages.aiAgent.description}</p>
-          <Link href={`/${locale}/ai-agent`}>
-            <Button className="mt-4 w-full bg-lime-500 hover:bg-lime-600 text-white">
-              {messages.aiAgent.button}
-            </Button>
-          </Link>
-        </div> */}
-
-        {/* Create & Mint NFTs */}
-        {/* <div className="border border-pink-300 rounded-lg p-6 bg-white shadow-sm">
-          <h2 className="text-xl font-semibold text-pink-500">{messages.createNft.title}</h2>
-          <p className="mt-2 text-gray-600">{messages.createNft.description}</p>
-          <Button 
-            className="mt-4 w-full bg-pink-500 hover:bg-pink-600 text-white"
-            onClick={handleCreateNftClick}
-          >
-            {messages.createNft.button}
-          </Button>
-        </div> */}
 
         {/* Manage Wallet */}
         {/* <div className="border border-pink-300 rounded-lg p-6 bg-white shadow-sm">
@@ -419,18 +383,7 @@ export default function Home() {
             </Button>
           </Link>
         </div> */}
-
-        {/* My NFTs */}
-        {/* <div className="border border-lime-300 rounded-lg p-6 bg-white shadow-sm">
-          <h2 className="text-xl font-semibold text-lime-500">{messages.myNfts.title}</h2>
-          <p className="mt-2 text-gray-600">{messages.myNfts.description}</p>
-          <Button 
-            className="mt-4 w-full bg-lime-500 hover:bg-lime-600 text-white"
-            onClick={handleMyNftsClick}
-          >
-            {messages.myNfts.button}
-          </Button>
-        </div> */}
+        
       </div>
 
 
@@ -440,19 +393,21 @@ export default function Home() {
         <p>{messages.footer.built}</p>
       </footer>
 
-      {/* Floating Create NFT Button */}
-      <div className="fixed bottom-[72px] right-2 z-50">
-        <Button
-          onClick={handleCreateNftClick}
-          className="w-16 h-16 rounded-full bg-gradient-to-r from-pink-500 to-lime-500 hover:from-pink-600 hover:to-lime-600 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 flex flex-col items-center justify-center gap-1 group"
-          aria-label="Create NFT"
-        >
-          <Camera size={24} className="group-hover:scale-90 transition-transform duration-200" />
-          <span className="font-semibold text-xs">
-          {messages.createNft.button}
-          </span>
-        </Button>
-      </div>
+      {/* Floating Create NFT Button - Only show when wallet is connected */}
+      {isActuallyConnected && (
+        <div className="fixed bottom-[72px] right-2 z-50">
+          <Button
+            onClick={handleCreateNftClick}
+            className="w-16 h-16 rounded-full bg-gradient-to-r from-pink-500 to-lime-500 hover:from-pink-600 hover:to-lime-600 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 flex flex-col items-center justify-center gap-1 group"
+            aria-label="Create NFT"
+          >
+            <Camera size={24} className="group-hover:scale-90 transition-transform duration-200" />
+            <span className="font-semibold text-xs">
+            {messages.createNft.button}
+            </span>
+          </Button>
+        </div>
+      )}
 
       {/* Wallet Connection Required Alert Dialog */}
       <AlertDialog open={showWalletAlert} onOpenChange={setShowWalletAlert}>
