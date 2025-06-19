@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useAccount, useConnect, useDisconnect, useChainId, useSwitchChain } from 'wagmi'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
+import { defaultLocale } from '@/config/i18n'
 import { Button } from "@/components/ui/button"
 import { Wallet, LogOut, ChevronDown, SwitchCamera, User, CheckCircle, XCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -23,6 +24,17 @@ export function ConnectMenu() {
   const { isConnected, address } = useAccount()
   const { connect, connectors } = useConnect()
   const { disconnect } = useDisconnect()
+  const params = useParams()
+  const locale = (params?.locale as string) || defaultLocale
+  
+  // Translation messages for join button
+  const joinMessages = {
+    joinNow: locale === 'es' ? 'Únete Ahora' :
+             locale === 'pt' ? 'Juntar-se Agora' :
+             locale === 'fr' ? 'Rejoindre Maintenant' :
+             'Join Now',
+  }
+  
   const chainId = useChainId()
   const { switchChain, isPending: isSwitchPending } = useSwitchChain()
   const [isWrongNetwork, setIsWrongNetwork] = useState(false)
@@ -270,7 +282,7 @@ export function ConnectMenu() {
           )}
         >
           <User className="h-4 w-4" />
-          Join Now
+          {joinMessages.joinNow}
         </Button>
         {error && (
           <p className="text-sm text-red-500 animate-fade-in">
@@ -295,7 +307,7 @@ export function ConnectMenu() {
           )}
         >
           <User className="h-4 w-4" />
-          Join
+          {joinMessages.joinNow}
         </Button>
         {error && (
           <p className="text-sm text-red-500 animate-fade-in">

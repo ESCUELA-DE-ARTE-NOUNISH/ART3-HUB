@@ -120,6 +120,7 @@ export default function Home() {
       communityDesc: "Connect with collectors worldwide",
       explore: "Explore Opportunities",
       chatPlaceholder: "Ask to explore opportunities, create an NFT, or discover new paths for your art...",
+      chatPlaceholderDisconnected: "Join Art3 Hub to discover opportunities for your art and unlock creative possibilities...",
       chatSubmitted: "Question submitted!",
       redirectingToAgent: "Redirecting to Art3 Hub assistant..."
     },
@@ -276,7 +277,7 @@ export default function Home() {
   // Handle chat submission
   const handleChatSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!chatInput.trim()) return
+    if (!chatInput.trim() || !isActuallyConnected) return
     
     // Store the input value before clearing
     const queryText = chatInput.trim()
@@ -346,20 +347,23 @@ export default function Home() {
             <div className="w-full max-w-2xl">
               <form onSubmit={handleChatSubmit} className="relative">
                 <Textarea
-                  placeholder={messages.unlock.chatPlaceholder}
+                  placeholder={isActuallyConnected ? messages.unlock.chatPlaceholder : messages.unlock.chatPlaceholderDisconnected}
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   className="w-full min-h-[120px] px-4 py-3 pr-14 rounded-2xl border border-gray-200 focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition-all duration-200 resize-none text-base leading-relaxed"
+                  disabled={!isActuallyConnected}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault()
-                      handleChatSubmit(e)
+                      if (isActuallyConnected) {
+                        handleChatSubmit(e)
+                      }
                     }
                   }}
                 />
                 <Button
                   type="submit"
-                  disabled={!chatInput.trim()}
+                  disabled={!chatInput.trim() || !isActuallyConnected}
                   className="absolute bottom-3 right-3 bg-gradient-to-r from-pink-500 to-lime-500 hover:from-pink-600 hover:to-lime-600 text-white w-10 h-10 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center"
                 >
                   <Send size={16} />
