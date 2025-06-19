@@ -64,5 +64,293 @@
       "connectionFailed": "Login Failed",
       "connectionFailedDescription": "Failed to join. Please try again."
     }
+  },
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated",
+    "backButton": "Back to Art3 Hub",
+    "loading": "Loading Privacy Policy...",
+    "sections": {
+      "introduction": {
+        "title": "1. Introduction",
+        "content1": "Welcome to Art3 Hub, a digital art platform designed to onboard visual artists into the world of digital creativity and NFTs. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform.",
+        "content2": "Art3 Hub is operated by Escuela de Arte Nounish, a decentralized art school focused on teaching art and digital creativity to students and artists worldwide, with a special focus on the LATAM community."
+      },
+      "informationCollected": {
+        "title": "2. Information We Collect",
+        "personalInfo": {
+          "title": "2.1 Personal Information",
+          "items": [
+            "Email addresses when you create an account",
+            "Social media account information (Google, Instagram, Twitter) when you choose to connect them",
+            "Profile information you provide (name, bio, profile picture)",
+            "Wallet addresses when you connect your digital wallet"
+          ]
+        },
+        "digitalArt": {
+          "title": "2.2 Digital Art and NFT Data",
+          "items": [
+            "Artwork files you upload to create NFTs",
+            "NFT metadata and collection information",
+            "Transaction history related to NFT creation and minting",
+            "Blockchain transaction data (publicly available on Base, Celo, and Zora networks)"
+          ]
+        },
+        "usageInfo": {
+          "title": "2.3 Usage Information",
+          "items": [
+            "Platform usage analytics and interaction data",
+            "Chat conversations with our educational assistant",
+            "Learning progress and achievement data",
+            "Device information and browser type"
+          ]
+        }
+      },
+      "howWeUse": {
+        "title": "3. How We Use Your Information",
+        "items": [
+          "To provide and maintain the Art3 Hub platform and services",
+          "To enable NFT creation, minting, and management functionality",
+          "To provide educational content and personalized learning experiences",
+          "To facilitate communication through our educational assistant",
+          "To connect you with opportunities in the digital art space",
+          "To improve our platform and develop new features",
+          "To ensure platform security and prevent fraud",
+          "To comply with legal obligations and blockchain requirements"
+        ]
+      },
+      "blockchain": {
+        "title": "4. Blockchain and Web3 Considerations",
+        "content": "Art3 Hub operates on blockchain networks including Base, Celo, and Zora. Important considerations:",
+        "items": [
+          "Blockchain transactions are public and immutable by design",
+          "Your wallet address and NFT ownership are publicly visible on the blockchain",
+          "We cannot delete or modify information stored on the blockchain",
+          "Smart contract interactions may be visible to others",
+          "Gas fees and transaction costs are handled by the respective blockchain networks"
+        ]
+      },
+      "sharing": {
+        "title": "5. Information Sharing",
+        "content": "We may share your information in the following circumstances:",
+        "items": [
+          "<strong>Public Blockchain Data:</strong> NFT and transaction data is publicly available on blockchain networks",
+          "<strong>Service Providers:</strong> With trusted third-party services including Privy (authentication), Pinata (IPFS storage), and blockchain infrastructure providers",
+          "<strong>Legal Requirements:</strong> When required by law or to protect our rights and safety",
+          "<strong>Business Transfers:</strong> In connection with mergers, acquisitions, or asset sales",
+          "<strong>Educational Partners:</strong> Anonymized data with educational institutions and the Nounish Art School network"
+        ]
+      },
+      "thirdParty": {
+        "title": "6. Third-Party Services",
+        "content": "Art3 Hub integrates with several third-party services:",
+        "items": [
+          "<strong>Privy:</strong> For secure authentication and wallet connection",
+          "<strong>Pinata:</strong> For IPFS storage of NFT metadata and artwork",
+          "<strong>Blockchain Networks:</strong> Base, Celo, and Zora for NFT minting and transactions",
+          "<strong>Social Media Platforms:</strong> Google, Instagram, Twitter for social login",
+          "<strong>Analytics Services:</strong> For platform improvement and usage insights"
+        ],
+        "note": "Each third-party service has its own privacy policy. We encourage you to review their policies."
+      },
+      "security": {
+        "title": "7. Data Security",
+        "content": "We implement appropriate security measures to protect your information:",
+        "items": [
+          "Encryption of data in transit and at rest",
+          "Secure authentication through Privy",
+          "Regular security audits and updates",
+          "Limited access to personal information",
+          "Secure cloud infrastructure"
+        ],
+        "disclaimer": "However, no method of transmission over the internet or electronic storage is 100% secure. We cannot guarantee absolute security."
+      },
+      "rights": {
+        "title": "8. Your Rights and Choices",
+        "items": [
+          "<strong>Access:</strong> Request access to your personal information",
+          "<strong>Correction:</strong> Request correction of inaccurate information",
+          "<strong>Deletion:</strong> Request deletion of your account and associated data (note: blockchain data cannot be deleted)",
+          "<strong>Portability:</strong> Request export of your data",
+          "<strong>Withdrawal:</strong> Withdraw consent for certain data processing activities",
+          "<strong>Account Control:</strong> Disconnect social media accounts and wallets"
+        ]
+      },
+      "children": {
+        "title": "9. Children's Privacy",
+        "content": "Art3 Hub is designed for users 17 years and older. We do not knowingly collect personal information from children under 17. If we learn that we have collected information from a child under 17, we will take steps to delete such information promptly."
+      },
+      "international": {
+        "title": "10. International Data Transfers",
+        "content": "Art3 Hub serves users globally, with a focus on the LATAM community. Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place for such transfers."
+      },
+      "changes": {
+        "title": "11. Changes to This Privacy Policy",
+        "content": "We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the \"Last updated\" date. You are advised to review this Privacy Policy periodically for any changes."
+      },
+      "contact": {
+        "title": "12. Contact Us",
+        "content": "If you have any questions about this Privacy Policy or our data practices, please contact us:",
+        "companyName": "Art3 Hub",
+        "organizationName": "Escuela de Arte Nounish",
+        "email": "Email: privacy@art3hub.com",
+        "tagline": "Built with ❤️ from LATAM",
+        "termsReference": "For information about platform usage and user obligations, please also review our",
+        "termsLink": "Terms of Service"
+      }
+    },
+    "footer": "This Privacy Policy is effective as of {date} and applies to all users of the Art3 Hub platform."
+  },
+  "termsOfService": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated",
+    "backButton": "Back to Art3 Hub",
+    "loading": "Loading Terms of Service...",
+    "sections": {
+      "introduction": {
+        "title": "1. Introduction and Acceptance",
+        "content1": "Welcome to Art3 Hub, a digital art platform designed to onboard visual artists into the world of digital creativity and NFTs. These Terms of Service (\"Terms\") govern your use of the Art3 Hub platform and services.",
+        "content2": "By accessing or using Art3 Hub, you agree to be bound by these Terms. If you do not agree to these Terms, please do not use our platform. Art3 Hub is operated by Escuela de Arte Nounish, a decentralized art school focused on teaching art and digital creativity to students and artists worldwide, with a special focus on the LATAM community."
+      },
+      "services": {
+        "title": "2. Platform Services",
+        "art3HubServices": {
+          "title": "2.1 Art3 Hub Services",
+          "items": [
+            "Digital art creation and editing tools",
+            "NFT minting and management on Base, Celo, and Zora networks",
+            "Educational content and tutorials for digital art and blockchain technology",
+            "Community features and artist networking",
+            "AI-powered educational assistant and chat support"
+          ]
+        },
+        "thirdParty": {
+          "title": "2.2 Third-Party Integrations",
+          "items": [
+            "Wallet connection services through Privy",
+            "IPFS storage services through Pinata",
+            "Social media authentication (Google, Instagram, Twitter)",
+            "Blockchain networks and smart contract interactions"
+          ]
+        }
+      },
+      "accounts": {
+        "title": "3. User Accounts and Eligibility",
+        "items": [
+          "You must be at least 17 years old to use Art3 Hub",
+          "You must provide accurate and complete information when creating your account",
+          "You are responsible for maintaining the security of your account credentials",
+          "You may connect external wallets and social media accounts at your discretion",
+          "One person may not maintain multiple accounts",
+          "You are responsible for all activities that occur under your account"
+        ]
+      },
+      "intellectualProperty": {
+        "title": "4. Intellectual Property and Content",
+        "yourContent": {
+          "title": "4.1 Your Content",
+          "items": [
+            "You retain ownership of all artwork and content you create on Art3 Hub",
+            "You grant us a license to display, store, and distribute your content on our platform",
+            "You represent that you own or have the right to use all content you upload",
+            "You are responsible for ensuring your content does not infringe on others' rights"
+          ]
+        },
+        "platformContent": {
+          "title": "4.2 Platform Content",
+          "items": [
+            "Art3 Hub's software, design, and educational content are our intellectual property",
+            "You may not copy, modify, or redistribute our platform without permission",
+            "Educational materials are provided for personal learning purposes"
+          ]
+        }
+      },
+      "nfts": {
+        "title": "5. NFTs and Blockchain Interactions",
+        "content": "Art3 Hub facilitates NFT creation and blockchain interactions. Important considerations:",
+        "items": [
+          "All blockchain transactions are final and irreversible",
+          "You are responsible for gas fees and transaction costs",
+          "NFT ownership is determined by blockchain records, not our platform",
+          "We do not guarantee the value or marketability of any NFTs",
+          "Blockchain networks may experience downtime or technical issues",
+          "Smart contract interactions carry inherent risks"
+        ]
+      },
+      "prohibited": {
+        "title": "6. Prohibited Uses",
+        "content": "You agree not to use Art3 Hub for:",
+        "items": [
+          "Illegal activities or violation of applicable laws",
+          "Harassment, abuse, or harmful conduct toward other users",
+          "Uploading content that infringes intellectual property rights",
+          "Creating or distributing malicious software or spam",
+          "Attempting to gain unauthorized access to our systems",
+          "Manipulating or gaming our platform features",
+          "Commercial use without our explicit permission",
+          "Creating content that is hateful, discriminatory, or offensive"
+        ]
+      },
+      "availability": {
+        "title": "7. Platform Availability and Modifications",
+        "items": [
+          "We strive to maintain platform availability but do not guarantee 100% uptime",
+          "We may modify, suspend, or discontinue services at any time",
+          "We may update these Terms and will notify you of significant changes",
+          "Continued use after changes constitutes acceptance of new Terms",
+          "We may implement new features or remove existing ones"
+        ]
+      },
+      "privacy": {
+        "title": "8. Privacy and Data Protection",
+        "content": "Your privacy is important to us. Our collection and use of personal information is governed by our",
+        "privacyLink": "Privacy Policy",
+        "content2": ", which is incorporated into these Terms by reference. By using Art3 Hub, you also agree to our Privacy Policy."
+      },
+      "disclaimers": {
+        "title": "9. Disclaimers and Limitation of Liability",
+        "serviceDisclaimers": {
+          "title": "9.1 Service Disclaimers",
+          "items": [
+            "Art3 Hub is provided \"as is\" without warranties of any kind",
+            "We do not guarantee the accuracy, completeness, or usefulness of our services",
+            "Educational content is for informational purposes only",
+            "We are not responsible for blockchain network performance or fees"
+          ]
+        },
+        "limitation": {
+          "title": "9.2 Limitation of Liability",
+          "content": "To the maximum extent permitted by law, Art3 Hub and Escuela de Arte Nounish shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, or other intangible losses resulting from your use of our platform."
+        }
+      },
+      "indemnification": {
+        "title": "10. Indemnification",
+        "content": "You agree to indemnify and hold harmless Art3 Hub, Escuela de Arte Nounish, and our affiliates from any claims, damages, losses, or expenses (including legal fees) arising from your use of our platform, your content, or your violation of these Terms."
+      },
+      "termination": {
+        "title": "11. Termination",
+        "items": [
+          "You may terminate your account at any time by contacting us",
+          "We may suspend or terminate your account for violation of these Terms",
+          "Upon termination, your right to use Art3 Hub ceases immediately",
+          "We may retain certain information as required by law or for legitimate business purposes",
+          "Blockchain-stored data cannot be deleted and will remain permanently recorded"
+        ]
+      },
+      "governingLaw": {
+        "title": "12. Governing Law and Dispute Resolution",
+        "content1": "These Terms are governed by applicable international law and the laws of the jurisdictions where Escuela de Arte Nounish operates, with a focus on LATAM legal frameworks.",
+        "content2": "Any disputes arising from these Terms or your use of Art3 Hub will be resolved through good faith negotiation. If negotiation fails, disputes may be resolved through binding arbitration or in competent courts."
+      },
+      "contact": {
+        "title": "13. Contact Information",
+        "content": "If you have any questions about these Terms of Service, please contact us:",
+        "companyName": "Art3 Hub",
+        "organizationName": "Escuela de Arte Nounish",
+        "email": "Email: legal@art3hub.com",
+        "tagline": "Built with ❤️ from LATAM"
+      }
+    },
+    "footer": "These Terms of Service are effective as of {date} and apply to all users of the Art3 Hub platform."
   }
 } 
