@@ -130,6 +130,32 @@ export default function Navigation() {
     return `/${locale}${path}`
   }
 
+  // Function to get navigation item styles based on state
+  const getNavItemStyles = (path: string, requiresAuth: boolean = false) => {
+    const isCurrentlyActive = isActive(path)
+    const isDisabled = requiresAuth && !isActuallyConnected
+    
+    if (isDisabled) {
+      return {
+        icon: "text-gray-300",
+        text: "text-gray-300",
+        cursor: "cursor-not-allowed"
+      }
+    } else if (isCurrentlyActive) {
+      return {
+        icon: "text-[#FF69B4]",
+        text: "text-[#FF69B4] font-medium",
+        cursor: "cursor-pointer"
+      }
+    } else {
+      return {
+        icon: "text-gray-500",
+        text: "text-gray-500",
+        cursor: "cursor-pointer"
+      }
+    }
+  }
+
   // Handle wallet connection from the alert dialog
   const handleWalletConnect = async () => {
     try {
@@ -202,26 +228,37 @@ export default function Navigation() {
             {labels.aiAgent}
           </span>
         </Link> */}
+
         <button 
-          onClick={() => handleProtectedNavigation("/my-nfts")} 
-          className="flex flex-col items-center px-1 py-1"
+          onClick={() => {
+            if (isActuallyConnected) {
+              handleProtectedNavigation("/my-nfts")
+            }
+          }} 
+          className={`flex flex-col items-center px-1 py-1 ${getNavItemStyles("/my-nfts", true).cursor}`}
+          disabled={!isActuallyConnected}
         >
-          <Image className={`h-5 w-5 ${isActive("/my-nfts") ? "text-[#FF69B4]" : "text-gray-500"}`} />
-          <span
-            className={`text-xs mt-1 ${isActive("/my-nfts") ? "text-[#FF69B4] font-medium" : "text-gray-500"}`}
-          >
+          <Image className={`h-5 w-5 ${getNavItemStyles("/my-nfts", true).icon}`} />
+          <span className={`text-xs mt-1 ${getNavItemStyles("/my-nfts", true).text}`}>
             {labels.myNfts}
           </span>
         </button>
+
         <button 
-          onClick={() => handleProtectedNavigation("/profile")} 
-          className="flex flex-col items-center px-1 py-1"
+          onClick={() => {
+            if (isActuallyConnected) {
+              handleProtectedNavigation("/profile")
+            }
+          }} 
+          className={`flex flex-col items-center px-1 py-1 ${getNavItemStyles("/profile", true).cursor}`}
+          disabled={!isActuallyConnected}
         >
-          <User className={`h-5 w-5 ${isActive("/profile") ? "text-[#FF69B4]" : "text-gray-500"}`} />
-          <span className={`text-xs mt-1 ${isActive("/profile") ? "text-[#FF69B4] font-medium" : "text-gray-500"}`}>
+          <User className={`h-5 w-5 ${getNavItemStyles("/profile", true).icon}`} />
+          <span className={`text-xs mt-1 ${getNavItemStyles("/profile", true).text}`}>
             {labels.profile}
           </span>
         </button>
+
       </div>
 
       {/* Wallet Connection Required Alert Dialog */}
