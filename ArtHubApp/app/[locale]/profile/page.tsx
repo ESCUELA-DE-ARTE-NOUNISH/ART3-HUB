@@ -389,7 +389,7 @@ export default function ProfilePage() {
       </div>
       
       {/* Tabs for NFTs and Achievements */}
-      <div className="container mx-auto px-4 mt-8">
+      {/* <div className="container mx-auto px-4 mt-8">
         <Tabs defaultValue="created">
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="created" className="flex items-center gap-1">
@@ -488,8 +488,10 @@ export default function ProfilePage() {
               </div>
             )}
           </TabsContent>
+
         </Tabs>
-      </div>
+      </div> */}
+
     </div>
   )
 } 
