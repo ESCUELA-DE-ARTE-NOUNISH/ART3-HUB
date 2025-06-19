@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Send, AlertCircle } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams, useRouter } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import Header from "@/components/header"
 
@@ -76,6 +76,8 @@ const headerTitle: Record<string, string> = {
 
 export default function AIAgent() {
   const params = useParams()
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const currentLocale = (params?.locale as string) || defaultLocale
   
   // Store messages with locale key to prevent cross-locale contamination
@@ -120,6 +122,72 @@ export default function AIAgent() {
       setUserId(newId)
     }
   }, [])
+
+  // Handle initial query parameter from landing page
+  useEffect(() => {
+    const query = searchParams.get('q')
+    if (query && userId && !isLoading) {
+      // Set the input and auto-submit the query
+      setInput(query)
+      
+      // Auto-submit after a brief delay to ensure everything is initialized
+      const timer = setTimeout(() => {
+        const userMessage = { role: "user" as const, content: query }
+        setMessages((prev) => [...prev, userMessage])
+        setInput("")
+        setIsLoading(true)
+        setError(null)
+
+        // Clear the URL parameter
+        const url = new URL(window.location.href)
+        url.searchParams.delete('q')
+        router.replace(url.pathname + url.search, { scroll: false })
+
+        // Submit to AI
+        fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: query,
+            userId: userId,
+            locale: currentLocale,
+          }),
+        })
+        .then(async (response) => {
+          const data = await response.json()
+          
+          // Handle rate limit response headers
+          if (data.rateLimitInfo) {
+            setRateLimitInfo(data.rateLimitInfo)
+          }
+          
+          // Handle error responses
+          if (!response.ok) {
+            if (response.status === 429) {
+              const rateLimitMessage = errorMessages[currentLocale]?.rateLimit || errorMessages[defaultLocale].rateLimit
+              setError(`${rateLimitMessage} ${Math.ceil((data.rateLimitInfo?.reset || 60) / 1000)} ${currentLocale === 'en' ? 'seconds' : currentLocale === 'es' ? 'segundos' : currentLocale === 'fr' ? 'secondes' : 'segundos'}.`)
+            } else {
+              setError(data.error || (errorMessages[currentLocale]?.generic || errorMessages[defaultLocale].generic))
+            }
+          } else {
+            // Add AI response to messages
+            setMessages((prev) => [...prev, { role: "assistant", content: data.response }])
+          }
+        })
+        .catch((error) => {
+          console.error("Error generating response:", error)
+          setError(errorMessages[currentLocale]?.connectionFailed || errorMessages[defaultLocale].connectionFailed)
+        })
+        .finally(() => {
+          setIsLoading(false)
+        })
+      }, 100)
+
+      return () => clearTimeout(timer)
+    }
+  }, [searchParams, userId, currentLocale, isLoading, router])
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
 

@@ -46,10 +46,12 @@
       "community": "Communauté Mondiale",
       "communityDesc": "Connectez-vous avec des collectionneurs du monde entier",
       "explore": "Explorer les Opportunités",
-      "chatPlaceholder": "Demandez à explorer les opportunités, créer un NFT, ou découvrir de nouveaux chemins pour votre art..."
+      "chatPlaceholder": "Demandez à explorer les opportunités, créer un NFT, ou découvrir de nouveaux chemins pour votre art...",
+      "chatSubmitted": "Question envoyée !",
+      "redirectingToAgent": "Redirection vers l'agent IA..."
     },
     "footer": {
-      "created": "Créé par Escuela de Arte Nourish",
+      "created": "Créé par Escuela de Arte Nounish",
       "built": "Construit avec ❤️ depuis l'Amérique Latine"
     },
     "walletRequired": {

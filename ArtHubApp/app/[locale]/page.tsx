@@ -119,10 +119,12 @@ export default function Home() {
       community: "Global Community",
       communityDesc: "Connect with collectors worldwide",
       explore: "Explore Opportunities",
-      chatPlaceholder: "Ask to explore opportunities, create an NFT, or discover new paths for your art..."
+      chatPlaceholder: "Ask to explore opportunities, create an NFT, or discover new paths for your art...",
+      chatSubmitted: "Question submitted!",
+      redirectingToAgent: "Redirecting to AI agent..."
     },
     footer: {
-      created: "Created by Escuela de Arte Nourish",
+      created: "Created by Escuela de Arte Nounish",
       built: "Built with ❤️ from LATAM"
     },
     walletRequired: {
@@ -276,9 +278,21 @@ export default function Home() {
     e.preventDefault()
     if (!chatInput.trim()) return
     
-    // For now, redirect to AI agent with the query
-    // In the future, this could handle the chat directly on this page
-    router.push(`/${locale}/ai-agent?q=${encodeURIComponent(chatInput)}`)
+    // Store the input value before clearing
+    const queryText = chatInput.trim()
+    
+    // Clear the input immediately for better UX
+    setChatInput('')
+    
+    // Show success feedback
+    toast({
+      title: messages.unlock.chatSubmitted,
+      description: messages.unlock.redirectingToAgent,
+      duration: 2000,
+    })
+    
+    // Navigate to AI agent with the query
+    router.push(`/${locale}/ai-agent?q=${encodeURIComponent(queryText)}`)
   }
 
   return (
