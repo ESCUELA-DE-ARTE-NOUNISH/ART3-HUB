@@ -76,7 +76,8 @@ export function ConnectMenu() {
       connected = isConnected
     } else if (hasPrivy) {
       // In browser with Privy, check Privy authentication
-      connected = authenticated && wallets.length > 0
+      // Fix: Check if user is authenticated, even without wallets (social login)
+      connected = authenticated
     } else {
       // Fallback to wagmi
       connected = isConnected
@@ -155,8 +156,9 @@ export function ConnectMenu() {
     userAddress = address || ""
   } else if (hasPrivy) {
     // In browser with Privy, use Privy's state
-    connected = authenticated && wallets.length > 0
-    userAddress = wallets[0]?.address || ""
+    // Fix: Check if user is authenticated, even without wallets (social login)
+    connected = authenticated
+    userAddress = wallets.length > 0 ? wallets[0]?.address || "" : ""
   } else {
     // Fallback to wagmi
     connected = isConnected
@@ -232,6 +234,12 @@ export function ConnectMenu() {
       
       if (!appId) {
         setError('Privy is not configured.')
+        return
+      }
+      
+      // Check if user is already authenticated to prevent "already logged in" error
+      if (authenticated) {
+        console.warn('User is already authenticated')
         return
       }
       
