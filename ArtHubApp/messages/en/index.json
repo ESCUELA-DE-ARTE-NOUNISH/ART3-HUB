@@ -47,6 +47,7 @@
       "communityDesc": "Connect with collectors worldwide",
       "explore": "Explore Opportunities",
       "chatPlaceholder": "Ask to explore opportunities, create an NFT, or discover new paths for your art...",
+      "chatPlaceholderDisconnected": "Join Art3 Hub to discover opportunities for your art and unlock creative possibilities...",
       "chatSubmitted": "Question submitted!",
       "redirectingToAgent": "Redirecting to Art3 Hub assistant..."
     },

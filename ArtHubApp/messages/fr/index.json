@@ -47,6 +47,7 @@
       "communityDesc": "Connectez-vous avec des collectionneurs du monde entier",
       "explore": "Explorer les Opportunités",
       "chatPlaceholder": "Demandez à explorer les opportunités, créer un NFT, ou découvrir de nouveaux chemins pour votre art...",
+      "chatPlaceholderDisconnected": "Rejoignez Art3 Hub pour découvrir des opportunités pour votre art et débloquer des possibilités créatives...",
       "chatSubmitted": "Question envoyée !",
       "redirectingToAgent": "Redirection vers l'assistant Art3 Hub..."
     },
