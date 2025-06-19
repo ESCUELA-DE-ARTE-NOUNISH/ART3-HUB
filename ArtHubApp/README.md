@@ -9,23 +9,27 @@ A modern, multi-platform Web3 NFT creation and marketplace platform built with N
 - **💎 Subscription-Based Minting**: Gasless NFT creation with tiered subscription plans
 - **🔍 NFT Discovery & Marketplace**: Explore, search, and discover NFTs with advanced filtering
 - **🎬 Branded Splash Screen**: Animated GIF intro with logo transition for premium app experience
-- **🌐 Multi-Network Support**: Base and Zora networks (mainnet + testnet)
+- **🌐 Multi-Network Support**: Base, Zora, and Celo networks (mainnet + testnet)
 - **📱 Multi-Platform**: Browser, mobile, and Farcaster frame compatibility
 - **🌍 Internationalization**: Support for English, Spanish, French, and Portuguese
 - **💎 IPFS Storage**: Decentralized file storage via Pinata integration
 - **🤖 AI Assistant**: Educational Web3 learning companion
 
 ### Smart Contract Integration
-- **Art3Hub Factory V2**: Gas-efficient NFT collection deployment with subscription-based minting
-- **Subscription Manager**: USDC-based monthly subscription plans for gasless NFT creation
+- **Art3Hub Factory V3**: Latest gas-efficient NFT collection deployment with built-in gasless functionality
+- **Art3Hub Subscription V3**: Enhanced USDC-based subscription plans with auto-enrollment
 - **ERC-2981 Royalties**: Automatic royalty enforcement on secondary sales
-- **OpenSea Compatible**: Full marketplace integration with gasless listings
-- **EIP-712 Meta-Transactions**: Gasless minting for premium subscribers
+- **OpenSea Compatible**: Full marketplace integration with enhanced metadata support
+- **EIP-712 Meta-Transactions**: Built-in gasless operations for all subscribers
+- **Multi-Chain Support**: Base, Zora, and Celo networks with unified experience
+- **Auto-Enrollment**: Seamless onboarding with automatic Free plan enrollment
 - **Real-time Fees**: Dynamic deployment fee fetching from contracts
 
 ### Subscription Plans
-- **Free Plan**: 1 NFT per year, standard gas fees
-- **Master Plan**: $4.99/month, 10 NFTs per month, gasless minting with meta-transactions
+- **Plan Gratuito (Free)**: 1 NFT per year, auto-enrollment, gasless creation
+- **Plan Master**: $4.99/month, 10 NFTs per month, gasless minting with meta-transactions
+- **Auto-Enrollment**: New users automatically enrolled in Free plan on first interaction
+- **USDC Payments**: Stable cross-chain subscription payments
 
 ## 🏗️ Architecture
 

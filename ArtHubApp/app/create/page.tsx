@@ -12,8 +12,7 @@ import { NetworkSelector } from "@/components/network-selector"
 import { ImagePlus, Loader2, ExternalLink, Crown, Gift, AlertCircle } from "lucide-react"
 import { useAccount, usePublicClient, useWalletClient } from "wagmi"
 import { IPFSService, type NFTMetadata } from "@/lib/services/ipfs-service"
-import { createArt3HubV2ServiceWithSubscription } from "@/lib/services/art3hub-v2-service"
-import { SubscriptionService, PlanType, type SubscriptionInfo } from "@/lib/services/subscription-service"
+import { createArt3HubV3ServiceWithUtils, type V3SubscriptionInfo } from "@/lib/services/art3hub-v3-service"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -34,8 +33,8 @@ function CreateNFT() {
   const [mintStatus, setMintStatus] = useState<string>('')
   const [transactionHash, setTransactionHash] = useState<string>('')
   
-  // Subscription state
-  const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null)
+  // Subscription state  
+  const [subscription, setSubscription] = useState<V3SubscriptionInfo | null>(null)
   const [loadingSubscription, setLoadingSubscription] = useState(false)
   const [needsSubscription, setNeedsSubscription] = useState(false)
   
@@ -58,13 +57,15 @@ function CreateNFT() {
       setLoadingSubscription(true)
       try {
         if (publicClient) {
-          const subscriptionService = new SubscriptionService(publicClient, walletClient, 84532) // Default to Base Sepolia for testing
-          const userSubscription = await subscriptionService.getUserSubscription(address)
+          const { getActiveNetwork } = await import('@/lib/networks')
+          const targetNetwork = getActiveNetwork(selectedNetwork, isTestingMode)
+          const { art3hubV3Service } = createArt3HubV3ServiceWithUtils(publicClient, walletClient, selectedNetwork, isTestingMode)
+          const userSubscription = await art3hubV3Service.getUserSubscription(address)
           setSubscription(userSubscription)
           setNeedsSubscription(!userSubscription.isActive)
         }
       } catch (error) {
-        console.error('Error loading subscription:', error)
+        console.error('Error loading V3 subscription:', error)
         setNeedsSubscription(true)
       } finally {
         setLoadingSubscription(false)
@@ -72,7 +73,7 @@ function CreateNFT() {
     }
 
     loadSubscription()
-  }, [isConnected, address, publicClient, walletClient])
+  }, [isConnected, address, publicClient, walletClient, selectedNetwork, isTestingMode])
   
   // Function to get block explorer URL
   const getBlockExplorerUrl = (txHash: string) => {
@@ -149,24 +150,24 @@ function CreateNFT() {
 
     setLoadingSubscription(true)
     try {
-      const subscriptionService = new SubscriptionService(publicClient, walletClient, 84532)
-      await subscriptionService.subscribeToFreePlan()
+      const { art3hubV3Service } = createArt3HubV3ServiceWithUtils(publicClient, walletClient, selectedNetwork, isTestingMode)
+      await art3hubV3Service.subscribeToFreePlan()
       
       toast({
-        title: "Subscription activated!",
-        description: "You now have access to create 1 NFT collection with gasless minting",
+        title: "V3 Subscription activated!",
+        description: "You now have access to create NFT collections with built-in gasless functionality",
       })
       
       // Reload subscription data
-      const userSubscription = await subscriptionService.getUserSubscription(address)
+      const userSubscription = await art3hubV3Service.getUserSubscription(address)
       setSubscription(userSubscription)
       setNeedsSubscription(false)
       
     } catch (error) {
-      console.error('Error subscribing to free plan:', error)
+      console.error('Error subscribing to V3 free plan:', error)
       toast({
-        title: "Subscription failed",
-        description: error instanceof Error ? error.message : "Failed to activate free plan",
+        title: "V3 Subscription failed",
+        description: error instanceof Error ? error.message : "Failed to activate V3 free plan",
         variant: "destructive",
       })
     } finally {
@@ -247,16 +248,17 @@ function CreateNFT() {
       
       // 3. Upload metadata to IPFS
       const metadataUpload = await IPFSService.uploadMetadata(metadata)
-      setMintStatus('Creating collection on blockchain...')
+      setMintStatus('Creating V3 collection on blockchain...')
       
-      // 4. Create Art3Hub V2 service and create collection + mint NFT
+      // 4. Create Art3Hub V3 service and create collection + mint NFT
       if (!walletClient) {
         throw new Error('Wallet client not available')
       }
       
-      console.log('📱 Using Art3Hub V2 service...')
+      console.log('📱 Using Art3Hub V3 service...')
       console.log('🏪 Selected network:', selectedNetwork)
       console.log('🧪 Testing mode:', isTestingMode)
+      console.log('🔧 V3 Service Debug: Creating V3 service instance...')
       
       // Check if wallet is on the correct network
       setMintStatus('Verifying network...')
@@ -282,11 +284,21 @@ function CreateNFT() {
         return
       }
       
-      setMintStatus('Creating NFT collection (no fees with subscription)...')
-      const { art3hubService } = createArt3HubV2ServiceWithSubscription(publicClient, walletClient, selectedNetwork, isTestingMode)
+      setMintStatus('Creating V3 NFT collection (built-in gasless)...')
+      console.log('🔧 V3 Service Debug: Calling createArt3HubV3ServiceWithUtils...')
+      console.log('🔧 V3 Environment Check:', {
+        factoryV3: process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V3_84532,
+        subscriptionV3: process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V3_84532
+      })
+      const { art3hubV3Service } = createArt3HubV3ServiceWithUtils(publicClient, walletClient, selectedNetwork, isTestingMode)
+      console.log('✅ V3 Service Debug: V3 service created successfully:', art3hubV3Service.constructor.name)
+      console.log('🔧 V3 Service Addresses:', {
+        factory: art3hubV3Service.factoryAddress,
+        subscription: art3hubV3Service.subscriptionAddress
+      })
       
-      // Create collection first
-      const collectionResult = await art3hubService.createCollection({
+      // Create V3 collection first
+      const collectionResult = await art3hubV3Service.createCollection({
         name: title,
         symbol: title.replace(/\s+/g, '').toUpperCase().substring(0, 6),
         description: description,
@@ -297,21 +309,42 @@ function CreateNFT() {
         royaltyBPS: Math.floor(parseFloat(royaltyPercentage) * 100), // Convert percentage to basis points
       })
       
-      setMintStatus('Minting NFT to collection...')
+      setMintStatus('Minting NFT to V3 collection...')
       
-      // Mint NFT to the newly created collection
-      const mintResult = await art3hubService.mintNFT({
+      // Mint NFT to the newly created V3 collection
+      const mintResult = await art3hubV3Service.mintNFT({
         collectionContract: collectionResult.contractAddress,
         recipient: address,
-        tokenURI: metadataUpload.ipfsUrl,
-        gasless: true
+        tokenURI: metadataUpload.ipfsUrl
       })
       
       setTransactionHash(mintResult.transactionHash)
-      setMintStatus('NFT created successfully with gasless transaction!')
+      setMintStatus('V3 NFT created successfully with built-in gasless transaction!')
       
-      // Store NFT data in database for gallery display
+      // Store V3 NFT data in database for gallery display
       try {
+        // First, store the collection
+        await fetch('/api/collections', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            wallet_address: address,
+            contract_address: collectionResult.contractAddress,
+            name: title,
+            symbol: title.replace(/\s+/g, '').toUpperCase().substring(0, 6),
+            description: description,
+            image: metadataUpload.ipfsUrl,
+            external_url: '',
+            royalty_recipient: address,
+            royalty_fee_numerator: Math.floor(parseFloat(royaltyPercentage) * 100),
+            network: `${selectedNetwork}${isTestingMode ? '-sepolia' : ''}`,
+            chain_id: targetNetwork.id,
+            factory_address: art3hubV3Service.factoryAddress,
+            transaction_hash: collectionResult.transactionHash
+          })
+        })
+        
+        // Then, store the NFT
         await fetch('/api/nfts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -321,27 +354,32 @@ function CreateNFT() {
             description: description,
             image_ipfs_hash: imageUpload.ipfsHash,
             metadata_ipfs_hash: metadataUpload.ipfsHash,
-            transaction_hash: mintResult.transactionHash,
             collection_address: collectionResult.contractAddress,
-            network: `${selectedNetwork} ${isTestingMode ? 'testnet' : 'mainnet'}`,
+            collection_name: title,
+            collection_symbol: title.replace(/\s+/g, '').toUpperCase().substring(0, 6),
+            transaction_hash: mintResult.transactionHash,
+            gasless_transaction_hash: mintResult.transactionHash,
+            network: `${selectedNetwork}${isTestingMode ? '-sepolia' : ''}`,
             chain_id: targetNetwork.id,
             royalty_percentage: parseFloat(royaltyPercentage),
-            mint_type: 'gasless',
-            subscription_plan_used: subscription.planName
+            contract_version: 'V3',
+            factory_address: art3hubV3Service.factoryAddress,
+            subscription_address: art3hubV3Service.subscriptionAddress,
+            mint_status: 'completed'
           })
         })
-        console.log('✅ NFT stored in database')
+        console.log('✅ V3 NFT and collection stored in database')
       } catch (error) {
-        console.error('Failed to store NFT in database:', error)
+        console.error('Failed to store V3 NFT in database:', error)
       }
       
-      // Refresh subscription data to show updated quota
+      // Refresh V3 subscription data to show updated quota
       try {
-        const subscriptionService = new SubscriptionService(publicClient, walletClient, targetNetwork.id)
-        const updatedSubscription = await subscriptionService.getUserSubscription(address)
+        const { art3hubV3Service: refreshService } = createArt3HubV3ServiceWithUtils(publicClient, walletClient, selectedNetwork, isTestingMode)
+        const updatedSubscription = await refreshService.getUserSubscription(address)
         setSubscription(updatedSubscription)
       } catch (error) {
-        console.warn('Failed to refresh subscription data:', error)
+        console.warn('Failed to refresh V3 subscription data:', error)
       }
       
     } catch (error) {
@@ -366,10 +404,10 @@ function CreateNFT() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               Create Your NFT 
-              <Badge variant="secondary">V2 - Subscription Based</Badge>
+              <Badge variant="secondary">V3 - Built-in Gasless</Badge>
             </CardTitle>
             <CardDescription>
-              Create gasless NFT collections with your subscription - no deployment fees required!
+              Create gasless NFT collections with V3 built-in functionality - auto-enrollment included!
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -391,7 +429,7 @@ function CreateNFT() {
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            {subscription.plan === PlanType.FREE ? (
+                            {subscription.plan === 'FREE' ? (
                               <Gift className="h-5 w-5 text-green-500" />
                             ) : (
                               <Crown className="h-5 w-5 text-yellow-500" />
@@ -421,7 +459,7 @@ function CreateNFT() {
                         
                         {subscription.expiresAt && (
                           <p className="text-sm text-muted-foreground">
-                            {subscription.plan === PlanType.MASTER ? 'Expires' : 'Active until'}: {subscription.expiresAt.toLocaleDateString()}
+                            {subscription.plan === 'MASTER' ? 'Expires' : 'Active until'}: {subscription.expiresAt.toLocaleDateString()}
                           </p>
                         )}
                       </div>
@@ -431,7 +469,7 @@ function CreateNFT() {
                         <AlertTitle>Subscription Required</AlertTitle>
                         <AlertDescription className="mt-2">
                           <p className="mb-3">
-                            Art3Hub V2 uses a subscription model. Get started with our free plan to create your first NFT collection with gasless minting!
+                            Art3Hub V3 features built-in gasless functionality with auto-enrollment. Get started with our free plan to create your first NFT collection!
                           </p>
                           <Button 
                             onClick={handleSubscribeToFreePlan}

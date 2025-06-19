@@ -27,7 +27,6 @@ contract Art3HubFactoryV3 is Ownable, ReentrancyGuard, EIP712 {
         uint96 royaltyFeeNumerator;
         uint256 nonce;
         uint256 deadline;
-        bytes signature;
     }
 
     struct MintVoucher {
@@ -36,7 +35,6 @@ contract Art3HubFactoryV3 is Ownable, ReentrancyGuard, EIP712 {
         string tokenURI;
         uint256 nonce;
         uint256 deadline;
-        bytes signature;
     }
 
     // Contract references
@@ -122,7 +120,7 @@ contract Art3HubFactoryV3 is Ownable, ReentrancyGuard, EIP712 {
     /**
      * @dev Create collection with gasless transaction (relayer pays gas)
      */
-    function createCollectionGasless(CollectionVoucher calldata voucher) external nonReentrant returns (address) {
+    function createCollectionGasless(CollectionVoucher calldata voucher, bytes calldata signature) external nonReentrant returns (address) {
         require(msg.sender == gaslessRelayer, "Unauthorized relayer");
         require(block.timestamp <= voucher.deadline, "Voucher expired");
         
@@ -142,14 +140,14 @@ contract Art3HubFactoryV3 is Ownable, ReentrancyGuard, EIP712 {
         ));
         
         bytes32 hash = _hashTypedDataV4(structHash);
-        address signer = hash.recover(voucher.signature);
+        address signer = hash.recover(signature);
         require(signer == voucher.artist, "Invalid signature");
         require(userNonces[voucher.artist] == voucher.nonce, "Invalid nonce");
         
         userNonces[voucher.artist]++;
         
-        // Check subscription (auto-enroll if needed)
-        if (!subscriptionManager.canUserMint(voucher.artist, 0)) {
+        // Check if user has active subscription, auto-enroll if needed
+        if (!subscriptionManager.isUserActive(voucher.artist)) {
             subscriptionManager.autoEnrollFreePlan(voucher.artist);
         }
         
@@ -230,7 +228,7 @@ contract Art3HubFactoryV3 is Ownable, ReentrancyGuard, EIP712 {
     /**
      * @dev Mint NFT with gasless transaction (relayer pays gas)
      */
-    function mintNFTGasless(MintVoucher calldata voucher) external nonReentrant {
+    function mintNFTGasless(MintVoucher calldata voucher, bytes calldata signature) external nonReentrant {
         require(msg.sender == gaslessRelayer, "Unauthorized relayer");
         require(block.timestamp <= voucher.deadline, "Voucher expired");
         require(isArt3HubCollection[voucher.collection], "Invalid collection");
@@ -246,14 +244,14 @@ contract Art3HubFactoryV3 is Ownable, ReentrancyGuard, EIP712 {
         ));
         
         bytes32 hash = _hashTypedDataV4(structHash);
-        address signer = hash.recover(voucher.signature);
+        address signer = hash.recover(signature);
         require(signer == voucher.to, "Invalid signature");
         require(userNonces[voucher.to] == voucher.nonce, "Invalid nonce");
         
         userNonces[voucher.to]++;
         
-        // Check subscription (auto-enroll if needed)
-        if (!subscriptionManager.canUserMint(voucher.to, 1)) {
+        // Check if user has active subscription, auto-enroll if needed
+        if (!subscriptionManager.isUserActive(voucher.to)) {
             subscriptionManager.autoEnrollFreePlan(voucher.to);
         }
         

@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Insert NFT record into database - handle missing columns gracefully
+    // Insert NFT record into database - start with basic columns only
     const insertData: any = {
       wallet_address: wallet_address.toLowerCase(),
       name,
@@ -37,29 +37,35 @@ export async function POST(request: NextRequest) {
       transaction_hash,
       network,
       royalty_percentage: parseFloat(royalty_percentage) || 0,
-      contract_address,
-      token_id,
       created_at: new Date().toISOString()
     }
 
-    // Try to add artist_name and category if they exist in the table
-    try {
-      // Test if the columns exist by attempting a select
-      const { error: testError } = await supabase
-        .from('nfts')
-        .select('artist_name, category')
-        .limit(1)
+    // Try to add optional columns if they exist in the table
+    const optionalFields = [
+      { name: 'artist_name', value: artist_name },
+      { name: 'category', value: category || 'Digital Art' },
+      { name: 'contract_address', value: contract_address },
+      { name: 'token_id', value: token_id }
+    ]
 
-      if (!testError) {
-        // Columns exist, add them to the insert data
-        insertData.artist_name = artist_name
-        insertData.category = category || 'Digital Art'
-        console.log('✅ Adding artist_name and category to NFT data')
-      } else {
-        console.log('⚠️ artist_name and category columns do not exist, skipping')
+    for (const field of optionalFields) {
+      try {
+        // Test if the column exists by attempting a select
+        const { error: testError } = await supabase
+          .from('nfts')
+          .select(field.name)
+          .limit(1)
+
+        if (!testError) {
+          // Column exists, add it to the insert data
+          insertData[field.name] = field.value
+          console.log(`✅ Adding ${field.name} to NFT data`)
+        } else {
+          console.log(`⚠️ ${field.name} column does not exist:`, testError.message)
+        }
+      } catch (e) {
+        console.log(`⚠️ Could not check for ${field.name} column:`, e)
       }
-    } catch (e) {
-      console.log('⚠️ Could not check for artist_name and category columns')
     }
 
     const { data, error } = await supabase

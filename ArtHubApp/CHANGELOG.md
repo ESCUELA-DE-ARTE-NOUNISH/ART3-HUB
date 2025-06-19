@@ -5,6 +5,40 @@ All notable changes to the Art3 Hub Frontend Application will be documented in t
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2025-06-19
+
+### 🔐 **Security Enhancement & V3 Integration Update**
+
+#### Latest Art3Hub V3 Contract Integration
+- **Updated Contract Addresses**: Integrated latest V3 contract deployments with enhanced security
+- **Celo Alfajores V3**: Updated to latest deployment (`0x48EEF5c0676cdf6322e668Fb9deAd8e93ff8bF36`)
+- **Zora Sepolia V3**: Updated to latest deployment (`0xb31e157f357e59c4D08a3e43CCC7d10859da829F`)
+- **Multi-Chain Sync**: All networks now running latest V3 implementations
+
+#### Environment Variable Security
+- **Secure Configuration**: Moved all sensitive data to environment variables
+- **API Key Management**: All API keys now properly managed via environment configuration
+- **Private Key Security**: Enhanced security for gasless relayer private keys
+- **Configuration Templates**: Created comprehensive `.env.example` with dummy values
+
+#### Enhanced V3 Features Integration
+- **Auto-Enrollment Support**: Frontend now supports automatic Free plan enrollment
+- **Enhanced Gasless Flow**: Improved gasless transaction handling with latest V3 contracts
+- **Multi-Chain USDC**: Updated USDC integration for all supported networks
+- **Contract Metadata**: Enhanced OpenSea integration with V3 contract metadata
+
+#### Developer Experience Improvements
+- **Secure Development**: All development configurations now use environment variables
+- **Documentation Updates**: Updated README with latest V3 integration details
+- **Configuration Management**: Improved environment variable management
+- **Security Best Practices**: Enhanced security documentation and practices
+
+#### Performance & Reliability
+- **Latest Contracts**: All services updated to use latest V3 contract deployments
+- **Enhanced Error Handling**: Improved error handling for V3 contract interactions
+- **Network Reliability**: Enhanced multi-chain support with latest contract addresses
+- **Testing Updates**: All testing configurations updated with new contract addresses
+
 ## [3.0.0] - 2025-06-17
 
 ### 🚀 V2 Subscription System & Gasless Minting

@@ -47,6 +47,7 @@ contract Art3HubSubscriptionV3 is Ownable, ReentrancyGuard, EIP712 {
     IERC20 public usdcToken;
     address public treasuryWallet;
     address public gaslessRelayer;
+    address public factoryContract;
 
     // Events
     event SubscriptionCreated(address indexed user, PlanType plan, uint256 expiresAt);
@@ -55,6 +56,7 @@ contract Art3HubSubscriptionV3 is Ownable, ReentrancyGuard, EIP712 {
     event NFTMinted(address indexed user, uint256 amount, uint256 remaining);
     event PaymentReceived(address indexed user, PlanType plan, uint256 amount);
     event GaslessRelayerUpdated(address indexed oldRelayer, address indexed newRelayer);
+    event FactoryContractUpdated(address indexed oldFactory, address indexed newFactory);
 
     // Custom errors
     error NoActiveSubscription();
@@ -68,11 +70,13 @@ contract Art3HubSubscriptionV3 is Ownable, ReentrancyGuard, EIP712 {
         address _usdcToken,
         address _treasuryWallet,
         address _gaslessRelayer,
+        address _factoryContract,
         address _initialOwner
     ) EIP712("Art3HubSubscriptionV3", "1") Ownable(_initialOwner) {
         usdcToken = IERC20(_usdcToken);
         treasuryWallet = _treasuryWallet;
         gaslessRelayer = _gaslessRelayer;
+        factoryContract = _factoryContract;
 
         // Configure plan defaults
         planPrices[PlanType.FREE] = 0;
@@ -91,7 +95,7 @@ contract Art3HubSubscriptionV3 is Ownable, ReentrancyGuard, EIP712 {
      * @dev Auto-enroll new users in Free plan (called on first interaction)
      */
     function autoEnrollFreePlan(address user) external {
-        require(msg.sender == gaslessRelayer || msg.sender == owner(), "Unauthorized");
+        require(msg.sender == gaslessRelayer || msg.sender == factoryContract || msg.sender == owner(), "Unauthorized");
         _autoEnrollFreePlan(user);
     }
 
@@ -156,6 +160,31 @@ contract Art3HubSubscriptionV3 is Ownable, ReentrancyGuard, EIP712 {
     }
 
     /**
+     * @dev Gasless subscription upgrade - relayer pays gas, user pays USDC
+     */
+    function subscribeToMasterPlanGasless(address user, bool autoRenew) external nonReentrant {
+        require(msg.sender == gaslessRelayer, "Only gasless relayer");
+        
+        uint256 price = planPrices[PlanType.MASTER];
+        
+        // Transfer USDC payment from user to treasury
+        require(usdcToken.transferFrom(user, treasuryWallet, price), "Payment failed");
+        
+        // Update or create subscription
+        subscriptions[user] = Subscription({
+            plan: PlanType.MASTER,
+            expiresAt: block.timestamp + 30 days, // 1 month
+            nftsMinted: 0,
+            nftLimit: planLimits[PlanType.MASTER],
+            isActive: true,
+            autoRenew: autoRenew
+        });
+        
+        emit SubscriptionCreated(user, PlanType.MASTER, subscriptions[user].expiresAt);
+        emit PaymentReceived(user, PlanType.MASTER, price);
+    }
+
+    /**
      * @dev Renew subscription (auto-renewal or manual)
      */
     function renewSubscription(address user) external nonReentrant {
@@ -180,7 +209,7 @@ contract Art3HubSubscriptionV3 is Ownable, ReentrancyGuard, EIP712 {
      * @dev Record NFT mint (called by factory/collection contracts)
      */
     function recordNFTMint(address user, uint256 amount) external {
-        require(msg.sender == gaslessRelayer || msg.sender == owner(), "Unauthorized");
+        require(msg.sender == gaslessRelayer || msg.sender == factoryContract || msg.sender == owner(), "Unauthorized");
         
         Subscription storage sub = subscriptions[user];
         
@@ -306,6 +335,13 @@ contract Art3HubSubscriptionV3 is Ownable, ReentrancyGuard, EIP712 {
     }
 
     /**
+     * @dev Check if user has an active subscription
+     */
+    function isUserActive(address user) external view returns (bool) {
+        return subscriptions[user].isActive;
+    }
+
+    /**
      * @dev Get user's nonce for gasless transactions
      */
     function getUserNonce(address user) external view returns (uint256) {
@@ -335,6 +371,15 @@ contract Art3HubSubscriptionV3 is Ownable, ReentrancyGuard, EIP712 {
         address oldRelayer = gaslessRelayer;
         gaslessRelayer = newRelayer;
         emit GaslessRelayerUpdated(oldRelayer, newRelayer);
+    }
+
+    /**
+     * @dev Update factory contract address
+     */
+    function updateFactoryContract(address newFactory) external onlyOwner {
+        address oldFactory = factoryContract;
+        factoryContract = newFactory;
+        emit FactoryContractUpdated(oldFactory, newFactory);
     }
 
     /**

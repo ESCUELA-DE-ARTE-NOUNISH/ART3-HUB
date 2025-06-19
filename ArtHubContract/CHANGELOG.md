@@ -5,6 +5,49 @@ All notable changes to the Art3 Hub smart contracts will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.2] - 2025-06-19
+
+### 🔐 **Security Enhancement & Environment Configuration**
+
+#### Security Hardening & Environment Variables
+- **Environment Variable Migration**: Moved all hardcoded addresses, private keys, and constants to environment variables
+- **Enhanced Security Configuration**: Updated deployment scripts to use environment-based configuration
+- **Secret Management**: Created comprehensive `.env.example` template with placeholder values
+- **Configuration Validation**: Added validation for required environment variables in deployment scripts
+
+#### Latest V3 Contract Deployments
+- **Celo Alfajores (44787)**: Fresh deployment with latest security enhancements
+  - **SubscriptionManager**: `0x48EEF5c0676cdf6322e668Fb9deAd8e93ff8bF36`
+  - **Factory**: `0x811634F4bB646D67a5a6A78ABC51BE3e414b326b`
+  - **Collection Implementation**: `0xae0549C75BBb60Fc7BB17Ed23bD93d5137718300`
+  - **Deployment Date**: June 19, 2025
+  - **Status**: ✅ **All contracts verified and tested**
+
+- **Zora Sepolia (999999999)**: Fresh deployment with latest security enhancements
+  - **SubscriptionManager**: `0xb31e157f357e59c4D08a3e43CCC7d10859da829F`
+  - **Factory**: `0x3A1Db96cD08077c73247EaafD7a9Cf961de5e87c`
+  - **Collection Implementation**: `0x3AF35D9a24A77acd8549A1Be712C676FE978eE24`
+  - **Deployment Date**: June 19, 2025
+  - **Status**: ✅ **All contracts deployed and tested**
+
+#### Environment-Based Security Improvements
+- **Private Key Security**: All private keys now properly managed via environment variables
+- **Address Configuration**: Network-specific addresses moved to environment configuration
+- **Test Configuration**: Test addresses and signatures properly externalized
+- **API Key Management**: All API keys and sensitive tokens moved to environment variables
+
+#### Developer Experience Improvements
+- **Secure Deployment**: All deployment scripts now validate environment configuration
+- **Configuration Templates**: Comprehensive `.env.example` files for easy setup
+- **Documentation Updates**: Updated README and deployment guides with security best practices
+- **Testing Scripts**: Enhanced test scripts with environment variable support
+
+#### Production Readiness
+- **Security Audit**: Complete audit of hardcoded values and security practices
+- **Environment Validation**: All scripts validate required environment variables before execution
+- **Configuration Management**: Proper separation of development, staging, and production configurations
+- **Documentation**: Updated deployment and security documentation
+
 ## [3.0.1] - 2025-06-17
 
 ### 🧪 **Comprehensive Multi-Chain Testing & Production Readiness**
