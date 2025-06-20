@@ -238,7 +238,7 @@ export default function OpportunitiesPage() {
                       </ul>
                     </div>
 
-                    <Link href="/ai-agent?topic=web3-communities">
+                    <Link href="/ai-agent/intelligent?topic=web3-communities">
                       <Button className="w-full bg-[#9ACD32] hover:bg-[#7CFC00]">
                         Learn More About Communities
                         <ArrowRight className="ml-2 h-4 w-4" />
@@ -339,7 +339,7 @@ export default function OpportunitiesPage() {
                       </ul>
                     </div>
 
-                    <Link href="/ai-agent?topic=web3-grants">
+                    <Link href="/ai-agent/intelligent?topic=web3-grants">
                       <Button className="w-full bg-[#FF69B4] hover:bg-[#FF1493]">
                         Get Grant Application Help
                         <ArrowRight className="ml-2 h-4 w-4" />
@@ -555,7 +555,7 @@ export default function OpportunitiesPage() {
                     </div>
                     <h4 className="font-semibold mb-2">Learn More</h4>
                     <p className="text-sm text-gray-600 mb-4">Ask our agent about Web3 opportunities</p>
-                    <Link href="/ai-agent?topic=web3-for-artists">
+                    <Link href="/ai-agent/intelligent?topic=web3-for-artists">
                       <Button variant="outline" size="sm" className="w-full">
                         Ask Agent
                       </Button>

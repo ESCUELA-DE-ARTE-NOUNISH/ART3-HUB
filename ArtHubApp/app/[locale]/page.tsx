@@ -292,8 +292,8 @@ export default function Home() {
       duration: 2000,
     })
     
-    // Navigate to AI agent with the query
-    router.push(`/${locale}/ai-agent?q=${encodeURIComponent(queryText)}`)
+    // Navigate to intelligent AI agent with the query
+    router.push(`/${locale}/ai-agent/intelligent?q=${encodeURIComponent(queryText)}`)
   }
 
   return (
