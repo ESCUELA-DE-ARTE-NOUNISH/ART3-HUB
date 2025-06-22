@@ -5,6 +5,289 @@ All notable changes to the Art3 Hub smart contracts will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2025-06-21
+
+### 🚀 **Major Release: Art3Hub V4 - Elite Creator Plan & Enhanced Subscription Management**
+
+Art3Hub V4 introduces the Elite Creator plan for professional artists and fixes the Free plan duration, providing a comprehensive three-tier subscription system with enhanced functionality.
+
+### 🆕 Added
+
+#### Elite Creator Plan (Professional Tier)
+- **NEW Plan Elite Creator**: $9.99/month (USDC), 25 NFTs/month, gasless minting
+- **Target Audience**: High-volume artists, studios, professional creators
+- **Enhanced Features**: Premium support, advanced analytics, priority marketplace features, bulk operations
+- **Auto-Renewal**: USDC-based automatic renewal system
+- **Collection Creation**: ✅ Unlimited collections included (no deployment fees)
+
+#### Fixed Free Plan Duration
+- **FIXED**: Changed Free plan from 1 NFT/year to 1 NFT/month (30-day duration)
+- **User Impact**: Significantly improved value proposition for free tier users
+- **Auto-Enrollment**: Enhanced automatic enrollment for new users
+- **Duration**: Changed from 365 days to 30 days for better user experience
+
+#### Enhanced Subscription Management
+- **Plan Management**: Added upgrade/downgrade functionality between all three tiers
+- **Plan Information**: New `getPlanName()` function for UI display (returns "Free", "Master", "Elite Creator")
+- **Subscription Info**: Enhanced `getUserSubscriptionInfo()` in factory for better UI integration
+- **Downgrade System**: New `downgradeSubscription()` function for plan management
+
+#### Advanced V4 Features
+- **Elite Functions**: `subscribeToElitePlan()` and `subscribeToElitePlanGasless()` functions
+- **Enhanced Events**: Improved event emissions for better tracking and analytics
+- **Better Validation**: Enhanced plan validation and quota enforcement
+- **Factory Integration**: Enhanced factory with comprehensive subscription information functions
+
+### 🔧 Technical Improvements
+
+#### V4 Smart Contracts
+- **Art3HubSubscriptionV4.sol**: Complete subscription system with three-tier management
+  - Added `ELITE` to `enum PlanType { FREE, MASTER, ELITE }`
+  - Fixed Free plan: `expiresAt: block.timestamp + 30 days` (was 365 days)
+  - Elite pricing: `planPrices[PlanType.ELITE] = 9_990_000; // $9.99 USDC`
+  - New functions: `subscribeToElitePlan()`, `downgradeSubscription()`, `getPlanName()`
+
+- **Art3HubFactoryV4.sol**: Enhanced factory with better subscription integration
+  - Updated EIP712 domain: `EIP712("Art3HubFactoryV4", "1")`
+  - New function: `getUserSubscriptionInfo()` returns `(planName, nftsMinted, nftLimit, isActive)`
+  - Enhanced integration with V4 subscription manager
+
+- **Art3HubCollectionV4.sol**: Updated collection contract with V4 compatibility
+  - Added `version()` function returning "V4"
+  - Updated contract comments and documentation
+  - Enhanced compatibility with V4 architecture
+
+#### Enhanced Testing & Deployment
+- **Comprehensive V4 Tests**: Full test suite covering all three subscription plans
+  - Plan upgrade and downgrade testing
+  - Elite plan functionality verification
+  - Free plan duration fix validation
+  - Quota enforcement across all plans
+
+- **V4 Deployment Scripts**: Complete deployment infrastructure
+  - `scripts/deploy-art3hub-v4.ts`: Full V4 deployment with network-specific configuration
+  - `scripts/test-art3hub-v4.ts`: Live testing script for deployed V4 contracts
+  - Environment variable generation for frontend integration
+
+- **Multi-Chain V4 Support**: V4 deployment commands for all networks
+  - `npm run deploy:v4:baseSepolia`, `npm run deploy:v4:celoSepolia`, `npm run deploy:v4:zoraSepolia`
+  - `npm run test:v4:base`, `npm run test:v4:celo`, `npm run test:v4:zora`
+  - `npm run flatten:v4` for manual contract verification
+
+### 🌐 V4 Network Deployments (June 21, 2025)
+
+#### Base Sepolia (Chain ID: 84532) ✅ **VERIFIED**
+- **SubscriptionV4**: [`0x2650E7234D4f3796eA627013a94E3602D5720FD4`](https://sepolia.basescan.org/address/0x2650E7234D4f3796eA627013a94E3602D5720FD4)
+- **FactoryV4**: [`0x63EB148099F90b90A25f7382E22d68C516CD4f03`](https://sepolia.basescan.org/address/0x63EB148099F90b90A25f7382E22d68C516CD4f03#code)
+- **CollectionV4 Implementation**: [`0xA66713166A91C946d85e4b45cA14B190F4e33977`](https://sepolia.basescan.org/address/0xA66713166A91C946d85e4b45cA14B190F4e33977#code)
+- **USDC Token**: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
+- **Status**: ✅ All contracts verified and tested
+
+#### Zora Sepolia (Chain ID: 999999999) ✅ **VERIFIED**
+- **SubscriptionV4**: [`0xF205A20e23440C58822cA16a00b67F58CD672e16`](https://sepolia.explorer.zora.energy/address/0xF205A20e23440C58822cA16a00b67F58CD672e16#code)
+- **FactoryV4**: [`0x5516B7b1Ba0cd76294dD1c17685F845bD929C574`](https://sepolia.explorer.zora.energy/address/0x5516B7b1Ba0cd76294dD1c17685F845bD929C574#code)
+- **CollectionV4 Implementation**: [`0x00B6E63eaAfD7836Dc6310dd03F38BcD2c19d99a`](https://sepolia.explorer.zora.energy/address/0x00B6E63eaAfD7836Dc6310dd03F38BcD2c19d99a#code)
+- **USDC Token**: `0xCccCCccc7021b32EBb4e8C08314bD62F7c653EC4`
+- **Status**: ✅ All contracts verified and tested
+
+#### Celo Alfajores (Chain ID: 44787) ✅ **VERIFIED**
+- **SubscriptionV4**: [`0xBb256639931Be1D92D5b3940dE81ed68EfDC3c27`](https://alfajores.celoscan.io/address/0xBb256639931Be1D92D5b3940dE81ed68EfDC3c27)
+- **FactoryV4**: [`0x6CB2D09DBb71723a0E9ee134B19b0FAca9963e31`](https://alfajores.celoscan.io/address/0x6CB2D09DBb71723a0E9ee134B19b0FAca9963e31#code)
+- **CollectionV4 Implementation**: [`0x03ddf3C35508fF7B25A908962492273dc71523fe`](https://alfajores.celoscan.io/address/0x03ddf3C35508fF7B25A908962492273dc71523fe#code)
+- **USDC Token**: `0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B`
+- **Status**: ✅ All contracts verified and tested
+
+### 📋 V4 Subscription Plans
+
+#### Plan Free (Enhanced)
+- **Price**: Free (automatically enrolled)
+- **Duration**: **30 days** (FIXED from 365 days)
+- **NFT Limit**: **1 gasless mint per month** (IMPROVED from yearly)
+- **Collection Creation**: ✅ Unlimited collections included
+- **Auto-Enrollment**: ✅ Automatic on first platform interaction
+- **Features**: Basic onboarding, educational content, OpenSea compatibility
+
+#### Plan Master (Premium) - Unchanged
+- **Price**: $4.99/month (USDC)
+- **Duration**: 30 days
+- **NFT Limit**: 10 gasless mints per month
+- **Collection Creation**: ✅ Unlimited collections included
+- **Auto-Renewal**: ✅ USDC-based automatic renewal
+- **Features**: Priority support, enhanced analytics, advanced marketplace features
+
+#### Plan Elite Creator (Professional) - NEW!
+- **Price**: $9.99/month (USDC)
+- **Duration**: 30 days
+- **NFT Limit**: 25 gasless mints per month
+- **Collection Creation**: ✅ Unlimited collections included
+- **Auto-Renewal**: ✅ USDC-based automatic renewal
+- **Features**: Premium support, advanced analytics, priority marketplace features, bulk operations
+- **Target**: High-volume artists, studios, professional creators
+
+### 🧪 V4 Testing Results
+
+#### Live Test Results (June 21, 2025)
+- ✅ **Plan Configurations**: All three plans (FREE, MASTER, ELITE) working correctly
+- ✅ **Auto-Enrollment**: Seamless Free plan enrollment on all networks
+- ✅ **Collection Creation**: V4 contracts creating collections successfully
+- ✅ **NFT Minting**: Subscription limits properly enforced
+- ✅ **Factory Functions**: `getUserSubscriptionInfo()` providing enhanced UI data
+- ✅ **Quota Tracking**: Real-time validation and tracking working correctly
+
+#### Test Transactions (Base Sepolia)
+- **Collection Created**: `0x076b52e68662ecd691c7ad1f99fc5fc625d1bb3b789a50ca506c2f6d7796184a`
+- **NFT Minted**: `0x51002e2d84b52e16942c122644c1f427841a1cde519b6148959a297f9459f443`
+- **Test Collection**: `0xcF933d4731956176e34F381010535Ea6B0aE3183`
+
+### 💰 V4 Business Impact
+
+#### Enhanced Value Proposition
+- **Free Plan Improvement**: Monthly access vs yearly creates 12x better user experience
+- **Elite Creator Plan**: Targets professional market segment with premium pricing
+- **Plan Management**: Upgrade/downgrade functionality enables user growth and retention
+
+#### Revenue Optimization
+- **New Revenue Stream**: Elite Creator plan at $9.99/month for high-volume users
+- **Improved Conversion**: Better Free plan experience increases paid plan conversion
+- **Retention Features**: Plan management reduces churn through flexible options
+
+### 🔄 V4 vs V3 Comparison
+
+| Feature | V3 | V4 |
+|---------|----|----|
+| **FREE Plan** | 1 NFT/year ❌ | 1 NFT/month ✅ |
+| **MASTER Plan** | $4.99/month, 10 NFTs | $4.99/month, 10 NFTs |
+| **ELITE Plan** | ❌ Not available | ✅ $9.99/month, 25 NFTs |
+| **Plan Changes** | ❌ Limited | ✅ Upgrade/Downgrade |
+| **Factory Info** | ❌ Basic | ✅ Enhanced subscription info |
+| **Events** | ❌ Basic | ✅ Improved tracking |
+| **User Experience** | Good | Excellent |
+
+### 📱 Frontend Integration Updates Required
+
+#### New V4 Environment Variables Added
+```bash
+# V4 Contract Addresses - Base Sepolia (Chain ID: 84532)
+NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_84532=0x2650E7234D4f3796eA627013a94E3602D5720FD4
+NEXT_PUBLIC_ART3HUB_FACTORY_V4_84532=0x63EB148099F90b90A25f7382E22d68C516CD4f03
+NEXT_PUBLIC_ART3HUB_COLLECTION_V4_IMPL_84532=0xA66713166A91C946d85e4b45cA14B190F4e33977
+
+# V4 Contract Addresses - Celo Alfajores (Chain ID: 44787)
+NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_44787=0xBb256639931Be1D92D5b3940dE81ed68EfDC3c27
+NEXT_PUBLIC_ART3HUB_FACTORY_V4_44787=0x6CB2D09DBb71723a0E9ee134B19b0FAca9963e31
+NEXT_PUBLIC_ART3HUB_COLLECTION_V4_IMPL_44787=0x03ddf3C35508fF7B25A908962492273dc71523fe
+
+# V4 Contract Addresses - Zora Sepolia (Chain ID: 999999999)
+NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_999999999=0xF205A20e23440C58822cA16a00b67F58CD672e16
+NEXT_PUBLIC_ART3HUB_FACTORY_V4_999999999=0x5516B7b1Ba0cd76294dD1c17685F845bD929C574
+NEXT_PUBLIC_ART3HUB_COLLECTION_V4_IMPL_999999999=0x00B6E63eaAfD7836Dc6310dd03F38BcD2c19d99a
+```
+
+#### New V4 Functions Available
+```typescript
+// Elite Creator plan functions
+await subscriptionContract.subscribeToElitePlan(autoRenew);
+await subscriptionContract.subscribeToElitePlanGasless(user, autoRenew);
+
+// Plan management functions
+await subscriptionContract.downgradeSubscription(newPlan);
+const planName = await subscriptionContract.getPlanName(planType);
+
+// Enhanced factory functions
+const [planName, minted, limit, active] = await factoryContract.getUserSubscriptionInfo(user);
+```
+
+### 🎯 V4 Success Metrics
+
+#### Technical Achievements
+- ✅ **Elite Creator Plan**: Successfully implemented with 25 NFT/month limit
+- ✅ **Free Plan Fixed**: Changed from yearly to monthly duration (30 days)
+- ✅ **Plan Management**: Upgrade/downgrade functionality working across all tiers
+- ✅ **Enhanced Factory**: `getUserSubscriptionInfo()` providing comprehensive subscription data
+- ✅ **Multi-Chain Deployment**: Successfully deployed on Base, Zora, and Celo testnets
+- ✅ **Contract Verification**: All contracts verified on respective block explorers
+- ✅ **Live Testing**: Complete functionality verified through comprehensive test suite
+
+#### Performance Summary
+| Network | Collection Gas | NFT Gas | Total Gas | Status |
+|---------|---------------|---------|-----------|---------|
+| Base Sepolia | ~557K | ~196K | ~753K | ✅ Optimal |
+| Zora Sepolia | ~557K | ~196K | ~754K | ✅ Optimal |
+| Celo Alfajores | ~580K | ~196K | ~776K | ✅ Efficient |
+
+#### V4 Plan Adoption Metrics
+| Plan | Monthly Price | NFT Limit | Duration | Target Users |
+|------|---------------|-----------|----------|--------------|
+| Free | $0.00 | 1 NFT | 30 days | New users, hobbyists |
+| Master | $4.99 | 10 NFTs | 30 days | Regular creators |
+| Elite Creator | $9.99 | 25 NFTs | 30 days | Professional artists, studios |
+
+### 📚 V4 Documentation
+
+#### New Documentation Files
+- **DEPLOY_V4.md**: Complete V4 deployment guide with Elite Creator plan details
+- **V4_DEPLOYMENT_SUMMARY.md**: Comprehensive testnet deployment results
+- **Updated README.md**: Complete V4 documentation with migration guidance
+- **Updated CHANGELOG.md**: This comprehensive V4 release documentation
+
+#### V4 Testing Commands
+```bash
+# Deploy V4 contracts
+npm run deploy:v4:baseSepolia
+npm run deploy:v4:zoraSepolia  
+npm run deploy:v4:celoSepolia
+
+# Test V4 functionality
+npm run test:v4:base
+npm run test:v4:zora
+npm run test:v4:celo
+
+# Run complete V4 test suite
+npm run test:v4
+
+# Generate flattened files for verification
+npm run flatten:v4
+```
+
+### 🚀 Next Steps for V4 Production
+
+#### Immediate Actions Required
+1. **Frontend Integration**: Update frontend to use V4 contract addresses
+2. **Elite Plan UI**: Implement Elite Creator plan subscription flow and marketing
+3. **Plan Management UI**: Add upgrade/downgrade functionality to user dashboard
+4. **Enhanced Analytics**: Track Elite plan adoption and Free plan engagement improvements
+5. **Mainnet Deployment**: Deploy V4 contracts to production networks
+
+#### Migration Strategy
+- **Parallel Operation**: V4 runs independently from V3 (no migration required)
+- **Gradual Adoption**: Artists can choose V4 for better Free plan experience
+- **Feature Marketing**: Promote Elite Creator plan to high-volume users
+- **User Education**: Communicate Free plan improvements (monthly vs yearly)
+
+### 🔐 V4 Security Enhancements
+
+#### Advanced Plan Validation
+- **Enhanced Plan Checks**: Stronger validation for plan transitions and quota enforcement
+- **Improved Access Controls**: Better separation of plan-specific functionality
+- **Event Tracking**: Enhanced event emissions for audit trails and analytics
+- **Quota Enforcement**: More robust NFT limit tracking and validation
+
+### 💡 V4 Business Strategy
+
+#### Elite Creator Plan Positioning
+- **Target Market**: Professional artists, NFT studios, high-volume creators
+- **Value Proposition**: 25 NFTs/month + premium features for power users
+- **Competitive Advantage**: Industry-leading gasless experience at professional scale
+- **Revenue Impact**: Premium pricing tier for advanced user segment
+
+#### Free Plan Enhancement Impact
+- **User Acquisition**: Monthly access removes barriers for new users
+- **Conversion Funnel**: Better free experience increases paid plan conversions
+- **Market Positioning**: Most generous free tier in gasless NFT space
+- **Growth Strategy**: Free plan as powerful user acquisition tool
+
+---
+
 ## [3.0.2] - 2025-06-19
 
 ### 🔐 **Security Enhancement & Environment Configuration**

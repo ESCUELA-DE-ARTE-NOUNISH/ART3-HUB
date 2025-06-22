@@ -1,10 +1,10 @@
-# Art3 Hub V3 Smart Contracts
+# Art3 Hub V4 Smart Contracts
 
-> **Advanced Gasless NFT Platform with Built-in Subscription Management**
+> **Advanced Gasless NFT Platform with Elite Creator Plan and Enhanced Subscription Management**
 
-Art3 Hub V3 is a next-generation decentralized NFT platform that provides a complete gasless experience with built-in subscription management, auto-enrollment, and multi-chain support designed for seamless Web3 onboarding.
+Art3 Hub V4 is a next-generation decentralized NFT platform that provides a complete gasless experience with three subscription tiers including the new Elite Creator plan, built-in subscription management, auto-enrollment, and multi-chain support designed for seamless Web3 onboarding.
 
-## 🚀 **Art3Hub V3 - Current Implementation**
+## 🚀 **Art3Hub V4 - Current Implementation**
 
 ### Key Features
 
@@ -17,14 +17,16 @@ Art3 Hub V3 is a next-generation decentralized NFT platform that provides a comp
 - **📊 Smart Quota Management**: Automated tracking and enforcement
 - **🔒 Enterprise Security**: Advanced access controls and comprehensive audit trail
 - **🔧 Environment-Based Security**: All configuration via environment variables
+- **👑 Elite Creator Plan**: New $9.99/month plan for high-volume artists (25 NFTs/month)
+- **📈 Plan Management**: Upgrade/downgrade functionality between subscription tiers
 
-## 🏗️ **V3 Architecture**
+## 🏗️ **V4 Architecture**
 
 ### System Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                      Art3 Hub V3 Platform                       │
+│                      Art3 Hub V4 Platform                       │
 │                   (Multi-Chain Ecosystem)                       │
 └─────────────────────────────────────────────────────────────────┘
                                 │
@@ -37,20 +39,22 @@ Art3 Hub V3 is a next-generation decentralized NFT platform that provides a comp
                 │                    │                    │
                 ▼                    ▼                    ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    Art3HubSubscriptionV3                        │
+│                    Art3HubSubscriptionV4                        │
 │  ┌───────────────────────────────────────────────────────────┐  │
 │  │ • Auto-enrollment system for new users                   │  │
-│  │ • Plan Gratuito: 1 NFT/year (free, gasless)             │  │
+│  │ • Plan Free: 1 NFT/month (free, gasless)                │  │
 │  │ • Plan Master: 10 NFTs/month ($4.99 USDC)               │  │
+│  │ • Plan Elite Creator: 25 NFTs/month ($9.99 USDC)        │  │
 │  │ • Cross-chain USDC payment processing                    │  │
 │  │ • Real-time quota tracking and enforcement               │  │
 │  │ • Built-in gasless functionality                         │  │
+│  │ • Plan upgrade/downgrade management                      │  │
 │  └───────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
                                 │
                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                     Art3HubFactoryV3                            │
+│                     Art3HubFactoryV4                            │
 │  ┌───────────────────────────────────────────────────────────┐  │
 │  │ • Gasless collection creation via EIP-712                │  │
 │  │ • Integrated subscription validation                     │  │
@@ -62,7 +66,7 @@ Art3 Hub V3 is a next-generation decentralized NFT platform that provides a comp
                                 │
                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                  Art3HubCollectionV3                            │
+│                  Art3HubCollectionV4                            │
 │  ┌───────────────────────────────────────────────────────────┐  │
 │  │ • Enhanced ERC-721 + ERC-2981 + EIP-712                 │  │
 │  │ • Gasless minting via built-in meta-transactions         │  │
@@ -184,12 +188,12 @@ Frontend App      User Wallet        V3 Contracts       Gasless Relayer      Blo
      ├────────────────▶│                   │                   │                │
 ```
 
-## 📋 **V3 Subscription Plans**
+## 📋 **V4 Subscription Plans**
 
-### Plan Gratuito (Free) - Auto-Enrollment
+### Plan Free - Auto-Enrollment
 - **Price**: Free (automatically enrolled)
-- **Duration**: 365 days (1 year)
-- **NFT Limit**: 1 gasless mint per year
+- **Duration**: 30 days (1 month) - **UPDATED IN V4**
+- **NFT Limit**: 1 gasless mint per month - **UPDATED IN V4**
 - **Collection Creation**: ✅ Unlimited collections included
 - **Auto-Enrollment**: ✅ Automatic on first platform interaction
 - **Features**: Basic onboarding, educational content, OpenSea compatibility
@@ -204,47 +208,55 @@ Frontend App      User Wallet        V3 Contracts       Gasless Relayer      Blo
 - **Features**: Priority support, enhanced analytics, advanced marketplace features
 - **Gasless**: ✅ All operations gasless
 
-## 🌐 **V3 Deployed Contracts (June 19, 2025)**
+### Plan Elite Creator (Professional) - USDC Subscription - **NEW IN V4**
+- **Price**: $9.99/month (USDC)
+- **Duration**: 30 days
+- **NFT Limit**: 25 gasless mints per month
+- **Collection Creation**: ✅ Unlimited collections included
+- **Auto-Renewal**: ✅ USDC-based automatic renewal
+- **Features**: Premium support, advanced analytics, priority marketplace features, bulk operations
+- **Gasless**: ✅ All operations gasless
+- **Target**: High-volume artists, studios, professional creators
+
+## 🌐 **V4 Deployed Contracts (June 21, 2025)**
 
 ### Base Sepolia (Testnet) - Chain ID: 84532
-- **Deployment Date**: June 17, 2025
-- **Status**: ✅ **All contracts verified and tested**
-- **SubscriptionManager**: `0x536db8f14632D7BF811D1991cf2A4215eB6f7314`
-- **Factory**: `0x208332e81401031D71b7c24eeae2A48c2331bCe8`
-- **Collection Implementation**: `0xCa88CC1e7161E7eaDc456196981a4C7Af0356991`
+- **Deployment Date**: June 21, 2025
+- **Status**: ✅ **All V4 contracts verified and tested**
+- **SubscriptionV4**: `0x2650E7234D4f3796eA627013a94E3602D5720FD4`
+- **FactoryV4**: `0x63EB148099F90b90A25f7382E22d68C516CD4f03`
+- **CollectionV4 Implementation**: `0xA66713166A91C946d85e4b45cA14B190F4e33977`
 - **USDC Token**: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
 - **Treasury Wallet**: `0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9`
 - **Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1`
 - **BaseScan Links** (Verified):
-  - [SubscriptionManager](https://sepolia.basescan.org/address/0x536db8f14632D7BF811D1991cf2A4215eB6f7314#code)
-  - [Factory](https://sepolia.basescan.org/address/0x208332e81401031D71b7c24eeae2A48c2331bCe8#code)
-  - [Collection Implementation](https://sepolia.basescan.org/address/0xCa88CC1e7161E7eaDc456196981a4C7Af0356991#code)
+  - [FactoryV4](https://sepolia.basescan.org/address/0x63EB148099F90b90A25f7382E22d68C516CD4f03#code)
+  - [CollectionV4 Implementation](https://sepolia.basescan.org/address/0xA66713166A91C946d85e4b45cA14B190F4e33977#code)
 
 ### Zora Sepolia (Testnet) - Chain ID: 999999999
-- **Deployment Date**: June 19, 2025
-- **Status**: ✅ **All contracts deployed and tested**
-- **SubscriptionManager**: `0xb31e157f357e59c4D08a3e43CCC7d10859da829F`
-- **Factory**: `0x3A1Db96cD08077c73247EaafD7a9Cf961de5e87c`
-- **Collection Implementation**: `0x3AF35D9a24A77acd8549A1Be712C676FE978eE24`
+- **Deployment Date**: June 21, 2025
+- **Status**: ✅ **All V4 contracts deployed and verified**
+- **SubscriptionV4**: `0xF205A20e23440C58822cA16a00b67F58CD672e16`
+- **FactoryV4**: `0x5516B7b1Ba0cd76294dD1c17685F845bD929C574`
+- **CollectionV4 Implementation**: `0x00B6E63eaAfD7836Dc6310dd03F38BcD2c19d99a`
 - **USDC Token**: `0xCccCCccc7021b32EBb4e8C08314bD62F7c653EC4`
 - **Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1`
-- **Zora Explorer Links**:
-  - [SubscriptionManager](https://sepolia.explorer.zora.energy/address/0xb31e157f357e59c4D08a3e43CCC7d10859da829F)
-  - [Factory](https://sepolia.explorer.zora.energy/address/0x3A1Db96cD08077c73247EaafD7a9Cf961de5e87c)
-  - [Collection Implementation](https://sepolia.explorer.zora.energy/address/0x3AF35D9a24A77acd8549A1Be712C676FE978eE24)
+- **Zora Explorer Links** (Verified):
+  - [SubscriptionV4](https://sepolia.explorer.zora.energy/address/0xF205A20e23440C58822cA16a00b67F58CD672e16#code)
+  - [FactoryV4](https://sepolia.explorer.zora.energy/address/0x5516B7b1Ba0cd76294dD1c17685F845bD929C574#code)
+  - [CollectionV4 Implementation](https://sepolia.explorer.zora.energy/address/0x00B6E63eaAfD7836Dc6310dd03F38BcD2c19d99a#code)
 
 ### Celo Alfajores (Testnet) - Chain ID: 44787
-- **Deployment Date**: June 19, 2025
-- **Status**: ✅ **All contracts verified and tested**
-- **SubscriptionManager**: `0x48EEF5c0676cdf6322e668Fb9deAd8e93ff8bF36`
-- **Factory**: `0x811634F4bB646D67a5a6A78ABC51BE3e414b326b`
-- **Collection Implementation**: `0xae0549C75BBb60Fc7BB17Ed23bD93d5137718300`
+- **Deployment Date**: June 21, 2025
+- **Status**: ✅ **All V4 contracts verified and tested**
+- **SubscriptionV4**: `0xBb256639931Be1D92D5b3940dE81ed68EfDC3c27`
+- **FactoryV4**: `0x6CB2D09DBb71723a0E9ee134B19b0FAca9963e31`
+- **CollectionV4 Implementation**: `0x03ddf3C35508fF7B25A908962492273dc71523fe`
 - **USDC Token**: `0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B`
 - **Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1`
 - **Celo Explorer Links** (Verified):
-  - [SubscriptionManager](https://alfajores.celoscan.io/address/0x48EEF5c0676cdf6322e668Fb9deAd8e93ff8bF36#code)
-  - [Factory](https://alfajores.celoscan.io/address/0x811634F4bB646D67a5a6A78ABC51BE3e414b326b#code)
-  - [Collection Implementation](https://alfajores.celoscan.io/address/0xae0549C75BBb60Fc7BB17Ed23bD93d5137718300#code)
+  - [FactoryV4](https://alfajores.celoscan.io/address/0x6CB2D09DBb71723a0E9ee134B19b0FAca9963e31#code)
+  - [CollectionV4 Implementation](https://alfajores.celoscan.io/address/0x03ddf3C35508fF7B25A908962492273dc71523fe#code)
 
 ## 🔧 **Environment Setup**
 
@@ -297,26 +309,31 @@ npm run compile
 npm run test
 ```
 
-## 🚀 **V3 Deployment**
+## 🚀 **V4 Deployment**
 
-### Deploy V3 Contracts
+### Deploy V4 Contracts (Recommended)
 
-Deploy V3 contracts to any supported network:
+Deploy V4 contracts with Elite Creator plan support:
 
 ```bash
-# Base Sepolia
-npm run deploy:baseSepolia
-
-# Zora Sepolia  
-npm run deploy:zoraSepolia
-
-# Celo Alfajores
-npm run deploy:celoSepolia
+# Testnet Deployments
+npm run deploy:v4:baseSepolia    # Base Sepolia
+npm run deploy:v4:zoraSepolia    # Zora Sepolia  
+npm run deploy:v4:celoSepolia    # Celo Alfajores
 
 # Mainnet deployments (when ready)
-npm run deploy:base
-npm run deploy:zora
-npm run deploy:celo
+npm run deploy:v4:base           # Base Mainnet
+npm run deploy:v4:zora           # Zora Mainnet
+npm run deploy:v4:celo           # Celo Mainnet
+```
+
+### Deploy V3 Contracts (Legacy)
+
+```bash
+# V3 Legacy deployments still available
+npm run deploy:baseSepolia
+npm run deploy:zoraSepolia
+npm run deploy:celoSepolia
 ```
 
 ### Contract Verification
@@ -332,16 +349,25 @@ npm run verify:zoraSepolia
 npm run verify:celoSepolia
 
 # Generate flattened files for manual verification
-npm run flatten
+npm run flatten      # V3 contracts
+npm run flatten:v4   # V4 contracts
 ```
 
 ### Testing Commands
 
 ```bash
-# Test NFT creation on different networks
-npm run test:nft:base   # Base Sepolia
-npm run test:nft:zora   # Zora Sepolia
-npm run test:nft:celo   # Celo Alfajores
+# Test V4 contracts on different networks
+npm run test:v4:base   # Base Sepolia V4
+npm run test:v4:zora   # Zora Sepolia V4
+npm run test:v4:celo   # Celo Alfajores V4
+
+# Run V4 test suite
+npm run test:v4
+
+# Legacy V3 testing
+npm run test:nft:base   # Base Sepolia V3
+npm run test:nft:zora   # Zora Sepolia V3
+npm run test:nft:celo   # Celo Alfajores V3
 
 # Check gasless relayer balances
 npm run check:balances -- --network [network]
@@ -350,7 +376,7 @@ npm run check:balances -- --network [network]
 npm run fund:relayer -- --network [network]
 ```
 
-## 💻 **V3 Usage Examples**
+## 💻 **V4 Usage Examples**
 
 ### For Artists (Gasless Collection Creation)
 
@@ -362,7 +388,7 @@ const factory = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, provider);
 
 // 2. Create EIP-712 domain
 const domain = {
-  name: 'Art3HubFactoryV3',
+  name: 'Art3HubFactoryV4',
   version: '1',
   chainId: await provider.getNetwork().then(n => n.chainId),
   verifyingContract: FACTORY_ADDRESS
@@ -453,27 +479,60 @@ const mintResult = await mintResponse.json();
 console.log('NFT minted:', mintResult.transactionHash);
 ```
 
-### For Subscription Management
+### For Subscription Management (V4 with Elite Plan)
 
 ```typescript
 // Check user subscription status
 const subscription = await subscriptionContract.getSubscription(userAddress);
-console.log('User plan:', subscription.plan); // 0 = FREE, 1 = MASTER
+console.log('User plan:', subscription.plan); // 0 = FREE, 1 = MASTER, 2 = ELITE
 console.log('Is active:', subscription.isActive);
 console.log('NFTs minted:', subscription.nftsMinted.toString());
 
-// Auto-enrollment (happens automatically in V3)
+// Get plan name for UI display (NEW in V4)
+const planName = await subscriptionContract.getPlanName(subscription.plan);
+console.log('Plan name:', planName); // "Free", "Master", or "Elite Creator"
+
+// Auto-enrollment (happens automatically in V4)
 const canMint = await subscriptionContract.canUserMint(userAddress, 1);
 console.log('Can user mint:', canMint);
 
+// Get enhanced subscription info via factory (NEW in V4)
+const [planName, nftsMinted, nftLimit, isActive] = 
+  await factoryContract.getUserSubscriptionInfo(userAddress);
+console.log(`User has ${planName} plan: ${nftsMinted}/${nftLimit} NFTs used`);
+
 // Upgrade to Master plan (USDC payment)
-const upgradeResponse = await fetch('/api/gasless-relay', {
+const upgradeMasterResponse = await fetch('/api/gasless-relay', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    type: 'upgradeSubscription',
+    type: 'upgradeToMaster',
     userAddress,
     autoRenew: true,
+    chainId: await provider.getNetwork().then(n => n.chainId)
+  })
+});
+
+// Upgrade to Elite Creator plan (NEW in V4)
+const upgradeEliteResponse = await fetch('/api/gasless-relay', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    type: 'upgradeToElite',
+    userAddress,
+    autoRenew: true,
+    chainId: await provider.getNetwork().then(n => n.chainId)
+  })
+});
+
+// Downgrade subscription (NEW in V4)
+const downgradeResponse = await fetch('/api/gasless-relay', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    type: 'downgradeSubscription',
+    userAddress,
+    newPlan: 1, // 0 = FREE, 1 = MASTER, 2 = ELITE
     chainId: await provider.getNetwork().then(n => n.chainId)
   })
 });
@@ -500,27 +559,40 @@ const upgradeResponse = await fetch('/api/gasless-relay', {
 
 ## 📚 **Documentation**
 
+- **[DEPLOY_V4.md](./DEPLOY_V4.md)**: Detailed V4 deployment guide with Elite Creator plan
+- **[V4_DEPLOYMENT_SUMMARY.md](./V4_DEPLOYMENT_SUMMARY.md)**: Complete V4 testnet deployment results
+- **[DEPLOY_V3.md](./DEPLOY_V3.md)**: V3 deployment guide (legacy)
 - **[VERIFICATION_GUIDE.md](./VERIFICATION_GUIDE.md)**: Complete contract verification guide
 - **[LEGACY-IMPLEMENTATION.md](./LEGACY-IMPLEMENTATION.md)**: V1 and V2 documentation
 - **[CHANGELOG.md](./CHANGELOG.md)**: Version history and updates
-- **[DEPLOY_V3.md](./DEPLOY_V3.md)**: Detailed V3 deployment guide
 
-## 🎯 **V3 Success Metrics**
+## 🎯 **V4 Success Metrics**
 
 ### Technical Achievements
 - ✅ **100% Gasless Experience**: All operations truly gasless for users
 - ✅ **Multi-Chain Deployment**: Successfully deployed on Base, Zora, and Celo testnets
+- ✅ **Elite Creator Plan**: New $9.99/month plan with 25 NFTs/month successfully implemented
+- ✅ **Free Plan Fixed**: Changed from 1 NFT/year to 1 NFT/month (30-day duration)
 - ✅ **Auto-Enrollment Working**: New users automatically enrolled in Free plan
 - ✅ **USDC Integration**: Cross-chain USDC payment system operational
+- ✅ **Plan Management**: Upgrade/downgrade functionality implemented
+- ✅ **Enhanced Factory**: getUserSubscriptionInfo() function for better UI integration
 - ✅ **OpenSea Compatible**: Enhanced marketplace integration verified
 - ✅ **Security Hardened**: Environment-based configuration and comprehensive auditing
 
-### Performance Summary
+### V4 Performance Summary
 | Network | Collection Gas | NFT Gas | Total Gas | Status |
 |---------|---------------|---------|-----------|---------|
 | Base Sepolia | ~557K | ~196K | ~753K | ✅ Optimal |
 | Zora Sepolia | ~557K | ~196K | ~754K | ✅ Optimal |
 | Celo Alfajores | ~580K | ~196K | ~776K | ✅ Efficient |
+
+### V4 Plan Adoption (June 21, 2025)
+| Plan | Monthly Price | NFT Limit | Duration | Target Users |
+|------|---------------|-----------|----------|--------------|
+| Free | $0.00 | 1 NFT | 30 days | New users, hobbyists |
+| Master | $4.99 | 10 NFTs | 30 days | Regular creators |
+| Elite Creator | $9.99 | 25 NFTs | 30 days | Professional artists, studios |
 
 ## 🏛️ **Legacy Support**
 
@@ -546,4 +618,4 @@ For information about previous implementations:
 
 ---
 
-**Built with ❤️ by the Art3 Hub team | Powered by V3 Architecture**
+**Built with ❤️ by the Art3 Hub team | Powered by V4 Architecture with Elite Creator Plan**
