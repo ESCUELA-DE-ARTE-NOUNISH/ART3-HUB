@@ -6,6 +6,18 @@ Team:
 Dynamic and innovative Onchain developer with a robust ability to analyze and implement decentralized solutions. I have profound expertise in cloud integrations, demonstrate top-tier problem-solving aptitude, and excel in collaborative settings, driving projects to fruition.
 
 - Ivanna León – Project Manager & Community Lead: Founder of Nounish IRL, she bridges educational vision with Web3 development, leading teams and initiatives to scale impact from LATAM.
+  
+- Claudio CMO
+-  Visual artist & creative director with 10+ years in the arts field
+	•	Built a personal brand with 30K+ followers across platforms (Instagram, TikTok, X)
+	•	Leads communities with 12K+ members, focused on creators and web3 onboarding
+	•	Has organically reached over 3 million views with art and web3-related content
+
+  
+
+Question from Demo Day: 
+How will reach collectors?
+We have collectors on our IRL community and also we'll taking advantage from web 3 people who spend their money on farcaster 
 
 # 🎨 AI Art Hub — An Onboarding Agent for Creatives in Web3
 
@@ -148,6 +160,77 @@ Built for **visual artists in LATAM** and beyond, this AI-powered assistant hand
 
 Created with ❤️ by a team in LATAM to help artists **onboard, mint, and thrive** onchain.
 
+
+ROADMAP
+2025: Launch & Optimization
+
+Goal: Activate early users and refine core experience
+	•	Launch full version of AI onboarding agent
+	•	Integrate curated grant/opportunity feed
+	•	Roll out Elite Creator Plan & Collector Subscription
+	•	Start marketing campaign in Peru, Argentina, Mexico
+	•	Initial partnerships with 2–3 artist collectives
+	•	UX/UI optimization (based on feedback)
+
+🧠 Success Metrics:
+	•	1,000 total users
+	•	15% free-to-paid conversion
+	•	+50 NFTs minted
+	•	First 5 grants matched via platform
+
+⸻
+
+📍Q4 2025: Monetization & Expansion
+
+Goal: Start scaling revenue and international traction
+	•	Launch Collector Dashboard (early access drops + rewards)
+	•	Artist Showcase Feature for top creators
+	•	Onboard 5 strategic partners (galleries, DAOs, grant platforms)
+	•	Start monetizing marketplace activity (platform fees)
+	•	First 2 artist success stories published
+
+🧠 Success Metrics:
+	•	$2K MRR
+	•	3,000 total users
+	•	100 paid users
+	•	300 NFTs minted
+	•	First collector subscriptions
+
+⸻
+
+📍Q1 2026: Growth & Network Effects
+
+Goal: Expand to new regions and increase visibility
+	•	Regional expansion: Brazil & Colombia
+	•	Launch campaign with local ambassadors
+	•	Artist referral & affiliate program
+	•	Collector leaderboard and gamification
+	•	Publish impact report (artist income, reach)
+
+🧠 Success Metrics:
+	•	5,000 total users
+	•	500 paying users
+	•	+30 collectors
+	•	$5K MRR
+	•	+1,000 NFTs minted
+	•	+$15K in grant value matched
+
+⸻
+
+📍Q2 2026: Scale & Institutional Reach
+
+Goal: Move from product-market fit to platform leadership
+	•	Begin partnership with cultural institutions & NGOs
+	•	Introduce mobile app (beta)
+	•	Launch marketplace boost & featured collections (upsell feature)
+	•	Prepare for pre-seed fundraising round or grant scaling
+
+🧠 Success Metrics:
+	•	10,000 total users
+	•	1,000+ NFTs minted
+	•	$10K+ MRR
+	•	50% retention rate
+	•	Onboarded 10 institutional partners
 
 
 
