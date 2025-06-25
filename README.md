@@ -161,7 +161,7 @@ Built for **visual artists in LATAM** and beyond, this AI-powered assistant hand
 Created with ❤️ by a team in LATAM to help artists **onboard, mint, and thrive** onchain.
 
 
-ROADMAP
+	ROADMAP
 2025: Launch & Optimization
 
 Goal: Activate early users and refine core experience
@@ -231,6 +231,8 @@ Goal: Move from product-market fit to platform leadership
 	•	$10K+ MRR
 	•	50% retention rate
 	•	Onboarded 10 institutional partners
+
+
 
 
 
