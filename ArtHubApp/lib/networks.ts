@@ -35,23 +35,23 @@ export const SUPPORTED_NETWORKS: NetworkConfig[] = [
     color: '#0052FF',
     icon: '🔵'
   },
-  // {
-  //   id: 42220, // Celo mainnet
-  //   name: 'celo',
-  //   displayName: 'Celo',
-  //   testnet: {
-  //     id: 44787,
-  //     name: 'celo-sepolia',
-  //     displayName: 'Celo Sepolia'
-  //   },
-  //   mainnet: {
-  //     id: 42220,
-  //     name: 'celo',
-  //     displayName: 'Celo'
-  //   },
-  //   color: '#FCFF52',
-  //   icon: '🌱'
-  // },
+  {
+    id: 42220, // Celo mainnet
+    name: 'celo',
+    displayName: 'Celo',
+    testnet: {
+      id: 44787,
+      name: 'celo-alfajores',
+      displayName: 'Celo Alfajores'
+    },
+    mainnet: {
+      id: 42220,
+      name: 'celo',
+      displayName: 'Celo'
+    },
+    color: '#FCFF52',
+    icon: '🌱'
+  },
   {
     id: 7777777, // Zora mainnet
     name: 'zora',

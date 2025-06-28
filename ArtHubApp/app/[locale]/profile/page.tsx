@@ -11,7 +11,7 @@ import { useParams } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import { useUserProfile } from "@/hooks/useUserProfile"
 import { ProfileEditForm } from "@/components/profile-edit-form"
-import { SubscriptionStatusV3 } from "@/components/subscription-status-v3"
+import { SubscriptionStatusV4 } from "@/components/subscription-status-v4"
 
 // Custom Verified Star Component
 function VerifiedStar() {
@@ -46,6 +46,7 @@ const translations = {
     currentPlan: "Current Plan",
     freePlan: "Free",
     masterPlan: "Master",
+    elitePlan: "Elite Creator",
     inactive: "Inactive",
     expires: "Expires",
     nftsUsed: "NFTs Used",
@@ -55,6 +56,7 @@ const translations = {
     disabled: "Disabled",
     upgrade: "Upgrade to Master",
     subscribeMaster: "Subscribe to Master",
+    subscribeElite: "Subscribe to Elite Creator",
     loading: "Loading",
     month: "month"
   },
@@ -79,6 +81,7 @@ const translations = {
     currentPlan: "Plan Actual",
     freePlan: "Gratis",
     masterPlan: "Master",
+    elitePlan: "Creador Elite",
     inactive: "Inactivo",
     expires: "Expira",
     nftsUsed: "NFTs Usados",
@@ -88,6 +91,7 @@ const translations = {
     disabled: "Desactivado",
     upgrade: "Actualizar a Master",
     subscribeMaster: "Suscribirse a Master",
+    subscribeElite: "Suscribirse a Creador Elite",
     loading: "Cargando",
     month: "mes"
   },
@@ -112,6 +116,7 @@ const translations = {
     currentPlan: "Plan Actuel",
     freePlan: "Gratuit",
     masterPlan: "Master",
+    elitePlan: "Créateur Elite",
     inactive: "Inactif",
     expires: "Expire",
     nftsUsed: "NFTs Utilisés",
@@ -121,6 +126,7 @@ const translations = {
     disabled: "Désactivé",
     upgrade: "Passer à Master",
     subscribeMaster: "S'abonner à Master",
+    subscribeElite: "S'abonner à Créateur Elite",
     loading: "Chargement",
     month: "mois"
   },
@@ -145,6 +151,7 @@ const translations = {
     currentPlan: "Plano Atual",
     freePlan: "Grátis",
     masterPlan: "Master",
+    elitePlan: "Criador Elite",
     inactive: "Inativo",
     expires: "Expira",
     nftsUsed: "NFTs Usados",
@@ -154,6 +161,7 @@ const translations = {
     disabled: "Desativado",
     upgrade: "Atualizar para Master",
     subscribeMaster: "Assinar Master",
+    subscribeElite: "Assinar Criador Elite",
     loading: "Carregando",
     month: "mês"
   }
@@ -379,7 +387,7 @@ export default function ProfilePage() {
       
       {/* Subscription Status Section */}
       <div className="container mx-auto px-4 mt-8">
-        <SubscriptionStatusV3 
+        <SubscriptionStatusV4 
           translations={t} 
           onRefresh={() => {
             // Refresh profile data as well
