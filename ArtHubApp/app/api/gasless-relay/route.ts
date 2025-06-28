@@ -238,15 +238,15 @@ function getSubscriptionAddress(chainId: number): string | null {
 function getFactoryV4Address(chainId: number): string | null {
   switch (chainId) {
     case 84532: // Base Sepolia
-      return '0x63EB148099F90b90A25f7382E22d68C516CD4f03'
+      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_84532 || null
     case 8453: // Base Mainnet
       return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_8453 || null
     case 999999999: // Zora Sepolia
-      return '0x5516B7b1Ba0cd76294dD1c17685F845bD929C574'
+      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_999999999 || null
     case 7777777: // Zora Mainnet
       return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_7777777 || null
     case 44787: // Celo Alfajores
-      return '0x6CB2D09DBb71723a0E9ee134B19b0FAca9963e31'
+      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_44787 || null
     case 42220: // Celo Mainnet
       return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_42220 || null
     default:
@@ -258,15 +258,15 @@ function getFactoryV4Address(chainId: number): string | null {
 function getSubscriptionV4Address(chainId: number): string | null {
   switch (chainId) {
     case 84532: // Base Sepolia
-      return '0x2650E7234D4f3796eA627013a94E3602D5720FD4'
+      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_84532 || null
     case 8453: // Base Mainnet
       return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_8453 || null
     case 999999999: // Zora Sepolia
-      return '0xF205A20e23440C58822cA16a00b67F58CD672e16'
+      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_999999999 || null
     case 7777777: // Zora Mainnet
       return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_7777777 || null
     case 44787: // Celo Alfajores
-      return '0xBb256639931Be1D92D5b3940dE81ed68EfDC3c27'
+      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_44787 || null
     case 42220: // Celo Mainnet
       return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_42220 || null
     default:

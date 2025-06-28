@@ -231,15 +231,15 @@ function createChainSpecificPublicClient(chainId: number): PublicClient {
 function getArt3HubFactoryV4Address(chainId: number): Address | null {
   switch (chainId) {
     case 84532: // Base Sepolia
-      return '0x63EB148099F90b90A25f7382E22d68C516CD4f03' as Address
+      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_84532 as Address) || null
     case 8453: // Base Mainnet
       return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_8453 as Address) || null
     case 999999999: // Zora Sepolia
-      return '0x5516B7b1Ba0cd76294dD1c17685F845bD929C574' as Address
+      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_999999999 as Address) || null
     case 7777777: // Zora Mainnet
       return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_7777777 as Address) || null
     case 44787: // Celo Alfajores
-      return '0x6CB2D09DBb71723a0E9ee134B19b0FAca9963e31' as Address
+      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_44787 as Address) || null
     case 42220: // Celo Mainnet
       return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_42220 as Address) || null
     default:
@@ -251,15 +251,15 @@ function getArt3HubFactoryV4Address(chainId: number): Address | null {
 function getArt3HubSubscriptionV4Address(chainId: number): Address | null {
   switch (chainId) {
     case 84532: // Base Sepolia
-      return '0x2650E7234D4f3796eA627013a94E3602D5720FD4' as Address
+      return (process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_84532 as Address) || null
     case 8453: // Base Mainnet
       return (process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_8453 as Address) || null
     case 999999999: // Zora Sepolia
-      return '0xF205A20e23440C58822cA16a00b67F58CD672e16' as Address
+      return (process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_999999999 as Address) || null
     case 7777777: // Zora Mainnet
       return (process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_7777777 as Address) || null
     case 44787: // Celo Alfajores
-      return '0xBb256639931Be1D92D5b3940dE81ed68EfDC3c27' as Address
+      return (process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_44787 as Address) || null
     case 42220: // Celo Mainnet
       return (process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_42220 as Address) || null
     default:
