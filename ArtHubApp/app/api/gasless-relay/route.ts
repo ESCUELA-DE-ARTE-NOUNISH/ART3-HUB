@@ -319,10 +319,10 @@ export async function POST(request: NextRequest) {
     })
 
     // Validate request based on type
-    if (body.type === 'upgradeSubscription') {
+    if (body.type === 'upgradeSubscription' || body.type === 'upgradeToMaster' || body.type === 'upgradeToElite' || body.type === 'downgradeSubscription') {
       if (!body.userAddress || !body.chainId) {
         return NextResponse.json(
-          { error: 'Missing required fields for subscription upgrade: userAddress, chainId' },
+          { error: 'Missing required fields for subscription operation: userAddress, chainId' },
           { status: 400 }
         )
       }

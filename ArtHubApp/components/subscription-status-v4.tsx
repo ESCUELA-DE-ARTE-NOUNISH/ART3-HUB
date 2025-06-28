@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Loader2, Crown, Check, ArrowRight, ExternalLink, Star } from "lucide-react"
+import { Loader2, Crown, Check, ArrowRight, ExternalLink, Star, RefreshCw } from "lucide-react"
 import { useAccount, usePublicClient, useWalletClient, useChainId } from "wagmi"
 import { createArt3HubV4ServiceWithUtils, type V4SubscriptionInfo } from "@/lib/services/art3hub-v4-service"
 import { useToast } from "@/hooks/use-toast"
@@ -45,6 +45,7 @@ export function SubscriptionStatusV4({ translations: t, onRefresh }: Subscriptio
   const [refreshKey, setRefreshKey] = useState(0)
   const [isUpgrading, setIsUpgrading] = useState(false)
   const [upgradeType, setUpgradeType] = useState<'master' | 'elite' | null>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Load V4 subscription data
   useEffect(() => {
@@ -117,14 +118,44 @@ export function SubscriptionStatusV4({ translations: t, onRefresh }: Subscriptio
         if (nftResponse.ok) {
           const nftData = await nftResponse.json()
           dbNftCount = nftData.nfts?.length || 0
+          console.log('📊 Database NFT count:', dbNftCount)
+          console.log('📊 Database NFT data sample:', nftData.nfts?.slice(0, 2))
+        } else {
+          console.warn('Database NFT query failed:', nftResponse.status)
         }
       } catch (error) {
         console.warn('Could not fetch NFT count from database:', error)
       }
       
-      // Use database count if it's higher (more accurate)
-      const actualNftsMinted = Math.max(subscription.nftsMinted, dbNftCount)
+      // Also try to get count from current month/plan period
+      let monthlyNftCount = 0
+      try {
+        const now = new Date()
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+        const monthlyResponse = await fetch(`/api/nfts?wallet_address=${address}&created_after=${startOfMonth}`)
+        if (monthlyResponse.ok) {
+          const monthlyData = await monthlyResponse.json()
+          monthlyNftCount = monthlyData.nfts?.length || 0
+          console.log('📊 Monthly NFT count:', monthlyNftCount)
+        }
+      } catch (error) {
+        console.warn('Could not fetch monthly NFT count:', error)
+      }
+      
+      // Use the highest count among contract, database total, and monthly count
+      // Note: When upgrading plans, contract count might reset but database has the real history
+      // For monthly plans, we should ideally track monthly usage, but for now use total count
+      const actualNftsMinted = Math.max(subscription.nftsMinted, dbNftCount, monthlyNftCount)
       const actualRemainingNFTs = Math.max(0, subscription.nftLimit - actualNftsMinted)
+      
+      console.log('📊 NFT count calculation:', {
+        contractCount: subscription.nftsMinted,
+        dbCount: dbNftCount,
+        monthlyCount: monthlyNftCount,
+        actualNftsMinted,
+        nftLimit: subscription.nftLimit,
+        actualRemainingNFTs
+      })
       
       console.log('📊 V4 subscription data loaded:', { 
         plan: subscription.plan,
@@ -171,6 +202,16 @@ export function SubscriptionStatusV4({ translations: t, onRefresh }: Subscriptio
     window.addEventListener('refreshV4Subscription', handleRefreshV4Subscription)
     return () => window.removeEventListener('refreshV4Subscription', handleRefreshV4Subscription)
   }, [])
+
+  // Manual refresh function
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true)
+    console.log('🔄 Manual refresh triggered')
+    setRefreshKey(prev => prev + 1)
+    setTimeout(() => {
+      setIsRefreshing(false)
+    }, 2000)
+  }
 
   // Handle subscription upgrades
   const handleUpgrade = async (planType: 'master' | 'elite') => {
@@ -291,9 +332,20 @@ export function SubscriptionStatusV4({ translations: t, onRefresh }: Subscriptio
             {getPlanIcon()}
             {t.subscription}
           </CardTitle>
-          <Badge className={`${getPlanColor()} flex items-center gap-1`}>
-            {subscriptionData.planName}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleManualRefresh}
+              disabled={isRefreshing || loading}
+              className="h-8 w-8 p-0"
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </Button>
+            <Badge className={`${getPlanColor()} flex items-center gap-1`}>
+              {subscriptionData.planName}
+            </Badge>
+          </div>
         </div>
         <CardDescription>
           {subscriptionData.isActive ? (
@@ -340,81 +392,123 @@ export function SubscriptionStatusV4({ translations: t, onRefresh }: Subscriptio
           </div>
         )}
 
-        {/* Upgrade Options */}
-        {subscriptionData.plan === 'FREE' && (
-          <div className="space-y-3 pt-4 border-t">
-            <h4 className="text-sm font-medium">{t.upgrade}</h4>
-            
-            <div className="space-y-2">
-              {/* Master Plan */}
-              <Button
-                className="w-full justify-between"
-                variant="outline"
-                onClick={() => handleUpgrade('master')}
-                disabled={isUpgrading}
-              >
-                <div className="flex items-center gap-2">
-                  <Crown className="h-4 w-4" />
-                  <span>{t.masterPlan} - $4.99/{t.month}</span>
+        {/* Subscription Plans Cards */}
+        <div className="space-y-4 pt-4 border-t">
+          <h4 className="text-sm font-medium">Subscription Plans</h4>
+          
+          <div className="grid grid-cols-1 gap-3">
+            {/* Free Plan */}
+            <Card className={`relative ${subscriptionData.plan === 'FREE' ? 'ring-2 ring-green-500 bg-green-50' : 'hover:shadow-md transition-shadow'}`}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-green-600" />
+                    <h5 className="font-semibold">Free Plan</h5>
+                  </div>
+                  <div className="text-lg font-bold">$0/{t.month}</div>
+                  {subscriptionData.plan === 'FREE' && (
+                    <Badge className="absolute -top-2 -right-2 bg-green-600">Current</Badge>
+                  )}
                 </div>
-                {isUpgrading && upgradeType === 'master' ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <ArrowRight className="h-4 w-4" />
+                <p className="text-xs text-muted-foreground mb-3">Perfect for getting started</p>
+                {subscriptionData.plan === 'FREE' && subscriptionData.expiresAt && (
+                  <p className="text-xs text-blue-600 font-medium mb-2">
+                    Expires: {subscriptionData.expiresAt.toLocaleDateString()}
+                  </p>
                 )}
-              </Button>
-              <p className="text-xs text-muted-foreground px-2">
-                10 NFTs per month + gasless minting
-              </p>
-              
-              {/* Elite Creator Plan */}
-              <Button
-                className="w-full justify-between bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
-                onClick={() => handleUpgrade('elite')}
-                disabled={isUpgrading}
-              >
-                <div className="flex items-center gap-2">
-                  <Star className="h-4 w-4" />
-                  <span>{t.elitePlan || 'Elite Creator'} - $9.99/{t.month}</span>
-                </div>
-                {isUpgrading && upgradeType === 'elite' ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <ArrowRight className="h-4 w-4" />
-                )}
-              </Button>
-              <p className="text-xs text-muted-foreground px-2">
-                25 NFTs per month + gasless minting + priority support
-              </p>
-            </div>
-          </div>
-        )}
+                <ul className="text-xs space-y-1 text-muted-foreground">
+                  <li>• Upload 1 gasless NFT</li>
+                  <li>• Basic educational content</li>
+                  <li>• AI guidance for first steps</li>
+                </ul>
+              </CardContent>
+            </Card>
 
-        {subscriptionData.plan === 'MASTER' && (
-          <div className="space-y-3 pt-4 border-t">
-            <h4 className="text-sm font-medium">{t.upgrade}</h4>
-            
+            {/* Master Plan */}
+            <Card className={`relative ${subscriptionData.plan === 'MASTER' ? 'ring-2 ring-purple-500 bg-purple-50' : 'hover:shadow-md transition-shadow cursor-pointer'}`}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Crown className="h-4 w-4 text-purple-600" />
+                    <h5 className="font-semibold">Master Plan</h5>
+                  </div>
+                  <div className="text-lg font-bold">$4.99/{t.month}</div>
+                  {subscriptionData.plan === 'MASTER' && (
+                    <Badge className="absolute -top-2 -right-2 bg-purple-600">Current</Badge>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">Unlock your creative potential</p>
+                {subscriptionData.plan === 'MASTER' && subscriptionData.expiresAt && (
+                  <p className="text-xs text-purple-600 font-medium mb-2">
+                    Expires: {subscriptionData.expiresAt.toLocaleDateString()}
+                  </p>
+                )}
+                <ul className="text-xs space-y-1 text-muted-foreground mb-3">
+                  <li>• 10 gasless NFT uploads</li>
+                  <li>• Full AI access</li>
+                  <li>• Better visibility</li>
+                  <li>• Exclusive workshops</li>
+                </ul>
+                {subscriptionData.plan !== 'MASTER' && (
+                  <Button
+                    className="w-full mt-2"
+                    variant={subscriptionData.plan === 'FREE' ? 'default' : 'outline'}
+                    onClick={() => handleUpgrade('master')}
+                    disabled={isUpgrading || subscriptionData.plan === 'ELITE'}
+                    size="sm"
+                  >
+                    {isUpgrading && upgradeType === 'master' ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : null}
+                    {subscriptionData.plan === 'ELITE' ? 'Downgrade' : 'Upgrade to Master'}
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Elite Creator Plan */}
-            <Button
-              className="w-full justify-between bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
-              onClick={() => handleUpgrade('elite')}
-              disabled={isUpgrading}
-            >
-              <div className="flex items-center gap-2">
-                <Star className="h-4 w-4" />
-                <span>{t.elitePlan || 'Elite Creator'} - $9.99/{t.month}</span>
-              </div>
-              {isUpgrading && upgradeType === 'elite' ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <ArrowRight className="h-4 w-4" />
-              )}
-            </Button>
-            <p className="text-xs text-muted-foreground px-2">
-              25 NFTs per month + gasless minting + priority support
-            </p>
+            <Card className={`relative ${subscriptionData.plan === 'ELITE' ? 'ring-2 ring-gradient-to-r from-yellow-500 to-orange-500 bg-gradient-to-br from-yellow-50 to-orange-50' : 'hover:shadow-md transition-shadow cursor-pointer'}`}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-orange-600" />
+                    <h5 className="font-semibold">Elite Creator</h5>
+                  </div>
+                  <div className="text-lg font-bold">$9.99/{t.month}</div>
+                  {subscriptionData.plan === 'ELITE' && (
+                    <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-500 to-orange-500">Current</Badge>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">Premium support for serious artists</p>
+                {subscriptionData.plan === 'ELITE' && subscriptionData.expiresAt && (
+                  <p className="text-xs text-orange-600 font-medium mb-2">
+                    Expires: {subscriptionData.expiresAt.toLocaleDateString()}
+                  </p>
+                )}
+                <ul className="text-xs space-y-1 text-muted-foreground mb-3">
+                  <li>• 25 gasless NFT uploads</li>
+                  <li>• Advanced analytics</li>
+                  <li>• 1:1 expert mentorship</li>
+                  <li>• Priority support</li>
+                  <li>• Custom branding</li>
+                </ul>
+                {subscriptionData.plan !== 'ELITE' && (
+                  <Button
+                    className="w-full mt-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
+                    onClick={() => handleUpgrade('elite')}
+                    disabled={isUpgrading}
+                    size="sm"
+                  >
+                    {isUpgrading && upgradeType === 'elite' ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : null}
+                    Upgrade to Elite Creator
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
           </div>
-        )}
+        </div>
       </CardContent>
     </Card>
   )

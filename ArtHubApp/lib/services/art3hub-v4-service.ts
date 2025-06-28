@@ -470,6 +470,80 @@ export class Art3HubV4Service {
     }
   }
 
+  // Check and approve USDC for subscription payments
+  async checkAndApproveUSDC(amount: bigint): Promise<{
+    needsApproval: boolean
+    approvalHash?: string
+  }> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client not available')
+    }
+
+    try {
+      const userAddress = this.walletClient.account!.address
+      const usdcAddress = this.getUSDCAddress()
+      
+      console.log(`💰 Checking USDC allowance for ${amount.toString()} tokens...`)
+      
+      // Check current allowance
+      const allowance = await this.publicClient.readContract({
+        address: usdcAddress,
+        abi: [
+          {
+            "inputs": [{"name": "owner", "type": "address"}, {"name": "spender", "type": "address"}],
+            "name": "allowance",
+            "outputs": [{"name": "", "type": "uint256"}],
+            "stateMutability": "view",
+            "type": "function"
+          }
+        ],
+        functionName: 'allowance',
+        args: [userAddress, this.subscriptionAddress]
+      })
+      
+      console.log(`Current USDC allowance: ${allowance.toString()}`)
+      
+      if (allowance >= amount) {
+        console.log('✅ Sufficient USDC allowance already exists')
+        return { needsApproval: false }
+      }
+      
+      console.log('⚠️  Insufficient USDC allowance, requesting approval...')
+      
+      // Request approval from user wallet
+      const approvalHash = await this.walletClient.writeContract({
+        address: usdcAddress,
+        abi: [
+          {
+            "inputs": [{"name": "spender", "type": "address"}, {"name": "amount", "type": "uint256"}],
+            "name": "approve",
+            "outputs": [{"name": "", "type": "bool"}],
+            "stateMutability": "nonpayable",
+            "type": "function"
+          }
+        ],
+        functionName: 'approve',
+        args: [this.subscriptionAddress, amount]
+      })
+      
+      console.log(`💰 USDC approval transaction sent: ${approvalHash}`)
+      
+      // Wait for approval confirmation
+      await this.publicClient.waitForTransactionReceipt({ hash: approvalHash })
+      
+      console.log('✅ USDC approval confirmed')
+      
+      return {
+        needsApproval: true,
+        approvalHash
+      }
+      
+    } catch (error) {
+      console.error('❌ Error with USDC approval:', error)
+      throw new Error(`USDC approval failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
   // Gasless upgrade to Master Plan - relayer pays gas, user pays USDC
   async upgradeToMasterPlanGasless(autoRenew: boolean = false): Promise<{
     approvalHash?: string
@@ -485,7 +559,13 @@ export class Art3HubV4Service {
       
       const userAddress = this.walletClient.account!.address
       
-      // Call gasless subscription upgrade via relayer
+      // Step 1: Check and approve USDC (Master Plan: $4.99 = 4.99 * 10^6 USDC tokens)
+      const masterPlanPrice = BigInt(4990000) // $4.99 in USDC (6 decimals: 4.99 * 10^6)
+      console.log(`💰 Master Plan price: ${masterPlanPrice.toString()} USDC tokens (4.99 USDC)`)
+      
+      const approvalResult = await this.checkAndApproveUSDC(masterPlanPrice)
+      
+      // Step 2: Call gasless subscription upgrade via relayer
       console.log('💎 Submitting gasless Master Plan upgrade to relayer...')
       const relayerResponse = await fetch('/api/gasless-relay', {
         method: 'POST',
@@ -510,6 +590,7 @@ export class Art3HubV4Service {
       console.log('✅ Gasless V4 Master Plan upgrade successful!', result)
       
       return {
+        approvalHash: approvalResult.approvalHash,
         subscriptionHash: result.transactionHash,
         gasless: true
       }
@@ -535,7 +616,13 @@ export class Art3HubV4Service {
       
       const userAddress = this.walletClient.account!.address
       
-      // Call gasless subscription upgrade via relayer
+      // Step 1: Check and approve USDC (Elite Plan: $9.99 = 9.99 * 10^6 USDC tokens)
+      const elitePlanPrice = BigInt(9990000) // $9.99 in USDC (6 decimals: 9.99 * 10^6)
+      console.log(`👑 Elite Plan price: ${elitePlanPrice.toString()} USDC tokens (9.99 USDC)`)
+      
+      const approvalResult = await this.checkAndApproveUSDC(elitePlanPrice)
+      
+      // Step 2: Call gasless subscription upgrade via relayer
       console.log('👑 Submitting gasless Elite Creator Plan upgrade to relayer...')
       const relayerResponse = await fetch('/api/gasless-relay', {
         method: 'POST',
@@ -560,6 +647,7 @@ export class Art3HubV4Service {
       console.log('✅ Gasless V4 Elite Creator Plan upgrade successful!', result)
       
       return {
+        approvalHash: approvalResult.approvalHash,
         subscriptionHash: result.transactionHash,
         gasless: true
       }
