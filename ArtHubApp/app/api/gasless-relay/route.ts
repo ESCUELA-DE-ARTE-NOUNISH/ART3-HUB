@@ -6,7 +6,7 @@ import { baseSepolia, base } from 'viem/chains'
 
 // Types for the gasless relay requests
 interface GaslessRelayRequest {
-  type: 'mint' | 'createCollection' | 'upgradeSubscription' | 'approveUSDC'
+  type: 'mint' | 'createCollection' | 'upgradeSubscription' | 'approveUSDC' | 'mintV4' | 'createCollectionV4' | 'upgradeToMaster' | 'upgradeToElite' | 'downgradeSubscription'
   voucher?: any
   signature?: string
   collectionAddress?: string
@@ -74,6 +74,89 @@ const ART3HUB_SUBSCRIPTION_V3_GASLESS_ABI = [
       { "name": "autoRenew", "type": "bool" }
     ],
     "name": "subscribeToMasterPlanGasless",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+] as const
+
+// Art3HubFactoryV4 ABI with gasless functions
+const ART3HUB_FACTORY_V4_GASLESS_ABI = [
+  {
+    "inputs": [
+      {
+        "components": [
+          { "name": "collection", "type": "address" },
+          { "name": "to", "type": "address" },
+          { "name": "tokenURI", "type": "string" },
+          { "name": "nonce", "type": "uint256" },
+          { "name": "deadline", "type": "uint256" }
+        ],
+        "name": "voucher",
+        "type": "tuple"
+      },
+      { "name": "signature", "type": "bytes" }
+    ],
+    "name": "mintNFTGasless",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          { "name": "name", "type": "string" },
+          { "name": "symbol", "type": "string" },
+          { "name": "description", "type": "string" },
+          { "name": "image", "type": "string" },
+          { "name": "externalUrl", "type": "string" },
+          { "name": "artist", "type": "address" },
+          { "name": "royaltyRecipient", "type": "address" },
+          { "name": "royaltyFeeNumerator", "type": "uint96" },
+          { "name": "nonce", "type": "uint256" },
+          { "name": "deadline", "type": "uint256" }
+        ],
+        "name": "voucher",
+        "type": "tuple"
+      },
+      { "name": "signature", "type": "bytes" }
+    ],
+    "name": "createCollectionGasless",
+    "outputs": [{ "name": "", "type": "address" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+] as const
+
+// Art3HubSubscriptionV4 ABI for gasless upgrade with Elite plan support
+const ART3HUB_SUBSCRIPTION_V4_GASLESS_ABI = [
+  {
+    "inputs": [
+      { "name": "user", "type": "address" },
+      { "name": "autoRenew", "type": "bool" }
+    ],
+    "name": "subscribeToMasterPlanGasless",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "name": "user", "type": "address" },
+      { "name": "autoRenew", "type": "bool" }
+    ],
+    "name": "subscribeToElitePlanGasless",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "name": "user", "type": "address" },
+      { "name": "newPlan", "type": "uint8" }
+    ],
+    "name": "downgradeSubscriptionGasless",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -151,6 +234,46 @@ function getSubscriptionAddress(chainId: number): string | null {
   }
 }
 
+// Get Art3HubFactoryV4 contract address based on chain
+function getFactoryV4Address(chainId: number): string | null {
+  switch (chainId) {
+    case 84532: // Base Sepolia
+      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_84532 || null
+    case 8453: // Base Mainnet
+      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_8453 || null
+    case 999999999: // Zora Sepolia
+      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_999999999 || null
+    case 7777777: // Zora Mainnet
+      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_7777777 || null
+    case 44787: // Celo Alfajores
+      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_44787 || null
+    case 42220: // Celo Mainnet
+      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_42220 || null
+    default:
+      return null
+  }
+}
+
+// Get Art3HubSubscriptionV4 contract address based on chain
+function getSubscriptionV4Address(chainId: number): string | null {
+  switch (chainId) {
+    case 84532: // Base Sepolia
+      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_84532 || null
+    case 8453: // Base Mainnet
+      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_8453 || null
+    case 999999999: // Zora Sepolia
+      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_999999999 || null
+    case 7777777: // Zora Mainnet
+      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_7777777 || null
+    case 44787: // Celo Alfajores
+      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_44787 || null
+    case 42220: // Celo Mainnet
+      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_42220 || null
+    default:
+      return null
+  }
+}
+
 // Get RPC URL based on chain
 function getRpcUrl(chainId: number): string {
   switch (chainId) {
@@ -196,10 +319,10 @@ export async function POST(request: NextRequest) {
     })
 
     // Validate request based on type
-    if (body.type === 'upgradeSubscription') {
+    if (body.type === 'upgradeSubscription' || body.type === 'upgradeToMaster' || body.type === 'upgradeToElite' || body.type === 'downgradeSubscription') {
       if (!body.userAddress || !body.chainId) {
         return NextResponse.json(
-          { error: 'Missing required fields for subscription upgrade: userAddress, chainId' },
+          { error: 'Missing required fields for subscription operation: userAddress, chainId' },
           { status: 400 }
         )
       }
@@ -219,13 +342,26 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Get factory address
-    const factoryAddress = getFactoryAddress(body.chainId)
-    if (!factoryAddress) {
-      return NextResponse.json(
-        { error: `Art3HubFactoryV3 not deployed on chain ${body.chainId}` },
-        { status: 400 }
-      )
+    // Get factory address (V3 or V4 based on request type)
+    let factoryAddress: string | null = null
+    const isV4Request = ['mintV4', 'createCollectionV4', 'upgradeToMaster', 'upgradeToElite', 'downgradeSubscription'].includes(body.type)
+    
+    if (isV4Request) {
+      factoryAddress = getFactoryV4Address(body.chainId)
+      if (!factoryAddress) {
+        return NextResponse.json(
+          { error: `Art3HubFactoryV4 not deployed on chain ${body.chainId}` },
+          { status: 400 }
+        )
+      }
+    } else {
+      factoryAddress = getFactoryAddress(body.chainId)
+      if (!factoryAddress) {
+        return NextResponse.json(
+          { error: `Art3HubFactoryV3 not deployed on chain ${body.chainId}` },
+          { status: 400 }
+        )
+      }
     }
 
     // Check if we have relayer private key (for demo purposes)
@@ -691,9 +827,261 @@ export async function POST(request: NextRequest) {
         chain
       })
 
+    } else if (body.type === 'mintV4') {
+      // Convert string values back to BigInt for V4 mint voucher
+      if (body.voucher.nonce && typeof body.voucher.nonce === 'string') {
+        body.voucher.nonce = BigInt(body.voucher.nonce)
+      }
+      if (body.voucher.deadline && typeof body.voucher.deadline === 'string') {
+        body.voucher.deadline = BigInt(body.voucher.deadline)
+      }
+
+      console.log('🎯 Executing gasless V4 mint via Art3HubFactoryV4...')
+      console.log('🔍 V4 Mint params:', {
+        factoryAddress,
+        voucher: body.voucher,
+        signature: body.signature,
+        relayerAccount: relayerAccount.address
+      })
+
+      // Try to simulate the transaction first
+      try {
+        console.log('🔍 Simulating gasless V4 mint...')
+        await publicClient.simulateContract({
+          address: factoryAddress as `0x${string}`,
+          abi: ART3HUB_FACTORY_V4_GASLESS_ABI,
+          functionName: 'mintNFTGasless',
+          args: [body.voucher, body.signature as `0x${string}`],
+          account: relayerAccount
+        })
+        console.log('✅ V4 Simulation successful')
+      } catch (simError) {
+        console.error('❌ V4 Simulation failed:', simError)
+        return NextResponse.json(
+          { 
+            error: 'V4 Transaction simulation failed',
+            details: simError instanceof Error ? simError.message : 'Unknown simulation error',
+            relayerAccount: relayerAccount.address
+          },
+          { status: 400 }
+        )
+      }
+
+      hash = await walletClient.writeContract({
+        address: factoryAddress as `0x${string}`,
+        abi: ART3HUB_FACTORY_V4_GASLESS_ABI,
+        functionName: 'mintNFTGasless',
+        args: [body.voucher, body.signature as `0x${string}`],
+        chain
+      })
+
+    } else if (body.type === 'createCollectionV4') {
+      // Convert string values back to BigInt for V4 collection voucher
+      if (body.voucher.nonce && typeof body.voucher.nonce === 'string') {
+        body.voucher.nonce = BigInt(body.voucher.nonce)
+      }
+      if (body.voucher.deadline && typeof body.voucher.deadline === 'string') {
+        body.voucher.deadline = BigInt(body.voucher.deadline)
+      }
+      if (body.voucher.royaltyFeeNumerator && typeof body.voucher.royaltyFeeNumerator === 'string') {
+        body.voucher.royaltyFeeNumerator = BigInt(body.voucher.royaltyFeeNumerator)
+      }
+
+      console.log('🏭 Executing gasless V4 collection creation via Art3HubFactoryV4...')
+      console.log('🔍 V4 Collection creation params:', {
+        factoryAddress,
+        voucher: body.voucher,
+        signature: body.signature,
+        relayerAccount: relayerAccount.address
+      })
+
+      // Try to simulate the transaction first
+      try {
+        console.log('🔍 Simulating gasless V4 collection creation...')
+        const result = await publicClient.simulateContract({
+          address: factoryAddress as `0x${string}`,
+          abi: ART3HUB_FACTORY_V4_GASLESS_ABI,
+          functionName: 'createCollectionGasless',
+          args: [body.voucher, body.signature as `0x${string}`],
+          account: relayerAccount
+        })
+        console.log('✅ V4 Simulation successful, collection will be deployed at:', result.result)
+      } catch (simError) {
+        console.error('❌ V4 Simulation failed:', simError)
+        return NextResponse.json(
+          { 
+            error: 'V4 Transaction simulation failed',
+            details: simError instanceof Error ? simError.message : 'Unknown simulation error',
+            relayerAccount: relayerAccount.address
+          },
+          { status: 400 }
+        )
+      }
+
+      hash = await walletClient.writeContract({
+        address: factoryAddress as `0x${string}`,
+        abi: ART3HUB_FACTORY_V4_GASLESS_ABI,
+        functionName: 'createCollectionGasless',
+        args: [body.voucher, body.signature as `0x${string}`],
+        chain
+      })
+
+    } else if (body.type === 'upgradeToMaster') {
+      console.log('💎 Executing gasless V4 Master plan upgrade...')
+      
+      // Get V4 subscription address
+      const subscriptionV4Address = getSubscriptionV4Address(body.chainId)
+      if (!subscriptionV4Address) {
+        return NextResponse.json(
+          { error: `Art3HubSubscriptionV4 not deployed on chain ${body.chainId}` },
+          { status: 400 }
+        )
+      }
+      
+      console.log('🔍 V4 Master upgrade params:', {
+        subscriptionV4Address,
+        userAddress: body.userAddress,
+        autoRenew: body.autoRenew || false,
+        relayerAccount: relayerAccount.address
+      })
+
+      // Try to simulate the transaction first
+      try {
+        console.log('🔍 Simulating gasless V4 Master upgrade...')
+        await publicClient.simulateContract({
+          address: subscriptionV4Address as `0x${string}`,
+          abi: ART3HUB_SUBSCRIPTION_V4_GASLESS_ABI,
+          functionName: 'subscribeToMasterPlanGasless',
+          args: [body.userAddress as `0x${string}`, body.autoRenew || false],
+          account: relayerAccount
+        })
+        console.log('✅ V4 Master simulation successful')
+      } catch (simError) {
+        console.error('❌ V4 Master simulation failed:', simError)
+        return NextResponse.json(
+          { 
+            error: 'V4 Master upgrade simulation failed',
+            details: simError instanceof Error ? simError.message : 'Unknown simulation error',
+            relayerAccount: relayerAccount.address
+          },
+          { status: 400 }
+        )
+      }
+
+      hash = await walletClient.writeContract({
+        address: subscriptionV4Address as `0x${string}`,
+        abi: ART3HUB_SUBSCRIPTION_V4_GASLESS_ABI,
+        functionName: 'subscribeToMasterPlanGasless',
+        args: [body.userAddress as `0x${string}`, body.autoRenew || false],
+        chain
+      })
+
+    } else if (body.type === 'upgradeToElite') {
+      console.log('⭐ Executing gasless V4 Elite plan upgrade...')
+      
+      // Get V4 subscription address
+      const subscriptionV4Address = getSubscriptionV4Address(body.chainId)
+      if (!subscriptionV4Address) {
+        return NextResponse.json(
+          { error: `Art3HubSubscriptionV4 not deployed on chain ${body.chainId}` },
+          { status: 400 }
+        )
+      }
+      
+      console.log('🔍 V4 Elite upgrade params:', {
+        subscriptionV4Address,
+        userAddress: body.userAddress,
+        autoRenew: body.autoRenew || false,
+        relayerAccount: relayerAccount.address
+      })
+
+      // Try to simulate the transaction first
+      try {
+        console.log('🔍 Simulating gasless V4 Elite upgrade...')
+        await publicClient.simulateContract({
+          address: subscriptionV4Address as `0x${string}`,
+          abi: ART3HUB_SUBSCRIPTION_V4_GASLESS_ABI,
+          functionName: 'subscribeToElitePlanGasless',
+          args: [body.userAddress as `0x${string}`, body.autoRenew || false],
+          account: relayerAccount
+        })
+        console.log('✅ V4 Elite simulation successful')
+      } catch (simError) {
+        console.error('❌ V4 Elite simulation failed:', simError)
+        return NextResponse.json(
+          { 
+            error: 'V4 Elite upgrade simulation failed',
+            details: simError instanceof Error ? simError.message : 'Unknown simulation error',
+            relayerAccount: relayerAccount.address
+          },
+          { status: 400 }
+        )
+      }
+
+      hash = await walletClient.writeContract({
+        address: subscriptionV4Address as `0x${string}`,
+        abi: ART3HUB_SUBSCRIPTION_V4_GASLESS_ABI,
+        functionName: 'subscribeToElitePlanGasless',
+        args: [body.userAddress as `0x${string}`, body.autoRenew || false],
+        chain
+      })
+
+    } else if (body.type === 'downgradeSubscription') {
+      console.log('⬇️ Executing gasless V4 subscription downgrade...')
+      
+      // Get V4 subscription address
+      const subscriptionV4Address = getSubscriptionV4Address(body.chainId)
+      if (!subscriptionV4Address) {
+        return NextResponse.json(
+          { error: `Art3HubSubscriptionV4 not deployed on chain ${body.chainId}` },
+          { status: 400 }
+        )
+      }
+      
+      // Default to FREE plan (0) if no plan specified
+      const newPlan = body.userAddress ? 0 : 0 // FREE plan
+      
+      console.log('🔍 V4 Downgrade params:', {
+        subscriptionV4Address,
+        userAddress: body.userAddress,
+        newPlan,
+        relayerAccount: relayerAccount.address
+      })
+
+      // Try to simulate the transaction first
+      try {
+        console.log('🔍 Simulating gasless V4 downgrade...')
+        await publicClient.simulateContract({
+          address: subscriptionV4Address as `0x${string}`,
+          abi: ART3HUB_SUBSCRIPTION_V4_GASLESS_ABI,
+          functionName: 'downgradeSubscriptionGasless',
+          args: [body.userAddress as `0x${string}`, newPlan],
+          account: relayerAccount
+        })
+        console.log('✅ V4 Downgrade simulation successful')
+      } catch (simError) {
+        console.error('❌ V4 Downgrade simulation failed:', simError)
+        return NextResponse.json(
+          { 
+            error: 'V4 Downgrade simulation failed',
+            details: simError instanceof Error ? simError.message : 'Unknown simulation error',
+            relayerAccount: relayerAccount.address
+          },
+          { status: 400 }
+        )
+      }
+
+      hash = await walletClient.writeContract({
+        address: subscriptionV4Address as `0x${string}`,
+        abi: ART3HUB_SUBSCRIPTION_V4_GASLESS_ABI,
+        functionName: 'downgradeSubscriptionGasless',
+        args: [body.userAddress as `0x${string}`, newPlan],
+        chain
+      })
+
     } else {
       return NextResponse.json(
-        { error: `Unsupported operation type: ${body.type}. Supported types: 'mint', 'createCollection', 'upgradeSubscription', 'approveUSDC'.` },
+        { error: `Unsupported operation type: ${body.type}. Supported types: 'mint', 'createCollection', 'upgradeSubscription', 'approveUSDC', 'mintV4', 'createCollectionV4', 'upgradeToMaster', 'upgradeToElite', 'downgradeSubscription'.` },
         { status: 400 }
       )
     }
@@ -711,9 +1099,9 @@ export async function POST(request: NextRequest) {
       gasUsed: receipt.gasUsed.toString()
     })
 
-    // Extract collection address for collection creation
+    // Extract collection address for collection creation (V3 or V4)
     let contractAddress = null
-    if (body.type === 'createCollection') {
+    if (body.type === 'createCollection' || body.type === 'createCollectionV4') {
       console.log('🔍 Looking for CollectionCreated event in transaction logs...')
       console.log('📄 Transaction receipt logs:', receipt.logs.length, 'logs found')
       
