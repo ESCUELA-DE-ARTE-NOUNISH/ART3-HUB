@@ -405,6 +405,7 @@ export async function POST(request: NextRequest) {
           
       } else {
         // Continue assessment with next question
+        const questionsAsked = session.questions_asked || 0
         const nextQuestionType = ['experience', 'goals', 'interests', 'time', 'technical'][questionsAsked]
         const nextQuestion = assessmentQuestions[nextQuestionType as keyof typeof assessmentQuestions]?.[locale] || 
                             assessmentQuestions[nextQuestionType as keyof typeof assessmentQuestions]?.en
@@ -418,15 +419,15 @@ export async function POST(request: NextRequest) {
         Be super simple and friendly. Keep it conversational.`
         
         // Analyze the user's previous response for assessment scoring
-        if (assistantResponseCount > 0) {
-          const lastQuestionType = ['experience', 'goals', 'interests', 'time', 'technical'][assistantResponseCount % 5]
+        if (assistantResponseCount > 0 && assistantResponseCount <= 5) {
+          const lastQuestionType = ['experience', 'goals', 'interests', 'time', 'technical'][(assistantResponseCount - 1) % 5]
           const score = analyzeUserResponse(lastQuestionType, message, locale)
-          await ChatMemoryService.saveAssessmentResponse(session.id, lastQuestionType, 'Previous question', message, score)
+          await ChatMemoryService.saveAssessmentResponse(session.id, lastQuestionType, nextQuestion || 'Assessment question', message, score)
         }
         
         // Update session with incremented questions (but don't exceed 5)
         await ChatMemoryService.updateConversationSession(session.id, {
-          questions_asked: Math.min(assistantResponseCount + 1, 4)
+          questions_asked: Math.min(assistantResponseCount + 1, 5)
         })
       }
     } else if (session.conversation_stage === 'recommending') {
