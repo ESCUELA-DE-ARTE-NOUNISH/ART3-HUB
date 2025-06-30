@@ -28,6 +28,7 @@ type OutcomeRecommendation = {
   confidence: number
   redirectUrl?: string
   message: string
+  recommendations: ('tutorial' | 'opportunities' | 'create')[]
 }
 
 type UserProfile = {
@@ -226,6 +227,8 @@ function IntelligentAIAgentContent() {
   const [retryCount, setRetryCount] = useState(0)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
   const [conversationId, setConversationId] = useState<string | null>(null)
+  const [hasInitialized, setHasInitialized] = useState(false)
+  const initializationRef = useRef(false)
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -275,9 +278,13 @@ function IntelligentAIAgentContent() {
   useEffect(() => {
     const query = searchParams?.get('q')
     
-    if (walletAddress && messages.length === 0) {
+    if (walletAddress && messages.length === 0 && !initializationRef.current) {
+      initializationRef.current = true
+      setHasInitialized(true)
+      
       if (query && query.trim()) {
-        // If there's a query, send it directly without welcome message
+        // If there's a query, send it directly without any welcome message
+        // The API will handle the initial response appropriately
         handleSendMessage(query.trim())
       } else {
         // Show personalized welcome message based on user profile
@@ -288,7 +295,7 @@ function IntelligentAIAgentContent() {
         }])
       }
     }
-  }, [searchParams, walletAddress, locale, userProfile])
+  }, [searchParams, walletAddress, messages.length])
 
   const generateSuggestedQuestions = (profile: UserProfile) => {
     const suggestions = []
@@ -396,6 +403,8 @@ function IntelligentAIAgentContent() {
       setLastFailedMessage(null)
       setRetryCount(0)
       setShowResetConfirm(false)
+      setHasInitialized(false)
+      initializationRef.current = false
       
       // Show fresh welcome message
       const personalizedWelcome = getPersonalizedWelcome()
@@ -532,8 +541,9 @@ function IntelligentAIAgentContent() {
   const currentStageDescription = stageDescriptions[currentStage]?.[locale] || 
                                  stageDescriptions[currentStage]?.en || ""
 
+  // Dynamic progress calculation based on current assessment stage
   const progressPercentage = conversationStage === 'initial' ? 0 : 
-                           conversationStage === 'assessing' ? Math.min((agentResponses / 5) * 80, 80) : 
+                           conversationStage === 'assessing' ? Math.min((agentResponses / 10) * 90, 90) : 
                            100
 
   return (
@@ -574,7 +584,7 @@ function IntelligentAIAgentContent() {
                   <div className="flex items-center justify-center gap-2 mt-1">
                     <MessageCircle className="h-3 w-3 text-purple-500" />
                     <p className="text-xs text-gray-500">
-                      {agentResponses} of 5 questions
+                      {agentResponses} interactions • Getting to know you better
                     </p>
                   </div>
                 )}
@@ -674,36 +684,82 @@ function IntelligentAIAgentContent() {
                   </div>
                 </div>
                 
-                {/* Show action buttons only after exactly 5 assistant messages */}
+                {/* Show dynamic action buttons based on recommendations OR after 5+ messages */}
                 {message.role === "assistant" && 
-                 messages.filter(msg => msg.role === 'assistant').length >= 4 && 
-                 index === messages.length - 1 && (
+                 index === messages.length - 1 && 
+                 (
+                   (outcomeRecommendation && outcomeRecommendation.recommendations) || 
+                   (messages.filter(msg => msg.role === 'assistant').length >= 5)
+                 ) && (
                   <div className="flex justify-start mb-4">
                     <div className="max-w-lg lg:max-w-xl">
-                      <p className="text-base text-gray-600 mb-4">Choose what you want to do:</p>
+                      <p className="text-base text-gray-600 mb-4">
+                        {(outcomeRecommendation?.recommendations?.length === 1)
+                          ? "Here's what I recommend:" 
+                          : "Choose what you want to do:"
+                        }
+                      </p>
                       <div className="space-y-3">
-                        <Button 
-                          onClick={() => setShowVideoModal(true)}
-                          className="w-full bg-blue-500 hover:bg-blue-600 text-white text-base py-3 px-4 rounded-lg flex items-center justify-center gap-3 shadow-md hover:shadow-lg transition-all"
-                        >
-                          <Video className="h-5 w-5" />
-                          Watch Tutorial Video
-                        </Button>
-                        <Button 
-                          onClick={() => router.push(`/${locale}/opportunities`)}
-                          className="w-full bg-green-500 hover:bg-green-600 text-white text-base py-3 px-4 rounded-lg flex items-center justify-center gap-3 shadow-md hover:shadow-lg transition-all"
-                        >
-                          <Briefcase className="h-5 w-5" />
-                          Find Opportunities
-                        </Button>
-                        <Button 
-                          onClick={() => router.push(`/${locale}/create`)}
-                          className="w-full bg-purple-500 hover:bg-purple-600 text-white text-base py-3 px-4 rounded-lg flex items-center justify-center gap-3 shadow-md hover:shadow-lg transition-all"
-                        >
-                          <Palette className="h-5 w-5" />
-                          Create Art Now
-                        </Button>
+                        {(!outcomeRecommendation?.recommendations || outcomeRecommendation.recommendations.includes('tutorial')) && (
+                          <Button 
+                            onClick={() => setShowVideoModal(true)}
+                            className={`w-full text-white text-base py-3 px-4 rounded-lg flex items-center justify-center gap-3 shadow-md hover:shadow-lg transition-all ${
+                              outcomeRecommendation?.type === 'tutorial' 
+                                ? 'bg-blue-600 hover:bg-blue-700 ring-2 ring-blue-300' 
+                                : 'bg-blue-500 hover:bg-blue-600'
+                            }`}
+                          >
+                            <Video className="h-5 w-5" />
+                            {outcomeCards.tutorial[locale]?.title || outcomeCards.tutorial.en.title}
+                            {outcomeRecommendation?.type === 'tutorial' && 
+                              <span className="ml-2 text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full">
+                                Recommended
+                              </span>
+                            }
+                          </Button>
+                        )}
+                        {(!outcomeRecommendation?.recommendations || outcomeRecommendation.recommendations.includes('opportunities')) && (
+                          <Button 
+                            onClick={() => router.push(`/${locale}/opportunities`)}
+                            className={`w-full text-white text-base py-3 px-4 rounded-lg flex items-center justify-center gap-3 shadow-md hover:shadow-lg transition-all ${
+                              outcomeRecommendation?.type === 'opportunities' 
+                                ? 'bg-green-600 hover:bg-green-700 ring-2 ring-green-300' 
+                                : 'bg-green-500 hover:bg-green-600'
+                            }`}
+                          >
+                            <Briefcase className="h-5 w-5" />
+                            {outcomeCards.opportunities[locale]?.title || outcomeCards.opportunities.en.title}
+                            {outcomeRecommendation?.type === 'opportunities' && 
+                              <span className="ml-2 text-xs bg-green-200 text-green-800 px-2 py-1 rounded-full">
+                                Recommended
+                              </span>
+                            }
+                          </Button>
+                        )}
+                        {(!outcomeRecommendation?.recommendations || outcomeRecommendation.recommendations.includes('create')) && (
+                          <Button 
+                            onClick={() => router.push(`/${locale}/create`)}
+                            className={`w-full text-white text-base py-3 px-4 rounded-lg flex items-center justify-center gap-3 shadow-md hover:shadow-lg transition-all ${
+                              outcomeRecommendation?.type === 'create' 
+                                ? 'bg-purple-600 hover:bg-purple-700 ring-2 ring-purple-300' 
+                                : 'bg-purple-500 hover:bg-purple-600'
+                            }`}
+                          >
+                            <Palette className="h-5 w-5" />
+                            {outcomeCards.create[locale]?.title || outcomeCards.create.en.title}
+                            {outcomeRecommendation?.type === 'create' && 
+                              <span className="ml-2 text-xs bg-purple-200 text-purple-800 px-2 py-1 rounded-full">
+                                Recommended
+                              </span>
+                            }
+                          </Button>
+                        )}
                       </div>
+                      {outcomeRecommendation?.confidence && (
+                        <div className="mt-3 text-xs text-gray-500 text-center">
+                          Recommendation confidence: {Math.round(outcomeRecommendation.confidence * 100)}%
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
