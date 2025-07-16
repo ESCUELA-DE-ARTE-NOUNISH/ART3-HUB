@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { SUPPORTED_NETWORKS, getActiveNetwork, type NetworkConfig } from '@/lib/networks'
+import { SUPPORTED_NETWORKS, getActiveNetwork, isBaseOnlyDeployment, type NetworkConfig } from '@/lib/networks'
 import { useSwitchChain, useChainId, useAccount, useConfig } from 'wagmi'
 import { useToast } from '@/hooks/use-toast'
 import { useMiniKit } from '@coinbase/onchainkit/minikit'
@@ -12,9 +12,10 @@ interface NetworkSelectorProps {
   selectedNetwork: string
   onNetworkChange: (network: string) => void
   locale?: string
+  baseOnly?: boolean // New prop for Base-only mode
 }
 
-export function NetworkSelector({ selectedNetwork, onNetworkChange, locale = 'en' }: NetworkSelectorProps) {
+export function NetworkSelector({ selectedNetwork, onNetworkChange, locale = 'en', baseOnly = false }: NetworkSelectorProps) {
   const { switchChain, isPending } = useSwitchChain()
   const currentChainId = useChainId()
   const { isConnected } = useAccount()
@@ -23,6 +24,7 @@ export function NetworkSelector({ selectedNetwork, onNetworkChange, locale = 'en
   const { context } = useMiniKit()
   const isMiniKit = !!context
   const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
+  const isBaseOnlyMode = baseOnly || isBaseOnlyDeployment()
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [detectedChainId, setDetectedChainId] = useState<number | undefined>(currentChainId)
   const toastShownRef = useRef<number | undefined>()
@@ -379,6 +381,75 @@ export function NetworkSelector({ selectedNetwork, onNetworkChange, locale = 'en
     setRefreshTrigger(prev => prev + 1)
   }
 
+  // Base-only mode: Show simplified interface
+  if (isBaseOnlyMode) {
+    const baseNetwork = SUPPORTED_NETWORKS[0] // Base is the only network
+    const activeNetwork = getActiveNetwork(baseNetwork.name, isTestingMode)
+    const isCurrentChain = effectiveChainId === activeNetwork.id
+
+    return (
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-3">Network</label>
+        
+        <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-200 rounded-lg shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-xl">🔵</span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-blue-900">Base Network</span>
+                  {isCurrentChain && <span className="text-green-600 text-xs">● CONNECTED</span>}
+                </div>
+                <span className="text-sm text-blue-700">
+                  {activeNetwork.displayName} {isTestingMode ? '(Testnet)' : '(Mainnet)'}
+                </span>
+              </div>
+            </div>
+            
+            <div className="text-right">
+              <div className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-medium">
+                SELECTED
+              </div>
+              {isTestingMode && (
+                <p className="text-xs text-amber-600 mt-1">
+                  🧪 Testnet Mode
+                </p>
+              )}
+            </div>
+          </div>
+          
+          {!isCurrentChain && isConnected && (
+            <div className="mt-3 pt-3 border-t border-blue-200">
+              <Button
+                type="button"
+                size="sm"
+                disabled={isPending}
+                onClick={() => handleNetworkSelect(baseNetwork)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                {isPending ? (
+                  <>
+                    <div className="mr-2 h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    Switching to Base...
+                  </>
+                ) : (
+                  'Switch to Base Network'
+                )}
+              </Button>
+            </div>
+          )}
+        </div>
+        
+        <div className="mt-2 text-center">
+          <p className="text-xs text-gray-500">
+            🎯 Optimized for Base Network - Fast, Low-cost, Secure
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  // Original multi-network interface (for backward compatibility)
   return (
     <div className="mb-6">
       <label className="block text-sm font-medium mb-3">{t.selectNetwork}</label>

@@ -897,8 +897,8 @@ function CreateNFT() {
         return
       }
       
-      // 5. Check subscription and mint NFT with V4
-      setMintStatus('Checking V4 subscription status...')
+      // 5. Check subscription and mint NFT with V5
+      setMintStatus('Checking V5 subscription status...')
       
       // Verify subscription allows minting
       if (!subscriptionData?.canMint) {
@@ -926,9 +926,9 @@ function CreateNFT() {
         return
       }
       
-      setMintStatus('Creating NFT (gasless with V4)...')
+      setMintStatus('Creating NFT (gasless with V5)...')
       
-      // Create Art3Hub V4 service
+      // Create Art3Hub V4 service (using V5 contracts through V4 interface)
       const { art3hubV4Service } = createArt3HubV4ServiceWithUtils(publicClient, activeWalletClient, selectedNetwork, isTestingMode)
       
       const collectionParams = {
@@ -942,8 +942,8 @@ function CreateNFT() {
         royaltyBPS: Math.round(parseFloat(royaltyPercentage) * 100) // Convert percentage to basis points
       }
       
-      // Create collection first with V4 service
-      setMintStatus('Creating V4 collection...')
+      // Create collection first with V5 service
+      setMintStatus('Creating V5 collection...')
       const collectionResult = await art3hubV4Service.createCollection({
         name: title,
         symbol: title.replace(/\s+/g, '').toUpperCase().slice(0, 6) || 'ART3',
@@ -962,14 +962,14 @@ function CreateNFT() {
       await new Promise(resolve => setTimeout(resolve, 3000)) // Increased from 1.5s to 3s
       
       // Mint NFT to the newly created collection
-      setMintStatus('Minting NFT to V4 collection...')
+      setMintStatus('Minting NFT to V5 collection...')
       const mintResult = await art3hubV4Service.mintNFT({
         collectionContract: collectionResult.contractAddress,
         recipient: address,
         tokenURI: metadataUpload.ipfsUrl
       })
       
-      console.log('🔍 V4 TRANSACTION RESULTS:')
+      console.log('🔍 V5 TRANSACTION RESULTS:')
       console.log('Collection Result:', collectionResult)
       console.log('Mint Result:', mintResult)
       console.log('Collection Contract:', collectionResult.contractAddress)
@@ -1170,11 +1170,12 @@ function CreateNFT() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-                {/* Network Selector */}
+                {/* Network Selector - Base Only */}
                 <NetworkSelector
                   selectedNetwork={selectedNetwork}
                   onNetworkChange={setSelectedNetwork}
                   locale={locale}
+                  baseOnly={true}
                 />
                
                 

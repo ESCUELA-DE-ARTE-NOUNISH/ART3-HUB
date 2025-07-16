@@ -18,6 +18,8 @@
     "deploy:v4:celo": "npx hardhat run scripts/deploy-art3hub-v4.ts --network celo",
     "deploy:v4:zoraSepolia": "npx hardhat run scripts/deploy-art3hub-v4.ts --network zoraSepolia",
     "deploy:v4:zora": "npx hardhat run scripts/deploy-art3hub-v4.ts --network zora",
+    "deploy:v5:baseSepolia": "npx hardhat run scripts/deploy-v5.ts --network baseSepolia",
+    "deploy:v5:base": "npx hardhat run scripts/deploy-v5.ts --network base",
     "verify:baseSepolia": "npx hardhat run scripts/verify-contracts.ts --network baseSepolia",
     "verify:celoSepolia": "npx hardhat run scripts/verify-contracts.ts --network celoSepolia",
     "verify:zoraSepolia": "npx hardhat run scripts/verify-contracts.ts --network zoraSepolia",

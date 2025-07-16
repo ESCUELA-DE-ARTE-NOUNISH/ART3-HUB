@@ -17,6 +17,7 @@ export interface NetworkConfig {
   icon: string
 }
 
+// Base-only network configuration for focused deployment
 export const SUPPORTED_NETWORKS: NetworkConfig[] = [
   {
     id: 8453, // Base mainnet
@@ -34,7 +35,11 @@ export const SUPPORTED_NETWORKS: NetworkConfig[] = [
     },
     color: '#0052FF',
     icon: '🔵'
-  },
+  }
+]
+
+// Legacy networks (disabled for Base-only deployment)
+export const LEGACY_NETWORKS: NetworkConfig[] = [
   {
     id: 42220, // Celo mainnet
     name: 'celo',
@@ -91,8 +96,12 @@ export function getCurrentNetworkId(networkName: string): number {
 }
 
 export function getDefaultNetwork(): string {
-  // Auto-determine default network based on testing mode
-  // Testing mode: Base Sepolia (testnet)
-  // Production mode: Base (mainnet)
-  return 'base' // Always return 'base' - the actual network (testnet/mainnet) is determined by isTestingMode
+  // Base-only deployment - always return Base network
+  // The actual network (testnet/mainnet) is determined by isTestingMode
+  return 'base'
+}
+
+export function isBaseOnlyDeployment(): boolean {
+  // Feature flag for Base-only deployment
+  return true
 }

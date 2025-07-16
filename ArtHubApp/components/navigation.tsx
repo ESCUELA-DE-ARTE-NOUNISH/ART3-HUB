@@ -1,14 +1,15 @@
 "use client"
 
 import Link from "next/link"
-import { Home, Search, Grid3X3, User, Image, Bot } from "lucide-react"
+import { Home, Search, Grid3X3, User, Image, Bot, Plus, Shield } from "lucide-react"
 import { usePathname, useParams, useRouter } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import { useAccount, useConnect } from 'wagmi'
 import { useSafePrivy, useSafeWallets } from '@/hooks/useSafePrivy'
 import { useMiniKit } from '@coinbase/onchainkit/minikit'
 import { useToast } from '@/hooks/use-toast'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useAdminService } from '@/lib/services/admin-service'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,16 +27,20 @@ export default function Navigation() {
   const router = useRouter()
   const locale = (params?.locale as string) || defaultLocale
   const [showWalletAlert, setShowWalletAlert] = useState(false)
+  const [isCurrentUserAdmin, setIsCurrentUserAdmin] = useState(false)
   const { toast } = useToast()
 
   // Wallet connection hooks
-  const { isConnected: wagmiConnected } = useAccount()
+  const { isConnected: wagmiConnected, address: userAddress } = useAccount()
   const { connect, connectors } = useConnect()
   const { context } = useMiniKit()
 
   // Safe Privy hooks that handle MiniKit mode
   const { authenticated, login } = useSafePrivy()
   const { wallets } = useSafeWallets()
+  
+  // Admin service
+  const adminService = useAdminService()
 
   // Determine if user is actually connected based on environment
   const isActuallyConnected = (() => {
@@ -52,6 +57,12 @@ export default function Navigation() {
       return wagmiConnected
     }
   })()
+  
+  // Check if current user is admin
+  useEffect(() => {
+    const currentAddress = userAddress || wallets[0]?.address
+    setIsCurrentUserAdmin(adminService.isAdmin(currentAddress))
+  }, [userAddress, wallets, adminService])
   
   // Simple labels with no translation dependencies
   const labels = {
@@ -73,7 +84,15 @@ export default function Navigation() {
              
     profile: locale === 'es' ? 'Perfil' : 
              locale === 'pt' ? 'Perfil' : 
-             locale === 'fr' ? 'Profil' : 'Profile'
+             locale === 'fr' ? 'Profil' : 'Profile',
+             
+    mint: locale === 'es' ? 'Crear' : 
+          locale === 'pt' ? 'Criar' : 
+          locale === 'fr' ? 'Créer' : 'Mint',
+          
+    admin: locale === 'es' ? 'Admin' : 
+           locale === 'pt' ? 'Admin' : 
+           locale === 'fr' ? 'Admin' : 'Admin'
   }
 
   // Wallet required messages
@@ -222,6 +241,21 @@ export default function Navigation() {
             {labels.explore}
           </span>
         </Link>
+        
+        <button 
+          onClick={() => {
+            if (isActuallyConnected) {
+              handleProtectedNavigation("/mint")
+            }
+          }} 
+          className={`flex flex-col items-center px-1 py-1 ${getNavItemStyles("/mint", true).cursor}`}
+          disabled={!isActuallyConnected}
+        >
+          <Plus className={`h-5 w-5 ${getNavItemStyles("/mint", true).icon}`} />
+          <span className={`text-xs mt-1 ${getNavItemStyles("/mint", true).text}`}>
+            {labels.mint}
+          </span>
+        </button>
         {/* <Link href={getLocalizedPath("/ai-agent")} className="flex flex-col items-center px-1 py-1">
           <Bot className={`h-5 w-5 ${isActive("/ai-agent") ? "text-[#FF69B4]" : "text-gray-500"}`} />
           <span className={`text-xs mt-1 ${isActive("/ai-agent") ? "text-[#FF69B4] font-medium" : "text-gray-500"}`}>
@@ -258,6 +292,19 @@ export default function Navigation() {
             {labels.profile}
           </span>
         </button>
+
+        {/* Admin menu item - only show for connected admin users */}
+        {isActuallyConnected && isCurrentUserAdmin && (
+          <button 
+            onClick={() => handleProtectedNavigation("/admin")} 
+            className={`flex flex-col items-center px-1 py-1 ${getNavItemStyles("/admin", true).cursor}`}
+          >
+            <Shield className={`h-5 w-5 ${getNavItemStyles("/admin", true).icon}`} />
+            <span className={`text-xs mt-1 ${getNavItemStyles("/admin", true).text}`}>
+              {labels.admin}
+            </span>
+          </button>
+        )}
 
       </div>
 
