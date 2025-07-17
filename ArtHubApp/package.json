@@ -11,7 +11,8 @@
     "db:reset:v2": "npm run db:reset",
     "db:reset:manual": "node scripts/reset-database-simple.js",
     "env:check": "node scripts/check-env.js",
-    "db:migrate:chat": "tsx scripts/migrate-chat-memory.ts"
+    "db:migrate:chat": "tsx scripts/migrate-chat-memory.ts",
+    "setup:pinata": "node scripts/setup-pinata.js"
   },
   "dependencies": {
     "@coinbase/onchainkit": "^0.38.13",

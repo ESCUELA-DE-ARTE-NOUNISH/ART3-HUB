@@ -469,3 +469,36 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Built with ❤️ by the Art3 Hub team**
 
 *Empowering artists to create, own, and monetize their digital art on the blockchain.*
+
+# NFT Claim System
+
+ART3-HUB now includes a complete NFT claim system that allows users to claim NFTs using special codes. The system includes:
+
+- Admin interface for creating and managing claimable NFTs
+- User-facing claim form for redeeming NFTs
+- Firebase Storage for image storage
+- Pinata integration for IPFS metadata storage
+- Case-insensitive claim codes
+
+## Setting Up Pinata
+
+For storing NFT images and metadata on IPFS, we use Pinata. See [PINATA_SETUP.md](./PINATA_SETUP.md) for detailed instructions on how to set up Pinata.
+
+## NFT Claim Features
+
+- **Create Claimable NFTs**: Admins can create NFTs with unique claim codes
+- **Image Upload**: Upload and preview NFT images
+- **Claim Codes**: Generate and manage unique claim codes (case-insensitive)
+- **Claim Limits**: Set maximum number of claims per NFT
+- **Claim Period**: Set start and end dates for claiming
+- **Network Selection**: Choose which blockchain network to use
+- **IPFS Storage**: Store NFT metadata on IPFS via Pinata
+- **Firebase Storage**: Store NFT images in Firebase Storage
+
+## User Claim Flow
+
+1. User receives a claim code
+2. User enters the code on the claim page
+3. System validates the code (case-insensitive)
+4. User confirms the claim
+5. NFT is minted to the user's wallet

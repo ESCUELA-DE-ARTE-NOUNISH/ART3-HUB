@@ -1,5 +1,6 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app'
 import { getFirestore, Firestore, connectFirestoreEmulator } from 'firebase/firestore'
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 // Database types (migrated from Supabase)
 export interface UserProfile {
@@ -145,6 +146,9 @@ if (getApps().length === 0) {
 // Initialize Firestore
 export const db = getFirestore(app)
 
+// Initialize Storage
+export const storage = getStorage(app)
+
 // Connect to Firestore emulator only if explicitly enabled
 if (process.env.NODE_ENV === 'development' && process.env.USE_FIREBASE_EMULATOR === 'true') {
   try {
@@ -183,6 +187,8 @@ export const COLLECTIONS = {
   USER_SESSIONS: 'user_sessions',
   USER_ANALYTICS: 'user_analytics',
   NFTS: 'nfts',
+  CLAIMABLE_NFTS: 'claimable_nfts',
+  NFT_CLAIMS: 'nft_claims',
   USER_MEMORY: 'user_memory',
   CONVERSATION_SESSIONS: 'conversation_sessions',
   CONVERSATION_MESSAGES: 'conversation_messages',

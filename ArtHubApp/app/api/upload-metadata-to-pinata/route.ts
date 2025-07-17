@@ -1,48 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server'
+import axios from 'axios'
 
-export async function POST(request: NextRequest) {
+// Pinata API keys from environment variables
+const PINATA_API_KEY = process.env.PINATA_API_KEY
+const PINATA_SECRET_KEY = process.env.PINATA_SECRET_API_KEY
+
+export async function POST(req: NextRequest) {
   try {
-    // Check if Pinata keys are configured
-    if (!process.env.NEXT_PUBLIC_PINATA_API_KEY || !process.env.PINATA_SECRET_API_KEY) {
-      return NextResponse.json({ error: 'Pinata not configured' }, { status: 500 })
+    // Check if Pinata is configured
+    if (!PINATA_API_KEY || !PINATA_SECRET_KEY) {
+      return NextResponse.json({ error: 'Pinata API is not configured' }, { status: 503 })
     }
-
-    const { metadata, name } = await request.json()
-
+    
+    // Parse request body
+    const body = await req.json()
+    const { metadata, name } = body
+    
     if (!metadata) {
       return NextResponse.json({ error: 'No metadata provided' }, { status: 400 })
     }
-
-    // Upload metadata to Pinata
-    const response = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'pinata_api_key': process.env.NEXT_PUBLIC_PINATA_API_KEY!,
-        'pinata_secret_api_key': process.env.PINATA_SECRET_API_KEY!,
-      },
-      body: JSON.stringify({
+    
+    // Upload to Pinata
+    const response = await axios.post(
+      'https://api.pinata.cloud/pinning/pinJSONToIPFS',
+      {
         pinataContent: metadata,
         pinataMetadata: {
-          name: name || `ART3-HUB-metadata-${Date.now()}`,
+          name: name || `ART3-HUB-metadata-${Date.now()}`
         }
-      })
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          pinata_api_key: PINATA_API_KEY,
+          pinata_secret_api_key: PINATA_SECRET_KEY
+        }
+      }
+    )
+    
+    return NextResponse.json({
+      success: true,
+      IpfsHash: response.data.IpfsHash,
+      PinSize: response.data.PinSize,
+      Timestamp: response.data.Timestamp
     })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('Pinata metadata API error:', errorText)
-      return NextResponse.json({ error: `Pinata metadata upload failed: ${response.statusText}` }, { status: response.status })
-    }
-
-    const result = await response.json()
-    console.log('✅ Metadata uploaded to Pinata:', result.IpfsHash)
-
-    return NextResponse.json(result)
   } catch (error) {
-    console.error('Error uploading metadata to Pinata:', error)
+    console.error('Error uploading to Pinata:', error)
     return NextResponse.json(
-      { error: 'Failed to upload metadata to Pinata' },
+      { error: 'Failed to upload to Pinata' },
       { status: 500 }
     )
   }

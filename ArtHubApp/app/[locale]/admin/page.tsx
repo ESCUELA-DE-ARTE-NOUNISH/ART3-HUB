@@ -739,6 +739,26 @@ export default function AdminPage() {
               <UsersList pageSize={10} />
             </CardContent>
           </Card>
+          
+          {/* NFT Management */}
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-square-gem"><path d="M3 7V5a2 2 0 0 1 2-2h2" /><path d="M17 3h2a2 2 0 0 1 2 2v2" /><path d="M21 17v2a2 2 0 0 1-2 2h-2" /><path d="M7 21H5a2 2 0 0 1-2-2v-2" /><path d="M8 10h8" /><path d="M8 14h8" /></svg>
+                    Claimable NFTs
+                  </CardTitle>
+                  <CardDescription>
+                    Create and manage NFTs that can be claimed with special codes.
+                  </CardDescription>
+                </div>
+                <Button asChild className="bg-indigo-500 hover:bg-indigo-600 w-full md:w-auto mt-2 md:mt-0">
+                  <a href="/admin/nfts">Manage NFTs</a>
+                </Button>
+              </div>
+            </CardHeader>
+          </Card>
 
           {/* Backup & Restore */}
           <Card>
