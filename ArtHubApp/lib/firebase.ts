@@ -18,6 +18,43 @@ export interface UserProfile {
   updated_at: string
 }
 
+export interface UserSession {
+  id: string
+  wallet_address: string
+  privy_user_id: string
+  email?: string
+  phone?: string
+  linked_accounts: PrivyLinkedAccount[]
+  first_login_date: string
+  last_login_date: string
+  total_logins: number
+  created_at: string
+  updated_at: string
+}
+
+export interface PrivyLinkedAccount {
+  type: 'wallet' | 'email' | 'phone' | 'google' | 'twitter' | 'discord' | 'github' | 'spotify' | 'instagram' | 'tiktok' | 'linkedin' | 'apple' | 'farcaster'
+  address?: string
+  email?: string
+  phone?: string
+  subject?: string
+  name?: string
+  username?: string
+  first_verified_at: string
+  latest_verified_at: string
+}
+
+export interface UserAnalytics {
+  id: string
+  wallet_address: string
+  event_type: 'login' | 'logout' | 'profile_update' | 'nft_created' | 'collection_created' | 'subscription_purchased' | 'ai_interaction'
+  event_data: Record<string, any>
+  user_agent?: string
+  ip_address?: string
+  session_id?: string
+  created_at: string
+}
+
 export interface NFT {
   id: string
   wallet_address: string
@@ -108,13 +145,16 @@ if (getApps().length === 0) {
 // Initialize Firestore
 export const db = getFirestore(app)
 
-// Connect to Firestore emulator in development
-if (process.env.NODE_ENV === 'development' && !process.env.FIREBASE_EMULATOR_HUB) {
+// Connect to Firestore emulator only if explicitly enabled
+if (process.env.NODE_ENV === 'development' && process.env.USE_FIREBASE_EMULATOR === 'true') {
   try {
     connectFirestoreEmulator(db, 'localhost', 8080)
+    console.log('🔧 Connected to Firebase emulator')
   } catch (error) {
     console.log('Firestore emulator already connected or not available')
   }
+} else {
+  console.log('🔥 Using Firebase production service')
 }
 
 // Helper function to check if Firebase is properly configured
@@ -140,6 +180,8 @@ export const getFirebaseConfig = () => ({
 // Collection names
 export const COLLECTIONS = {
   USER_PROFILES: 'user_profiles',
+  USER_SESSIONS: 'user_sessions',
+  USER_ANALYTICS: 'user_analytics',
   NFTS: 'nfts',
   USER_MEMORY: 'user_memory',
   CONVERSATION_SESSIONS: 'conversation_sessions',

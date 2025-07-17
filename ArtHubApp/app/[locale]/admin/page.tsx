@@ -13,10 +13,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Plus, Edit, Trash2, Shield, AlertCircle, CheckCircle, Copy, Download, Upload, Eye, EyeOff } from "lucide-react"
+import { Plus, Edit, Trash2, Shield, AlertCircle, CheckCircle, Copy, Download, Upload, Eye, EyeOff, BarChart3 } from "lucide-react"
 import { useAccount } from "wagmi"
 import { useToast } from "@/hooks/use-toast"
 import { useAdminService, type AdminWallet } from "@/lib/services/admin-service"
+import { UserAnalyticsDashboard } from "@/components/admin/UserAnalyticsDashboard"
+import { UsersList } from "@/components/admin/UsersList"
 
 interface AdminTranslations {
   title: string
@@ -63,6 +65,8 @@ interface AdminTranslations {
   updateAdmin: string
   saveChanges: string
   close: string
+  userAnalytics: string
+  adminManagement: string
 }
 
 const translations: Record<string, AdminTranslations> = {
@@ -110,7 +114,9 @@ const translations: Record<string, AdminTranslations> = {
     editAdmin: "Edit Administrator",
     updateAdmin: "Update Administrator",
     saveChanges: "Save Changes",
-    close: "Close"
+    close: "Close",
+    userAnalytics: "User Analytics",
+    adminManagement: "Admin Management"
   },
   es: {
     title: "Panel de Administración",
@@ -156,7 +162,9 @@ const translations: Record<string, AdminTranslations> = {
     editAdmin: "Editar Administrador",
     updateAdmin: "Actualizar Administrador",
     saveChanges: "Guardar Cambios",
-    close: "Cerrar"
+    close: "Cerrar",
+    userAnalytics: "Analíticas de Usuario",
+    adminManagement: "Gestión de Administradores"
   },
   pt: {
     title: "Painel de Administração",
@@ -202,7 +210,9 @@ const translations: Record<string, AdminTranslations> = {
     editAdmin: "Editar Administrador",
     updateAdmin: "Atualizar Administrador",
     saveChanges: "Salvar Alterações",
-    close: "Fechar"
+    close: "Fechar",
+    userAnalytics: "Análise de Usuários",
+    adminManagement: "Gerenciamento de Administradores"
   },
   fr: {
     title: "Panneau d'Administration",
@@ -248,7 +258,9 @@ const translations: Record<string, AdminTranslations> = {
     editAdmin: "Modifier l'Administrateur",
     updateAdmin: "Mettre à Jour l'Administrateur",
     saveChanges: "Enregistrer les Modifications",
-    close: "Fermer"
+    close: "Fermer",
+    userAnalytics: "Analyse des Utilisateurs",
+    adminManagement: "Gestion des Administrateurs"
   }
 }
 
@@ -650,7 +662,7 @@ export default function AdminPage() {
                       </TableCell>
                       <TableCell>
                         {admin.label || (
-                          admin.address.toLowerCase() === "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f".toLowerCase() 
+                          admin.address.toLowerCase() === (process.env.NEXT_PUBLIC_ADMIN_WALLET || "").toLowerCase() 
                             ? t.defaultAdmin 
                             : "-"
                         )}
@@ -677,7 +689,7 @@ export default function AdminPage() {
                           >
                             <Edit className="h-3 w-3" />
                           </Button>
-                          {admin.address.toLowerCase() !== "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f".toLowerCase() && (
+                          {admin.address.toLowerCase() !== (process.env.NEXT_PUBLIC_ADMIN_WALLET || "").toLowerCase() && (
                             <>
                               <Button
                                 variant="ghost"
@@ -704,6 +716,27 @@ export default function AdminPage() {
                   ))}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+
+          {/* App Users Management */}
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" />
+                    App Users
+                  </CardTitle>
+                  <CardDescription>
+                    View and manage all users of the platform. Access user details, profile status, and more.
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Import the UsersList component at the top of the file */}
+              <UsersList pageSize={10} />
             </CardContent>
           </Card>
 

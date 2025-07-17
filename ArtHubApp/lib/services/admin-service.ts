@@ -12,7 +12,7 @@ export interface AdminWallet {
 }
 
 const ADMIN_WALLETS_KEY = 'art3hub_admin_wallets'
-const DEFAULT_ADMIN_WALLET = '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f'
+const DEFAULT_ADMIN_WALLET = process.env.NEXT_PUBLIC_ADMIN_WALLET || '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f'
 
 class AdminService {
   private adminWallets: AdminWallet[] = []

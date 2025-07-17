@@ -1,4 +1,4 @@
-// Art3Hub V5 Service - Enhanced contract-based data service for Base-only deployment
+// Art3Hub V6 Service - Enhanced contract-based data service for Base-only deployment with Firebase
 import { parseEther, type Address, type PublicClient, type WalletClient, createPublicClient, http, keccak256, toBytes, encodePacked, decodeEventLog } from 'viem'
 import { getActiveNetwork } from '@/lib/networks'
 import { base, baseSepolia } from '@/lib/wagmi'
@@ -343,13 +343,13 @@ function createBasePublicClient(chainId: number): PublicClient {
   }
 }
 
-// Get Art3HubFactoryV5 contract address based on Base network
-function getArt3HubFactoryV5Address(chainId: number): Address | null {
+// Get Art3HubFactoryV6 contract address based on Base network
+function getArt3HubFactoryV6Address(chainId: number): Address | null {
   switch (chainId) {
     case 84532: // Base Sepolia
-      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V5_84532 as Address) || null
+      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V6_84532 as Address) || null
     case 8453: // Base Mainnet
-      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V5_8453 as Address) || null
+      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V6_8453 as Address) || null
     default:
       return null
   }
@@ -449,13 +449,13 @@ export class Art3HubV5Service {
     this.walletClient = walletClient
     this.chainId = chainId
     
-    const factoryAddress = getArt3HubFactoryV5Address(chainId)
+    const factoryAddress = getArt3HubFactoryV6Address(chainId)
     if (!factoryAddress) {
-      throw new Error(`Art3HubFactoryV5 not deployed on Base chain ${chainId}`)
+      throw new Error(`Art3HubFactoryV6 not deployed on Base chain ${chainId}`)
     }
     this.factoryAddress = factoryAddress
     
-    console.log('🔧 Art3HubV5Service initialized for Base-only deployment:', {
+    console.log('🔧 Art3HubV6Service initialized for Base-only deployment:', {
       chainId,
       factory: this.factoryAddress,
       hasWallet: !!walletClient

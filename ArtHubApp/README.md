@@ -1,29 +1,34 @@
 # Art3 Hub Frontend Application
 
-A modern, multi-platform Web3 NFT creation and marketplace platform built with Next.js, integrating with Art3Hub smart contracts for decentralized NFT collection creation.
+> **🚀 V6 Update (January 2025): Firebase Integration & Fresh Smart Contracts**
+
+A modern, multi-platform Web3 NFT creation and marketplace platform built with Next.js, integrating with **Art3Hub V6 smart contracts** for decentralized NFT collection creation with **Firebase backend**.
 
 ## 🚀 Features
 
 ### Core Functionality
-- **🎨 NFT Collection Creation**: Deploy your own ERC-721 collections via Art3Hub Factory
+- **🎨 NFT Collection Creation**: Deploy your own ERC-721 collections via **Art3Hub V6 Factory**
 - **💎 Subscription-Based Minting**: Gasless NFT creation with tiered subscription plans
 - **🔍 NFT Discovery & Marketplace**: Explore, search, and discover NFTs with advanced filtering
 - **🎬 Branded Splash Screen**: Animated GIF intro with logo transition for premium app experience
-- **🌐 Multi-Network Support**: Base, Zora, and Celo networks (mainnet + testnet)
+- **🌐 Base Network Optimized**: Focused deployment on Base network for optimal performance
 - **📱 Multi-Platform**: Browser, mobile, and Farcaster frame compatibility
 - **🌍 Internationalization**: Support for English, Spanish, French, and Portuguese
 - **💎 IPFS Storage**: Decentralized file storage via Pinata integration
 - **🤖 AI Assistant**: Educational Web3 learning companion
+- **🔥 Firebase Backend**: Modern, scalable database solution - **NEW in V6**
+- **🛡️ Admin System**: Secure admin management with environment-based configuration - **NEW in V6**
 
 ### Smart Contract Integration
-- **Art3Hub Factory V3**: Latest gas-efficient NFT collection deployment with built-in gasless functionality
-- **Art3Hub Subscription V3**: Enhanced USDC-based subscription plans with auto-enrollment
+- **Art3Hub Factory V6**: Fresh deployment with enhanced gasless functionality - **UPDATED**
+- **Art3Hub Subscription V6**: Enhanced USDC-based subscription plans with auto-enrollment - **UPDATED**
 - **ERC-2981 Royalties**: Automatic royalty enforcement on secondary sales
 - **OpenSea Compatible**: Full marketplace integration with enhanced metadata support
 - **EIP-712 Meta-Transactions**: Built-in gasless operations for all subscribers
-- **Multi-Chain Support**: Base, Zora, and Celo networks with unified experience
+- **Base Network Focused**: Optimized for Base network performance
 - **Auto-Enrollment**: Seamless onboarding with automatic Free plan enrollment
 - **Real-time Fees**: Dynamic deployment fee fetching from contracts
+- **Fresh Contract Addresses**: New V6 deployment for clean start - **NEW**
 
 ### Subscription Plans
 - **Plan Gratuito (Free)**: 1 NFT per year, auto-enrollment, gasless creation
@@ -37,8 +42,8 @@ A modern, multi-platform Web3 NFT creation and marketplace platform built with N
 - **Frontend**: Next.js 15 + React 19 + TypeScript
 - **Styling**: Tailwind CSS + shadcn/ui components
 - **Web3**: Privy authentication + Wagmi + Viem
-- **Database**: Supabase (PostgreSQL)
-- **Storage**: Pinata IPFS
+- **Database**: **Firebase Firestore** - **UPDATED from Supabase**
+- **Storage**: Pinata IPFS + Firebase Storage
 - **AI**: OpenRouter integration
 
 ### Project Structure
@@ -97,9 +102,13 @@ ArtHubApp/
 
 4. **Configure Environment Variables**
    ```bash
-   # Database
-   DATABASE_URL=your_supabase_project_url
-   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+   # Firebase Configuration - NEW in V6
+   NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
+   NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
 
    # IPFS Storage
    NEXT_PUBLIC_PINATA_API_KEY=your_pinata_api_key
@@ -110,27 +119,29 @@ ArtHubApp/
    NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
    NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
 
-   # Smart Contract Addresses (V2)
-   NEXT_PUBLIC_ART3HUB_FACTORY_V2_BASE_SEPOLIA=0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2
-   NEXT_PUBLIC_ART3HUB_IMPLEMENTATION_V2_BASE_SEPOLIA=0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2
-   NEXT_PUBLIC_SUBSCRIPTION_MANAGER_BASE_SEPOLIA=0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4
-   NEXT_PUBLIC_USDC_84532=0x036CbD53842c5426634e7929541eC2318f3dCF7e
+   # Art3Hub V6 Contract Addresses - FRESH DEPLOYMENT
+   NEXT_PUBLIC_ART3HUB_FACTORY_V6_84532=0xbF47f26c4e038038bf75E20755012Cd6997c9AfA
+   NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V6_84532=0x4BF512C0eF46FD7C5F3F9522426E3F0413A8dB77
+   NEXT_PUBLIC_ART3HUB_COLLECTION_V6_IMPL_84532=0x723D8583b56456A0343589114228281F37a3b290
+
+   # Admin Configuration - NEW in V6
+   NEXT_PUBLIC_ADMIN_WALLET=0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f
 
    # Network Mode (true for testnet, false for mainnet)
    NEXT_PUBLIC_IS_TESTING_MODE=true
    ```
 
 5. **Database Setup**
-   Run the SQL migrations in your Supabase project:
-   ```sql
-   -- Initial schema setup
-   \i database/schema.sql
+   Firebase configuration is handled automatically. Set up your Firebase project:
+   ```bash
+   # 1. Create a Firebase project at https://console.firebase.google.com
+   # 2. Enable Firestore Database
+   # 3. Enable Storage
+   # 4. Configure authentication rules
+   # 5. Add your configuration to .env as shown above
    
-   -- Add NFT tables
-   \i database/nfts-table.sql
-   
-   -- Add explore page functionality (required for v2.0.0+)
-   \i database/migration-add-artist-category.sql
+   # Firebase setup is handled by the application automatically
+   # No SQL migrations needed - Firebase uses NoSQL document storage
    ```
 
 6. **Start Development Server**
@@ -146,13 +157,16 @@ ArtHubApp/
 
 ### Deployed Contracts
 
-#### Base Sepolia (Testnet)
-- **Factory V2 Contract**: [`0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2`](https://sepolia.basescan.org/address/0x926598248D6Eaf72B7907dC40ccf37F5Bc6047E2#code)
-- **Collection V2 Implementation**: [`0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2`](https://sepolia.basescan.org/address/0xa1A89BE5A1488d8C1C210770A2fA9EA0AfaB8Ab2#code)
-- **Subscription Manager**: [`0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4`](https://sepolia.basescan.org/address/0xe08976B44ca20c55ba0c8fb2b709A5741c1408A4#code)
+#### Base Sepolia (Testnet) - V6 Fresh Deployment
+- **Factory V6 Contract**: [`0xbF47f26c4e038038bf75E20755012Cd6997c9AfA`](https://sepolia.basescan.org/address/0xbF47f26c4e038038bf75E20755012Cd6997c9AfA#code)
+- **Subscription V6 Contract**: [`0x4BF512C0eF46FD7C5F3F9522426E3F0413A8dB77`](https://sepolia.basescan.org/address/0x4BF512C0eF46FD7C5F3F9522426E3F0413A8dB77#code)
+- **Collection V6 Implementation**: [`0x723D8583b56456A0343589114228281F37a3b290`](https://sepolia.basescan.org/address/0x723D8583b56456A0343589114228281F37a3b290#code)
 - **USDC Token (Base Sepolia)**: [`0x036CbD53842c5426634e7929541eC2318f3dCF7e`](https://sepolia.basescan.org/address/0x036CbD53842c5426634e7929541eC2318f3dCF7e#code)
+- **Admin Wallet**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
 - **Chain ID**: 84532
 - **Explorer**: [Base Sepolia Scan](https://sepolia.basescan.org)
+- **Deployment Date**: January 17, 2025
+- **Status**: ✅ All V6 contracts verified and operational
 
 ### Contract Integration Flow
 

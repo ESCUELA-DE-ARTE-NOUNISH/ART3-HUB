@@ -1,4 +1,23 @@
 # ART3-HUB
+
+> **🚀 Latest Update (January 2025): ART3-HUB V6 with Firebase Integration & Fresh Smart Contracts**
+
+## 🔥 V6 Major Updates
+
+- **🗄️ Database Migration**: Complete migration from Supabase to Firebase for improved scalability
+- **🆕 Fresh V6 Contracts**: New smart contracts deployed on Base Sepolia with clean addresses
+- **🛡️ Enhanced Admin System**: Configurable admin wallet system with environment-based security
+- **🧹 Clean Architecture**: Fresh start with optimized Base-only deployment
+- **⚡ Improved Performance**: Enhanced on-chain data storage and social features
+
+### 📋 V6 Contract Addresses (Base Sepolia)
+- **Factory V6**: `0xbF47f26c4e038038bf75E20755012Cd6997c9AfA`
+- **Subscription V6**: `0x4BF512C0eF46FD7C5F3F9522426E3F0413A8dB77`
+- **Collection Implementation V6**: `0x723D8583b56456A0343589114228281F37a3b290`
+- **Admin Wallet**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+
+---
+
 Mini app built on Base that acts as an educational and transactional bridge for artists entering Web3. It combines a custom AI agent that offers step-by-step guidance—from what a wallet is to how to mint an NFT—with integrated tools that allow users to mint their creations directly, without technical knowledge. 
 Mini app: https://farcaster.xyz/miniapps/HiSz_AYGZ62l/art3-hub
 Team: 
@@ -39,10 +58,11 @@ This Mini App combines AI Agents + Base onchain tools to make onboarding frictio
 
 - React + Tailwind CSS (frontend)
 - Node.js (backend)
+- **Firebase** (database & storage) - **NEW in V6**
 - OpenAI + LangChain (AI logic)
-- Zora SDK (NFT tools)
+- **Art3Hub V6 Contracts** (Base-optimized NFT tools) - **UPDATED**
 - Base Smart Wallets & Basenames
-- Solidity (optional for contracts)
+- Solidity (smart contracts)
 
 ## 👤 Team
 
