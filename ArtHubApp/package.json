@@ -56,6 +56,7 @@
     "@upstash/redis": "^1.34.9",
     "@zoralabs/protocol-sdk": "^0.13.8",
     "autoprefixer": "^10.4.20",
+    "axios": "^1.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
