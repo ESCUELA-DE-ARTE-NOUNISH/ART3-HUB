@@ -255,7 +255,7 @@ contract Art3HubCollectionV4 is
     /**
      * @dev Get collection version
      */
-    function version() external pure returns (string memory) {
+    function version() external pure virtual returns (string memory) {
         return "V4";
     }
 

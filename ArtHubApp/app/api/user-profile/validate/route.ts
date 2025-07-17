@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { UserService } from '@/lib/services/user-service'
+import { FirebaseUserService } from '@/lib/services/firebase-user-service'
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,9 +18,9 @@ export async function GET(request: NextRequest) {
     let isAvailable = false
 
     if (field === 'username') {
-      isAvailable = await UserService.isUsernameAvailable(value, walletAddress || undefined)
+      isAvailable = await FirebaseUserService.isUsernameAvailable(value, walletAddress || undefined)
     } else if (field === 'email') {
-      isAvailable = await UserService.isEmailAvailable(value, walletAddress || undefined)
+      isAvailable = await FirebaseUserService.isEmailAvailable(value, walletAddress || undefined)
     } else {
       return NextResponse.json(
         { error: 'Invalid field. Must be username or email' },

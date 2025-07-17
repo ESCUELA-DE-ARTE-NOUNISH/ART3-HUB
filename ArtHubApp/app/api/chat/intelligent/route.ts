@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ChatOpenAI } from '@langchain/openai'
 import { Ratelimit } from "@upstash/ratelimit"
 import { Redis } from "@upstash/redis"
-import { ChatMemoryService } from '@/lib/services/chat-memory-service'
+import { FirebaseChatMemoryService } from '@/lib/services/firebase-chat-memory-service'
 
 // Types
 type RateLimitInfo = {
@@ -529,8 +529,8 @@ export async function POST(request: NextRequest) {
     }
     
     // Get user memory and conversation session
-    const userMemory = await ChatMemoryService.getUserMemory(walletAddress)
-    const session = await ChatMemoryService.getOrCreateConversationSession(walletAddress, locale)
+    const userMemory = await FirebaseChatMemoryService.getUserMemory(walletAddress)
+    const session = await FirebaseChatMemoryService.getOrCreateConversationSession(walletAddress, locale)
     
     if (!session) {
       return NextResponse.json(
@@ -540,7 +540,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Get conversation history
-    const conversationHistory = await ChatMemoryService.getConversationMessages(session.id)
+    const conversationHistory = await FirebaseChatMemoryService.getConversationMessages(session.id)
     
     // Count assistant responses (exclude system messages)
     const assistantResponseCount = conversationHistory.filter(msg => msg.role === 'assistant').length
@@ -550,7 +550,7 @@ export async function POST(request: NextRequest) {
     const messageOrder = conversationHistory.length + 1
     
     // Save user message
-    await ChatMemoryService.saveConversationMessage(session.id, 'user', message, messageOrder)
+    await FirebaseChatMemoryService.saveConversationMessage(session.id, 'user', message, messageOrder)
     
     // Get language instruction
     const languageInstruction = languageInstructions[locale] || languageInstructions.en
@@ -561,7 +561,7 @@ export async function POST(request: NextRequest) {
     let outcomeRecommendation: ApiResponse['outcomeRecommendation'] = undefined
     
     // Get user context for personalization
-    const userContext = await ChatMemoryService.getConversationContext(walletAddress)
+    const userContext = await FirebaseChatMemoryService.getConversationContext(walletAddress)
     
     // Determine conversation flow based on stage
     if (session.conversation_stage === 'initial') {
@@ -570,7 +570,7 @@ export async function POST(request: NextRequest) {
       console.log(`Initial message analysis: "${message}" -> Score: ${initialScore}`)
       
       // Save the initial analysis
-      await ChatMemoryService.saveAssessmentResponse(session.id, 'initial', 'Initial conversation', message, initialScore)
+      await FirebaseChatMemoryService.saveAssessmentResponse(session.id, 'initial', 'Initial conversation', message, initialScore)
       
       // If initial message shows very strong CREATE intent, we can skip to recommendations
       if (initialScore === 5) {
@@ -607,7 +607,7 @@ export async function POST(request: NextRequest) {
         
         newStage = 'recommending'
         
-        await ChatMemoryService.updateConversationSession(session.id, {
+        await FirebaseChatMemoryService.updateConversationSession(session.id, {
           conversation_stage: 'recommending',
           outcome_path: outcome.type,
           questions_asked: 1
@@ -626,7 +626,7 @@ export async function POST(request: NextRequest) {
         newStage = 'assessing'
         
         // Update session to assessing stage and increment question count
-        await ChatMemoryService.updateConversationSession(session.id, {
+        await FirebaseChatMemoryService.updateConversationSession(session.id, {
           conversation_stage: 'assessing',
           questions_asked: 1
         })
@@ -638,10 +638,10 @@ export async function POST(request: NextRequest) {
       console.log(`Current message analysis: "${message}" -> Score: ${currentScore}`)
       
       // Save the current response analysis
-      await ChatMemoryService.saveAssessmentResponse(session.id, 'general', 'Current conversation', message, currentScore)
+      await FirebaseChatMemoryService.saveAssessmentResponse(session.id, 'general', 'Current conversation', message, currentScore)
       
       // Continue assessment
-      const assessmentData = await ChatMemoryService.getAssessmentResponses(session.id)
+      const assessmentData = await FirebaseChatMemoryService.getAssessmentResponses(session.id)
       
       // Simple and reliable: Show action buttons after 5th interaction
       const shouldShowActionButtons = assistantResponseCount >= 5
@@ -715,7 +715,7 @@ export async function POST(request: NextRequest) {
         newStage = 'recommending'
         
         // Update session with outcome
-        await ChatMemoryService.updateConversationSession(session.id, {
+        await FirebaseChatMemoryService.updateConversationSession(session.id, {
           conversation_stage: 'recommending',
           outcome_path: outcome.type,
           questions_asked: assistantResponseCount + 1 // Use actual count
@@ -740,13 +740,13 @@ export async function POST(request: NextRequest) {
         if (assistantResponseCount > 0) {
           const lastQuestionType = ['experience', 'goals', 'interests', 'time', 'technical'][(assistantResponseCount - 1) % 5] || 'general'
           const score = analyzeUserResponse(lastQuestionType, message, locale)
-          await ChatMemoryService.saveAssessmentResponse(session.id, lastQuestionType, nextQuestion || 'Assessment question', message, score)
+          await FirebaseChatMemoryService.saveAssessmentResponse(session.id, lastQuestionType, nextQuestion || 'Assessment question', message, score)
           
           console.log(`Analyzing response: "${message}" -> Type: ${lastQuestionType}, Score: ${score}`)
         }
         
         // Update session with incremented questions (but don't exceed 5)
-        await ChatMemoryService.updateConversationSession(session.id, {
+        await FirebaseChatMemoryService.updateConversationSession(session.id, {
           questions_asked: Math.min(assistantResponseCount + 1, 5)
         })
       }
@@ -781,11 +781,11 @@ export async function POST(request: NextRequest) {
     assistantResponse = completion.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response."
     
     // Save assistant response
-    await ChatMemoryService.saveConversationMessage(session.id, 'assistant', assistantResponse, messageOrder + 1)
+    await FirebaseChatMemoryService.saveConversationMessage(session.id, 'assistant', assistantResponse, messageOrder + 1)
     
     // Update user memory
     if (newStage === 'recommending' && outcomeRecommendation) {
-      await ChatMemoryService.updateUserMemoryAfterOutcome(
+      await FirebaseChatMemoryService.updateUserMemoryAfterOutcome(
         walletAddress,
         outcomeRecommendation.type,
         {

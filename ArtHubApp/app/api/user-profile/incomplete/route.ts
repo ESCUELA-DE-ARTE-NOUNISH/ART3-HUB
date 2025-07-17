@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-import { UserService } from '@/lib/services/user-service'
+import { FirebaseUserService } from '@/lib/services/firebase-user-service'
 
 export async function GET() {
   try {
-    const profiles = await UserService.getUsersWithIncompleteProfiles()
+    const profiles = await FirebaseUserService.getUsersWithIncompleteProfiles()
     
     return NextResponse.json({ profiles })
   } catch (error) {

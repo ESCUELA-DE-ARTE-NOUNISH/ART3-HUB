@@ -42,7 +42,12 @@ export class IPFSService {
     formData.append('file', file)
     formData.append('name', `ART3-HUB-${Date.now()}-${file.name}`)
     
-    const response = await fetch('/api/upload-to-pinata', {
+    // Use absolute URL to avoid issues with relative paths in server components
+    const baseUrl = typeof window !== 'undefined' 
+      ? window.location.origin 
+      : process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000'
+    
+    const response = await fetch(`${baseUrl}/api/upload-to-pinata`, {
       method: 'POST',
       body: formData
     })
@@ -96,7 +101,12 @@ export class IPFSService {
   
   // Upload metadata to Pinata via our API endpoint
   private static async uploadMetadataToPinata(metadata: NFTMetadata): Promise<IPFSUploadResult> {
-    const response = await fetch('/api/upload-metadata-to-pinata', {
+    // Use absolute URL to avoid issues with relative paths in server components
+    const baseUrl = typeof window !== 'undefined' 
+      ? window.location.origin 
+      : process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000'
+    
+    const response = await fetch(`${baseUrl}/api/upload-metadata-to-pinata`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -1,23 +1,24 @@
-# Art3 Hub V4 Smart Contracts
+# Art3 Hub V6 Smart Contracts
 
-> **Advanced Gasless NFT Platform with Elite Creator Plan and Enhanced Subscription Management**
+> **🚀 Fresh Deployment with Firebase Integration & Base-Optimized Architecture**
 
-Art3 Hub V4 is a next-generation decentralized NFT platform that provides a complete gasless experience with three subscription tiers including the new Elite Creator plan, built-in subscription management, auto-enrollment, and multi-chain support designed for seamless Web3 onboarding.
+Art3 Hub V6 represents a fresh start with new smart contracts deployed on Base Sepolia, featuring Firebase backend integration, enhanced admin management, and optimized gasless NFT platform with three subscription tiers including Elite Creator plan.
 
-## 🚀 **Art3Hub V4 - Current Implementation**
+## 🚀 **Art3Hub V6 - Fresh Deployment (January 2025)**
 
 ### Key Features
 
 - **🆓 True Gasless Experience**: All operations including collection creation are gasless for users
-- **🔄 Auto-Enrollment**: New users automatically enrolled in Free plan on first interaction
-- **💳 USDC Payments**: Seamless subscription payments via USDC across all chains
+- **🔥 Firebase Integration**: Complete backend migration from Supabase to Firebase
+- **🆕 Fresh V6 Contracts**: New contract addresses on Base Sepolia for clean start
+- **💳 USDC Payments**: Seamless subscription payments via USDC on Base network
 - **⚡ Built-in Meta-Transactions**: EIP-712 signatures for all operations
-- **🌍 Multi-Chain Support**: Base, Zora, and Celo networks with unified experience
+- **🌐 Base Network Focused**: Optimized deployment for Base network performance
 - **🎨 OpenSea Compatible**: Enhanced metadata and proxy registry integration
 - **📊 Smart Quota Management**: Automated tracking and enforcement
-- **🔒 Enterprise Security**: Advanced access controls and comprehensive audit trail
-- **🔧 Environment-Based Security**: All configuration via environment variables
-- **👑 Elite Creator Plan**: New $9.99/month plan for high-volume artists (25 NFTs/month)
+- **🔒 Enhanced Security**: Environment-based admin configuration and audit trails
+- **🛡️ Admin Management**: Configurable admin wallet system with CRUD operations
+- **👑 Elite Creator Plan**: $9.99/month plan for high-volume artists (25 NFTs/month)
 - **📈 Plan Management**: Upgrade/downgrade functionality between subscription tiers
 
 ## 🏗️ **V4 Architecture**
@@ -218,45 +219,29 @@ Frontend App      User Wallet        V3 Contracts       Gasless Relayer      Blo
 - **Gasless**: ✅ All operations gasless
 - **Target**: High-volume artists, studios, professional creators
 
-## 🌐 **V4 Deployed Contracts (June 21, 2025)**
+## 🌐 **V6 Deployed Contracts (January 17, 2025)**
 
-### Base Sepolia (Testnet) - Chain ID: 84532
-- **Deployment Date**: June 21, 2025
-- **Status**: ✅ **All V4 contracts verified and tested**
-- **SubscriptionV4**: `0x2650E7234D4f3796eA627013a94E3602D5720FD4`
-- **FactoryV4**: `0x63EB148099F90b90A25f7382E22d68C516CD4f03`
-- **CollectionV4 Implementation**: `0xA66713166A91C946d85e4b45cA14B190F4e33977`
+### Base Sepolia (Testnet) - Chain ID: 84532 - FRESH DEPLOYMENT
+- **Deployment Date**: January 17, 2025
+- **Status**: ✅ **All V6 contracts verified and operational**
+- **FactoryV6**: `0xbF47f26c4e038038bf75E20755012Cd6997c9AfA`
+- **SubscriptionV6**: `0x4BF512C0eF46FD7C5F3F9522426E3F0413A8dB77`
+- **CollectionV6 Implementation**: `0x723D8583b56456A0343589114228281F37a3b290`
 - **USDC Token**: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
 - **Treasury Wallet**: `0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9`
+- **Admin Wallet**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
 - **Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1`
 - **BaseScan Links** (Verified):
-  - [FactoryV4](https://sepolia.basescan.org/address/0x63EB148099F90b90A25f7382E22d68C516CD4f03#code)
-  - [CollectionV4 Implementation](https://sepolia.basescan.org/address/0xA66713166A91C946d85e4b45cA14B190F4e33977#code)
+  - [FactoryV6](https://sepolia.basescan.org/address/0xbF47f26c4e038038bf75E20755012Cd6997c9AfA#code)
+  - [SubscriptionV6](https://sepolia.basescan.org/address/0x4BF512C0eF46FD7C5F3F9522426E3F0413A8dB77#code)
+  - [CollectionV6 Implementation](https://sepolia.basescan.org/address/0x723D8583b56456A0343589114228281F37a3b290#code)
 
-### Zora Sepolia (Testnet) - Chain ID: 999999999
-- **Deployment Date**: June 21, 2025
-- **Status**: ✅ **All V4 contracts deployed and verified**
-- **SubscriptionV4**: `0xF205A20e23440C58822cA16a00b67F58CD672e16`
-- **FactoryV4**: `0x5516B7b1Ba0cd76294dD1c17685F845bD929C574`
-- **CollectionV4 Implementation**: `0x00B6E63eaAfD7836Dc6310dd03F38BcD2c19d99a`
-- **USDC Token**: `0xCccCCccc7021b32EBb4e8C08314bD62F7c653EC4`
-- **Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1`
-- **Zora Explorer Links** (Verified):
-  - [SubscriptionV4](https://sepolia.explorer.zora.energy/address/0xF205A20e23440C58822cA16a00b67F58CD672e16#code)
-  - [FactoryV4](https://sepolia.explorer.zora.energy/address/0x5516B7b1Ba0cd76294dD1c17685F845bD929C574#code)
-  - [CollectionV4 Implementation](https://sepolia.explorer.zora.energy/address/0x00B6E63eaAfD7836Dc6310dd03F38BcD2c19d99a#code)
-
-### Celo Alfajores (Testnet) - Chain ID: 44787
-- **Deployment Date**: June 21, 2025
-- **Status**: ✅ **All V4 contracts verified and tested**
-- **SubscriptionV4**: `0xBb256639931Be1D92D5b3940dE81ed68EfDC3c27`
-- **FactoryV4**: `0x6CB2D09DBb71723a0E9ee134B19b0FAca9963e31`
-- **CollectionV4 Implementation**: `0x03ddf3C35508fF7B25A908962492273dc71523fe`
-- **USDC Token**: `0x2F25deB3848C207fc8E0c34035B3Ba7fC157602B`
-- **Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1`
-- **Celo Explorer Links** (Verified):
-  - [FactoryV4](https://alfajores.celoscan.io/address/0x6CB2D09DBb71723a0E9ee134B19b0FAca9963e31#code)
-  - [CollectionV4 Implementation](https://alfajores.celoscan.io/address/0x03ddf3C35508fF7B25A908962492273dc71523fe#code)
+### Base Network Focus
+V6 deployment is **Base-only optimized** for maximum performance and Firebase integration:
+- **Primary Network**: Base Sepolia (Testnet) - Fully operational
+- **Future Deployment**: Base Mainnet (when ready for production)
+- **Optimization**: All features optimized specifically for Base network
+- **Legacy Support**: Previous V4/V5 multi-chain deployments remain functional
 
 ## 🔧 **Environment Setup**
 

@@ -23,7 +23,15 @@ async function main() {
   console.log("Network:", network.name);
   
   const [deployer] = await ethers.getSigners();
+  
+  // Load environment variables for ownership transfer
+  const INITIAL_OWNER = process.env.INITIAL_OWNER;
+  if (!INITIAL_OWNER) {
+    throw new Error("❌ INITIAL_OWNER not set in environment variables");
+  }
+  
   console.log("Deployer address:", deployer.address);
+  console.log("Initial Owner:", INITIAL_OWNER);
   console.log("Deployer balance:", ethers.formatEther(await deployer.provider.getBalance(deployer.address)), "ETH");
 
   // Get USDC address for current network
@@ -41,7 +49,7 @@ async function main() {
     TREASURY_WALLET,       // Treasury wallet
     GASLESS_RELAYER_WALLET, // Gasless relayer
     deployer.address,      // Factory contract (will be updated later)
-    deployer.address       // Initial owner
+    INITIAL_OWNER          // Initial owner
   );
   await subscription.waitForDeployment();
   const subscriptionAddress = await subscription.getAddress();
@@ -53,7 +61,7 @@ async function main() {
   const factory = await FactoryV4.deploy(
     subscriptionAddress,   // Subscription manager
     GASLESS_RELAYER_WALLET, // Gasless relayer
-    deployer.address       // Initial owner
+    INITIAL_OWNER          // Initial owner
   );
   await factory.waitForDeployment();
   const factoryAddress = await factory.getAddress();
@@ -93,7 +101,61 @@ async function main() {
   console.log("USDC Token:", usdcAddress);
   console.log("Treasury Wallet:", TREASURY_WALLET);
   console.log("Gasless Relayer:", GASLESS_RELAYER_WALLET);
-  console.log("Contract Owner:", deployer.address);
+  console.log("Contract Owner:", INITIAL_OWNER);
+
+  // 6. Transfer ownership to INITIAL_OWNER
+  console.log("\n🔄 Transferring ownership to INITIAL_OWNER...");
+  
+  try {
+    // Transfer ownership of Art3HubSubscriptionV4
+    console.log("📝 Transferring ownership of Art3HubSubscriptionV4...");
+    const currentSubscriptionOwner = await subscription.owner();
+    console.log("   Current owner:", currentSubscriptionOwner);
+    console.log("   New owner:", INITIAL_OWNER);
+    
+    if (currentSubscriptionOwner.toLowerCase() !== INITIAL_OWNER.toLowerCase()) {
+      const transferSubscriptionTx = await subscription.transferOwnership(INITIAL_OWNER);
+      await transferSubscriptionTx.wait();
+      console.log("✅ Subscription ownership transferred");
+      console.log("   Transaction:", transferSubscriptionTx.hash);
+    } else {
+      console.log("✅ Subscription already owned by INITIAL_OWNER");
+    }
+
+    // Transfer ownership of Art3HubFactoryV4
+    console.log("\n📝 Transferring ownership of Art3HubFactoryV4...");
+    const currentFactoryOwner = await factory.owner();
+    console.log("   Current owner:", currentFactoryOwner);
+    console.log("   New owner:", INITIAL_OWNER);
+    
+    if (currentFactoryOwner.toLowerCase() !== INITIAL_OWNER.toLowerCase()) {
+      const transferFactoryTx = await factory.transferOwnership(INITIAL_OWNER);
+      await transferFactoryTx.wait();
+      console.log("✅ Factory ownership transferred");
+      console.log("   Transaction:", transferFactoryTx.hash);
+    } else {
+      console.log("✅ Factory already owned by INITIAL_OWNER");
+    }
+
+    // Verify ownership transfers
+    console.log("\n🔍 Verifying ownership transfers...");
+    const finalSubscriptionOwner = await subscription.owner();
+    const finalFactoryOwner = await factory.owner();
+    
+    console.log("✅ Final ownership verification:");
+    console.log("   Subscription owner:", finalSubscriptionOwner);
+    console.log("   Factory owner:", finalFactoryOwner);
+    
+    if (finalSubscriptionOwner.toLowerCase() === INITIAL_OWNER.toLowerCase() && 
+        finalFactoryOwner.toLowerCase() === INITIAL_OWNER.toLowerCase()) {
+      console.log("✅ All ownership transfers completed successfully!");
+    } else {
+      console.log("⚠️  Ownership transfer verification failed");
+    }
+    
+  } catch (error) {
+    console.error("❌ Ownership transfer failed:", error);
+  }
 
   // 7. Generate environment variables
   const chainId = (await deployer.provider.getNetwork()).chainId;
@@ -106,8 +168,8 @@ async function main() {
   // 8. Display verification commands
   console.log("\n🔍 Verification Commands:");
   console.log("=" * 60);
-  console.log(`npx hardhat verify --network ${network.name} ${subscriptionAddress} "${usdcAddress}" "${TREASURY_WALLET}" "${GASLESS_RELAYER_WALLET}" "${deployer.address}" "${deployer.address}"`);
-  console.log(`npx hardhat verify --network ${network.name} ${factoryAddress} "${subscriptionAddress}" "${GASLESS_RELAYER_WALLET}" "${deployer.address}"`);
+  console.log(`npx hardhat verify --network ${network.name} ${subscriptionAddress} "${usdcAddress}" "${TREASURY_WALLET}" "${GASLESS_RELAYER_WALLET}" "${deployer.address}" "${INITIAL_OWNER}"`);
+  console.log(`npx hardhat verify --network ${network.name} ${factoryAddress} "${subscriptionAddress}" "${GASLESS_RELAYER_WALLET}" "${INITIAL_OWNER}"`);
   console.log(`npx hardhat verify --network ${network.name} ${collectionImplementation}`);
 
   // 9. Next steps
@@ -117,6 +179,7 @@ async function main() {
   console.log("3. Fund the gasless relayer wallet with ETH");
   console.log("4. Test contract functionality");
   console.log("5. Update frontend to use V4 contracts");
+  console.log("6. Verify ownership has been transferred to INITIAL_OWNER");
 
   console.log("\n✨ V4 Features Available:");
   console.log("- FREE Plan: 1 NFT per month (updated from yearly)");

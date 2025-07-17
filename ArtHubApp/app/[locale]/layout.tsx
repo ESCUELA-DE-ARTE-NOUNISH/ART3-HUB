@@ -12,6 +12,7 @@ import HtmlWithLang from "@/components/html-with-lang";
 import { Wallet } from "@/components/wallet"
 import { PrivyAppProvider } from "@/providers/PrivyProvider"
 import AppWrapper from "@/components/app-wrapper"
+import UserSessionTracker from "@/components/UserSessionTracker"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -58,8 +59,9 @@ export default function LocalizedRootLayout({
         <ThemeProvider attribute="class" defaultTheme="light">
           <Providers>
             <PrivyAppProvider>
-              <AppWrapper>
-                <div className="flex flex-col min-h-screen">
+              <UserSessionTracker>
+                <AppWrapper>
+                  <div className="flex flex-col min-h-screen">
                   {/* Header with wallet and language selector */}
                   <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b">
                     <div className="flex justify-end items-center px-2 sm:px-3 py-2 gap-1 sm:gap-2">
@@ -73,8 +75,9 @@ export default function LocalizedRootLayout({
                     {children}
                   </main>
                   <Navigation />
-                </div>
-              </AppWrapper>
+                  </div>
+                </AppWrapper>
+              </UserSessionTracker>
             </PrivyAppProvider>
           </Providers>
         </ThemeProvider>

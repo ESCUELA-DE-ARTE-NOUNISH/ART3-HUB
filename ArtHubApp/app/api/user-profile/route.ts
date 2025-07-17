@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { UserService } from '@/lib/services/user-service'
-import { getSupabaseConfig } from '@/lib/supabase'
+import { FirebaseUserService } from '@/lib/services/firebase-user-service'
+import { getFirebaseConfig } from '@/lib/firebase'
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('Supabase config:', getSupabaseConfig())
+    console.log('Firebase config:', getFirebaseConfig())
     
     const { searchParams } = new URL(request.url)
     const walletAddress = searchParams.get('wallet_address')
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     }
 
     console.log('Fetching profile for wallet:', walletAddress)
-    const profile = await UserService.getUserProfile(walletAddress)
+    const profile = await FirebaseUserService.getUserProfile(walletAddress)
     console.log('Profile result:', profile)
     
     return NextResponse.json({ profile })
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       { 
         error: 'Internal server error',
         details: error instanceof Error ? error.message : 'Unknown error',
-        supabaseConfig: getSupabaseConfig()
+        firebaseConfig: getFirebaseConfig()
       },
       { status: 500 }
     )
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('Supabase config:', getSupabaseConfig())
+    console.log('Firebase config:', getFirebaseConfig())
     
     const body = await request.json()
     const { wallet_address } = body
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Creating profile for wallet:', wallet_address)
-    const profile = await UserService.upsertUserProfile(wallet_address)
+    const profile = await FirebaseUserService.upsertUserProfile(wallet_address)
     console.log('Profile created:', profile)
     
     return NextResponse.json({ profile })
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       { 
         error: 'Internal server error',
         details: error instanceof Error ? error.message : 'Unknown error',
-        supabaseConfig: getSupabaseConfig()
+        firebaseConfig: getFirebaseConfig()
       },
       { status: 500 }
     )
@@ -82,10 +82,10 @@ export async function PUT(request: NextRequest) {
 
     // If only updating profile_complete status
     if (typeof profile_complete === 'boolean' && Object.keys(profileData).length === 0) {
-      success = await UserService.updateProfileCompletion(wallet_address, profile_complete)
+      success = await FirebaseUserService.updateProfileCompletion(wallet_address, profile_complete)
     } else {
       // Updating full profile data
-      const updatedProfile = await UserService.updateUserProfile(wallet_address, profileData)
+      const updatedProfile = await FirebaseUserService.updateUserProfile(wallet_address, profileData)
       success = !!updatedProfile
     }
     
@@ -103,7 +103,7 @@ export async function PUT(request: NextRequest) {
       { 
         error: 'Internal server error',
         details: error instanceof Error ? error.message : 'Unknown error',
-        supabaseConfig: getSupabaseConfig()
+        firebaseConfig: getFirebaseConfig()
       },
       { status: 500 }
     )
@@ -122,7 +122,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const success = await UserService.deleteUserProfile(walletAddress)
+    const success = await FirebaseUserService.deleteUserProfile(walletAddress)
     
     if (!success) {
       return NextResponse.json(

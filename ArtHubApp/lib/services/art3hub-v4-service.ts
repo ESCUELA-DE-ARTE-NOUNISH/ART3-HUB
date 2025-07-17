@@ -227,40 +227,40 @@ function createChainSpecificPublicClient(chainId: number): PublicClient {
   }
 }
 
-// Get Art3HubFactoryV4 contract address based on network
+// Get Art3HubFactoryV4 contract address based on network (Updated to use V5 contracts)
 function getArt3HubFactoryV4Address(chainId: number): Address | null {
   switch (chainId) {
     case 84532: // Base Sepolia
-      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_84532 as Address) || null
+      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V5_84532 as Address) || (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_84532 as Address) || null
     case 8453: // Base Mainnet
-      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_8453 as Address) || null
-    case 999999999: // Zora Sepolia
+      return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V5_8453 as Address) || (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_8453 as Address) || null
+    case 999999999: // Zora Sepolia - V5 Base-only, fallback to V4
       return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_999999999 as Address) || null
-    case 7777777: // Zora Mainnet
+    case 7777777: // Zora Mainnet - V5 Base-only, fallback to V4
       return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_7777777 as Address) || null
-    case 44787: // Celo Alfajores
+    case 44787: // Celo Alfajores - V5 Base-only, fallback to V4
       return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_44787 as Address) || null
-    case 42220: // Celo Mainnet
+    case 42220: // Celo Mainnet - V5 Base-only, fallback to V4
       return (process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_42220 as Address) || null
     default:
       return null
   }
 }
 
-// Get Art3HubSubscriptionV4 contract address based on network
+// Get Art3HubSubscriptionV4 contract address based on network (Updated to use V5 contracts)
 function getArt3HubSubscriptionV4Address(chainId: number): Address | null {
   switch (chainId) {
     case 84532: // Base Sepolia
-      return (process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_84532 as Address) || null
+      return (process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V5_84532 as Address) || (process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_84532 as Address) || null
     case 8453: // Base Mainnet
-      return (process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_8453 as Address) || null
-    case 999999999: // Zora Sepolia
+      return (process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V5_8453 as Address) || (process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_8453 as Address) || null
+    case 999999999: // Zora Sepolia - V5 Base-only, fallback to V4
       return (process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_999999999 as Address) || null
-    case 7777777: // Zora Mainnet
+    case 7777777: // Zora Mainnet - V5 Base-only, fallback to V4
       return (process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_7777777 as Address) || null
-    case 44787: // Celo Alfajores
+    case 44787: // Celo Alfajores - V5 Base-only, fallback to V4
       return (process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_44787 as Address) || null
-    case 42220: // Celo Mainnet
+    case 42220: // Celo Mainnet - V5 Base-only, fallback to V4
       return (process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_42220 as Address) || null
     default:
       return null
