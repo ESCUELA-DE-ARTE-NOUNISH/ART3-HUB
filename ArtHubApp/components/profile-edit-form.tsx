@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Upload, X, User, Camera, Link, Instagram, Twitter, Users, Mail } from "lucide-react"
 import { ApiService } from "@/lib/services/api-service"
-import type { UserProfile } from "@/lib/supabase"
+import type { UserProfile } from "@/lib/firebase"
 import Image from "next/image"
 
 interface ProfileEditFormProps {

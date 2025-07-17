@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { ChatMemoryService } from '@/lib/services/chat-memory-service'
+import { FirebaseChatMemoryService } from '@/lib/services/firebase-chat-memory-service'
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,8 +14,8 @@ export async function POST(request: NextRequest) {
     
     // Get user analytics and memory for intelligent chat
     const [userMemory, analytics] = await Promise.all([
-      ChatMemoryService.getUserMemory(walletAddress),
-      ChatMemoryService.getUserAnalytics(walletAddress)
+      FirebaseChatMemoryService.getUserMemory(walletAddress),
+      FirebaseChatMemoryService.getUserAnalytics(walletAddress)
     ])
     
     // Prepare intelligent chat profile response

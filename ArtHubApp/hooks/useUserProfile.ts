@@ -5,7 +5,7 @@ import { useAccount } from 'wagmi'
 import { useSafePrivy, useSafeWallets } from '@/hooks/useSafePrivy'
 import { useMiniKit } from '@coinbase/onchainkit/minikit'
 import { ApiService } from '@/lib/services/api-service'
-import type { UserProfile } from '@/lib/supabase'
+import type { UserProfile } from '@/lib/firebase'
 
 export function useUserProfile() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)

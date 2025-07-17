@@ -1,0 +1,117 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // User Profiles Collection
+    match /user_profiles/{walletAddress} {
+      // Users can read and write their own profile
+      allow read, write: if request.auth != null && resource.data.wallet_address == request.auth.uid.toLowerCase();
+      
+      // Allow creation if the document ID matches the authenticated user's wallet
+      allow create: if request.auth != null && walletAddress == request.auth.uid.toLowerCase();
+      
+      // Admin users can read all profiles (implement admin check in your app)
+      // Note: You'll need to implement admin verification in your application logic
+      allow read: if request.auth != null && 
+        exists(/databases/$(database)/documents/admin_wallets/$(request.auth.uid));
+    }
+    
+    // NFTs Collection
+    match /nfts/{nftId} {
+      // Users can read and write their own NFTs
+      allow read, write: if request.auth != null && 
+        resource.data.wallet_address == request.auth.uid.toLowerCase();
+      
+      // Allow creation if the wallet_address matches the authenticated user
+      allow create: if request.auth != null && 
+        request.resource.data.wallet_address == request.auth.uid.toLowerCase();
+      
+      // Allow public read access for NFT discovery
+      allow read: if true;
+      
+      // Admin users can read all NFTs
+      allow read: if request.auth != null && 
+        exists(/databases/$(database)/documents/admin_wallets/$(request.auth.uid));
+    }
+    
+    // User Memory Collection
+    match /user_memory/{walletAddress} {
+      // Users can read and write their own memory data
+      allow read, write: if request.auth != null && 
+        resource.data.wallet_address == request.auth.uid.toLowerCase();
+      
+      // Allow creation if the document ID matches the authenticated user's wallet
+      allow create: if request.auth != null && 
+        walletAddress == request.auth.uid.toLowerCase() &&
+        request.resource.data.wallet_address == request.auth.uid.toLowerCase();
+      
+      // Admin users can read all memory data
+      allow read: if request.auth != null && 
+        exists(/databases/$(database)/documents/admin_wallets/$(request.auth.uid));
+    }
+    
+    // Conversation Sessions Collection
+    match /conversation_sessions/{sessionId} {
+      // Users can read and write their own conversation sessions
+      allow read, write: if request.auth != null && 
+        resource.data.wallet_address == request.auth.uid.toLowerCase();
+      
+      // Allow creation if the wallet_address matches the authenticated user
+      allow create: if request.auth != null && 
+        request.resource.data.wallet_address == request.auth.uid.toLowerCase();
+      
+      // Admin users can read all sessions
+      allow read: if request.auth != null && 
+        exists(/databases/$(database)/documents/admin_wallets/$(request.auth.uid));
+    }
+    
+    // Conversation Messages Collection
+    match /conversation_messages/{messageId} {
+      // Users can read and write messages for their own sessions
+      allow read, write: if request.auth != null && 
+        exists(/databases/$(database)/documents/conversation_sessions/$(resource.data.session_id)) &&
+        get(/databases/$(database)/documents/conversation_sessions/$(resource.data.session_id)).data.wallet_address == request.auth.uid.toLowerCase();
+      
+      // Allow creation if the session belongs to the authenticated user
+      allow create: if request.auth != null && 
+        exists(/databases/$(database)/documents/conversation_sessions/$(request.resource.data.session_id)) &&
+        get(/databases/$(database)/documents/conversation_sessions/$(request.resource.data.session_id)).data.wallet_address == request.auth.uid.toLowerCase();
+      
+      // Admin users can read all messages
+      allow read: if request.auth != null && 
+        exists(/databases/$(database)/documents/admin_wallets/$(request.auth.uid));
+    }
+    
+    // Assessment Responses Collection
+    match /assessment_responses/{responseId} {
+      // Users can read and write responses for their own sessions
+      allow read, write: if request.auth != null && 
+        exists(/databases/$(database)/documents/conversation_sessions/$(resource.data.session_id)) &&
+        get(/databases/$(database)/documents/conversation_sessions/$(resource.data.session_id)).data.wallet_address == request.auth.uid.toLowerCase();
+      
+      // Allow creation if the session belongs to the authenticated user
+      allow create: if request.auth != null && 
+        exists(/databases/$(database)/documents/conversation_sessions/$(request.resource.data.session_id)) &&
+        get(/databases/$(database)/documents/conversation_sessions/$(request.resource.data.session_id)).data.wallet_address == request.auth.uid.toLowerCase();
+      
+      // Admin users can read all responses
+      allow read: if request.auth != null && 
+        exists(/databases/$(database)/documents/admin_wallets/$(request.auth.uid));
+    }
+    
+    // Admin Wallets Collection (for admin verification)
+    match /admin_wallets/{walletAddress} {
+      // Only existing admins can read and write admin wallets
+      allow read, write: if request.auth != null && 
+        exists(/databases/$(database)/documents/admin_wallets/$(request.auth.uid));
+      
+      // Allow the default admin wallet to bootstrap the system
+      allow create: if walletAddress == "0xc2564e41b7f5cb66d2d99466450cfebce9e8228f";
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
