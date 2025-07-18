@@ -78,9 +78,8 @@ export function NFTClaimForm({ onSuccess }: NFTClaimFormProps) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          claimCode,
-          // The contract address would be included for blockchain minting
-          contractAddress: verificationResult?.nft?.id || ''
+          claimCode
+          // Contract address will be retrieved from the NFT record
         })
       })
       

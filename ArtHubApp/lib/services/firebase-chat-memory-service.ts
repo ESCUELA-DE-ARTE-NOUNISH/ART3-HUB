@@ -194,21 +194,9 @@ export class FirebaseChatMemoryService {
     }
 
     try {
-      // First try to get an active session (not completed)
-      const q = query(
-        collection(db, COLLECTIONS.CONVERSATION_SESSIONS),
-        where('wallet_address', '==', walletAddress.toLowerCase()),
-        where('conversation_stage', 'in', ['initial', 'assessing', 'recommending']),
-        orderBy('created_at', 'desc'),
-        limit(1)
-      )
+      // For now, create a new session each time to avoid index requirements
+      // This can be optimized later by creating the necessary Firestore indexes
       
-      const querySnapshot = await getDocs(q)
-      
-      if (!querySnapshot.empty) {
-        return querySnapshot.docs[0].data() as ConversationSession
-      }
-
       // Create new session
       const sessionId = generateId()
       const timestamp = getCurrentTimestamp()
@@ -228,6 +216,7 @@ export class FirebaseChatMemoryService {
       const sessionRef = doc(db, COLLECTIONS.CONVERSATION_SESSIONS, sessionId)
       await setDoc(sessionRef, newSession)
 
+      console.log('✅ Created new conversation session:', sessionId)
       return newSession
     } catch (error) {
       console.error('Error in getOrCreateConversationSession:', error)
