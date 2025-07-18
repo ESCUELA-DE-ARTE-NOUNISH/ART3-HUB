@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   try {
     // Extract claim code from request body
     const body = await req.json()
-    const { claimCode, contractAddress, txHash, tokenId } = body
+    const { claimCode, txHash, tokenId } = body
     
     // Get user wallet address from session
     const walletAddress = await getSessionUserAddress(req)
@@ -23,14 +23,9 @@ export async function POST(req: NextRequest) {
     if (!claimCode) {
       return NextResponse.json({ error: 'Claim code is required' }, { status: 400 })
     }
-    
-    if (!contractAddress) {
-      return NextResponse.json({ error: 'Contract address is required' }, { status: 400 })
-    }
 
     console.log("Processing claim for code:", claimCode)
     console.log("User wallet:", walletAddress)
-    console.log("Contract address:", contractAddress)
     console.log("Transaction hash:", txHash)
     console.log("Token ID:", tokenId)
 
@@ -48,13 +43,24 @@ export async function POST(req: NextRequest) {
     
     console.log("Claim code validated successfully for NFT:", dbValidation.nft?.title)
     
+    // Get the contract address from the NFT record
+    const contractAddress = dbValidation.nft!.contractAddress
+    if (!contractAddress) {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'NFT contract not deployed yet. Please contact admin.'
+      })
+    }
+    
+    console.log("Using contract address:", contractAddress)
+    
     // Process the claim in our database with transaction details
     const claimResult = await NFTClaimService.processClaim(
       dbValidation.nft!.id, 
       walletAddress,
       txHash,
       tokenId,
-      contractAddress // Pass the actual contract address used for minting
+      contractAddress // Use the contract address from the NFT record
     )
     
     console.log("Claim processed successfully:", claimResult)

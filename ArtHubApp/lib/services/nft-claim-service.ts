@@ -81,6 +81,8 @@ export class NFTClaimService {
         maxClaims: input.maxClaims || 0, // 0 means unlimited
         currentClaims: 0,
         network: input.network || 'base', // Default to Base network
+        contractAddress: input.contractAddress || null,
+        deploymentTxHash: input.deploymentTxHash || null,
       }
       
       const nftRef = doc(db, COLLECTIONS.CLAIMABLE_NFTS, id)

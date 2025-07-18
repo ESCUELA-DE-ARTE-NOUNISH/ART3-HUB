@@ -12,6 +12,7 @@ export interface ClaimableNFT {
   endDate: string | null // ISO date string or null
   status: NFTClaimStatus
   contractAddress?: string
+  deploymentTxHash?: string
   createdAt: string
   updatedAt: string
   createdBy: string
@@ -44,6 +45,8 @@ export interface CreateClaimableNFTInput {
   status: NFTClaimStatus
   maxClaims?: number
   network?: string
+  contractAddress?: string
+  deploymentTxHash?: string
 }
 
 export interface UpdateClaimableNFTInput extends Partial<CreateClaimableNFTInput> {

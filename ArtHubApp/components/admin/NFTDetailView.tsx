@@ -287,6 +287,14 @@ export function NFTDetailView({ id }: NFTDetailViewProps) {
                 )}
               </dd>
             </div>
+            {nft.deploymentTxHash && (
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">Deployment Transaction</dt>
+                <dd className="mt-1 font-mono text-sm">
+                  {nft.deploymentTxHash}
+                </dd>
+              </div>
+            )}
           </dl>
         </CardContent>
         <CardFooter className="flex justify-end">

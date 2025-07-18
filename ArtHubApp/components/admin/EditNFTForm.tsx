@@ -219,10 +219,18 @@ export function EditNFTForm({ nftId }: EditNFTFormProps) {
       
       const result = await response.json()
       
-      toast({
-        title: 'NFT Updated',
-        description: 'The NFT was updated successfully.',
-      })
+      // Handle contract redeployment feedback
+      if (result.contractRedeployment) {
+        toast({
+          title: 'NFT Updated & Contract Redeployed',
+          description: `NFT updated successfully. Contract redeployed due to: ${result.contractRedeployment.reason}. New contract: ${result.contractRedeployment.newContractAddress}`,
+        })
+      } else {
+        toast({
+          title: 'NFT Updated',
+          description: 'The NFT was updated successfully.',
+        })
+      }
       
       // Navigate back to NFT details page
       router.push(`/admin/nfts/${nftId}`)
@@ -469,6 +477,9 @@ export function EditNFTForm({ nftId }: EditNFTFormProps) {
                   <SelectItem value="unpublished">Unpublished</SelectItem>
                 </SelectContent>
               </Select>
+              <FormDescription>
+                ⚠️ Changing title, description, image, network, or republishing will trigger contract redeployment
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

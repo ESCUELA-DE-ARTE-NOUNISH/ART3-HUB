@@ -156,12 +156,19 @@ export function CreateNFTForm() {
         throw new Error('Failed to create NFT')
       }
 
-      const { nft } = await createResponse.json()
+      const { nft, contractDeployment } = await createResponse.json()
 
-      toast({
-        title: 'NFT Created',
-        description: `Successfully created NFT: ${nft.title}`,
-      })
+      if (contractDeployment) {
+        toast({
+          title: 'NFT Created & Contract Deployed',
+          description: `Successfully created NFT: ${nft.title} with contract: ${contractDeployment.contractAddress}`,
+        })
+      } else {
+        toast({
+          title: 'NFT Created',
+          description: `Successfully created NFT: ${nft.title} (Contract will be deployed when published)`,
+        })
+      }
 
       router.push('/admin/nfts')
     } catch (error) {
@@ -379,6 +386,9 @@ export function CreateNFTForm() {
                   <SelectItem value="unpublished">Unpublished</SelectItem>
                 </SelectContent>
               </Select>
+              <FormDescription>
+                ⚠️ When set to "Published", a smart contract will be deployed for this NFT collection
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
