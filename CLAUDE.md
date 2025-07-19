@@ -180,6 +180,18 @@ npm run lint
 
 ## 🎯 Development Guidelines
 
+### Critical System Architecture Rules
+1. **Dual Workflow System**: Maintain complete separation between workflows
+   - **Original Workflow** (`/create` page): V6 contracts for membership-based NFT creation (Free/Master/Elite plans)
+   - **Claimable NFT Process**: Parallel factory pattern system for admin-controlled claimable NFTs
+   - These systems are independent and must never interfere with each other
+
+2. **Security Requirements**
+   - **NEVER** copy private keys in any code, comments, or documentation
+   - Private keys must ONLY exist in `.env` files and be referenced via environment variables
+   - Use environment variable references like `process.env.PRIVATE_KEY_NAME` in code
+   - All sensitive credentials stay in environment configuration only
+
 ### When Adding Features
 1. Update relevant service files in `lib/services/`
 2. Add API routes in `app/api/`
@@ -187,6 +199,7 @@ npm run lint
 4. Add internationalization strings
 5. Update type definitions
 6. Test with Firebase backend
+7. Ensure proper workflow separation (original vs claimable NFT)
 
 ### Code Style
 - TypeScript strict mode

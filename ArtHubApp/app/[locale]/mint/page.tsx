@@ -263,7 +263,11 @@ export default function MintPage() {
     setIsVerifying(true)
     try {
       // Send the code as-is - case-insensitivity is handled on the server
-      const response = await fetch(`/api/claim-code/verify?code=${encodeURIComponent(secretCode)}`)
+      const response = await fetch(`/api/claim-code/verify?code=${encodeURIComponent(secretCode)}`, {
+        headers: {
+          'x-wallet-address': address || '', // Send the connected wallet address
+        }
+      })
       const result = await response.json()
 
       if (result.valid) {
@@ -343,66 +347,35 @@ export default function MintPage() {
         throw new Error(verifyResult.message || 'Invalid claim code')
       }
       
-      // Import the blockchain service dynamically to avoid SSR issues
-      const { BlockchainService } = await import('@/lib/services/blockchain-service')
-      
-      // For claimable NFTs, we need a specific contract address
+      // For claimable NFTs, we use the gasless claim API which handles everything
       const contractAddress = verifyResult.nft.contractAddress
       const network = verifyResult.nft.network || 'baseSepolia'
       
       console.log("Using contract address:", contractAddress)
       console.log("Using network:", network)
       
-      // For mock testing, we'll simulate the transaction instead of calling the blockchain
-      // In production, this would call the actual smart contract
-      let txResult
-      
-      if (!contractAddress || contractAddress.startsWith('0x1234567890') || contractAddress.length !== 42) {
-        // Simulate a successful mint for testing
-        console.log("Simulating mint for testing...")
-        txResult = {
-          success: true,
-          txHash: `0x${Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
-          tokenId: Math.floor(Math.random() * 10000),
-          contractAddress: contractAddress || `0x${Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
-          claimCode: secretCode,
-          network
-        }
-      } else {
-        // Use real blockchain minting for deployed contracts
-        txResult = await BlockchainService.mintClaimableNFT(
-          contractAddress,
-          secretCode,
-          verifyResult.nft,
-          network
-        )
-      }
-      
-      console.log("Transaction result:", txResult)
-      
-      // After successful on-chain minting, record the claim in our database
+      // Call the claim API directly - it handles gasless minting and database recording
       const response = await fetch('/api/nfts/claim', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-wallet-address': address, // Send the connected wallet address
         },
         body: JSON.stringify({
           claimCode: secretCode, // Send the code as-is - case-insensitivity is handled on the server
-          contractAddress: txResult.contractAddress || verifiedNFT?.id || '',
-          txHash: txResult.txHash,
-          tokenId: txResult.tokenId
         })
       })
       
       const result = await response.json()
       console.log("Claim API result:", result)
       
-      // Combine the results
+      if (!result.success) {
+        throw new Error(result.message || 'Failed to claim NFT')
+      }
+      
+      // Use the result from the claim API
       const mintResult = {
         ...result,
-        txHash: txResult.txHash,
-        tokenId: txResult.tokenId,
-        contractAddress: txResult.contractAddress || contractAddress,
         claimCode: secretCode,
         network
       }

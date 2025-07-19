@@ -3,14 +3,16 @@ import { NFTClaimService } from '@/lib/services/nft-claim-service'
 import { getSessionUserAddress } from '@/lib/utils'
 import { isFirebaseConfigured } from '@/lib/firebase'
 import { base, baseSepolia } from '@/lib/wagmi'
+import { handleBase64ImageUpload } from '@/lib/services/firebase-storage-service'
 
 // Get a specific NFT by ID
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const nft = await NFTClaimService.getClaimableNFT(params.id)
+    const { id } = await params
+    const nft = await NFTClaimService.getClaimableNFT(id)
     
     if (!nft) {
       return NextResponse.json({ error: 'NFT not found' }, { status: 404 })
@@ -26,9 +28,11 @@ export async function GET(
 // Update an NFT with contract redeployment logic
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+    
     if (!isFirebaseConfigured()) {
       return NextResponse.json({ error: 'Service not available' }, { status: 503 })
     }
@@ -46,7 +50,7 @@ export async function PUT(
     }
     
     // Get and validate NFT existence
-    const existingNft = await NFTClaimService.getClaimableNFT(params.id)
+    const existingNft = await NFTClaimService.getClaimableNFT(id)
     if (!existingNft) {
       return NextResponse.json({ error: 'NFT not found' }, { status: 404 })
     }
@@ -54,11 +58,48 @@ export async function PUT(
     const body = await req.json()
     const { title, description, claimCode, startDate, endDate, status, maxClaims, network, image } = body
     
+    console.log('🔄 Processing NFT update request...')
+    console.log('📋 Update data:', {
+      title,
+      description,
+      claimCode,
+      status,
+      maxClaims,
+      network,
+      hasImage: !!image,
+      imageType: typeof image
+    })
+    
+    // Process image if provided (base64 string)
+    let processedImage = null
+    let uploadedImageUrl = null
+    
+    if (image && typeof image === 'string' && image.startsWith('data:image/')) {
+      console.log('🖼️ Processing new image for NFT update...')
+      try {
+        const uploadResult = await handleBase64ImageUpload(image, userAddress)
+        processedImage = uploadResult.path
+        uploadedImageUrl = uploadResult.url
+        console.log('✅ Image processed successfully for update:', {
+          path: processedImage,
+          url: uploadedImageUrl
+        })
+      } catch (error) {
+        console.error('❌ Failed to process image for update:', error)
+        return NextResponse.json({ 
+          error: 'Failed to process image. Please try again.' 
+        }, { status: 400 })
+      }
+    }
+    
+    // Use processed image data for comparison if available
+    const imageForComparison = processedImage || image
+    
     // Determine if contract redeployment is needed
     const shouldRedeployContract = shouldTriggerContractRedeployment(existingNft, {
       title,
       description,
-      image,
+      image: imageForComparison,
       status,
       network
     })
@@ -101,16 +142,28 @@ export async function PUT(
     
     // Prepare update data
     const updateData: any = {
-      id: params.id,
+      id,
       ...(title !== undefined && { title }),
       ...(description !== undefined && { description }),
-      ...(image !== undefined && { image }),
       ...(claimCode !== undefined && { claimCode }),
       ...(startDate !== undefined && { startDate }),
       ...(endDate !== undefined && { endDate }),
       ...(status !== undefined && { status }),
       ...(maxClaims !== undefined && { maxClaims }),
       ...(network !== undefined && { network })
+    }
+    
+    // Add processed image data if available
+    if (processedImage && uploadedImageUrl) {
+      updateData.image = processedImage
+      updateData.imageUrl = uploadedImageUrl
+      console.log('📝 Including processed image in update:', {
+        imagePath: processedImage,
+        imageUrl: uploadedImageUrl
+      })
+    } else if (image !== undefined && typeof image === 'string' && !image.startsWith('data:image/')) {
+      // Handle other image string formats (existing image paths, etc.)
+      updateData.image = image
     }
     
     // Add new contract information if redeployed
@@ -189,9 +242,11 @@ function getRedeploymentReason(existingNft: any, updates: any): string {
 // Delete an NFT
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+    
     if (!isFirebaseConfigured()) {
       return NextResponse.json({ error: 'Service not available' }, { status: 503 })
     }
@@ -203,7 +258,7 @@ export async function DELETE(
     }
     
     // Delete NFT (marks as unpublished)
-    const result = await NFTClaimService.deleteClaimableNFT(params.id)
+    const result = await NFTClaimService.deleteClaimableNFT(id)
     
     if (!result) {
       return NextResponse.json({ error: 'Failed to delete NFT' }, { status: 500 })

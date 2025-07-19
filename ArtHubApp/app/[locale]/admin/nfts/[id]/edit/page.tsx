@@ -4,13 +4,13 @@ import { ArrowLeft } from 'lucide-react'
 import { EditNFTForm } from '@/components/admin/EditNFTForm'
 
 interface EditNFTPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
-export default function EditNFTPage({ params }: EditNFTPageProps) {
-  const { id } = params
+export default async function EditNFTPage({ params }: EditNFTPageProps) {
+  const { id } = await params
   
   return (
     <div className="container max-w-3xl mx-auto p-4">

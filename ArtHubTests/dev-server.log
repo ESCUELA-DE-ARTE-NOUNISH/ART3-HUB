@@ -1,0 +1,3067 @@
+
+> my-v0-project@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.10.48:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 1558ms
+ ○ Compiling /api/admin/nfts ...
+ ✓ Compiled /api/admin/nfts in 3.7s (5582 modules)
+🔥 Using Firebase production service
+Farcaster frameConnector setup completed
+🚀 Deploying claimable NFT contract via factory...
+📋 Request data: {
+  title: 'Working Test NFT 1752946668100',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  claimCode: 'WORKING1752946668100',
+  startDate: '2025-07-19T17:37:48.100Z',
+  endDate: '2025-07-26T17:37:48.101Z',
+  status: 'published',
+  maxClaims: 5,
+  network: 'base-sepolia',
+  image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII='
+}
+🔧 Network configuration: { isTestingMode: true, targetChain: 'Base Sepolia', chainId: 84532 }
+🏭 Factory address lookup: {
+  isTestingMode: true,
+  factoryEnvVar: 'NEXT_PUBLIC_CLAIMABLE_NFT_FACTORY_84532',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A'
+}
+🔍 Verifying factory contract exists on blockchain...
+🔍 Verifying factory contract at: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+[ReferenceError: indexedDB is not defined]
+ ⨯ unhandledRejection: [ReferenceError: indexedDB is not defined]
+ ⨯ unhandledRejection:  [ReferenceError: indexedDB is not defined]
+✅ Factory contract verified: {
+  address: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  hasCode: true,
+  codeLength: 26658
+}
+✅ Factory contract functions verified (legacy version): { deployedContracts: 38 }
+🚀 Initiating gasless deployment...
+🚀 Deploying claimable NFT via gasless relayer...
+📋 Deployment parameters: {
+  title: 'Working Test NFT 1752946668100',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  creatorAddress: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+  chainId: 84532,
+  claimCode: 'WORKING1752946668100'
+}
+🏷️ Generated symbol: WORKINGTES
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 Gasless relay payload: {
+  type: 'deployClaimableNFT',
+  name: 'Working Test NFT 1752946668100',
+  symbol: 'WORKINGTES',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  userAddress: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+ ○ Compiling /api/gasless-relay ...
+ ✓ Compiled /api/gasless-relay in 1201ms (5587 modules)
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'deployClaimableNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899916', sufficient: true }
+🏭 Executing gasless ClaimableNFT deployment...
+🔍 ClaimableNFT deployment params: {
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  name: 'Working Test NFT 1752946668100',
+  symbol: 'WORKINGTES',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  owner: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless ClaimableNFT deployment...
+✅ ClaimableNFT deployment simulation successful, address: 0xB3A962Fd88c6C65802aAD57C634EF5DbdC3f0FD1
+✅ Gasless transaction submitted by relayer: 0xee1333f2428b69faa6b71e17068daa425dc8600f93a1a15281730b866b323ed7
+🎉 Gasless transaction confirmed: {
+  hash: '0xee1333f2428b69faa6b71e17068daa425dc8600f93a1a15281730b866b323ed7',
+  status: 'success',
+  gasUsed: '2123784'
+}
+🔍 Looking for ClaimableNFTDeployed event in transaction logs...
+📄 Transaction receipt logs: 2 logs found
+🔍 Looking for event topic: 0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4
+🔍 Factory address: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+📄 Log: {
+  address: '0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1',
+  topics: [
+    '0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0',
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x',
+  isFromFactory: false,
+  topicMatches: false
+}
+📄 Log: {
+  address: '0xeb91e58a59e7bcf8adc8cae4f12187826965503a',
+  topics: [
+    '0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4',
+    '0x000000000000000000000000b3a962fd88c6c65802aad57c634ef5dbdc3f0fd1',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000687bd7f4000000000000000000000000000000000000000000000000000000000000001e576f726b696e672054657374204e465420313735323934363636383130300000000000000000000000000000000000000000000000000000000000000000000a574f524b494e4754455300000000000000000000000000000000000000000000',
+  isFromFactory: true,
+  topicMatches: true
+}
+🎯 Extracted ClaimableNFT address: 0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1
+ POST /api/gasless-relay 200 in 2527ms
+📥 Gasless relay response status: 200 OK
+✅ Gasless deployment successful: {
+  success: true,
+  transactionHash: '0xee1333f2428b69faa6b71e17068daa425dc8600f93a1a15281730b866b323ed7',
+  contractAddress: '0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1',
+  tokenId: null,
+  status: 'success',
+  gasUsed: '2123784',
+  relayerPaid: true
+}
+🎯 Contract deployed at: {
+  contractAddress: '0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1',
+  transactionHash: '0xee1333f2428b69faa6b71e17068daa425dc8600f93a1a15281730b866b323ed7',
+  gasUsed: '2123784',
+  success: true
+}
+📝 Adding claim code to deployed contract using gasless relayer...
+📝 Adding claim code via gasless relayer...
+🔍 AddClaimCode parameters: {
+  contractAddress: '0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1',
+  claimCode: 'WORKING1752946668100',
+  maxClaims: 0,
+  startTime: 1752946675,
+  endTime: 1784482675,
+  metadataURI: 'https://ipfs.io/ipfs/QmTestMetadata',
+  chainId: 84532
+}
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 AddClaimCode payload: {
+  type: 'addClaimCode',
+  contractAddress: '0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1',
+  claimCode: 'WORKING1752946668100',
+  maxClaims: 0,
+  startTime: 1752946675,
+  endTime: 1784482675,
+  metadataURI: 'https://ipfs.io/ipfs/QmTestMetadata',
+  chainId: 84532
+}
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'addClaimCode',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899916', sufficient: true }
+📝 Executing gasless addClaimCode with timestamp fix...
+🔍 AddClaimCode params: {
+  contractAddress: '0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1',
+  claimCode: 'WORKING1752946668100',
+  maxClaims: 0,
+  startTime: 1752946675,
+  endTime: 1784482675,
+  metadataURI: 'https://ipfs.io/ipfs/QmTestMetadata',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  providedTimestamps: 'Using exact timestamps from request'
+}
+🔍 Simulating gasless addClaimCode...
+✅ AddClaimCode simulation successful
+✅ Gasless transaction submitted by relayer: 0x2dbe1c1c72e09811eaf8c0e6536b42bc73839217f376bb78c94dbb9d220d0d31
+🎉 Gasless transaction confirmed: {
+  hash: '0x2dbe1c1c72e09811eaf8c0e6536b42bc73839217f376bb78c94dbb9d220d0d31',
+  status: 'success',
+  gasUsed: '166482'
+}
+ POST /api/gasless-relay 200 in 1182ms
+📥 AddClaimCode gasless relay response status: 200 OK
+✅ AddClaimCode gasless successful: {
+  success: true,
+  transactionHash: '0x2dbe1c1c72e09811eaf8c0e6536b42bc73839217f376bb78c94dbb9d220d0d31',
+  contractAddress: null,
+  tokenId: null,
+  status: 'success',
+  gasUsed: '166482',
+  relayerPaid: true
+}
+✅ Claim code added successfully via gasless relayer
+✅ Claimable NFT contract deployed via factory: {
+  contractAddress: '0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1',
+  deploymentTxHash: '0xee1333f2428b69faa6b71e17068daa425dc8600f93a1a15281730b866b323ed7',
+  network: 'Base Sepolia',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  gasUsed: undefined,
+  status: undefined
+}
+🔍 Verifying deployed contract exists...
+🔍 Verifying deployed contract at: 0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1
+✅ Deployed contract verified: {
+  address: '0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1',
+  hasCode: true,
+  codeLength: 18406
+}
+✅ Deployed contract functions verified: {
+  owner: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  name: 'Working Test NFT 1752946668100'
+}
+🖼️ Processing image... { imageProvided: true, imageType: 'string', imageLength: 114 }
+📤 Processing base64 image...
+🔄 Converting base64 to file...
+📄 Image details: { mimeType: 'image/png', extension: 'png' }
+📁 Created file: { name: 'admin-upload-1752946677062.png', size: 68, type: 'image/png' }
+✅ Firebase upload successful: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946677063-admin-upload-1752946677062.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946677063-admin-upload-1752946677062.png?alt=media&token=64b3cae8-7290-46ff-819b-9538331977ca',
+  fileName: '1752946677063-admin-upload-1752946677062.png'
+}
+✅ Base64 image uploaded successfully: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946677063-admin-upload-1752946677062.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946677063-admin-upload-1752946677062.png?alt=media&token=64b3cae8-7290-46ff-819b-9538331977ca'
+}
+💾 Creating NFT record in database...
+🖼️ Image processing complete: {
+  hasProcessedImage: true,
+  hasUploadedImageUrl: true,
+  processedImagePath: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946677063-admin-upload-1752946677062.png',
+  uploadedImageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946677063-admin-upload-1752946677062.png?alt=media&token=64b3cae8-7290-46ff-819b-9538331977ca'
+}
+📝 NFT creation input: {
+  title: 'Working Test NFT 1752946668100',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946677063-admin-upload-1752946677062.png',
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946677063-admin-upload-1752946677062.png?alt=media&token=64b3cae8-7290-46ff-819b-9538331977ca',
+  claimCode: 'WORKING1752946668100',
+  startDate: '2025-07-19T17:37:48.100Z',
+  endDate: '2025-07-26T17:37:48.101Z',
+  status: 'published',
+  maxClaims: 5,
+  network: 'base-sepolia',
+  contractAddress: '0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1',
+  deploymentTxHash: '0xee1333f2428b69faa6b71e17068daa425dc8600f93a1a15281730b866b323ed7',
+  imageProvided: true,
+  uploadedImageUrl: true
+}
+🔗 Using Pinata for metadata upload
+ ○ Compiling /api/upload-metadata-to-pinata ...
+ ✓ Compiled /api/upload-metadata-to-pinata in 823ms (5700 modules)
+ POST /api/upload-metadata-to-pinata 200 in 1589ms
+✅ NFT record created successfully: {
+  id: 'mdaj6wskwvo4xz9semg',
+  title: 'Working Test NFT 1752946668100',
+  status: 'published',
+  contractAddress: '0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1',
+  deploymentTxHash: '0xee1333f2428b69faa6b71e17068daa425dc8600f93a1a15281730b866b323ed7',
+  hasImage: true,
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946677063-admin-upload-1752946677062.png?alt=media&token=64b3cae8-7290-46ff-819b-9538331977ca'
+}
+ POST /api/admin/nfts 201 in 11245ms
+ ✓ Compiled /api/nfts/claim in 427ms (5702 modules)
+🔥 Using Firebase production service
+Verifying claim code: WORKING1752946668100
+User wallet: 0x499D377eF114cC1BF7798cECBB38412701400daF
+Found 1 NFT(s) with claim code "WORKING1752946668100", using most recent: {
+  id: 'mdaj6wskwvo4xz9semg',
+  title: 'Working Test NFT 1752946668100',
+  contractAddress: '0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1',
+  createdAt: '2025-07-19T17:37:57.380Z'
+}
+Verification result: {
+  valid: true,
+  nft: {
+    updatedAt: '2025-07-19T17:37:59.255Z',
+    createdBy: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+    description: 'Testing with completely fresh NFT and fixed systems',
+    metadataIpfsHash: 'QmXj18oS75qwtnTLyaYXZg2UUFMaSY5n4uhvEVTUwjWvSe',
+    startDate: '2025-07-19T17:37:48.100Z',
+    contractAddress: '0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1',
+    maxClaims: 5,
+    metadataUrl: 'ipfs://QmXj18oS75qwtnTLyaYXZg2UUFMaSY5n4uhvEVTUwjWvSe',
+    id: 'mdaj6wskwvo4xz9semg',
+    status: 'published',
+    network: 'base-sepolia',
+    image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946677063-admin-upload-1752946677062.png',
+    title: 'Working Test NFT 1752946668100',
+    claimCode: 'WORKING1752946668100',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946677063-admin-upload-1752946677062.png?alt=media&token=64b3cae8-7290-46ff-819b-9538331977ca',
+    currentClaims: 0,
+    createdAt: '2025-07-19T17:37:57.380Z',
+    endDate: '2025-07-26T17:37:48.101Z',
+    deploymentTxHash: '0xee1333f2428b69faa6b71e17068daa425dc8600f93a1a15281730b866b323ed7'
+  }
+}
+ GET /api/nfts/claim?code=WORKING1752946668100 200 in 812ms
+Processing claim for code: WORKING1752946668100
+User wallet: 0x499D377eF114cC1BF7798cECBB38412701400daF
+Transaction hash: undefined
+Token ID: undefined
+Found 1 NFT(s) with claim code "WORKING1752946668100", using most recent: {
+  id: 'mdaj6wskwvo4xz9semg',
+  title: 'Working Test NFT 1752946668100',
+  contractAddress: '0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1',
+  createdAt: '2025-07-19T17:37:57.380Z'
+}
+Claim code validated successfully for NFT: Working Test NFT 1752946668100
+Using contract address: 0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1
+🚀 Calling claimNFT on smart contract via gasless relayer...
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'claimNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899914', sufficient: true }
+🎯 Executing gasless claimNFT...
+🔍 ClaimNFT params: {
+  contractAddress: '0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1',
+  claimCode: 'WORKING1752946668100',
+  userAddress: '0x499D377eF114cC1BF7798cECBB38412701400daF',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless claimNFT...
+✅ ClaimNFT simulation successful, token ID: 0n
+🔨 Executing claimNFT transaction...
+⏳ Waiting for claim transaction to complete...
+✅ Claim transaction completed: {
+  hash: '0xb7663b8bbf57f2443c96d8ccbbb3e5abebbbbb16ea8dab418d910b0b9f75fce0',
+  status: 'success',
+  gasUsed: '255381'
+}
+🔍 NFT minted to relayer, transferring to user...
+🔍 Token ID from claimNFT: 0
+🔍 Contract address: 0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1
+🔄 Transferring NFT from relayer to user...
+🔍 Transfer params: {
+  from: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  to: '0x499D377eF114cC1BF7798cECBB38412701400daF',
+  tokenId: '0'
+}
+🔍 Simulating NFT transfer...
+❌ NFT transfer failed: Error [ContractFunctionExecutionError]: The contract function "transferFrom" reverted with the following signature:
+0x7e273289
+
+Unable to decode signature "0x7e273289" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x7e273289.
+ 
+Contract Call:
+  address:   0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1
+  function:  transferFrom(address from, address to, uint256 tokenId)
+  args:                  (0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1, 0x499D377eF114cC1BF7798cECBB38412701400daF, 0)
+  sender:    0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1
+
+Docs: https://viem.sh/docs/contract/decodeErrorResult
+Version: viem@2.30.6
+    at async POST (app/api/gasless-relay/route.ts:1292:10)
+  1290 |           // Simulate the transfer first
+  1291 |           console.log('🔍 Simulating NFT transfer...')
+> 1292 |           await publicClient.simulateContract({
+       |          ^
+  1293 |             address: body.contractAddress as `0x${string}`,
+  1294 |             abi: CLAIMABLE_NFT_ABI,
+  1295 |             functionName: 'transferFrom', {
+  details: undefined,
+  docsPath: '/docs/contract/decodeErrorResult',
+  metaMessages: [Array],
+  shortMessage: 'The contract function "transferFrom" reverted with the following signature:\n' +
+    '0x7e273289',
+  version: '2.30.6',
+  abi: [Array],
+  args: [Array],
+  contractAddress: '0xb3a962fd88c6c65802aad57c634ef5dbdc3f0fd1',
+  formattedArgs: undefined,
+  functionName: 'transferFrom',
+  sender: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  [cause]: Error [ContractFunctionRevertedError]: The contract function "transferFrom" reverted with the following signature:
+  0x7e273289
+  
+  Unable to decode signature "0x7e273289" as it was not found on the provided ABI.
+  Make sure you are using the correct ABI and that the error exists on it.
+  You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x7e273289.
+  
+  Docs: https://viem.sh/docs/contract/decodeErrorResult
+  Version: viem@2.30.6
+      at async POST (app/api/gasless-relay/route.ts:1292:10)
+    1290 |           // Simulate the transfer first
+    1291 |           console.log('🔍 Simulating NFT transfer...')
+  > 1292 |           await publicClient.simulateContract({
+         |          ^
+    1293 |             address: body.contractAddress as `0x${string}`,
+    1294 |             abi: CLAIMABLE_NFT_ABI,
+    1295 |             functionName: 'transferFrom', {
+    details: undefined,
+    docsPath: '/docs/contract/decodeErrorResult',
+    metaMessages: [
+      'Unable to decode signature "0x7e273289" as it was not found on the provided ABI.',
+      'Make sure you are using the correct ABI and that the error exists on it.',
+      'You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x7e273289.'
+    ],
+    shortMessage: 'The contract function "transferFrom" reverted with the following signature:\n' +
+      '0x7e273289',
+    version: '2.30.6',
+    data: undefined,
+    raw: '0x7e2732890000000000000000000000000000000000000000000000000000000000000000',
+    reason: undefined,
+    signature: '0x7e273289',
+    [cause]: Error [AbiErrorSignatureNotFoundError]: Encoded error signature "0x7e273289" not found on ABI.
+    Make sure you are using the correct ABI and that the error exists on it.
+    You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x7e273289.
+    
+    Docs: https://viem.sh/docs/contract/decodeErrorResult
+    Version: viem@2.30.6
+        at async POST (app/api/gasless-relay/route.ts:1292:10)
+      1290 |           // Simulate the transfer first
+      1291 |           console.log('🔍 Simulating NFT transfer...')
+    > 1292 |           await publicClient.simulateContract({
+           |          ^
+      1293 |             address: body.contractAddress as `0x${string}`,
+      1294 |             abi: CLAIMABLE_NFT_ABI,
+      1295 |             functionName: 'transferFrom', {
+      details: undefined,
+      docsPath: '/docs/contract/decodeErrorResult',
+      metaMessages: undefined,
+      shortMessage: 'Encoded error signature "0x7e273289" not found on ABI.\n' +
+        'Make sure you are using the correct ABI and that the error exists on it.\n' +
+        'You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x7e273289.',
+      version: '2.30.6',
+      signature: '0x7e273289'
+    }
+  }
+}
+ POST /api/gasless-relay 500 in 2069ms
+❌ Gasless relay failed with status: 500 Internal Server Error
+❌ Blockchain claim failed: Error: Gasless relay failed: NFT transfer failed
+    at POST (app/api/nfts/claim/route.ts:121:14)
+  119 |         }
+  120 |         
+> 121 |         throw new Error(errorMessage);
+      |              ^
+  122 |       }
+  123 |       
+  124 |       blockchainResult = await gaslessResponse.json();
+ POST /api/nfts/claim 200 in 2311ms
+ ✓ Compiled in 803ms (4784 modules)
+ ⨯ ./app/api/gasless-relay/route.ts
+Error:   [31mx[0m Expected a semicolon
+      ,-[[36;1;4m/Users/osx/Projects/Nouns/ART3-HUB/ArtHubApp/app/api/gasless-relay/route.ts[0m:1644:1]
+ [2m1641[0m |       relayerPaid: true
+ [2m1642[0m |     })
+ [2m1643[0m | 
+ [2m1644[0m |   } catch (error) {
+      : [35;1m    ^^^^^[0m
+ [2m1645[0m |     console.error('❌ Gasless relay error:', error)
+ [2m1646[0m |     
+ [2m1647[0m |     return NextResponse.json(
+      `----
+  [31mx[0m Expected a semicolon
+      ,-[[36;1;4m/Users/osx/Projects/Nouns/ART3-HUB/ArtHubApp/app/api/gasless-relay/route.ts[0m:1656:1]
+ [2m1653[0m |       { status: 500 }
+ [2m1654[0m |     )
+ [2m1655[0m |   }
+ [2m1656[0m | }
+      `----
+  [31mx[0m Expected '}', got '<eof>'
+      ,-[[36;1;4m/Users/osx/Projects/Nouns/ART3-HUB/ArtHubApp/app/api/gasless-relay/route.ts[0m:1656:1]
+ [2m1653[0m |       { status: 500 }
+ [2m1654[0m |     )
+ [2m1655[0m |   }
+ [2m1656[0m | }
+      : [35;1m^[0m
+      `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/api/gasless-relay/route.ts
+ ✓ Compiled in 151ms (1400 modules)
+ ✓ Compiled /api/admin/nfts in 348ms (4665 modules)
+🔥 Using Firebase production service
+Farcaster frameConnector setup completed
+WalletConnect Core is already initialized. This is probably a mistake and can lead to unexpected behavior. Init() was called 2 times.
+🚀 Deploying claimable NFT contract via factory...
+📋 Request data: {
+  title: 'Working Test NFT 1752946756336',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  claimCode: 'WORKING1752946756336',
+  startDate: '2025-07-19T17:39:16.336Z',
+  endDate: '2025-07-26T17:39:16.336Z',
+  status: 'published',
+  maxClaims: 5,
+  network: 'base-sepolia',
+  image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII='
+}
+🔧 Network configuration: { isTestingMode: true, targetChain: 'Base Sepolia', chainId: 84532 }
+🏭 Factory address lookup: {
+  isTestingMode: true,
+  factoryEnvVar: 'NEXT_PUBLIC_CLAIMABLE_NFT_FACTORY_84532',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A'
+}
+🔍 Verifying factory contract exists on blockchain...
+🔍 Verifying factory contract at: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+✅ Factory contract verified: {
+  address: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  hasCode: true,
+  codeLength: 26658
+}
+✅ Factory contract functions verified (legacy version): { deployedContracts: 39 }
+🚀 Initiating gasless deployment...
+🚀 Deploying claimable NFT via gasless relayer...
+📋 Deployment parameters: {
+  title: 'Working Test NFT 1752946756336',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  creatorAddress: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+  chainId: 84532,
+  claimCode: 'WORKING1752946756336'
+}
+🏷️ Generated symbol: WORKINGTES
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 Gasless relay payload: {
+  type: 'deployClaimableNFT',
+  name: 'Working Test NFT 1752946756336',
+  symbol: 'WORKINGTES',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  userAddress: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+ ✓ Compiled /api/gasless-relay in 320ms (4669 modules)
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'deployClaimableNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899913', sufficient: true }
+🏭 Executing gasless ClaimableNFT deployment...
+🔍 ClaimableNFT deployment params: {
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  name: 'Working Test NFT 1752946756336',
+  symbol: 'WORKINGTES',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  owner: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless ClaimableNFT deployment...
+✅ ClaimableNFT deployment simulation successful, address: 0x51449Eb544Ee3865205D4A925775C597EedcFE48
+✅ Gasless transaction submitted by relayer: 0xc00602dee3810c30091955e823d84803614b53e5ed435e89db6dc1edd6553828
+🎉 Gasless transaction confirmed: {
+  hash: '0xc00602dee3810c30091955e823d84803614b53e5ed435e89db6dc1edd6553828',
+  status: 'success',
+  gasUsed: '2123784'
+}
+🔍 Looking for ClaimableNFTDeployed event in transaction logs...
+📄 Transaction receipt logs: 2 logs found
+🔍 Looking for event topic: 0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4
+🔍 Factory address: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+📄 Log: {
+  address: '0x51449eb544ee3865205d4a925775c597eedcfe48',
+  topics: [
+    '0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0',
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x',
+  isFromFactory: false,
+  topicMatches: false
+}
+📄 Log: {
+  address: '0xeb91e58a59e7bcf8adc8cae4f12187826965503a',
+  topics: [
+    '0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4',
+    '0x00000000000000000000000051449eb544ee3865205d4a925775c597eedcfe48',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000687bd848000000000000000000000000000000000000000000000000000000000000001e576f726b696e672054657374204e465420313735323934363735363333360000000000000000000000000000000000000000000000000000000000000000000a574f524b494e4754455300000000000000000000000000000000000000000000',
+  isFromFactory: true,
+  topicMatches: true
+}
+🎯 Extracted ClaimableNFT address: 0x51449eb544ee3865205d4a925775c597eedcfe48
+ POST /api/gasless-relay 200 in 1892ms
+📥 Gasless relay response status: 200 OK
+✅ Gasless deployment successful: {
+  success: true,
+  transactionHash: '0xc00602dee3810c30091955e823d84803614b53e5ed435e89db6dc1edd6553828',
+  contractAddress: '0x51449eb544ee3865205d4a925775c597eedcfe48',
+  tokenId: null,
+  status: 'success',
+  gasUsed: '2123784',
+  relayerPaid: true
+}
+🎯 Contract deployed at: {
+  contractAddress: '0x51449eb544ee3865205d4a925775c597eedcfe48',
+  transactionHash: '0xc00602dee3810c30091955e823d84803614b53e5ed435e89db6dc1edd6553828',
+  gasUsed: '2123784',
+  success: true
+}
+📝 Adding claim code to deployed contract using gasless relayer...
+📝 Adding claim code via gasless relayer...
+🔍 AddClaimCode parameters: {
+  contractAddress: '0x51449eb544ee3865205d4a925775c597eedcfe48',
+  claimCode: 'WORKING1752946756336',
+  maxClaims: 0,
+  startTime: 1752946759,
+  endTime: 1784482759,
+  metadataURI: 'https://ipfs.io/ipfs/QmTestMetadata',
+  chainId: 84532
+}
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 AddClaimCode payload: {
+  type: 'addClaimCode',
+  contractAddress: '0x51449eb544ee3865205d4a925775c597eedcfe48',
+  claimCode: 'WORKING1752946756336',
+  maxClaims: 0,
+  startTime: 1752946759,
+  endTime: 1784482759,
+  metadataURI: 'https://ipfs.io/ipfs/QmTestMetadata',
+  chainId: 84532
+}
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'addClaimCode',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899913', sufficient: true }
+📝 Executing gasless addClaimCode with timestamp fix...
+🔍 AddClaimCode params: {
+  contractAddress: '0x51449eb544ee3865205d4a925775c597eedcfe48',
+  claimCode: 'WORKING1752946756336',
+  maxClaims: 0,
+  startTime: 1752946759,
+  endTime: 1784482759,
+  metadataURI: 'https://ipfs.io/ipfs/QmTestMetadata',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  providedTimestamps: 'Using exact timestamps from request'
+}
+🔍 Simulating gasless addClaimCode...
+✅ AddClaimCode simulation successful
+✅ Gasless transaction submitted by relayer: 0x59b297f499154c459686b61507d3fa62bb650afd8352cd05f2dc196420f14f63
+🎉 Gasless transaction confirmed: {
+  hash: '0x59b297f499154c459686b61507d3fa62bb650afd8352cd05f2dc196420f14f63',
+  status: 'success',
+  gasUsed: '166482'
+}
+ POST /api/gasless-relay 200 in 1457ms
+📥 AddClaimCode gasless relay response status: 200 OK
+✅ AddClaimCode gasless successful: {
+  success: true,
+  transactionHash: '0x59b297f499154c459686b61507d3fa62bb650afd8352cd05f2dc196420f14f63',
+  contractAddress: null,
+  tokenId: null,
+  status: 'success',
+  gasUsed: '166482',
+  relayerPaid: true
+}
+✅ Claim code added successfully via gasless relayer
+✅ Claimable NFT contract deployed via factory: {
+  contractAddress: '0x51449eb544ee3865205d4a925775c597eedcfe48',
+  deploymentTxHash: '0xc00602dee3810c30091955e823d84803614b53e5ed435e89db6dc1edd6553828',
+  network: 'Base Sepolia',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  gasUsed: undefined,
+  status: undefined
+}
+🔍 Verifying deployed contract exists...
+🔍 Verifying deployed contract at: 0x51449eb544ee3865205d4a925775c597eedcfe48
+✅ Deployed contract verified: {
+  address: '0x51449eb544ee3865205d4a925775c597eedcfe48',
+  hasCode: true,
+  codeLength: 18406
+}
+✅ Deployed contract functions verified: {
+  owner: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  name: 'Working Test NFT 1752946756336'
+}
+🖼️ Processing image... { imageProvided: true, imageType: 'string', imageLength: 114 }
+📤 Processing base64 image...
+🔄 Converting base64 to file...
+📄 Image details: { mimeType: 'image/png', extension: 'png' }
+📁 Created file: { name: 'admin-upload-1752946761483.png', size: 68, type: 'image/png' }
+✅ Firebase upload successful: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946761484-admin-upload-1752946761483.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946761484-admin-upload-1752946761483.png?alt=media&token=b7704158-736c-41a8-813f-48485450f3fe',
+  fileName: '1752946761484-admin-upload-1752946761483.png'
+}
+✅ Base64 image uploaded successfully: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946761484-admin-upload-1752946761483.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946761484-admin-upload-1752946761483.png?alt=media&token=b7704158-736c-41a8-813f-48485450f3fe'
+}
+💾 Creating NFT record in database...
+🖼️ Image processing complete: {
+  hasProcessedImage: true,
+  hasUploadedImageUrl: true,
+  processedImagePath: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946761484-admin-upload-1752946761483.png',
+  uploadedImageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946761484-admin-upload-1752946761483.png?alt=media&token=b7704158-736c-41a8-813f-48485450f3fe'
+}
+📝 NFT creation input: {
+  title: 'Working Test NFT 1752946756336',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946761484-admin-upload-1752946761483.png',
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946761484-admin-upload-1752946761483.png?alt=media&token=b7704158-736c-41a8-813f-48485450f3fe',
+  claimCode: 'WORKING1752946756336',
+  startDate: '2025-07-19T17:39:16.336Z',
+  endDate: '2025-07-26T17:39:16.336Z',
+  status: 'published',
+  maxClaims: 5,
+  network: 'base-sepolia',
+  contractAddress: '0x51449eb544ee3865205d4a925775c597eedcfe48',
+  deploymentTxHash: '0xc00602dee3810c30091955e823d84803614b53e5ed435e89db6dc1edd6553828',
+  imageProvided: true,
+  uploadedImageUrl: true
+}
+🔗 Using Pinata for metadata upload
+ ○ Compiling /api/upload-metadata-to-pinata ...
+ ✓ Compiled /api/upload-metadata-to-pinata in 730ms (4782 modules)
+ POST /api/upload-metadata-to-pinata 200 in 1221ms
+✅ NFT record created successfully: {
+  id: 'mdaj8pv22l1vvmuwezo',
+  title: 'Working Test NFT 1752946756336',
+  status: 'published',
+  contractAddress: '0x51449eb544ee3865205d4a925775c597eedcfe48',
+  deploymentTxHash: '0xc00602dee3810c30091955e823d84803614b53e5ed435e89db6dc1edd6553828',
+  hasImage: true,
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946761484-admin-upload-1752946761483.png?alt=media&token=b7704158-736c-41a8-813f-48485450f3fe'
+}
+ POST /api/admin/nfts 201 in 6938ms
+ ✓ Compiled /api/nfts/claim in 324ms (4784 modules)
+🔥 Using Firebase production service
+Verifying claim code: WORKING1752946756336
+User wallet: 0x499D377eF114cC1BF7798cECBB38412701400daF
+Found 1 NFT(s) with claim code "WORKING1752946756336", using most recent: {
+  id: 'mdaj8pv22l1vvmuwezo',
+  title: 'Working Test NFT 1752946756336',
+  contractAddress: '0x51449eb544ee3865205d4a925775c597eedcfe48',
+  createdAt: '2025-07-19T17:39:21.710Z'
+}
+Verification result: {
+  valid: true,
+  nft: {
+    updatedAt: '2025-07-19T17:39:23.189Z',
+    id: 'mdaj8pv22l1vvmuwezo',
+    title: 'Working Test NFT 1752946756336',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946761484-admin-upload-1752946761483.png?alt=media&token=b7704158-736c-41a8-813f-48485450f3fe',
+    maxClaims: 5,
+    endDate: '2025-07-26T17:39:16.336Z',
+    createdBy: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+    metadataUrl: 'ipfs://QmXQn6cYwUiyxHqNG6Z21upMr7R6PCPCjhCzwaWpsaKvBv',
+    deploymentTxHash: '0xc00602dee3810c30091955e823d84803614b53e5ed435e89db6dc1edd6553828',
+    description: 'Testing with completely fresh NFT and fixed systems',
+    status: 'published',
+    createdAt: '2025-07-19T17:39:21.710Z',
+    network: 'base-sepolia',
+    startDate: '2025-07-19T17:39:16.336Z',
+    contractAddress: '0x51449eb544ee3865205d4a925775c597eedcfe48',
+    claimCode: 'WORKING1752946756336',
+    currentClaims: 0,
+    image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946761484-admin-upload-1752946761483.png',
+    metadataIpfsHash: 'QmXQn6cYwUiyxHqNG6Z21upMr7R6PCPCjhCzwaWpsaKvBv'
+  }
+}
+ GET /api/nfts/claim?code=WORKING1752946756336 200 in 629ms
+Processing claim for code: WORKING1752946756336
+User wallet: 0x499D377eF114cC1BF7798cECBB38412701400daF
+Transaction hash: undefined
+Token ID: undefined
+Found 1 NFT(s) with claim code "WORKING1752946756336", using most recent: {
+  id: 'mdaj8pv22l1vvmuwezo',
+  title: 'Working Test NFT 1752946756336',
+  contractAddress: '0x51449eb544ee3865205d4a925775c597eedcfe48',
+  createdAt: '2025-07-19T17:39:21.710Z'
+}
+Claim code validated successfully for NFT: Working Test NFT 1752946756336
+Using contract address: 0x51449eb544ee3865205d4a925775c597eedcfe48
+🚀 Calling claimNFT on smart contract via gasless relayer...
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'claimNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899911', sufficient: true }
+🎯 Executing gasless claimNFT...
+🔍 ClaimNFT params: {
+  contractAddress: '0x51449eb544ee3865205d4a925775c597eedcfe48',
+  claimCode: 'WORKING1752946756336',
+  userAddress: '0x499D377eF114cC1BF7798cECBB38412701400daF',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless claimNFT...
+✅ ClaimNFT simulation successful, token ID: 0n
+🔨 Executing claimNFT transaction...
+⏳ Waiting for claim transaction to complete...
+✅ Claim transaction completed: {
+  hash: '0x44baee43d1364eb9334f54af03b0cf15a9328513c7fce7d72b7decbd3526be30',
+  status: 'success',
+  gasUsed: '255381'
+}
+🔍 Checking token ownership after claimNFT...
+🔍 Token ID from claimNFT: 0
+🔍 Contract address: 0x51449eb544ee3865205d4a925775c597eedcfe48
+🔍 Checking current token owner...
+❌ Failed to check token ownership: Error [ContractFunctionExecutionError]: The contract function "ownerOf" reverted with the following signature:
+0x7e273289
+
+Unable to decode signature "0x7e273289" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x7e273289.
+ 
+Contract Call:
+  address:   0x51449eb544ee3865205d4a925775c597eedcfe48
+  function:  ownerOf(uint256 tokenId)
+  args:             (0)
+
+Docs: https://viem.sh/docs/contract/decodeErrorResult
+Version: viem@2.30.6
+    at async POST (app/api/gasless-relay/route.ts:1284:23)
+  1282 |       try {
+  1283 |         console.log('🔍 Checking current token owner...')
+> 1284 |         currentOwner = await publicClient.readContract({
+       |                       ^
+  1285 |           address: body.contractAddress as `0x${string}`,
+  1286 |           abi: CLAIMABLE_NFT_ABI,
+  1287 |           functionName: 'ownerOf', {
+  details: undefined,
+  docsPath: '/docs/contract/decodeErrorResult',
+  metaMessages: [Array],
+  shortMessage: 'The contract function "ownerOf" reverted with the following signature:\n' +
+    '0x7e273289',
+  version: '2.30.6',
+  abi: [Array],
+  args: [Array],
+  contractAddress: '0x51449eb544ee3865205d4a925775c597eedcfe48',
+  formattedArgs: undefined,
+  functionName: 'ownerOf',
+  sender: undefined,
+  [cause]: Error [ContractFunctionRevertedError]: The contract function "ownerOf" reverted with the following signature:
+  0x7e273289
+  
+  Unable to decode signature "0x7e273289" as it was not found on the provided ABI.
+  Make sure you are using the correct ABI and that the error exists on it.
+  You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x7e273289.
+  
+  Docs: https://viem.sh/docs/contract/decodeErrorResult
+  Version: viem@2.30.6
+      at async POST (app/api/gasless-relay/route.ts:1284:23)
+    1282 |       try {
+    1283 |         console.log('🔍 Checking current token owner...')
+  > 1284 |         currentOwner = await publicClient.readContract({
+         |                       ^
+    1285 |           address: body.contractAddress as `0x${string}`,
+    1286 |           abi: CLAIMABLE_NFT_ABI,
+    1287 |           functionName: 'ownerOf', {
+    details: undefined,
+    docsPath: '/docs/contract/decodeErrorResult',
+    metaMessages: [
+      'Unable to decode signature "0x7e273289" as it was not found on the provided ABI.',
+      'Make sure you are using the correct ABI and that the error exists on it.',
+      'You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x7e273289.'
+    ],
+    shortMessage: 'The contract function "ownerOf" reverted with the following signature:\n' +
+      '0x7e273289',
+    version: '2.30.6',
+    data: undefined,
+    raw: '0x7e2732890000000000000000000000000000000000000000000000000000000000000000',
+    reason: undefined,
+    signature: '0x7e273289',
+    [cause]: Error [AbiErrorSignatureNotFoundError]: Encoded error signature "0x7e273289" not found on ABI.
+    Make sure you are using the correct ABI and that the error exists on it.
+    You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x7e273289.
+    
+    Docs: https://viem.sh/docs/contract/decodeErrorResult
+    Version: viem@2.30.6
+        at async POST (app/api/gasless-relay/route.ts:1284:23)
+      1282 |       try {
+      1283 |         console.log('🔍 Checking current token owner...')
+    > 1284 |         currentOwner = await publicClient.readContract({
+           |                       ^
+      1285 |           address: body.contractAddress as `0x${string}`,
+      1286 |           abi: CLAIMABLE_NFT_ABI,
+      1287 |           functionName: 'ownerOf', {
+      details: undefined,
+      docsPath: '/docs/contract/decodeErrorResult',
+      metaMessages: undefined,
+      shortMessage: 'Encoded error signature "0x7e273289" not found on ABI.\n' +
+        'Make sure you are using the correct ABI and that the error exists on it.\n' +
+        'You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x7e273289.',
+      version: '2.30.6',
+      signature: '0x7e273289'
+    }
+  }
+}
+ POST /api/gasless-relay 500 in 1525ms
+❌ Gasless relay failed with status: 500 Internal Server Error
+❌ Blockchain claim failed: Error: Gasless relay failed: Failed to verify token ownership
+    at POST (app/api/nfts/claim/route.ts:121:14)
+  119 |         }
+  120 |         
+> 121 |         throw new Error(errorMessage);
+      |              ^
+  122 |       }
+  123 |       
+  124 |       blockchainResult = await gaslessResponse.json();
+ POST /api/nfts/claim 200 in 1750ms
+ ⨯ ./app/api/gasless-relay/route.ts
+Error:   [31mx[0m Expected a semicolon
+      ,-[[36;1;4m/Users/osx/Projects/Nouns/ART3-HUB/ArtHubApp/app/api/gasless-relay/route.ts[0m:1352:1]
+ [2m1349[0m |           // Set token ID for response even when no transfer is needed
+ [2m1350[0m |           tokenId = Number(actualTokenId)
+ [2m1351[0m |         }
+ [2m1352[0m |       } else {
+      : [35;1m        ^[0m
+ [2m1353[0m |         console.log('❌ Unexpected token owner:', currentOwner)
+ [2m1354[0m |         return NextResponse.json(
+ [2m1355[0m |           { error: 'Token ownership verification failed' },
+      `----
+  [31mx[0m Expression expected
+      ,-[[36;1;4m/Users/osx/Projects/Nouns/ART3-HUB/ArtHubApp/app/api/gasless-relay/route.ts[0m:1352:1]
+ [2m1349[0m |           // Set token ID for response even when no transfer is needed
+ [2m1350[0m |           tokenId = Number(actualTokenId)
+ [2m1351[0m |         }
+ [2m1352[0m |       } else {
+      : [35;1m        ^^^^[0m
+ [2m1353[0m |         console.log('❌ Unexpected token owner:', currentOwner)
+ [2m1354[0m |         return NextResponse.json(
+ [2m1355[0m |           { error: 'Token ownership verification failed' },
+      `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/api/gasless-relay/route.ts
+ ✓ Compiled in 554ms (4784 modules)
+🔥 Using Firebase production service
+Farcaster frameConnector setup completed
+WalletConnect Core is already initialized. This is probably a mistake and can lead to unexpected behavior. Init() was called 3 times.
+🚀 Deploying claimable NFT contract via factory...
+📋 Request data: {
+  title: 'Working Test NFT 1752946820914',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  claimCode: 'WORKING1752946820914',
+  startDate: '2025-07-19T17:40:20.914Z',
+  endDate: '2025-07-26T17:40:20.914Z',
+  status: 'published',
+  maxClaims: 5,
+  network: 'base-sepolia',
+  image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII='
+}
+🔧 Network configuration: { isTestingMode: true, targetChain: 'Base Sepolia', chainId: 84532 }
+🏭 Factory address lookup: {
+  isTestingMode: true,
+  factoryEnvVar: 'NEXT_PUBLIC_CLAIMABLE_NFT_FACTORY_84532',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A'
+}
+🔍 Verifying factory contract exists on blockchain...
+🔍 Verifying factory contract at: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+✅ Factory contract verified: {
+  address: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  hasCode: true,
+  codeLength: 26658
+}
+✅ Factory contract functions verified (legacy version): { deployedContracts: 40 }
+🚀 Initiating gasless deployment...
+🚀 Deploying claimable NFT via gasless relayer...
+📋 Deployment parameters: {
+  title: 'Working Test NFT 1752946820914',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  creatorAddress: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+  chainId: 84532,
+  claimCode: 'WORKING1752946820914'
+}
+🏷️ Generated symbol: WORKINGTES
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 Gasless relay payload: {
+  type: 'deployClaimableNFT',
+  name: 'Working Test NFT 1752946820914',
+  symbol: 'WORKINGTES',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  userAddress: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'deployClaimableNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899911', sufficient: true }
+🏭 Executing gasless ClaimableNFT deployment...
+🔍 ClaimableNFT deployment params: {
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  name: 'Working Test NFT 1752946820914',
+  symbol: 'WORKINGTES',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  owner: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless ClaimableNFT deployment...
+✅ ClaimableNFT deployment simulation successful, address: 0x6c244256cE32300A3565b3425DC09c18f77dB579
+✅ Gasless transaction submitted by relayer: 0x49f919f3f80fb02a9d37c279e1fa4e226da60621ac90d916a4aae76c430a4597
+🎉 Gasless transaction confirmed: {
+  hash: '0x49f919f3f80fb02a9d37c279e1fa4e226da60621ac90d916a4aae76c430a4597',
+  status: 'success',
+  gasUsed: '2123784'
+}
+🔍 Looking for ClaimableNFTDeployed event in transaction logs...
+📄 Transaction receipt logs: 2 logs found
+🔍 Looking for event topic: 0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4
+🔍 Factory address: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+📄 Log: {
+  address: '0x6c244256ce32300a3565b3425dc09c18f77db579',
+  topics: [
+    '0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0',
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x',
+  isFromFactory: false,
+  topicMatches: false
+}
+📄 Log: {
+  address: '0xeb91e58a59e7bcf8adc8cae4f12187826965503a',
+  topics: [
+    '0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4',
+    '0x0000000000000000000000006c244256ce32300a3565b3425dc09c18f77db579',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000687bd888000000000000000000000000000000000000000000000000000000000000001e576f726b696e672054657374204e465420313735323934363832303931340000000000000000000000000000000000000000000000000000000000000000000a574f524b494e4754455300000000000000000000000000000000000000000000',
+  isFromFactory: true,
+  topicMatches: true
+}
+🎯 Extracted ClaimableNFT address: 0x6c244256ce32300a3565b3425dc09c18f77db579
+ POST /api/gasless-relay 200 in 1189ms
+📥 Gasless relay response status: 200 OK
+✅ Gasless deployment successful: {
+  success: true,
+  transactionHash: '0x49f919f3f80fb02a9d37c279e1fa4e226da60621ac90d916a4aae76c430a4597',
+  contractAddress: '0x6c244256ce32300a3565b3425dc09c18f77db579',
+  tokenId: null,
+  status: 'success',
+  gasUsed: '2123784',
+  relayerPaid: true
+}
+🎯 Contract deployed at: {
+  contractAddress: '0x6c244256ce32300a3565b3425dc09c18f77db579',
+  transactionHash: '0x49f919f3f80fb02a9d37c279e1fa4e226da60621ac90d916a4aae76c430a4597',
+  gasUsed: '2123784',
+  success: true
+}
+📝 Adding claim code to deployed contract using gasless relayer...
+📝 Adding claim code via gasless relayer...
+🔍 AddClaimCode parameters: {
+  contractAddress: '0x6c244256ce32300a3565b3425dc09c18f77db579',
+  claimCode: 'WORKING1752946820914',
+  maxClaims: 0,
+  startTime: 1752946822,
+  endTime: 1784482822,
+  metadataURI: 'https://ipfs.io/ipfs/QmTestMetadata',
+  chainId: 84532
+}
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 AddClaimCode payload: {
+  type: 'addClaimCode',
+  contractAddress: '0x6c244256ce32300a3565b3425dc09c18f77db579',
+  claimCode: 'WORKING1752946820914',
+  maxClaims: 0,
+  startTime: 1752946822,
+  endTime: 1784482822,
+  metadataURI: 'https://ipfs.io/ipfs/QmTestMetadata',
+  chainId: 84532
+}
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'addClaimCode',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899911', sufficient: true }
+📝 Executing gasless addClaimCode with timestamp fix...
+🔍 AddClaimCode params: {
+  contractAddress: '0x6c244256ce32300a3565b3425dc09c18f77db579',
+  claimCode: 'WORKING1752946820914',
+  maxClaims: 0,
+  startTime: 1752946822,
+  endTime: 1784482822,
+  metadataURI: 'https://ipfs.io/ipfs/QmTestMetadata',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  providedTimestamps: 'Using exact timestamps from request'
+}
+🔍 Simulating gasless addClaimCode...
+✅ AddClaimCode simulation successful
+✅ Gasless transaction submitted by relayer: 0x58ff3dd94cff97a662ced1dc520dbfdbb41cec1a2945a9f799c2a0100e0d6fd6
+🎉 Gasless transaction confirmed: {
+  hash: '0x58ff3dd94cff97a662ced1dc520dbfdbb41cec1a2945a9f799c2a0100e0d6fd6',
+  status: 'reverted',
+  gasUsed: '26713'
+}
+ POST /api/gasless-relay 200 in 1185ms
+📥 AddClaimCode gasless relay response status: 200 OK
+✅ AddClaimCode gasless successful: {
+  success: true,
+  transactionHash: '0x58ff3dd94cff97a662ced1dc520dbfdbb41cec1a2945a9f799c2a0100e0d6fd6',
+  contractAddress: null,
+  tokenId: null,
+  status: 'reverted',
+  gasUsed: '26713',
+  relayerPaid: true
+}
+✅ Claim code added successfully via gasless relayer
+✅ Claimable NFT contract deployed via factory: {
+  contractAddress: '0x6c244256ce32300a3565b3425dc09c18f77db579',
+  deploymentTxHash: '0x49f919f3f80fb02a9d37c279e1fa4e226da60621ac90d916a4aae76c430a4597',
+  network: 'Base Sepolia',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  gasUsed: undefined,
+  status: undefined
+}
+🔍 Verifying deployed contract exists...
+🔍 Verifying deployed contract at: 0x6c244256ce32300a3565b3425dc09c18f77db579
+✅ Deployed contract verified: {
+  address: '0x6c244256ce32300a3565b3425dc09c18f77db579',
+  hasCode: true,
+  codeLength: 18406
+}
+✅ Deployed contract functions verified: {
+  owner: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  name: 'Working Test NFT 1752946820914'
+}
+🖼️ Processing image... { imageProvided: true, imageType: 'string', imageLength: 114 }
+📤 Processing base64 image...
+🔄 Converting base64 to file...
+📄 Image details: { mimeType: 'image/png', extension: 'png' }
+📁 Created file: { name: 'admin-upload-1752946824402.png', size: 68, type: 'image/png' }
+✅ Firebase upload successful: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946824402-admin-upload-1752946824402.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946824402-admin-upload-1752946824402.png?alt=media&token=08fab595-4cfb-4d54-8022-c59bcfe11727',
+  fileName: '1752946824402-admin-upload-1752946824402.png'
+}
+✅ Base64 image uploaded successfully: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946824402-admin-upload-1752946824402.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946824402-admin-upload-1752946824402.png?alt=media&token=08fab595-4cfb-4d54-8022-c59bcfe11727'
+}
+💾 Creating NFT record in database...
+🖼️ Image processing complete: {
+  hasProcessedImage: true,
+  hasUploadedImageUrl: true,
+  processedImagePath: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946824402-admin-upload-1752946824402.png',
+  uploadedImageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946824402-admin-upload-1752946824402.png?alt=media&token=08fab595-4cfb-4d54-8022-c59bcfe11727'
+}
+📝 NFT creation input: {
+  title: 'Working Test NFT 1752946820914',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946824402-admin-upload-1752946824402.png',
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946824402-admin-upload-1752946824402.png?alt=media&token=08fab595-4cfb-4d54-8022-c59bcfe11727',
+  claimCode: 'WORKING1752946820914',
+  startDate: '2025-07-19T17:40:20.914Z',
+  endDate: '2025-07-26T17:40:20.914Z',
+  status: 'published',
+  maxClaims: 5,
+  network: 'base-sepolia',
+  contractAddress: '0x6c244256ce32300a3565b3425dc09c18f77db579',
+  deploymentTxHash: '0x49f919f3f80fb02a9d37c279e1fa4e226da60621ac90d916a4aae76c430a4597',
+  imageProvided: true,
+  uploadedImageUrl: true
+}
+🔗 Using Pinata for metadata upload
+ POST /api/upload-metadata-to-pinata 200 in 533ms
+✅ NFT record created successfully: {
+  id: 'mdaja2f9wwo51lpgv5r',
+  title: 'Working Test NFT 1752946820914',
+  status: 'published',
+  contractAddress: '0x6c244256ce32300a3565b3425dc09c18f77db579',
+  deploymentTxHash: '0x49f919f3f80fb02a9d37c279e1fa4e226da60621ac90d916a4aae76c430a4597',
+  hasImage: true,
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946824402-admin-upload-1752946824402.png?alt=media&token=08fab595-4cfb-4d54-8022-c59bcfe11727'
+}
+ POST /api/admin/nfts 201 in 4620ms
+Verifying claim code: WORKING1752946820914
+User wallet: 0x499D377eF114cC1BF7798cECBB38412701400daF
+Found 1 NFT(s) with claim code "WORKING1752946820914", using most recent: {
+  id: 'mdaja2f9wwo51lpgv5r',
+  title: 'Working Test NFT 1752946820914',
+  contractAddress: '0x6c244256ce32300a3565b3425dc09c18f77db579',
+  createdAt: '2025-07-19T17:40:24.645Z'
+}
+Verification result: {
+  valid: true,
+  nft: {
+    id: 'mdaja2f9wwo51lpgv5r',
+    title: 'Working Test NFT 1752946820914',
+    description: 'Testing with completely fresh NFT and fixed systems',
+    image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946824402-admin-upload-1752946824402.png',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946824402-admin-upload-1752946824402.png?alt=media&token=08fab595-4cfb-4d54-8022-c59bcfe11727',
+    claimCode: 'WORKING1752946820914',
+    startDate: '2025-07-19T17:40:20.914Z',
+    endDate: '2025-07-26T17:40:20.914Z',
+    status: 'published',
+    createdAt: '2025-07-19T17:40:24.645Z',
+    updatedAt: '2025-07-19T17:40:25.443Z',
+    createdBy: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+    maxClaims: 5,
+    currentClaims: 0,
+    network: 'base-sepolia',
+    contractAddress: '0x6c244256ce32300a3565b3425dc09c18f77db579',
+    deploymentTxHash: '0x49f919f3f80fb02a9d37c279e1fa4e226da60621ac90d916a4aae76c430a4597',
+    metadataIpfsHash: 'QmSexwWBo6FRCGmpKmcdVXjvBT2UrEqMwyQXf3kUtTZJ4E',
+    metadataUrl: 'ipfs://QmSexwWBo6FRCGmpKmcdVXjvBT2UrEqMwyQXf3kUtTZJ4E'
+  }
+}
+ GET /api/nfts/claim?code=WORKING1752946820914 200 in 214ms
+Processing claim for code: WORKING1752946820914
+User wallet: 0x499D377eF114cC1BF7798cECBB38412701400daF
+Transaction hash: undefined
+Token ID: undefined
+Found 1 NFT(s) with claim code "WORKING1752946820914", using most recent: {
+  id: 'mdaja2f9wwo51lpgv5r',
+  title: 'Working Test NFT 1752946820914',
+  contractAddress: '0x6c244256ce32300a3565b3425dc09c18f77db579',
+  createdAt: '2025-07-19T17:40:24.645Z'
+}
+Claim code validated successfully for NFT: Working Test NFT 1752946820914
+Using contract address: 0x6c244256ce32300a3565b3425dc09c18f77db579
+🚀 Calling claimNFT on smart contract via gasless relayer...
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'claimNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899909', sufficient: true }
+🎯 Executing gasless claimNFT...
+🔍 ClaimNFT params: {
+  contractAddress: '0x6c244256ce32300a3565b3425dc09c18f77db579',
+  claimCode: 'WORKING1752946820914',
+  userAddress: '0x499D377eF114cC1BF7798cECBB38412701400daF',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless claimNFT...
+❌ ClaimNFT simulation failed: Error [ContractFunctionExecutionError]: The contract function "claimNFT" reverted with the following reason:
+Claim code is invalid or inactive
+
+Contract Call:
+  address:   0x6c244256ce32300a3565b3425dc09c18f77db579
+  function:  claimNFT(string claimCode)
+  args:              (WORKING1752946820914)
+  sender:    0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1
+
+Docs: https://viem.sh/docs/contract/simulateContract
+Version: viem@2.30.6
+    at async POST (app/api/gasless-relay/route.ts:1221:26)
+  1219 |       try {
+  1220 |         console.log('🔍 Simulating gasless claimNFT...')
+> 1221 |         const simResult = await publicClient.simulateContract({
+       |                          ^
+  1222 |           address: body.contractAddress as `0x${string}`,
+  1223 |           abi: CLAIMABLE_NFT_ABI,
+  1224 |           functionName: 'claimNFT', {
+  details: undefined,
+  docsPath: '/docs/contract/simulateContract',
+  metaMessages: [Array],
+  shortMessage: 'The contract function "claimNFT" reverted with the following reason:\n' +
+    'Claim code is invalid or inactive',
+  version: '2.30.6',
+  abi: [Array],
+  args: [Array],
+  contractAddress: '0x6c244256ce32300a3565b3425dc09c18f77db579',
+  formattedArgs: undefined,
+  functionName: 'claimNFT',
+  sender: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  [cause]: Error [ContractFunctionRevertedError]: The contract function "claimNFT" reverted with the following reason:
+  Claim code is invalid or inactive
+  
+  Version: viem@2.30.6
+      at async POST (app/api/gasless-relay/route.ts:1221:26)
+    1219 |       try {
+    1220 |         console.log('🔍 Simulating gasless claimNFT...')
+  > 1221 |         const simResult = await publicClient.simulateContract({
+         |                          ^
+    1222 |           address: body.contractAddress as `0x${string}`,
+    1223 |           abi: CLAIMABLE_NFT_ABI,
+    1224 |           functionName: 'claimNFT', {
+    details: undefined,
+    docsPath: undefined,
+    metaMessages: undefined,
+    shortMessage: 'The contract function "claimNFT" reverted with the following reason:\n' +
+      'Claim code is invalid or inactive',
+    version: '2.30.6',
+    data: { abiItem: [Object], args: [Array], errorName: 'Error' },
+    raw: '0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000021436c61696d20636f646520697320696e76616c6964206f7220696e61637469766500000000000000000000000000000000000000000000000000000000000000',
+    reason: 'Claim code is invalid or inactive',
+    signature: undefined
+  }
+}
+ POST /api/gasless-relay 400 in 366ms
+❌ Gasless relay failed with status: 400 Bad Request
+❌ Blockchain claim failed: Error: Gasless relay failed: ClaimNFT simulation failed
+    at POST (app/api/nfts/claim/route.ts:121:14)
+  119 |         }
+  120 |         
+> 121 |         throw new Error(errorMessage);
+      |              ^
+  122 |       }
+  123 |       
+  124 |       blockchainResult = await gaslessResponse.json();
+ POST /api/nfts/claim 200 in 549ms
+ ✓ Compiled in 543ms (1278 modules)
+ ○ Compiling /api/admin/nfts ...
+ ✓ Compiled /api/admin/nfts in 987ms (4665 modules)
+🔥 Using Firebase production service
+Farcaster frameConnector setup completed
+WalletConnect Core is already initialized. This is probably a mistake and can lead to unexpected behavior. Init() was called 4 times.
+🚀 Deploying claimable NFT contract via factory...
+📋 Request data: {
+  title: 'Working Test NFT 1752946917722',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  claimCode: 'WORKING1752946917722',
+  startDate: '2025-07-19T17:41:57.723Z',
+  endDate: '2025-07-26T17:41:57.723Z',
+  status: 'published',
+  maxClaims: 5,
+  network: 'base-sepolia',
+  image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII='
+}
+🔧 Network configuration: { isTestingMode: true, targetChain: 'Base Sepolia', chainId: 84532 }
+🏭 Factory address lookup: {
+  isTestingMode: true,
+  factoryEnvVar: 'NEXT_PUBLIC_CLAIMABLE_NFT_FACTORY_84532',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A'
+}
+🔍 Verifying factory contract exists on blockchain...
+🔍 Verifying factory contract at: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+✅ Factory contract verified: {
+  address: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  hasCode: true,
+  codeLength: 26658
+}
+✅ Factory contract functions verified (legacy version): { deployedContracts: 41 }
+🚀 Initiating gasless deployment...
+🚀 Deploying claimable NFT via gasless relayer...
+📋 Deployment parameters: {
+  title: 'Working Test NFT 1752946917722',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  creatorAddress: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+  chainId: 84532,
+  claimCode: 'WORKING1752946917722'
+}
+🏷️ Generated symbol: WORKINGTES
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 Gasless relay payload: {
+  type: 'deployClaimableNFT',
+  name: 'Working Test NFT 1752946917722',
+  symbol: 'WORKINGTES',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  userAddress: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+ ✓ Compiled /api/gasless-relay in 324ms (4669 modules)
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'deployClaimableNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899909', sufficient: true }
+🏭 Executing gasless ClaimableNFT deployment...
+🔍 ClaimableNFT deployment params: {
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  name: 'Working Test NFT 1752946917722',
+  symbol: 'WORKINGTES',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  owner: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless ClaimableNFT deployment...
+✅ ClaimableNFT deployment simulation successful, address: 0xc6fa56709d52F5bbFF3b705f7B6E137f57C6f92a
+✅ Gasless transaction submitted by relayer: 0xe695778b82bf099a6ad034d2e3a44529fa93913ed601b5e742d3d24882d9c3b5
+🎉 Gasless transaction confirmed: {
+  hash: '0xe695778b82bf099a6ad034d2e3a44529fa93913ed601b5e742d3d24882d9c3b5',
+  status: 'success',
+  gasUsed: '2123784'
+}
+🔍 Looking for ClaimableNFTDeployed event in transaction logs...
+📄 Transaction receipt logs: 2 logs found
+🔍 Looking for event topic: 0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4
+🔍 Factory address: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+📄 Log: {
+  address: '0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a',
+  topics: [
+    '0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0',
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x',
+  isFromFactory: false,
+  topicMatches: false
+}
+📄 Log: {
+  address: '0xeb91e58a59e7bcf8adc8cae4f12187826965503a',
+  topics: [
+    '0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4',
+    '0x000000000000000000000000c6fa56709d52f5bbff3b705f7b6e137f57c6f92a',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000687bd8ec000000000000000000000000000000000000000000000000000000000000001e576f726b696e672054657374204e465420313735323934363931373732320000000000000000000000000000000000000000000000000000000000000000000a574f524b494e4754455300000000000000000000000000000000000000000000',
+  isFromFactory: true,
+  topicMatches: true
+}
+🎯 Extracted ClaimableNFT address: 0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a
+ POST /api/gasless-relay 200 in 2660ms
+📥 Gasless relay response status: 200 OK
+✅ Gasless deployment successful: {
+  success: true,
+  transactionHash: '0xe695778b82bf099a6ad034d2e3a44529fa93913ed601b5e742d3d24882d9c3b5',
+  contractAddress: '0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a',
+  tokenId: null,
+  status: 'success',
+  gasUsed: '2123784',
+  relayerPaid: true
+}
+🎯 Contract deployed at: {
+  contractAddress: '0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a',
+  transactionHash: '0xe695778b82bf099a6ad034d2e3a44529fa93913ed601b5e742d3d24882d9c3b5',
+  gasUsed: '2123784',
+  success: true
+}
+📝 Adding claim code to deployed contract using gasless relayer...
+📝 Adding claim code via gasless relayer...
+🔍 AddClaimCode parameters: {
+  contractAddress: '0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a',
+  claimCode: 'WORKING1752946917722',
+  maxClaims: 0,
+  startTime: 1752946922,
+  endTime: 1784482922,
+  metadataURI: '',
+  chainId: 84532
+}
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 AddClaimCode payload: {
+  type: 'addClaimCode',
+  contractAddress: '0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a',
+  claimCode: 'WORKING1752946917722',
+  maxClaims: 0,
+  startTime: 1752946922,
+  endTime: 1784482922,
+  metadataURI: '',
+  chainId: 84532
+}
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'addClaimCode',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899909', sufficient: true }
+📝 Executing gasless addClaimCode with timestamp fix...
+🔍 AddClaimCode params: {
+  contractAddress: '0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a',
+  claimCode: 'WORKING1752946917722',
+  maxClaims: 0,
+  startTime: 1752946922,
+  endTime: 1784482922,
+  metadataURI: '',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  providedTimestamps: 'Using exact timestamps from request'
+}
+🔍 Simulating gasless addClaimCode...
+✅ AddClaimCode simulation successful
+✅ Gasless transaction submitted by relayer: 0xc6de3e117e0ef21e9fda945f986048da6683521cb026588d80d0890d951d30bc
+🎉 Gasless transaction confirmed: {
+  hash: '0xc6de3e117e0ef21e9fda945f986048da6683521cb026588d80d0890d951d30bc',
+  status: 'reverted',
+  gasUsed: '24990'
+}
+ POST /api/gasless-relay 200 in 1111ms
+📥 AddClaimCode gasless relay response status: 200 OK
+✅ AddClaimCode gasless successful: {
+  success: true,
+  transactionHash: '0xc6de3e117e0ef21e9fda945f986048da6683521cb026588d80d0890d951d30bc',
+  contractAddress: null,
+  tokenId: null,
+  status: 'reverted',
+  gasUsed: '24990',
+  relayerPaid: true
+}
+✅ Claim code added successfully via gasless relayer
+✅ Claimable NFT contract deployed via factory: {
+  contractAddress: '0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a',
+  deploymentTxHash: '0xe695778b82bf099a6ad034d2e3a44529fa93913ed601b5e742d3d24882d9c3b5',
+  network: 'Base Sepolia',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  gasUsed: undefined,
+  status: undefined
+}
+🔍 Verifying deployed contract exists...
+🔍 Verifying deployed contract at: 0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a
+❌ Deployed contract not found at address: 0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a
+❌ Deployed contract verification failed: Error: Deployed contract not found at address 0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a
+    at verifyDeployedContract (app/api/admin/nfts/route.ts:695:12)
+    at async POST (app/api/admin/nfts/route.ts:122:8)
+  693 |     if (!contractCode || contractCode === '0x') {
+  694 |       console.error('❌ Deployed contract not found at address:', contractAddress)
+> 695 |       throw new Error(`Deployed contract not found at address ${contractAddress}`)
+      |            ^
+  696 |     }
+  697 |     
+  698 |     console.log('✅ Deployed contract verified:', {
+⚠️ Continuing despite verification failure
+🖼️ Processing image... { imageProvided: true, imageType: 'string', imageLength: 114 }
+📤 Processing base64 image...
+🔄 Converting base64 to file...
+📄 Image details: { mimeType: 'image/png', extension: 'png' }
+📁 Created file: { name: 'admin-upload-1752946923386.png', size: 68, type: 'image/png' }
+✅ Firebase upload successful: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946923386-admin-upload-1752946923386.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946923386-admin-upload-1752946923386.png?alt=media&token=f778e4d6-539e-4944-9cc2-77c74bbe61a8',
+  fileName: '1752946923386-admin-upload-1752946923386.png'
+}
+✅ Base64 image uploaded successfully: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946923386-admin-upload-1752946923386.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946923386-admin-upload-1752946923386.png?alt=media&token=f778e4d6-539e-4944-9cc2-77c74bbe61a8'
+}
+💾 Creating NFT record in database...
+🖼️ Image processing complete: {
+  hasProcessedImage: true,
+  hasUploadedImageUrl: true,
+  processedImagePath: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946923386-admin-upload-1752946923386.png',
+  uploadedImageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946923386-admin-upload-1752946923386.png?alt=media&token=f778e4d6-539e-4944-9cc2-77c74bbe61a8'
+}
+📝 NFT creation input: {
+  title: 'Working Test NFT 1752946917722',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946923386-admin-upload-1752946923386.png',
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946923386-admin-upload-1752946923386.png?alt=media&token=f778e4d6-539e-4944-9cc2-77c74bbe61a8',
+  claimCode: 'WORKING1752946917722',
+  startDate: '2025-07-19T17:41:57.723Z',
+  endDate: '2025-07-26T17:41:57.723Z',
+  status: 'published',
+  maxClaims: 5,
+  network: 'base-sepolia',
+  contractAddress: '0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a',
+  deploymentTxHash: '0xe695778b82bf099a6ad034d2e3a44529fa93913ed601b5e742d3d24882d9c3b5',
+  imageProvided: true,
+  uploadedImageUrl: true
+}
+🔗 Using Pinata for metadata upload
+ ○ Compiling /api/upload-metadata-to-pinata ...
+ ✓ Compiled /api/upload-metadata-to-pinata in 774ms (4782 modules)
+ POST /api/upload-metadata-to-pinata 200 in 1192ms
+✅ NFT record created successfully: {
+  id: 'mdajc6tqbh6vy2qmrua',
+  title: 'Working Test NFT 1752946917722',
+  status: 'published',
+  contractAddress: '0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a',
+  deploymentTxHash: '0xe695778b82bf099a6ad034d2e3a44529fa93913ed601b5e742d3d24882d9c3b5',
+  hasImage: true,
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946923386-admin-upload-1752946923386.png?alt=media&token=f778e4d6-539e-4944-9cc2-77c74bbe61a8',
+  metadataUrl: undefined,
+  metadataIpfsHash: undefined
+}
+ POST /api/admin/nfts 201 in 7452ms
+ ✓ Compiled /api/nfts/claim in 336ms (4784 modules)
+🔥 Using Firebase production service
+Verifying claim code: WORKING1752946917722
+User wallet: 0x499D377eF114cC1BF7798cECBB38412701400daF
+Found 1 NFT(s) with claim code "WORKING1752946917722", using most recent: {
+  id: 'mdajc6tqbh6vy2qmrua',
+  title: 'Working Test NFT 1752946917722',
+  contractAddress: '0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a',
+  createdAt: '2025-07-19T17:42:03.662Z'
+}
+Verification result: {
+  valid: true,
+  nft: {
+    image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752946923386-admin-upload-1752946923386.png',
+    description: 'Testing with completely fresh NFT and fixed systems',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752946923386-admin-upload-1752946923386.png?alt=media&token=f778e4d6-539e-4944-9cc2-77c74bbe61a8',
+    deploymentTxHash: '0xe695778b82bf099a6ad034d2e3a44529fa93913ed601b5e742d3d24882d9c3b5',
+    startDate: '2025-07-19T17:41:57.723Z',
+    network: 'base-sepolia',
+    contractAddress: '0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a',
+    updatedAt: '2025-07-19T17:42:05.095Z',
+    title: 'Working Test NFT 1752946917722',
+    metadataUrl: 'ipfs://QmYZVkefyHqSJkT33ZBgjRgP2bPcwuyUe3Fem7T7sU1nHC',
+    createdAt: '2025-07-19T17:42:03.662Z',
+    endDate: '2025-07-26T17:41:57.723Z',
+    metadataIpfsHash: 'QmYZVkefyHqSJkT33ZBgjRgP2bPcwuyUe3Fem7T7sU1nHC',
+    createdBy: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+    claimCode: 'WORKING1752946917722',
+    id: 'mdajc6tqbh6vy2qmrua',
+    status: 'published',
+    currentClaims: 0,
+    maxClaims: 5
+  }
+}
+ GET /api/nfts/claim?code=WORKING1752946917722 200 in 714ms
+Processing claim for code: WORKING1752946917722
+User wallet: 0x499D377eF114cC1BF7798cECBB38412701400daF
+Transaction hash: undefined
+Token ID: undefined
+Found 1 NFT(s) with claim code "WORKING1752946917722", using most recent: {
+  id: 'mdajc6tqbh6vy2qmrua',
+  title: 'Working Test NFT 1752946917722',
+  contractAddress: '0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a',
+  createdAt: '2025-07-19T17:42:03.662Z'
+}
+Claim code validated successfully for NFT: Working Test NFT 1752946917722
+Using contract address: 0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a
+🚀 Calling claimNFT on smart contract via gasless relayer...
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'claimNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899908', sufficient: true }
+🎯 Executing gasless claimNFT...
+🔍 ClaimNFT params: {
+  contractAddress: '0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a',
+  claimCode: 'WORKING1752946917722',
+  userAddress: '0x499D377eF114cC1BF7798cECBB38412701400daF',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless claimNFT...
+❌ ClaimNFT simulation failed: Error [ContractFunctionExecutionError]: The contract function "claimNFT" reverted with the following reason:
+Claim code is invalid or inactive
+
+Contract Call:
+  address:   0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a
+  function:  claimNFT(string claimCode)
+  args:              (WORKING1752946917722)
+  sender:    0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1
+
+Docs: https://viem.sh/docs/contract/simulateContract
+Version: viem@2.30.6
+    at async POST (app/api/gasless-relay/route.ts:1221:26)
+  1219 |       try {
+  1220 |         console.log('🔍 Simulating gasless claimNFT...')
+> 1221 |         const simResult = await publicClient.simulateContract({
+       |                          ^
+  1222 |           address: body.contractAddress as `0x${string}`,
+  1223 |           abi: CLAIMABLE_NFT_ABI,
+  1224 |           functionName: 'claimNFT', {
+  details: undefined,
+  docsPath: '/docs/contract/simulateContract',
+  metaMessages: [Array],
+  shortMessage: 'The contract function "claimNFT" reverted with the following reason:\n' +
+    'Claim code is invalid or inactive',
+  version: '2.30.6',
+  abi: [Array],
+  args: [Array],
+  contractAddress: '0xc6fa56709d52f5bbff3b705f7b6e137f57c6f92a',
+  formattedArgs: undefined,
+  functionName: 'claimNFT',
+  sender: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  [cause]: Error [ContractFunctionRevertedError]: The contract function "claimNFT" reverted with the following reason:
+  Claim code is invalid or inactive
+  
+  Version: viem@2.30.6
+      at async POST (app/api/gasless-relay/route.ts:1221:26)
+    1219 |       try {
+    1220 |         console.log('🔍 Simulating gasless claimNFT...')
+  > 1221 |         const simResult = await publicClient.simulateContract({
+         |                          ^
+    1222 |           address: body.contractAddress as `0x${string}`,
+    1223 |           abi: CLAIMABLE_NFT_ABI,
+    1224 |           functionName: 'claimNFT', {
+    details: undefined,
+    docsPath: undefined,
+    metaMessages: undefined,
+    shortMessage: 'The contract function "claimNFT" reverted with the following reason:\n' +
+      'Claim code is invalid or inactive',
+    version: '2.30.6',
+    data: { abiItem: [Object], args: [Array], errorName: 'Error' },
+    raw: '0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000021436c61696d20636f646520697320696e76616c6964206f7220696e61637469766500000000000000000000000000000000000000000000000000000000000000',
+    reason: 'Claim code is invalid or inactive',
+    signature: undefined
+  }
+}
+ POST /api/gasless-relay 400 in 436ms
+❌ Gasless relay failed with status: 400 Bad Request
+❌ Blockchain claim failed: Error: Gasless relay failed: ClaimNFT simulation failed
+    at POST (app/api/nfts/claim/route.ts:121:14)
+  119 |         }
+  120 |         
+> 121 |         throw new Error(errorMessage);
+      |              ^
+  122 |       }
+  123 |       
+  124 |       blockchainResult = await gaslessResponse.json();
+ POST /api/nfts/claim 200 in 729ms
+ ✓ Compiled in 648ms (1278 modules)
+ ✓ Compiled /api/admin/nfts in 483ms (4665 modules)
+🔥 Using Firebase production service
+Farcaster frameConnector setup completed
+WalletConnect Core is already initialized. This is probably a mistake and can lead to unexpected behavior. Init() was called 5 times.
+🚀 Deploying claimable NFT contract via factory...
+📋 Request data: {
+  title: 'Working Test NFT 1752947002931',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  claimCode: 'WORKING1752947002931',
+  startDate: '2025-07-19T17:43:22.931Z',
+  endDate: '2025-07-26T17:43:22.932Z',
+  status: 'published',
+  maxClaims: 5,
+  network: 'base-sepolia',
+  image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII='
+}
+🔧 Network configuration: { isTestingMode: true, targetChain: 'Base Sepolia', chainId: 84532 }
+🏭 Factory address lookup: {
+  isTestingMode: true,
+  factoryEnvVar: 'NEXT_PUBLIC_CLAIMABLE_NFT_FACTORY_84532',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A'
+}
+🔍 Verifying factory contract exists on blockchain...
+🔍 Verifying factory contract at: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+✅ Factory contract verified: {
+  address: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  hasCode: true,
+  codeLength: 26658
+}
+✅ Factory contract functions verified (legacy version): { deployedContracts: 42 }
+🚀 Initiating gasless deployment...
+🚀 Deploying claimable NFT via gasless relayer...
+📋 Deployment parameters: {
+  title: 'Working Test NFT 1752947002931',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  creatorAddress: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+  chainId: 84532,
+  claimCode: 'WORKING1752947002931'
+}
+🏷️ Generated symbol: WORKINGTES
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 Gasless relay payload: {
+  type: 'deployClaimableNFT',
+  name: 'Working Test NFT 1752947002931',
+  symbol: 'WORKINGTES',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  userAddress: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+ ✓ Compiled /api/gasless-relay in 309ms (4669 modules)
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'deployClaimableNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899908', sufficient: true }
+🏭 Executing gasless ClaimableNFT deployment...
+🔍 ClaimableNFT deployment params: {
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  name: 'Working Test NFT 1752947002931',
+  symbol: 'WORKINGTES',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  owner: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless ClaimableNFT deployment...
+✅ ClaimableNFT deployment simulation successful, address: 0x6f076BE74B36c593F360CBF32ab5BAecF719E281
+✅ Gasless transaction submitted by relayer: 0xb141b02c7badf365494bb13a109de42f55055e5e74af7603f50a2ae11ef56f11
+🎉 Gasless transaction confirmed: {
+  hash: '0xb141b02c7badf365494bb13a109de42f55055e5e74af7603f50a2ae11ef56f11',
+  status: 'success',
+  gasUsed: '2123784'
+}
+🔍 Looking for ClaimableNFTDeployed event in transaction logs...
+📄 Transaction receipt logs: 2 logs found
+🔍 Looking for event topic: 0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4
+🔍 Factory address: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+📄 Log: {
+  address: '0x6f076be74b36c593f360cbf32ab5baecf719e281',
+  topics: [
+    '0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0',
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x',
+  isFromFactory: false,
+  topicMatches: false
+}
+📄 Log: {
+  address: '0xeb91e58a59e7bcf8adc8cae4f12187826965503a',
+  topics: [
+    '0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4',
+    '0x0000000000000000000000006f076be74b36c593f360cbf32ab5baecf719e281',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000687bd93e000000000000000000000000000000000000000000000000000000000000001e576f726b696e672054657374204e465420313735323934373030323933310000000000000000000000000000000000000000000000000000000000000000000a574f524b494e4754455300000000000000000000000000000000000000000000',
+  isFromFactory: true,
+  topicMatches: true
+}
+🎯 Extracted ClaimableNFT address: 0x6f076be74b36c593f360cbf32ab5baecf719e281
+ POST /api/gasless-relay 200 in 1705ms
+📥 Gasless relay response status: 200 OK
+✅ Gasless deployment successful: {
+  success: true,
+  transactionHash: '0xb141b02c7badf365494bb13a109de42f55055e5e74af7603f50a2ae11ef56f11',
+  contractAddress: '0x6f076be74b36c593f360cbf32ab5baecf719e281',
+  tokenId: null,
+  status: 'success',
+  gasUsed: '2123784',
+  relayerPaid: true
+}
+🎯 Contract deployed at: {
+  contractAddress: '0x6f076be74b36c593f360cbf32ab5baecf719e281',
+  transactionHash: '0xb141b02c7badf365494bb13a109de42f55055e5e74af7603f50a2ae11ef56f11',
+  gasUsed: '2123784',
+  success: true
+}
+📝 Adding claim code to deployed contract using gasless relayer...
+📝 Adding claim code via gasless relayer...
+🔍 AddClaimCode parameters: {
+  contractAddress: '0x6f076be74b36c593f360cbf32ab5baecf719e281',
+  claimCode: 'WORKING1752947002931',
+  maxClaims: 0,
+  startTime: 1752947005,
+  endTime: 1784483005,
+  metadataURI: '',
+  chainId: 84532
+}
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 AddClaimCode payload: {
+  type: 'addClaimCode',
+  contractAddress: '0x6f076be74b36c593f360cbf32ab5baecf719e281',
+  claimCode: 'WORKING1752947002931',
+  maxClaims: 0,
+  startTime: 1752947005,
+  endTime: 1784483005,
+  metadataURI: '',
+  chainId: 84532
+}
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'addClaimCode',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899906', sufficient: true }
+📝 Executing gasless addClaimCode with timestamp fix...
+🔍 AddClaimCode params: {
+  contractAddress: '0x6f076be74b36c593f360cbf32ab5baecf719e281',
+  claimCode: 'WORKING1752947002931',
+  maxClaims: 0,
+  startTime: 1752947005,
+  endTime: 1784483005,
+  metadataURI: '',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  providedTimestamps: 'Using exact timestamps from request'
+}
+🔍 Simulating gasless addClaimCode...
+❌ AddClaimCode simulation failed: Error [ContractFunctionExecutionError]: The contract function "addClaimCode" reverted with the following reason:
+MetadataURI cannot be empty
+
+Contract Call:
+  address:   0x6f076be74b36c593f360cbf32ab5baecf719e281
+  function:  addClaimCode(string claimCode, uint256 maxClaims, uint256 startTime, uint256 endTime, string metadataURI)
+  args:                  (WORKING1752947002931, 0, 1752947005, 1784483005, )
+  sender:    0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1
+
+Docs: https://viem.sh/docs/contract/simulateContract
+Version: viem@2.30.6
+    at async POST (app/api/gasless-relay/route.ts:1380:8)
+  1378 |       try {
+  1379 |         console.log('🔍 Simulating gasless addClaimCode...')
+> 1380 |         await publicClient.simulateContract({
+       |        ^
+  1381 |           address: body.contractAddress as `0x${string}`,
+  1382 |           abi: CLAIMABLE_NFT_ABI,
+  1383 |           functionName: 'addClaimCode', {
+  details: undefined,
+  docsPath: '/docs/contract/simulateContract',
+  metaMessages: [Array],
+  shortMessage: 'The contract function "addClaimCode" reverted with the following reason:\n' +
+    'MetadataURI cannot be empty',
+  version: '2.30.6',
+  abi: [Array],
+  args: [Array],
+  contractAddress: '0x6f076be74b36c593f360cbf32ab5baecf719e281',
+  formattedArgs: undefined,
+  functionName: 'addClaimCode',
+  sender: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  [cause]: Error [ContractFunctionRevertedError]: The contract function "addClaimCode" reverted with the following reason:
+  MetadataURI cannot be empty
+  
+  Version: viem@2.30.6
+      at async POST (app/api/gasless-relay/route.ts:1380:8)
+    1378 |       try {
+    1379 |         console.log('🔍 Simulating gasless addClaimCode...')
+  > 1380 |         await publicClient.simulateContract({
+         |        ^
+    1381 |           address: body.contractAddress as `0x${string}`,
+    1382 |           abi: CLAIMABLE_NFT_ABI,
+    1383 |           functionName: 'addClaimCode', {
+    details: undefined,
+    docsPath: undefined,
+    metaMessages: undefined,
+    shortMessage: 'The contract function "addClaimCode" reverted with the following reason:\n' +
+      'MetadataURI cannot be empty',
+    version: '2.30.6',
+    data: { abiItem: [Object], args: [Array], errorName: 'Error' },
+    raw: '0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001b4d657461646174615552492063616e6e6f7420626520656d7074790000000000',
+    reason: 'MetadataURI cannot be empty',
+    signature: undefined
+  }
+}
+ POST /api/gasless-relay 400 in 607ms
+📥 AddClaimCode gasless relay response status: 400 Bad Request
+❌ AddClaimCode gasless relay error response: {
+  error: 'AddClaimCode simulation failed',
+  details: 'The contract function "addClaimCode" reverted with the following reason:\n' +
+    'MetadataURI cannot be empty\n' +
+    '\n' +
+    'Contract Call:\n' +
+    '  address:   0x6f076be74b36c593f360cbf32ab5baecf719e281\n' +
+    '  function:  addClaimCode(string claimCode, uint256 maxClaims, uint256 startTime, uint256 endTime, string metadataURI)\n' +
+    '  args:                  (WORKING1752947002931, 0, 1752947005, 1784483005, )\n' +
+    '  sender:    0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1\n' +
+    '\n' +
+    'Docs: https://viem.sh/docs/contract/simulateContract\n' +
+    'Version: viem@2.30.6',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+Error adding claim code via gasless relayer: Error: AddClaimCode gasless failed: AddClaimCode simulation failed
+    at addClaimCodeViaGaslessRelay (app/api/admin/nfts/route.ts:431:12)
+    at async deployClaimableNFTViaGaslessRelay (app/api/admin/nfts/route.ts:337:6)
+    at async POST (app/api/admin/nfts/route.ts:99:33)
+  429 |       const errorData = await gaslessResponse.json()
+  430 |       console.error('❌ AddClaimCode gasless relay error response:', errorData)
+> 431 |       throw new Error(`AddClaimCode gasless failed: ${errorData.error || errorData.message}`)
+      |            ^
+  432 |     }
+  433 |     
+  434 |     const addClaimCodeResult = await gaslessResponse.json()
+⚠️ Failed to add claim code via gasless relayer: AddClaimCode gasless failed: AddClaimCode simulation failed
+✅ Claimable NFT contract deployed via factory: {
+  contractAddress: '0x6f076be74b36c593f360cbf32ab5baecf719e281',
+  deploymentTxHash: '0xb141b02c7badf365494bb13a109de42f55055e5e74af7603f50a2ae11ef56f11',
+  network: 'Base Sepolia',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  gasUsed: undefined,
+  status: undefined
+}
+🔍 Verifying deployed contract exists...
+🔍 Verifying deployed contract at: 0x6f076be74b36c593f360cbf32ab5baecf719e281
+✅ Deployed contract verified: {
+  address: '0x6f076be74b36c593f360cbf32ab5baecf719e281',
+  hasCode: true,
+  codeLength: 18406
+}
+✅ Deployed contract functions verified: {
+  owner: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  name: 'Working Test NFT 1752947002931'
+}
+🖼️ Processing image... { imageProvided: true, imageType: 'string', imageLength: 114 }
+📤 Processing base64 image...
+🔄 Converting base64 to file...
+📄 Image details: { mimeType: 'image/png', extension: 'png' }
+📁 Created file: { name: 'admin-upload-1752947007123.png', size: 68, type: 'image/png' }
+✅ Firebase upload successful: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947007123-admin-upload-1752947007123.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947007123-admin-upload-1752947007123.png?alt=media&token=d97fc6d7-1b7f-46dc-9f91-a22626f10cbf',
+  fileName: '1752947007123-admin-upload-1752947007123.png'
+}
+✅ Base64 image uploaded successfully: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947007123-admin-upload-1752947007123.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947007123-admin-upload-1752947007123.png?alt=media&token=d97fc6d7-1b7f-46dc-9f91-a22626f10cbf'
+}
+💾 Creating NFT record in database...
+🖼️ Image processing complete: {
+  hasProcessedImage: true,
+  hasUploadedImageUrl: true,
+  processedImagePath: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947007123-admin-upload-1752947007123.png',
+  uploadedImageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947007123-admin-upload-1752947007123.png?alt=media&token=d97fc6d7-1b7f-46dc-9f91-a22626f10cbf'
+}
+📝 NFT creation input: {
+  title: 'Working Test NFT 1752947002931',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947007123-admin-upload-1752947007123.png',
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947007123-admin-upload-1752947007123.png?alt=media&token=d97fc6d7-1b7f-46dc-9f91-a22626f10cbf',
+  claimCode: 'WORKING1752947002931',
+  startDate: '2025-07-19T17:43:22.931Z',
+  endDate: '2025-07-26T17:43:22.932Z',
+  status: 'published',
+  maxClaims: 5,
+  network: 'base-sepolia',
+  contractAddress: '0x6f076be74b36c593f360cbf32ab5baecf719e281',
+  deploymentTxHash: '0xb141b02c7badf365494bb13a109de42f55055e5e74af7603f50a2ae11ef56f11',
+  imageProvided: true,
+  uploadedImageUrl: true
+}
+🔗 Using Pinata for metadata upload
+ ✓ Compiled /api/upload-metadata-to-pinata in 326ms (4782 modules)
+ POST /api/upload-metadata-to-pinata 200 in 797ms
+✅ NFT record created successfully: {
+  id: 'mdajdzheh3aeu9ilo9',
+  title: 'Working Test NFT 1752947002931',
+  status: 'published',
+  contractAddress: '0x6f076be74b36c593f360cbf32ab5baecf719e281',
+  deploymentTxHash: '0xb141b02c7badf365494bb13a109de42f55055e5e74af7603f50a2ae11ef56f11',
+  hasImage: true,
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947007123-admin-upload-1752947007123.png?alt=media&token=d97fc6d7-1b7f-46dc-9f91-a22626f10cbf',
+  metadataUrl: undefined,
+  metadataIpfsHash: undefined
+}
+ POST /api/admin/nfts 201 in 5663ms
+ ✓ Compiled /api/nfts/claim in 337ms (4784 modules)
+🔥 Using Firebase production service
+Verifying claim code: WORKING1752947002931
+User wallet: 0x499D377eF114cC1BF7798cECBB38412701400daF
+Found 1 NFT(s) with claim code "WORKING1752947002931", using most recent: {
+  id: 'mdajdzheh3aeu9ilo9',
+  title: 'Working Test NFT 1752947002931',
+  contractAddress: '0x6f076be74b36c593f360cbf32ab5baecf719e281',
+  createdAt: '2025-07-19T17:43:27.458Z'
+}
+Verification result: {
+  valid: true,
+  nft: {
+    status: 'published',
+    deploymentTxHash: '0xb141b02c7badf365494bb13a109de42f55055e5e74af7603f50a2ae11ef56f11',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947007123-admin-upload-1752947007123.png?alt=media&token=d97fc6d7-1b7f-46dc-9f91-a22626f10cbf',
+    metadataUrl: 'ipfs://QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L',
+    updatedAt: '2025-07-19T17:43:28.493Z',
+    maxClaims: 5,
+    createdAt: '2025-07-19T17:43:27.458Z',
+    id: 'mdajdzheh3aeu9ilo9',
+    image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947007123-admin-upload-1752947007123.png',
+    createdBy: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+    network: 'base-sepolia',
+    endDate: '2025-07-26T17:43:22.932Z',
+    contractAddress: '0x6f076be74b36c593f360cbf32ab5baecf719e281',
+    description: 'Testing with completely fresh NFT and fixed systems',
+    startDate: '2025-07-19T17:43:22.931Z',
+    title: 'Working Test NFT 1752947002931',
+    claimCode: 'WORKING1752947002931',
+    metadataIpfsHash: 'QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L',
+    currentClaims: 0
+  }
+}
+ GET /api/nfts/claim?code=WORKING1752947002931 200 in 667ms
+Processing claim for code: WORKING1752947002931
+User wallet: 0x499D377eF114cC1BF7798cECBB38412701400daF
+Transaction hash: undefined
+Token ID: undefined
+Found 1 NFT(s) with claim code "WORKING1752947002931", using most recent: {
+  id: 'mdajdzheh3aeu9ilo9',
+  title: 'Working Test NFT 1752947002931',
+  contractAddress: '0x6f076be74b36c593f360cbf32ab5baecf719e281',
+  createdAt: '2025-07-19T17:43:27.458Z'
+}
+Claim code validated successfully for NFT: Working Test NFT 1752947002931
+Using contract address: 0x6f076be74b36c593f360cbf32ab5baecf719e281
+🚀 Calling claimNFT on smart contract via gasless relayer...
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'claimNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899906', sufficient: true }
+🎯 Executing gasless claimNFT...
+🔍 ClaimNFT params: {
+  contractAddress: '0x6f076be74b36c593f360cbf32ab5baecf719e281',
+  claimCode: 'WORKING1752947002931',
+  userAddress: '0x499D377eF114cC1BF7798cECBB38412701400daF',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless claimNFT...
+❌ ClaimNFT simulation failed: Error [ContractFunctionExecutionError]: The contract function "claimNFT" reverted with the following reason:
+Claim code is invalid or inactive
+
+Contract Call:
+  address:   0x6f076be74b36c593f360cbf32ab5baecf719e281
+  function:  claimNFT(string claimCode)
+  args:              (WORKING1752947002931)
+  sender:    0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1
+
+Docs: https://viem.sh/docs/contract/simulateContract
+Version: viem@2.30.6
+    at async POST (app/api/gasless-relay/route.ts:1221:26)
+  1219 |       try {
+  1220 |         console.log('🔍 Simulating gasless claimNFT...')
+> 1221 |         const simResult = await publicClient.simulateContract({
+       |                          ^
+  1222 |           address: body.contractAddress as `0x${string}`,
+  1223 |           abi: CLAIMABLE_NFT_ABI,
+  1224 |           functionName: 'claimNFT', {
+  details: undefined,
+  docsPath: '/docs/contract/simulateContract',
+  metaMessages: [Array],
+  shortMessage: 'The contract function "claimNFT" reverted with the following reason:\n' +
+    'Claim code is invalid or inactive',
+  version: '2.30.6',
+  abi: [Array],
+  args: [Array],
+  contractAddress: '0x6f076be74b36c593f360cbf32ab5baecf719e281',
+  formattedArgs: undefined,
+  functionName: 'claimNFT',
+  sender: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  [cause]: Error [ContractFunctionRevertedError]: The contract function "claimNFT" reverted with the following reason:
+  Claim code is invalid or inactive
+  
+  Version: viem@2.30.6
+      at async POST (app/api/gasless-relay/route.ts:1221:26)
+    1219 |       try {
+    1220 |         console.log('🔍 Simulating gasless claimNFT...')
+  > 1221 |         const simResult = await publicClient.simulateContract({
+         |                          ^
+    1222 |           address: body.contractAddress as `0x${string}`,
+    1223 |           abi: CLAIMABLE_NFT_ABI,
+    1224 |           functionName: 'claimNFT', {
+    details: undefined,
+    docsPath: undefined,
+    metaMessages: undefined,
+    shortMessage: 'The contract function "claimNFT" reverted with the following reason:\n' +
+      'Claim code is invalid or inactive',
+    version: '2.30.6',
+    data: { abiItem: [Object], args: [Array], errorName: 'Error' },
+    raw: '0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000021436c61696d20636f646520697320696e76616c6964206f7220696e61637469766500000000000000000000000000000000000000000000000000000000000000',
+    reason: 'Claim code is invalid or inactive',
+    signature: undefined
+  }
+}
+ POST /api/gasless-relay 400 in 398ms
+❌ Gasless relay failed with status: 400 Bad Request
+❌ Blockchain claim failed: Error: Gasless relay failed: ClaimNFT simulation failed
+    at POST (app/api/nfts/claim/route.ts:121:14)
+  119 |         }
+  120 |         
+> 121 |         throw new Error(errorMessage);
+      |              ^
+  122 |       }
+  123 |       
+  124 |       blockchainResult = await gaslessResponse.json();
+ POST /api/nfts/claim 200 in 633ms
+ ✓ Compiled in 13ms
+ ○ Compiling /api/admin/nfts ...
+ ✓ Compiled /api/admin/nfts in 1388ms (4665 modules)
+🔥 Using Firebase production service
+Farcaster frameConnector setup completed
+WalletConnect Core is already initialized. This is probably a mistake and can lead to unexpected behavior. Init() was called 6 times.
+🚀 Deploying claimable NFT contract via factory...
+📋 Request data: {
+  title: 'Working Test NFT 1752947096866',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  claimCode: 'WORKING1752947096866',
+  startDate: '2025-07-19T17:44:56.866Z',
+  endDate: '2025-07-26T17:44:56.867Z',
+  status: 'published',
+  maxClaims: 5,
+  network: 'base-sepolia',
+  image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII='
+}
+🔧 Network configuration: { isTestingMode: true, targetChain: 'Base Sepolia', chainId: 84532 }
+🏭 Factory address lookup: {
+  isTestingMode: true,
+  factoryEnvVar: 'NEXT_PUBLIC_CLAIMABLE_NFT_FACTORY_84532',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A'
+}
+🔍 Verifying factory contract exists on blockchain...
+🔍 Verifying factory contract at: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+✅ Factory contract verified: {
+  address: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  hasCode: true,
+  codeLength: 26658
+}
+✅ Factory contract functions verified (legacy version): { deployedContracts: 43 }
+🚀 Initiating gasless deployment...
+🚀 Deploying claimable NFT via gasless relayer...
+📋 Deployment parameters: {
+  title: 'Working Test NFT 1752947096866',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  creatorAddress: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+  chainId: 84532,
+  claimCode: 'WORKING1752947096866'
+}
+🏷️ Generated symbol: WORKINGTES
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 Gasless relay payload: {
+  type: 'deployClaimableNFT',
+  name: 'Working Test NFT 1752947096866',
+  symbol: 'WORKINGTES',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  userAddress: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+ ✓ Compiled /api/gasless-relay in 321ms (4669 modules)
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'deployClaimableNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899906', sufficient: true }
+🏭 Executing gasless ClaimableNFT deployment...
+🔍 ClaimableNFT deployment params: {
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  name: 'Working Test NFT 1752947096866',
+  symbol: 'WORKINGTES',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  owner: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless ClaimableNFT deployment...
+✅ ClaimableNFT deployment simulation successful, address: 0xaeb9291af2a16F47F4EE696EAaFeb85976fbCd08
+✅ Gasless transaction submitted by relayer: 0xb6ab9d2c9ae87a52ba8a1695d02234e960973e03b6c8a0a26573f2142c6e8c36
+🎉 Gasless transaction confirmed: {
+  hash: '0xb6ab9d2c9ae87a52ba8a1695d02234e960973e03b6c8a0a26573f2142c6e8c36',
+  status: 'success',
+  gasUsed: '2123784'
+}
+🔍 Looking for ClaimableNFTDeployed event in transaction logs...
+📄 Transaction receipt logs: 2 logs found
+🔍 Looking for event topic: 0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4
+🔍 Factory address: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+📄 Log: {
+  address: '0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08',
+  topics: [
+    '0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0',
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x',
+  isFromFactory: false,
+  topicMatches: false
+}
+📄 Log: {
+  address: '0xeb91e58a59e7bcf8adc8cae4f12187826965503a',
+  topics: [
+    '0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4',
+    '0x000000000000000000000000aeb9291af2a16f47f4ee696eaafeb85976fbcd08',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000687bd99e000000000000000000000000000000000000000000000000000000000000001e576f726b696e672054657374204e465420313735323934373039363836360000000000000000000000000000000000000000000000000000000000000000000a574f524b494e4754455300000000000000000000000000000000000000000000',
+  isFromFactory: true,
+  topicMatches: true
+}
+🎯 Extracted ClaimableNFT address: 0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08
+ POST /api/gasless-relay 200 in 1913ms
+📥 Gasless relay response status: 200 OK
+✅ Gasless deployment successful: {
+  success: true,
+  transactionHash: '0xb6ab9d2c9ae87a52ba8a1695d02234e960973e03b6c8a0a26573f2142c6e8c36',
+  contractAddress: '0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08',
+  tokenId: null,
+  status: 'success',
+  gasUsed: '2123784',
+  relayerPaid: true
+}
+🎯 Contract deployed at: {
+  contractAddress: '0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08',
+  transactionHash: '0xb6ab9d2c9ae87a52ba8a1695d02234e960973e03b6c8a0a26573f2142c6e8c36',
+  gasUsed: '2123784',
+  success: true
+}
+📝 Adding claim code to deployed contract using gasless relayer...
+📝 Adding claim code via gasless relayer...
+🔍 AddClaimCode parameters: {
+  contractAddress: '0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08',
+  claimCode: 'WORKING1752947096866',
+  maxClaims: 0,
+  startTime: 1752947101,
+  endTime: 1784483101,
+  metadataURI: 'https://ipfs.io/ipfs/QmHash',
+  chainId: 84532
+}
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 AddClaimCode payload: {
+  type: 'addClaimCode',
+  contractAddress: '0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08',
+  claimCode: 'WORKING1752947096866',
+  maxClaims: 0,
+  startTime: 1752947101,
+  endTime: 1784483101,
+  metadataURI: 'https://ipfs.io/ipfs/QmHash',
+  chainId: 84532
+}
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'addClaimCode',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899906', sufficient: true }
+📝 Executing gasless addClaimCode with timestamp fix...
+🔍 AddClaimCode params: {
+  contractAddress: '0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08',
+  claimCode: 'WORKING1752947096866',
+  maxClaims: 0,
+  startTime: 1752947101,
+  endTime: 1784483101,
+  metadataURI: 'https://ipfs.io/ipfs/QmHash',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  providedTimestamps: 'Using exact timestamps from request'
+}
+🔍 Simulating gasless addClaimCode...
+✅ AddClaimCode simulation successful
+✅ Gasless transaction submitted by relayer: 0x7f392bcb7717aa73d8cfd089f2e331c82fdbf718e4ec33cc9ab49cc7691f24c5
+🎉 Gasless transaction confirmed: {
+  hash: '0x7f392bcb7717aa73d8cfd089f2e331c82fdbf718e4ec33cc9ab49cc7691f24c5',
+  status: 'reverted',
+  gasUsed: '26152'
+}
+❌ Transaction reverted: {
+  hash: '0x7f392bcb7717aa73d8cfd089f2e331c82fdbf718e4ec33cc9ab49cc7691f24c5',
+  status: 'reverted',
+  gasUsed: '26152'
+}
+ POST /api/gasless-relay 400 in 1293ms
+📥 AddClaimCode gasless relay response status: 400 Bad Request
+❌ AddClaimCode gasless relay error response: {
+  success: false,
+  error: 'Transaction reverted',
+  transactionHash: '0x7f392bcb7717aa73d8cfd089f2e331c82fdbf718e4ec33cc9ab49cc7691f24c5',
+  contractAddress: null,
+  tokenId: null,
+  status: 'reverted',
+  gasUsed: '26152',
+  relayerPaid: true
+}
+Error adding claim code via gasless relayer: Error: AddClaimCode gasless failed: Transaction reverted
+    at addClaimCodeViaGaslessRelay (app/api/admin/nfts/route.ts:431:12)
+    at async deployClaimableNFTViaGaslessRelay (app/api/admin/nfts/route.ts:337:6)
+    at async POST (app/api/admin/nfts/route.ts:99:33)
+  429 |       const errorData = await gaslessResponse.json()
+  430 |       console.error('❌ AddClaimCode gasless relay error response:', errorData)
+> 431 |       throw new Error(`AddClaimCode gasless failed: ${errorData.error || errorData.message}`)
+      |            ^
+  432 |     }
+  433 |     
+  434 |     const addClaimCodeResult = await gaslessResponse.json()
+⚠️ Failed to add claim code via gasless relayer: AddClaimCode gasless failed: Transaction reverted
+✅ Claimable NFT contract deployed via factory: {
+  contractAddress: '0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08',
+  deploymentTxHash: '0xb6ab9d2c9ae87a52ba8a1695d02234e960973e03b6c8a0a26573f2142c6e8c36',
+  network: 'Base Sepolia',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  gasUsed: undefined,
+  status: undefined
+}
+🔍 Verifying deployed contract exists...
+🔍 Verifying deployed contract at: 0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08
+✅ Deployed contract verified: {
+  address: '0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08',
+  hasCode: true,
+  codeLength: 18406
+}
+✅ Deployed contract functions verified: {
+  owner: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  name: 'Working Test NFT 1752947096866'
+}
+🖼️ Processing image... { imageProvided: true, imageType: 'string', imageLength: 114 }
+📤 Processing base64 image...
+🔄 Converting base64 to file...
+📄 Image details: { mimeType: 'image/png', extension: 'png' }
+📁 Created file: { name: 'admin-upload-1752947102781.png', size: 68, type: 'image/png' }
+✅ Firebase upload successful: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947102781-admin-upload-1752947102781.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947102781-admin-upload-1752947102781.png?alt=media&token=99a4e844-cb82-4a4b-90fb-b70381d763ba',
+  fileName: '1752947102781-admin-upload-1752947102781.png'
+}
+✅ Base64 image uploaded successfully: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947102781-admin-upload-1752947102781.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947102781-admin-upload-1752947102781.png?alt=media&token=99a4e844-cb82-4a4b-90fb-b70381d763ba'
+}
+💾 Creating NFT record in database...
+🖼️ Image processing complete: {
+  hasProcessedImage: true,
+  hasUploadedImageUrl: true,
+  processedImagePath: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947102781-admin-upload-1752947102781.png',
+  uploadedImageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947102781-admin-upload-1752947102781.png?alt=media&token=99a4e844-cb82-4a4b-90fb-b70381d763ba'
+}
+📝 NFT creation input: {
+  title: 'Working Test NFT 1752947096866',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947102781-admin-upload-1752947102781.png',
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947102781-admin-upload-1752947102781.png?alt=media&token=99a4e844-cb82-4a4b-90fb-b70381d763ba',
+  claimCode: 'WORKING1752947096866',
+  startDate: '2025-07-19T17:44:56.866Z',
+  endDate: '2025-07-26T17:44:56.867Z',
+  status: 'published',
+  maxClaims: 5,
+  network: 'base-sepolia',
+  contractAddress: '0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08',
+  deploymentTxHash: '0xb6ab9d2c9ae87a52ba8a1695d02234e960973e03b6c8a0a26573f2142c6e8c36',
+  imageProvided: true,
+  uploadedImageUrl: true
+}
+🔗 Using Pinata for metadata upload
+ ✓ Compiled /api/upload-metadata-to-pinata in 305ms (4782 modules)
+ POST /api/upload-metadata-to-pinata 200 in 786ms
+✅ NFT record created successfully: {
+  id: 'mdajg18tkai9k5rlwrb',
+  title: 'Working Test NFT 1752947096866',
+  status: 'published',
+  contractAddress: '0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08',
+  deploymentTxHash: '0xb6ab9d2c9ae87a52ba8a1695d02234e960973e03b6c8a0a26573f2142c6e8c36',
+  hasImage: true,
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947102781-admin-upload-1752947102781.png?alt=media&token=99a4e844-cb82-4a4b-90fb-b70381d763ba',
+  metadataUrl: undefined,
+  metadataIpfsHash: undefined
+}
+ POST /api/admin/nfts 201 in 7289ms
+ ○ Compiling /api/nfts/claim ...
+ ✓ Compiled /api/nfts/claim in 555ms (4784 modules)
+🔥 Using Firebase production service
+Verifying claim code: WORKING1752947096866
+User wallet: 0x499D377eF114cC1BF7798cECBB38412701400daF
+Found 1 NFT(s) with claim code "WORKING1752947096866", using most recent: {
+  id: 'mdajg18tkai9k5rlwrb',
+  title: 'Working Test NFT 1752947096866',
+  contractAddress: '0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08',
+  createdAt: '2025-07-19T17:45:03.053Z'
+}
+Verification result: {
+  valid: true,
+  nft: {
+    claimCode: 'WORKING1752947096866',
+    maxClaims: 5,
+    createdBy: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947102781-admin-upload-1752947102781.png?alt=media&token=99a4e844-cb82-4a4b-90fb-b70381d763ba',
+    network: 'base-sepolia',
+    endDate: '2025-07-26T17:44:56.867Z',
+    contractAddress: '0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08',
+    id: 'mdajg18tkai9k5rlwrb',
+    startDate: '2025-07-19T17:44:56.866Z',
+    title: 'Working Test NFT 1752947096866',
+    status: 'published',
+    updatedAt: '2025-07-19T17:45:04.074Z',
+    deploymentTxHash: '0xb6ab9d2c9ae87a52ba8a1695d02234e960973e03b6c8a0a26573f2142c6e8c36',
+    image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947102781-admin-upload-1752947102781.png',
+    description: 'Testing with completely fresh NFT and fixed systems',
+    createdAt: '2025-07-19T17:45:03.053Z',
+    currentClaims: 0,
+    metadataUrl: 'ipfs://QmXQG8NRhM5UGwYRRtcfNctp5x5AsMAEshgyEvv5fR5a8X',
+    metadataIpfsHash: 'QmXQG8NRhM5UGwYRRtcfNctp5x5AsMAEshgyEvv5fR5a8X'
+  }
+}
+ GET /api/nfts/claim?code=WORKING1752947096866 200 in 908ms
+Processing claim for code: WORKING1752947096866
+User wallet: 0x499D377eF114cC1BF7798cECBB38412701400daF
+Transaction hash: undefined
+Token ID: undefined
+Found 1 NFT(s) with claim code "WORKING1752947096866", using most recent: {
+  id: 'mdajg18tkai9k5rlwrb',
+  title: 'Working Test NFT 1752947096866',
+  contractAddress: '0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08',
+  createdAt: '2025-07-19T17:45:03.053Z'
+}
+Claim code validated successfully for NFT: Working Test NFT 1752947096866
+Using contract address: 0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08
+🚀 Calling claimNFT on smart contract via gasless relayer...
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'claimNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899904', sufficient: true }
+🎯 Executing gasless claimNFT...
+🔍 ClaimNFT params: {
+  contractAddress: '0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08',
+  claimCode: 'WORKING1752947096866',
+  userAddress: '0x499D377eF114cC1BF7798cECBB38412701400daF',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless claimNFT...
+❌ ClaimNFT simulation failed: Error [ContractFunctionExecutionError]: The contract function "claimNFT" reverted with the following reason:
+Claim code is invalid or inactive
+
+Contract Call:
+  address:   0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08
+  function:  claimNFT(string claimCode)
+  args:              (WORKING1752947096866)
+  sender:    0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1
+
+Docs: https://viem.sh/docs/contract/simulateContract
+Version: viem@2.30.6
+    at async POST (app/api/gasless-relay/route.ts:1221:26)
+  1219 |       try {
+  1220 |         console.log('🔍 Simulating gasless claimNFT...')
+> 1221 |         const simResult = await publicClient.simulateContract({
+       |                          ^
+  1222 |           address: body.contractAddress as `0x${string}`,
+  1223 |           abi: CLAIMABLE_NFT_ABI,
+  1224 |           functionName: 'claimNFT', {
+  details: undefined,
+  docsPath: '/docs/contract/simulateContract',
+  metaMessages: [Array],
+  shortMessage: 'The contract function "claimNFT" reverted with the following reason:\n' +
+    'Claim code is invalid or inactive',
+  version: '2.30.6',
+  abi: [Array],
+  args: [Array],
+  contractAddress: '0xaeb9291af2a16f47f4ee696eaafeb85976fbcd08',
+  formattedArgs: undefined,
+  functionName: 'claimNFT',
+  sender: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  [cause]: Error [ContractFunctionRevertedError]: The contract function "claimNFT" reverted with the following reason:
+  Claim code is invalid or inactive
+  
+  Version: viem@2.30.6
+      at async POST (app/api/gasless-relay/route.ts:1221:26)
+    1219 |       try {
+    1220 |         console.log('🔍 Simulating gasless claimNFT...')
+  > 1221 |         const simResult = await publicClient.simulateContract({
+         |                          ^
+    1222 |           address: body.contractAddress as `0x${string}`,
+    1223 |           abi: CLAIMABLE_NFT_ABI,
+    1224 |           functionName: 'claimNFT', {
+    details: undefined,
+    docsPath: undefined,
+    metaMessages: undefined,
+    shortMessage: 'The contract function "claimNFT" reverted with the following reason:\n' +
+      'Claim code is invalid or inactive',
+    version: '2.30.6',
+    data: { abiItem: [Object], args: [Array], errorName: 'Error' },
+    raw: '0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000021436c61696d20636f646520697320696e76616c6964206f7220696e61637469766500000000000000000000000000000000000000000000000000000000000000',
+    reason: 'Claim code is invalid or inactive',
+    signature: undefined
+  }
+}
+ POST /api/gasless-relay 400 in 487ms
+❌ Gasless relay failed with status: 400 Bad Request
+❌ Blockchain claim failed: Error: Gasless relay failed: ClaimNFT simulation failed
+    at POST (app/api/nfts/claim/route.ts:121:14)
+  119 |         }
+  120 |         
+> 121 |         throw new Error(errorMessage);
+      |              ^
+  122 |       }
+  123 |       
+  124 |       blockchainResult = await gaslessResponse.json();
+ POST /api/nfts/claim 200 in 705ms
+ ✓ Compiled in 863ms (4784 modules)
+🔥 Using Firebase production service
+Farcaster frameConnector setup completed
+WalletConnect Core is already initialized. This is probably a mistake and can lead to unexpected behavior. Init() was called 7 times.
+🚀 Deploying claimable NFT contract via factory...
+📋 Request data: {
+  title: 'Working Test NFT 1752947164246',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  claimCode: 'WORKING1752947164246',
+  startDate: '2025-07-19T17:46:04.246Z',
+  endDate: '2025-07-26T17:46:04.247Z',
+  status: 'published',
+  maxClaims: 5,
+  network: 'base-sepolia',
+  image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII='
+}
+🔧 Network configuration: { isTestingMode: true, targetChain: 'Base Sepolia', chainId: 84532 }
+🏭 Factory address lookup: {
+  isTestingMode: true,
+  factoryEnvVar: 'NEXT_PUBLIC_CLAIMABLE_NFT_FACTORY_84532',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A'
+}
+🔍 Verifying factory contract exists on blockchain...
+🔍 Verifying factory contract at: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+✅ Factory contract verified: {
+  address: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  hasCode: true,
+  codeLength: 26658
+}
+✅ Factory contract functions verified (legacy version): { deployedContracts: 44 }
+🚀 Initiating gasless deployment...
+🚀 Deploying claimable NFT via gasless relayer...
+📋 Deployment parameters: {
+  title: 'Working Test NFT 1752947164246',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  creatorAddress: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+  chainId: 84532,
+  claimCode: 'WORKING1752947164246'
+}
+🏷️ Generated symbol: WORKINGTES
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 Gasless relay payload: {
+  type: 'deployClaimableNFT',
+  name: 'Working Test NFT 1752947164246',
+  symbol: 'WORKINGTES',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  userAddress: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'deployClaimableNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899904', sufficient: true }
+🏭 Executing gasless ClaimableNFT deployment...
+🔍 ClaimableNFT deployment params: {
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  name: 'Working Test NFT 1752947164246',
+  symbol: 'WORKINGTES',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  owner: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless ClaimableNFT deployment...
+✅ ClaimableNFT deployment simulation successful, address: 0x0A66f96ac2BE3cf8dfAA94D4ffbDD039faaA43B5
+✅ Gasless transaction submitted by relayer: 0x1f90538f21b56fd34caefa47ae8f5c6194312666667dfb53ac4ab6adc2405c65
+🎉 Gasless transaction confirmed: {
+  hash: '0x1f90538f21b56fd34caefa47ae8f5c6194312666667dfb53ac4ab6adc2405c65',
+  status: 'success',
+  gasUsed: '2123784'
+}
+🔍 Looking for ClaimableNFTDeployed event in transaction logs...
+📄 Transaction receipt logs: 2 logs found
+🔍 Looking for event topic: 0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4
+🔍 Factory address: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+📄 Log: {
+  address: '0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5',
+  topics: [
+    '0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0',
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x',
+  isFromFactory: false,
+  topicMatches: false
+}
+📄 Log: {
+  address: '0xeb91e58a59e7bcf8adc8cae4f12187826965503a',
+  topics: [
+    '0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4',
+    '0x0000000000000000000000000a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000687bd9e0000000000000000000000000000000000000000000000000000000000000001e576f726b696e672054657374204e465420313735323934373136343234360000000000000000000000000000000000000000000000000000000000000000000a574f524b494e4754455300000000000000000000000000000000000000000000',
+  isFromFactory: true,
+  topicMatches: true
+}
+🎯 Extracted ClaimableNFT address: 0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5
+ POST /api/gasless-relay 200 in 1180ms
+📥 Gasless relay response status: 200 OK
+✅ Gasless deployment successful: {
+  success: true,
+  transactionHash: '0x1f90538f21b56fd34caefa47ae8f5c6194312666667dfb53ac4ab6adc2405c65',
+  contractAddress: '0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5',
+  tokenId: null,
+  status: 'success',
+  gasUsed: '2123784',
+  relayerPaid: true
+}
+🎯 Contract deployed at: {
+  contractAddress: '0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5',
+  transactionHash: '0x1f90538f21b56fd34caefa47ae8f5c6194312666667dfb53ac4ab6adc2405c65',
+  gasUsed: '2123784',
+  success: true
+}
+📝 Adding claim code to deployed contract using gasless relayer...
+📝 Adding claim code via gasless relayer...
+🔍 AddClaimCode parameters: {
+  contractAddress: '0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5',
+  claimCode: 'WORKING1752947164246',
+  maxClaims: 0,
+  startTime: 1752947166,
+  endTime: 1784483166,
+  metadataURI: 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L',
+  chainId: 84532
+}
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 AddClaimCode payload: {
+  type: 'addClaimCode',
+  contractAddress: '0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5',
+  claimCode: 'WORKING1752947164246',
+  maxClaims: 0,
+  startTime: 1752947166,
+  endTime: 1784483166,
+  metadataURI: 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L',
+  chainId: 84532
+}
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'addClaimCode',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899904', sufficient: true }
+📝 Executing gasless addClaimCode with timestamp fix...
+🔍 AddClaimCode params: {
+  contractAddress: '0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5',
+  claimCode: 'WORKING1752947164246',
+  maxClaims: 0,
+  startTime: 1752947166,
+  endTime: 1784483166,
+  metadataURI: 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  providedTimestamps: 'Using exact timestamps from request'
+}
+🔍 Simulating gasless addClaimCode...
+✅ AddClaimCode simulation successful
+✅ Gasless transaction submitted by relayer: 0xcff7c6f575f7d87b2dd7a40eb831b1c5fb54c50d1bec19f15585fcfa26d2cc36
+🎉 Gasless transaction confirmed: {
+  hash: '0xcff7c6f575f7d87b2dd7a40eb831b1c5fb54c50d1bec19f15585fcfa26d2cc36',
+  status: 'reverted',
+  gasUsed: '27996'
+}
+❌ Transaction reverted: {
+  hash: '0xcff7c6f575f7d87b2dd7a40eb831b1c5fb54c50d1bec19f15585fcfa26d2cc36',
+  status: 'reverted',
+  gasUsed: '27996'
+}
+ POST /api/gasless-relay 400 in 1216ms
+📥 AddClaimCode gasless relay response status: 400 Bad Request
+❌ AddClaimCode gasless relay error response: {
+  success: false,
+  error: 'Transaction reverted',
+  transactionHash: '0xcff7c6f575f7d87b2dd7a40eb831b1c5fb54c50d1bec19f15585fcfa26d2cc36',
+  contractAddress: null,
+  tokenId: null,
+  status: 'reverted',
+  gasUsed: '27996',
+  relayerPaid: true
+}
+Error adding claim code via gasless relayer: Error: AddClaimCode gasless failed: Transaction reverted
+    at addClaimCodeViaGaslessRelay (app/api/admin/nfts/route.ts:431:12)
+    at async deployClaimableNFTViaGaslessRelay (app/api/admin/nfts/route.ts:337:6)
+    at async POST (app/api/admin/nfts/route.ts:99:33)
+  429 |       const errorData = await gaslessResponse.json()
+  430 |       console.error('❌ AddClaimCode gasless relay error response:', errorData)
+> 431 |       throw new Error(`AddClaimCode gasless failed: ${errorData.error || errorData.message}`)
+      |            ^
+  432 |     }
+  433 |     
+  434 |     const addClaimCodeResult = await gaslessResponse.json()
+⚠️ Failed to add claim code via gasless relayer: AddClaimCode gasless failed: Transaction reverted
+✅ Claimable NFT contract deployed via factory: {
+  contractAddress: '0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5',
+  deploymentTxHash: '0x1f90538f21b56fd34caefa47ae8f5c6194312666667dfb53ac4ab6adc2405c65',
+  network: 'Base Sepolia',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  gasUsed: undefined,
+  status: undefined
+}
+🔍 Verifying deployed contract exists...
+🔍 Verifying deployed contract at: 0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5
+❌ Deployed contract not found at address: 0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5
+❌ Deployed contract verification failed: Error: Deployed contract not found at address 0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5
+    at verifyDeployedContract (app/api/admin/nfts/route.ts:695:12)
+    at async POST (app/api/admin/nfts/route.ts:122:8)
+  693 |     if (!contractCode || contractCode === '0x') {
+  694 |       console.error('❌ Deployed contract not found at address:', contractAddress)
+> 695 |       throw new Error(`Deployed contract not found at address ${contractAddress}`)
+      |            ^
+  696 |     }
+  697 |     
+  698 |     console.log('✅ Deployed contract verified:', {
+⚠️ Continuing despite verification failure
+🖼️ Processing image... { imageProvided: true, imageType: 'string', imageLength: 114 }
+📤 Processing base64 image...
+🔄 Converting base64 to file...
+📄 Image details: { mimeType: 'image/png', extension: 'png' }
+📁 Created file: { name: 'admin-upload-1752947167501.png', size: 68, type: 'image/png' }
+✅ Firebase upload successful: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947167502-admin-upload-1752947167501.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947167502-admin-upload-1752947167501.png?alt=media&token=51d0a021-287c-41fe-bd84-42c1c466dc4d',
+  fileName: '1752947167502-admin-upload-1752947167501.png'
+}
+✅ Base64 image uploaded successfully: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947167502-admin-upload-1752947167501.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947167502-admin-upload-1752947167501.png?alt=media&token=51d0a021-287c-41fe-bd84-42c1c466dc4d'
+}
+💾 Creating NFT record in database...
+🖼️ Image processing complete: {
+  hasProcessedImage: true,
+  hasUploadedImageUrl: true,
+  processedImagePath: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947167502-admin-upload-1752947167501.png',
+  uploadedImageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947167502-admin-upload-1752947167501.png?alt=media&token=51d0a021-287c-41fe-bd84-42c1c466dc4d'
+}
+📝 NFT creation input: {
+  title: 'Working Test NFT 1752947164246',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947167502-admin-upload-1752947167501.png',
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947167502-admin-upload-1752947167501.png?alt=media&token=51d0a021-287c-41fe-bd84-42c1c466dc4d',
+  claimCode: 'WORKING1752947164246',
+  startDate: '2025-07-19T17:46:04.246Z',
+  endDate: '2025-07-26T17:46:04.247Z',
+  status: 'published',
+  maxClaims: 5,
+  network: 'base-sepolia',
+  contractAddress: '0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5',
+  deploymentTxHash: '0x1f90538f21b56fd34caefa47ae8f5c6194312666667dfb53ac4ab6adc2405c65',
+  imageProvided: true,
+  uploadedImageUrl: true
+}
+🔗 Using Pinata for metadata upload
+ POST /api/upload-metadata-to-pinata 200 in 397ms
+✅ NFT record created successfully: {
+  id: 'mdajhf931if3h919mq6',
+  title: 'Working Test NFT 1752947164246',
+  status: 'published',
+  contractAddress: '0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5',
+  deploymentTxHash: '0x1f90538f21b56fd34caefa47ae8f5c6194312666667dfb53ac4ab6adc2405c65',
+  hasImage: true,
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947167502-admin-upload-1752947167501.png?alt=media&token=51d0a021-287c-41fe-bd84-42c1c466dc4d',
+  metadataUrl: undefined,
+  metadataIpfsHash: undefined
+}
+ POST /api/admin/nfts 201 in 4365ms
+Verifying claim code: WORKING1752947164246
+User wallet: 0x499D377eF114cC1BF7798cECBB38412701400daF
+Found 1 NFT(s) with claim code "WORKING1752947164246", using most recent: {
+  id: 'mdajhf931if3h919mq6',
+  title: 'Working Test NFT 1752947164246',
+  contractAddress: '0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5',
+  createdAt: '2025-07-19T17:46:07.863Z'
+}
+Verification result: {
+  valid: true,
+  nft: {
+    id: 'mdajhf931if3h919mq6',
+    title: 'Working Test NFT 1752947164246',
+    description: 'Testing with completely fresh NFT and fixed systems',
+    image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947167502-admin-upload-1752947167501.png',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947167502-admin-upload-1752947167501.png?alt=media&token=51d0a021-287c-41fe-bd84-42c1c466dc4d',
+    claimCode: 'WORKING1752947164246',
+    startDate: '2025-07-19T17:46:04.246Z',
+    endDate: '2025-07-26T17:46:04.247Z',
+    status: 'published',
+    createdAt: '2025-07-19T17:46:07.863Z',
+    updatedAt: '2025-07-19T17:46:08.496Z',
+    createdBy: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+    maxClaims: 5,
+    currentClaims: 0,
+    network: 'base-sepolia',
+    contractAddress: '0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5',
+    deploymentTxHash: '0x1f90538f21b56fd34caefa47ae8f5c6194312666667dfb53ac4ab6adc2405c65',
+    metadataIpfsHash: 'QmZ9rZeMDSLEjdBRBBZFtuNDeXJksrNKGjwV2Th5WBKmrH',
+    metadataUrl: 'ipfs://QmZ9rZeMDSLEjdBRBBZFtuNDeXJksrNKGjwV2Th5WBKmrH'
+  }
+}
+ GET /api/nfts/claim?code=WORKING1752947164246 200 in 227ms
+Processing claim for code: WORKING1752947164246
+User wallet: 0x499D377eF114cC1BF7798cECBB38412701400daF
+Transaction hash: undefined
+Token ID: undefined
+Found 1 NFT(s) with claim code "WORKING1752947164246", using most recent: {
+  id: 'mdajhf931if3h919mq6',
+  title: 'Working Test NFT 1752947164246',
+  contractAddress: '0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5',
+  createdAt: '2025-07-19T17:46:07.863Z'
+}
+Claim code validated successfully for NFT: Working Test NFT 1752947164246
+Using contract address: 0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5
+🚀 Calling claimNFT on smart contract via gasless relayer...
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'claimNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899902', sufficient: true }
+🎯 Executing gasless claimNFT...
+🔍 ClaimNFT params: {
+  contractAddress: '0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5',
+  claimCode: 'WORKING1752947164246',
+  userAddress: '0x499D377eF114cC1BF7798cECBB38412701400daF',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless claimNFT...
+❌ ClaimNFT simulation failed: Error [ContractFunctionExecutionError]: The contract function "claimNFT" reverted with the following reason:
+Claim code is invalid or inactive
+
+Contract Call:
+  address:   0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5
+  function:  claimNFT(string claimCode)
+  args:              (WORKING1752947164246)
+  sender:    0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1
+
+Docs: https://viem.sh/docs/contract/simulateContract
+Version: viem@2.30.6
+    at async POST (app/api/gasless-relay/route.ts:1221:26)
+  1219 |       try {
+  1220 |         console.log('🔍 Simulating gasless claimNFT...')
+> 1221 |         const simResult = await publicClient.simulateContract({
+       |                          ^
+  1222 |           address: body.contractAddress as `0x${string}`,
+  1223 |           abi: CLAIMABLE_NFT_ABI,
+  1224 |           functionName: 'claimNFT', {
+  details: undefined,
+  docsPath: '/docs/contract/simulateContract',
+  metaMessages: [Array],
+  shortMessage: 'The contract function "claimNFT" reverted with the following reason:\n' +
+    'Claim code is invalid or inactive',
+  version: '2.30.6',
+  abi: [Array],
+  args: [Array],
+  contractAddress: '0x0a66f96ac2be3cf8dfaa94d4ffbdd039faaa43b5',
+  formattedArgs: undefined,
+  functionName: 'claimNFT',
+  sender: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  [cause]: Error [ContractFunctionRevertedError]: The contract function "claimNFT" reverted with the following reason:
+  Claim code is invalid or inactive
+  
+  Version: viem@2.30.6
+      at async POST (app/api/gasless-relay/route.ts:1221:26)
+    1219 |       try {
+    1220 |         console.log('🔍 Simulating gasless claimNFT...')
+  > 1221 |         const simResult = await publicClient.simulateContract({
+         |                          ^
+    1222 |           address: body.contractAddress as `0x${string}`,
+    1223 |           abi: CLAIMABLE_NFT_ABI,
+    1224 |           functionName: 'claimNFT', {
+    details: undefined,
+    docsPath: undefined,
+    metaMessages: undefined,
+    shortMessage: 'The contract function "claimNFT" reverted with the following reason:\n' +
+      'Claim code is invalid or inactive',
+    version: '2.30.6',
+    data: { abiItem: [Object], args: [Array], errorName: 'Error' },
+    raw: '0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000021436c61696d20636f646520697320696e76616c6964206f7220696e61637469766500000000000000000000000000000000000000000000000000000000000000',
+    reason: 'Claim code is invalid or inactive',
+    signature: undefined
+  }
+}
+ POST /api/gasless-relay 400 in 363ms
+❌ Gasless relay failed with status: 400 Bad Request
+❌ Blockchain claim failed: Error: Gasless relay failed: ClaimNFT simulation failed
+    at POST (app/api/nfts/claim/route.ts:121:14)
+  119 |         }
+  120 |         
+> 121 |         throw new Error(errorMessage);
+      |              ^
+  122 |       }
+  123 |       
+  124 |       blockchainResult = await gaslessResponse.json();
+ POST /api/nfts/claim 200 in 619ms
+[?25h

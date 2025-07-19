@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 // Test script to interact directly with the deployed smart contracts
+require('dotenv').config({ path: '../ArtHubApp/.env' });
 const { ethers } = require('ethers');
 
 console.log('🧪 Testing Smart Contracts Directly...\n');
@@ -9,7 +10,7 @@ console.log('🧪 Testing Smart Contracts Directly...\n');
 const FACTORY_ADDRESS = '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A';
 const TEST_NFT_ADDRESS = '0xC6a95FE13bAb05f9a6f8203554b4F97cE3641B2F';
 const RPC_URL = 'https://sepolia.base.org';
-const PRIVATE_KEY = 'c0f1e0a1cd4a72050798311ae2cf5f5dfa1a1f29c69337134a9bb93a4b115ef1'; // Demo key
+const PRIVATE_KEY = process.env.GASLESS_RELAYER_PRIVATE_KEY || 'YOUR_PRIVATE_KEY_HERE'; // Load from environment
 
 // ABIs
 const FACTORY_ABI = [

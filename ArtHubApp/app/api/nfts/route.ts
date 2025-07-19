@@ -97,3 +97,36 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+export async function PUT(request: NextRequest) {
+  try {
+    // Check if Firebase is configured
+    if (!isFirebaseConfigured()) {
+      console.error('Firebase is not properly configured')
+      return NextResponse.json({ error: 'Database not configured' }, { status: 503 })
+    }
+    
+    const { searchParams } = new URL(request.url)
+    const nftId = searchParams.get('id')
+    
+    if (!nftId) {
+      return NextResponse.json({ error: 'NFT ID is required' }, { status: 400 })
+    }
+    
+    const updateData = await request.json()
+    
+    // Update NFT record using Firebase service
+    const updatedNFT = await FirebaseNFTService.updateNFT(nftId, updateData)
+    
+    if (!updatedNFT) {
+      return NextResponse.json({ error: 'Failed to update NFT' }, { status: 500 })
+    }
+    
+    console.log('✅ NFT updated successfully:', nftId)
+    return NextResponse.json({ success: true, nft: updatedNFT })
+    
+  } catch (error) {
+    console.error('Error updating NFT:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}

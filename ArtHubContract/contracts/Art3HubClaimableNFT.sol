@@ -273,4 +273,25 @@ contract Art3HubClaimableNFT is ERC721URIStorage, ERC721Enumerable, Ownable {
         super._increaseBalance(account, value);
     }
     
+    /**
+     * @dev Direct mint function for owner (bypasses claim codes)
+     * @param to Address to mint to
+     * @param metadataURI IPFS URI for the NFT metadata
+     * @return tokenId The token ID of the minted NFT
+     */
+    function ownerMint(address to, string calldata metadataURI) external onlyOwner returns (uint256) {
+        require(to != address(0), "Cannot mint to zero address");
+        require(bytes(metadataURI).length > 0, "MetadataURI cannot be empty");
+        require(_tokenIdCounter < maxSupply, "Maximum supply reached");
+        
+        // Mint NFT
+        uint256 tokenId = _tokenIdCounter;
+        _tokenIdCounter++;
+        
+        _mint(to, tokenId);
+        _setTokenURI(tokenId, metadataURI);
+        
+        return tokenId;
+    }
+    
 } 

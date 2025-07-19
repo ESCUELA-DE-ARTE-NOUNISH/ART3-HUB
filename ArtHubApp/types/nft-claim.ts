@@ -39,6 +39,7 @@ export interface CreateClaimableNFTInput {
   title: string
   description: string
   image: File | string // File object for new uploads, string for existing image hash
+  imageUrl?: string // URL for the uploaded image
   claimCode: string
   startDate: Date | string
   endDate?: Date | string | null

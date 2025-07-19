@@ -60,8 +60,9 @@ export class NFTClaimService {
         imagePath = uploadResult.path
       } else if (typeof input.image === 'string') {
         // Use existing image URL or path
-        imageUrl = input.image
         imagePath = input.image
+        // Use provided imageUrl if available, otherwise use the image path
+        imageUrl = input.imageUrl || input.image
       }
       
       // Create NFT document
@@ -91,9 +92,16 @@ export class NFTClaimService {
       // If published, create metadata on IPFS
       if (nftData.status === 'published') {
         try {
-          await this.uploadMetadataToPinata(nftData)
+          console.log('🔄 Attempting to upload metadata to IPFS...')
+          const metadataHash = await this.uploadMetadataToPinata(nftData)
+          console.log('✅ Metadata upload successful, hash:', metadataHash)
         } catch (error) {
-          console.error('Failed to upload metadata to Pinata, continuing without metadata:', error)
+          console.error('❌ Failed to upload metadata to Pinata, continuing without metadata:')
+          console.error('Error details:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+          })
           // Continue without metadata if Pinata is not configured
         }
       }
@@ -108,11 +116,53 @@ export class NFTClaimService {
   // Upload NFT metadata to Pinata
   static async uploadMetadataToPinata(nft: ClaimableNFT): Promise<string> {
     try {
-      // Create metadata object
+      let imageUrl = ''
+      let ipfsImageHash = ''
+      
+      // If we have a Firebase Storage URL, we need to download the image and upload it to IPFS
+      if (nft.imageUrl && nft.imageUrl.includes('firebasestorage.googleapis.com')) {
+        console.log('📤 Uploading image to IPFS from Firebase Storage...')
+        try {
+          // Download the image from Firebase Storage
+          const imageResponse = await fetch(nft.imageUrl)
+          if (!imageResponse.ok) {
+            throw new Error(`Failed to fetch image: ${imageResponse.statusText}`)
+          }
+          
+          // Convert to blob and then to File
+          const imageBlob = await imageResponse.blob()
+          const imageFile = new File([imageBlob], `${nft.title.replace(/[^a-zA-Z0-9]/g, '_')}.jpg`, { 
+            type: imageBlob.type || 'image/jpeg' 
+          })
+          
+          // Upload image to IPFS
+          const imageUploadResult = await IPFSService.uploadFile(imageFile)
+          imageUrl = imageUploadResult.gatewayUrl
+          ipfsImageHash = imageUploadResult.ipfsHash
+          
+          console.log('✅ Image uploaded to IPFS:', {
+            hash: ipfsImageHash,
+            url: imageUrl
+          })
+        } catch (imageError) {
+          console.error('⚠️ Failed to upload image to IPFS, using Firebase Storage URL as fallback:', imageError)
+          console.error('Image error details:', {
+            message: imageError.message,
+            stack: imageError.stack,
+            response: imageError.response?.data
+          })
+          imageUrl = nft.imageUrl
+        }
+      } else {
+        // Use existing image URL (could be IPFS or other)
+        imageUrl = nft.imageUrl || nft.image || ''
+      }
+      
+      // Create metadata object with IPFS image URL
       const metadata = {
         name: nft.title,
         description: nft.description,
-        image: nft.imageUrl || nft.image || '',
+        image: imageUrl,
         attributes: [
           {
             trait_type: 'Network',
@@ -129,14 +179,32 @@ export class NFTClaimService {
         ]
       }
       
-      // Upload to IPFS via Pinata
+      console.log('📤 Uploading metadata to IPFS:', {
+        name: metadata.name,
+        imageUrl: metadata.image.substring(0, 50) + '...'
+      })
+      
+      // Upload metadata to IPFS via Pinata
       const result = await IPFSService.uploadMetadata(metadata)
       
-      // Update NFT with metadata hash
-      await updateDoc(doc(db, COLLECTIONS.CLAIMABLE_NFTS, nft.id), {
+      // Update NFT with both image and metadata IPFS hashes
+      const updateData: any = {
         metadataIpfsHash: result.ipfsHash,
         metadataUrl: result.ipfsUrl,
         updatedAt: getCurrentTimestamp()
+      }
+      
+      // If we uploaded the image to IPFS, store that hash too
+      if (ipfsImageHash) {
+        updateData.imageIpfsHash = ipfsImageHash
+        updateData.ipfsImageUrl = imageUrl
+      }
+      
+      await updateDoc(doc(db, COLLECTIONS.CLAIMABLE_NFTS, nft.id), updateData)
+      
+      console.log('✅ Metadata uploaded to IPFS:', {
+        metadataHash: result.ipfsHash,
+        imageHash: ipfsImageHash || 'using_existing'
       })
       
       return result.ipfsHash
@@ -336,8 +404,24 @@ export class NFTClaimService {
         return { valid: false, message: 'Invalid claim code' }
       }
       
+      // If multiple matches, prioritize the most recent one (by createdAt)
+      matchingDocs.sort((a, b) => {
+        const aData = a.data()
+        const bData = b.data()
+        const aCreated = aData.createdAt || '1970-01-01T00:00:00.000Z'
+        const bCreated = bData.createdAt || '1970-01-01T00:00:00.000Z'
+        return new Date(bCreated).getTime() - new Date(aCreated).getTime()
+      })
+      
       const nft = matchingDocs[0].data() as ClaimableNFT
       nft.id = matchingDocs[0].id
+      
+      console.log(`Found ${matchingDocs.length} NFT(s) with claim code "${claimCode}", using most recent:`, {
+        id: nft.id,
+        title: nft.title,
+        contractAddress: nft.contractAddress,
+        createdAt: nft.createdAt
+      })
       
       const now = new Date()
       const startDate = new Date(nft.startDate)
@@ -441,6 +525,55 @@ export class NFTClaimService {
         // Update the contract address if provided
         ...(contractAddress ? { contractAddress } : {})
       })
+      
+      // IMPORTANT: Create an NFT record in the NFTS collection so it appears in /my-nfts
+      // This is what the FirebaseNFTService.getNFTsByWallet() function looks for
+      try {
+        const { FirebaseNFTService } = await import('./firebase-nft-service')
+        
+        // Extract IPFS hash from imageUrl if it's a gateway URL
+        let imageIpfsHash = ''
+        if (nft.imageUrl) {
+          const ipfsMatch = nft.imageUrl.match(/\/ipfs\/([^/?]+)/)
+          if (ipfsMatch) {
+            imageIpfsHash = ipfsMatch[1]
+          } else {
+            // If not an IPFS URL, use a placeholder hash
+            imageIpfsHash = 'QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L'
+          }
+        }
+        
+        // Create NFT record that matches the expected structure for /my-nfts
+        // Use the actual Firebase Storage URL as the image_ipfs_hash when available
+        const actualImageHash = nft.imageUrl && nft.imageUrl.includes('firebasestorage.googleapis.com') 
+          ? nft.imageUrl // Store Firebase Storage URL as image_ipfs_hash for compatibility
+          : imageIpfsHash
+        
+        const nftRecord = await FirebaseNFTService.createNFT({
+          wallet_address: userWallet.toLowerCase(),
+          name: nft.title,
+          description: nft.description || '',
+          image_ipfs_hash: actualImageHash,
+          metadata_ipfs_hash: nft.metadataIpfsHash || '',
+          transaction_hash: finalTxHash,
+          network: nft.network || 'base',
+          royalty_percentage: 0, // Default for claimable NFTs
+          contract_address: finalContractAddress,
+          token_id: finalTokenId
+        })
+        
+        console.log("✅ NFT record created for /my-nfts page:", {
+          nftRecordId: nftRecord?.id,
+          wallet_address: userWallet,
+          name: nft.title,
+          contract_address: finalContractAddress,
+          token_id: finalTokenId,
+          image_ipfs_hash: imageIpfsHash
+        })
+      } catch (nftCreationError) {
+        console.error('⚠️ Failed to create NFT record for /my-nfts (claim still successful):', nftCreationError)
+        // Don't fail the entire claim if NFT record creation fails
+      }
       
       console.log("NFT claimed successfully:", {
         nftId,

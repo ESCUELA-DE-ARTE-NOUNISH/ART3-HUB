@@ -43,10 +43,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Claim code is required' }, { status: 400 })
     }
 
-    console.log("Processing claim for code:", claimCode)
-    console.log("User wallet:", walletAddress)
-    console.log("Transaction hash:", txHash)
-    console.log("Token ID:", tokenId)
+    console.log('\\n🎫 PROCESSING NFT CLAIM')
+    console.log('=======================')
+    console.log('🔑 Claim Code:', claimCode)
+    console.log('👤 User Wallet:', walletAddress)
+    console.log('📊 Transaction Hash:', txHash || 'None')
+    console.log('🎯 Token ID:', tokenId || 'None')
+    console.log('🕐 Timestamp:', new Date().toISOString())
 
     // Check claim code validity in our database
     // Note: verifyClaimCode now handles case-insensitivity internally
@@ -60,42 +63,77 @@ export async function POST(req: NextRequest) {
       })
     }
     
-    console.log("Claim code validated successfully for NFT:", dbValidation.nft?.title)
+    console.log('\\n✅ CLAIM CODE VALIDATION SUCCESSFUL')
+    console.log('===================================')
+    console.log('🎨 NFT Title:', dbValidation.nft?.title)
+    console.log('📅 Created:', dbValidation.nft?.createdAt)
+    console.log('🔑 Claim Code:', dbValidation.nft?.claimCode)
+    console.log('📍 Database validation approach: ACTIVE')
     
     // Get the contract address from the NFT record
     const contractAddress = dbValidation.nft!.contractAddress
     if (!contractAddress) {
+      console.log('❌ Contract not deployed yet')
       return NextResponse.json({ 
         success: false, 
         message: 'NFT contract not deployed yet. Please contact admin.'
       })
     }
     
-    console.log("Using contract address:", contractAddress)
+    console.log('\\n📍 CONTRACT DETAILS')
+    console.log('===================')
+    console.log('📍 Contract Address:', contractAddress)
+    console.log('🌐 Network: Base Sepolia')
+    console.log('🎯 Expected Approach: ownerMint (with claimNFT fallback)')
     
-    // Call the smart contract's claimNFT function via gasless relayer
+    // Call the smart contract's ownerMint function via gasless relayer (no claim codes needed!)
     let blockchainResult;
     try {
-      console.log("🚀 Calling claimNFT on smart contract via gasless relayer...")
+      console.log("🚀 Calling ownerMint on smart contract via gasless relayer (database-only validation)...")
       
-      // Call gasless relayer to execute claimNFT on the contract
-      const gaslessResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/gasless-relay`, {
+      // Use relative URL to avoid port issues between localhost:3000 and localhost:3001
+      const protocol = req.headers.get('x-forwarded-proto') || 'http'
+      const host = req.headers.get('host') || 'localhost:3000'
+      const baseUrl = `${protocol}://${host}`
+      
+      // Skip all claim code setup - use ownerMint directly!
+      console.log('🎯 Using ownerMint - no claim codes needed on contract!')
+      console.log(`🌐 Calling gasless relay at: ${baseUrl}/api/gasless-relay`)
+      
+      const gaslessResponse = await fetch(`${baseUrl}/api/gasless-relay`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          type: 'claimNFT',
+          type: 'claimNFT', // Will try ownerMint first, fallback to claimNFT
           contractAddress,
-          claimCode,
           userAddress: walletAddress,
+          claimCode, // Include for legacy contract compatibility
+          metadataURI: dbValidation.nft!.imageUrl || 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L',
           chainId: 84532 // Base Sepolia for now
         })
       });
       
       if (!gaslessResponse.ok) {
-        const errorData = await gaslessResponse.json();
-        throw new Error(`Gasless relay failed: ${errorData.error || errorData.message}`);
+        console.error(`❌ Gasless relay failed with status: ${gaslessResponse.status} ${gaslessResponse.statusText}`)
+        
+        let errorMessage = `Gasless relay failed (${gaslessResponse.status})`
+        try {
+          const errorData = await gaslessResponse.json();
+          errorMessage = `Gasless relay failed: ${errorData.error || errorData.message || errorData}`
+        } catch (parseError) {
+          // If response is not JSON (e.g., HTML error page), get text
+          try {
+            const errorText = await gaslessResponse.text();
+            console.error(`❌ Non-JSON error response:`, errorText.substring(0, 200))
+            errorMessage = `Gasless relay failed: ${gaslessResponse.status} ${gaslessResponse.statusText}`
+          } catch (textError) {
+            console.error(`❌ Could not parse error response:`, textError)
+          }
+        }
+        
+        throw new Error(errorMessage);
       }
       
       blockchainResult = await gaslessResponse.json();
@@ -118,10 +156,23 @@ export async function POST(req: NextRequest) {
       contractAddress // Use the contract address from the NFT record
     )
     
-    console.log("Claim processed successfully:", claimResult)
+    console.log('\\n🎉 CLAIM PROCESSING COMPLETE!')
+    console.log('==============================')
+    console.log('✅ Database Status:', claimResult.success ? 'Updated' : 'Failed')
+    console.log('🔗 Transaction Hash:', blockchainResult.transactionHash || blockchainResult.txHash)
+    console.log('🎯 Token ID:', blockchainResult.tokenId)
+    console.log('📍 Contract:', contractAddress)
+    console.log('🎨 NFT:', dbValidation.nft!.title)
+    console.log('👤 Owner:', walletAddress)
+    console.log('🕐 Completed:', new Date().toISOString())
+    console.log('==============================\\n')
     
     return NextResponse.json({
       ...claimResult,
+      // Add blockchain transaction details
+      txHash: blockchainResult.transactionHash || blockchainResult.txHash,
+      tokenId: blockchainResult.tokenId,
+      contractAddress: contractAddress,
       nft: {
         id: dbValidation.nft!.id,
         title: dbValidation.nft!.title,

@@ -53,7 +53,7 @@ The complete claimable NFT workflow is now implemented and tested. Here's exactl
 NEXT_PUBLIC_IS_TESTING_MODE=true
 NEXT_PUBLIC_ADMIN_WALLET=0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f
 NEXT_PUBLIC_CLAIMABLE_NFT_CONTRACT_84532=0x1234567890123456789012345678901234567890
-ADMIN_PRIVATE_KEY=c0f1e0a1cd4a72050798311ae2cf5f5dfa1a1f29c69337134a9bb93a4b115ef1
+ADMIN_PRIVATE_KEY=<your_private_key_here>
 ```
 
 ### Contract Detection Logic
@@ -139,7 +139,7 @@ Network: Base Sepolia
 The entire workflow is controlled by the app's private wallet:
 
 ### Admin Operations:
-- **Private Key**: `ADMIN_PRIVATE_KEY` (for server-side contract calls)
+- **Private Key**: `ADMIN_PRIVATE_KEY` (stored securely in .env for server-side contract calls)
 - **Admin Wallet**: `NEXT_PUBLIC_ADMIN_WALLET` (for authorization)
 
 ### Contract Deployment:

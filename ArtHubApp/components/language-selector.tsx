@@ -109,8 +109,7 @@ export default function LanguageSelector() {
                 alt={`${selectedLanguage.name} flag`}
                 width={14}
                 height={10}
-                className="rounded-sm"
-                style={{ height: "auto" }}
+                className="rounded-sm w-[14px] h-[10px]"
               />
               <span className="text-xs font-medium hidden sm:inline">{selectedLanguage.nativeName}</span>
               <span className="text-xs font-medium sm:hidden">{selectedLanguage.code.toUpperCase()}</span>
@@ -129,8 +128,7 @@ export default function LanguageSelector() {
                 alt={`${language.name} flag`}
                 width={20}
                 height={15}
-                className="rounded-sm"
-                style={{ height: "auto" }}
+                className="rounded-sm w-[20px] h-[15px]"
               />
               <div className="flex justify-between items-center w-full">
                 <span>{language.nativeName}</span>
