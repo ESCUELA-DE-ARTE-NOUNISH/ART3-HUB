@@ -9,12 +9,16 @@
 - **🛡️ Enhanced Admin System**: Configurable admin wallet system with environment-based security
 - **🧹 Clean Architecture**: Fresh start with optimized Base-only deployment
 - **⚡ Improved Performance**: Enhanced on-chain data storage and social features
+- **🤖 AI Agent Integration**: Advanced AI-powered guidance system for Web3 onboarding
+- **💎 Claimable NFT System**: Secret code-based NFT claiming with admin management
 
 ### 📋 V6 Contract Addresses (Base Sepolia)
 - **Factory V6**: `0xbF47f26c4e038038bf75E20755012Cd6997c9AfA`
 - **Subscription V6**: `0x4BF512C0eF46FD7C5F3F9522426E3F0413A8dB77`
 - **Collection Implementation V6**: `0x723D8583b56456A0343589114228281F37a3b290`
 - **Admin Wallet**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+- **Treasury Wallet**: `0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9`
+- **Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1`
 
 ---
 
@@ -56,13 +60,14 @@ This Mini App combines AI Agents + Base onchain tools to make onboarding frictio
 
 ## 🧠 Stack
 
-- React + Tailwind CSS (frontend)
-- Node.js (backend)
-- **Firebase** (database & storage) - **NEW in V6**
-- OpenAI + LangChain (AI logic)
-- **Art3Hub V6 Contracts** (Base-optimized NFT tools) - **UPDATED**
-- Base Smart Wallets & Basenames
-- Solidity (smart contracts)
+- **Frontend**: React 19 + Next.js 15 + TypeScript + Tailwind CSS
+- **Backend**: Node.js + Next.js API Routes
+- **Database**: **Firebase Firestore** (migrated from Supabase) - **NEW in V6**
+- **Storage**: Firebase Storage + Pinata IPFS
+- **AI System**: OpenAI GPT-4 + LangChain + Custom Memory System
+- **Smart Contracts**: **Art3Hub V6 Contracts** (Base-optimized NFT tools) - **UPDATED**
+- **Web3**: Privy + Wagmi + Viem + Base Smart Wallets & Basenames
+- **Blockchain**: Solidity 0.8.28 + Hardhat + OpenZeppelin
 
 ## 👤 Team
 
@@ -77,18 +82,48 @@ Visual artists (painters, illustrators, 3D artists) from underrepresented commun
 
 ## 🚀 How It Works
 
-1. User lands on the hub and interacts with an AI Agent.
-2. The agent guides them step-by-step to mint NFTs, connect wallet, understand royalties.
-3. All actions are powered by gasless smart wallets on Base.
+1. **Landing & Onboarding**: User lands on the hub and interacts with an AI Agent through intelligent chat system
+2. **AI-Guided Journey**: The agent provides step-by-step guidance to mint NFTs, connect wallet, understand royalties and Web3 concepts
+3. **Gasless Operations**: All actions are powered by gasless smart wallets on Base with EIP-712 meta-transactions
+4. **NFT Creation**: Users can create collections and mint NFTs with subscription-based quota management
+5. **Claimable NFTs**: Special secret code system for exclusive NFT distribution and events
+6. **Firebase Integration**: Real-time data synchronization and scalable backend infrastructure
 
 ## 🛠️ Setup (Dev Mode)
 
+### Prerequisites
+- Node.js 16+
+- npm or yarn
+- Firebase project setup
+- Web3 wallet (MetaMask, Coinbase Wallet, etc.)
+
+### Installation
+
 ```bash
-git clone https://github.com/[your-org]/ai-art-hub.git
-cd ai-art-hub
-npm install
-npm run dev
+# Clone the repository
+git clone https://github.com/JulioMCruz/ART3-HUB.git
+cd ART3-HUB
+
+# Install dependencies for all components
+cd ArtHubApp && npm install
+cd ../ArtHubContract && npm install
+cd ../ArtHubAgent && npm install
+
+# Setup environment variables
+cp ArtHubApp/.env.example ArtHubApp/.env
+cp ArtHubContract/.env.example ArtHubContract/.env
+
+# Start development servers
+cd ArtHubApp && npm run dev
 ```
+
+### Environment Configuration
+
+Configure your Firebase and Web3 settings in `.env` files:
+- Firebase API keys and project configuration
+- Smart contract addresses (V6 Base Sepolia)
+- IPFS storage credentials (Pinata)
+- OpenAI API key for AI agent
 
 # 🎨 Art Hub — Mini App for Web3 Artists (Base Hackathon)
 
@@ -156,15 +191,19 @@ Built for **visual artists in LATAM** and beyond, this AI-powered assistant hand
 
 ## ⚙️ Technologies Used
 
-| Feature         | Stack / Tool             |
-|-----------------|--------------------------|
-| Frontend        | React + Tailwind CSS     |
-| Hosting         | Vercel / Netlify         |
-| AI Agent        | LangChain + OpenAI       |
-| Minting         | Zora SDK/API             |
-| Wallets         | Base Smart Wallets       |
-| Login System    | Basenames                |
-| Storage         | IPFS / Zora's media kit  |
+| Feature         | Stack / Tool                  |
+|-----------------|-------------------------------|
+| Frontend        | React 19 + Next.js 15 + TypeScript |
+| Styling         | Tailwind CSS + shadcn/ui     |
+| Hosting         | Vercel                        |
+| Database        | Firebase Firestore           |
+| Storage         | Firebase Storage + Pinata IPFS |
+| AI Agent        | OpenAI GPT-4 + LangChain     |
+| Smart Contracts | Art3Hub V6 (Solidity 0.8.28) |
+| Web3 Integration| Privy + Wagmi + Viem         |
+| Wallets         | Base Smart Wallets + MetaMask |
+| Blockchain      | Base Network (Sepolia/Mainnet) |
+| Authentication  | Privy + Basenames            |
 
 ---
 

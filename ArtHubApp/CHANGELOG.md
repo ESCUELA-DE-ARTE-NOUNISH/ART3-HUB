@@ -5,6 +5,50 @@ All notable changes to the Art3 Hub Frontend Application will be documented in t
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2025-01-19
+
+### 🔥 **V6 Major Release: Firebase Migration & Fresh Smart Contracts**
+
+#### Revolutionary Architecture Changes
+- **🗄️ Complete Firebase Migration**: Full migration from Supabase to Firebase Firestore
+  - **Firebase Firestore**: Modern NoSQL document database for scalable data storage
+  - **Firebase Storage**: Integrated file storage for NFT images and assets
+  - **Real-time Updates**: Live data synchronization across all clients
+  - **Enhanced Security**: Firebase Authentication and security rules
+
+#### Fresh V6 Smart Contract Deployment
+- **🆕 Clean V6 Contracts**: Brand new smart contract deployment on Base Sepolia
+  - **Factory V6**: `0xbF47f26c4e038038bf75E20755012Cd6997c9AfA`
+  - **Subscription V6**: `0x4BF512C0eF46FD7C5F3F9522426E3F0413A8dB77`
+  - **Collection V6 Implementation**: `0x723D8583b56456A0343589114228281F37a3b290`
+  - **Enhanced Gasless System**: Improved meta-transaction functionality
+
+#### Advanced Admin Management System
+- **🛡️ Environment-Based Admin Configuration**: Secure admin wallet management
+  - **Default Admin Wallet**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+  - **CRUD Operations**: Add, edit, remove, and list admin wallets
+  - **localStorage Management**: Secure local admin data storage
+  - **Route Protection**: Admin-only access control for sensitive operations
+
+#### AI Agent System Enhancements
+- **🤖 Memory Persistence**: Advanced conversation memory system
+- **📚 Enhanced Knowledge Base**: Improved Web3 education capabilities
+- **🎯 Intelligent Assessment**: Context-aware user guidance
+- **🔄 Real-time Learning**: Adaptive responses based on user interaction
+
+#### Claimable NFT System
+- **💎 Secret Code System**: Advanced NFT claiming with unique codes
+- **👨‍💼 Admin Interface**: Complete claimable NFT management dashboard
+- **📅 Claim Periods**: Time-limited claiming windows
+- **🎯 Claim Limits**: Configurable maximum claims per NFT
+- **🔍 Case-Insensitive Codes**: User-friendly claim code validation
+
+#### Technical Infrastructure Improvements
+- **⚡ Base Network Focus**: Optimized for Base blockchain performance
+- **🔐 Enhanced Security**: Environment variable-based configuration
+- **📊 Real-time Analytics**: Advanced platform metrics and monitoring
+- **🌐 Multi-language Support**: Improved internationalization system
+
 ## [3.2.0] - 2025-01-20
 
 ### 🚀 **Farcaster Mini-App Integration & Enhanced Wallet Experience**

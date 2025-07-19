@@ -1,8 +1,17 @@
 # Art3Hub V5 - Base-Only Architecture with Enhanced On-Chain Data Storage
 
+> **⚠️ DEPRECATED**: V5 has been superseded by **Art3Hub V6** with Firebase integration and fresh smart contracts. This document remains for historical reference.
+
 ## 🎯 Overview
 
-Art3Hub V5 represents a paradigm shift in our NFT platform architecture, moving from a multi-network approach to a **Base-only deployment** with comprehensive **on-chain data storage**. This version dramatically reduces database dependencies while providing enhanced features for creators and collectors.
+Art3Hub V5 represented a paradigm shift in our NFT platform architecture, moving from a multi-network approach to a **Base-only deployment** with comprehensive **on-chain data storage**. This version dramatically reduced database dependencies while providing enhanced features for creators and collectors.
+
+**Migration Notice**: V5 has been fully migrated to V6 which includes:
+- Complete Firebase integration replacing on-chain data storage
+- Fresh V6 smart contract deployment
+- Enhanced admin management system
+- Improved AI agent capabilities
+- Advanced claimable NFT system
 
 ## 🔵 Base-Only Architecture
 
