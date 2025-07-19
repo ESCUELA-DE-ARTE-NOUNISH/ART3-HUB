@@ -307,6 +307,22 @@ export default function MyNFTsPage() {
     })
   }
 
+  // Helper function to get the correct image URL for display
+  const getImageUrl = (nft: NFT) => {
+    // Check if image_ipfs_hash contains a Firebase Storage URL
+    if (nft.image_ipfs_hash && nft.image_ipfs_hash.includes('firebasestorage.googleapis.com')) {
+      return nft.image_ipfs_hash // Direct Firebase Storage URL
+    }
+    
+    // If the image_ipfs_hash is a valid IPFS hash (not placeholder), use IPFS
+    if (nft.image_ipfs_hash && nft.image_ipfs_hash !== 'QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L') {
+      return `https://gateway.pinata.cloud/ipfs/${nft.image_ipfs_hash}`
+    }
+    
+    // Fallback to placeholder for any remaining NFTs with placeholder hashes
+    return '/placeholder.svg'
+  }
+
   // Filter options
   const [selectedFilter, setSelectedFilter] = useState<string>("all")
   
@@ -464,7 +480,7 @@ export default function MyNFTsPage() {
                   <>
                     <div className="aspect-square relative">
                       <Image 
-                        src={`https://gateway.pinata.cloud/ipfs/${nft.image_ipfs_hash}`} 
+                        src={getImageUrl(nft)} 
                         alt={nft.name} 
                         fill
                         className="object-cover"
@@ -569,7 +585,7 @@ export default function MyNFTsPage() {
                   <div className="flex p-3 md:p-4 gap-3 md:gap-4">
                     <div className="relative h-16 w-16 md:h-24 md:w-24 rounded-md overflow-hidden flex-shrink-0">
                       <Image 
-                        src={`https://gateway.pinata.cloud/ipfs/${nft.image_ipfs_hash}`} 
+                        src={getImageUrl(nft)} 
                         alt={nft.name} 
                         fill
                         className="object-cover"

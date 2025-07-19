@@ -10,12 +10,13 @@
 - **🧹 Clean Architecture**: Fresh start with optimized Base-only deployment
 - **⚡ Improved Performance**: Enhanced on-chain data storage and social features
 - **🤖 AI Agent Integration**: Advanced AI-powered guidance system for Web3 onboarding
-- **💎 Claimable NFT System**: Secret code-based NFT claiming with admin management
+- **💎 Claimable NFT Factory Pattern**: Independent contracts for user differentiation and access control
 
 ### 📋 V6 Contract Addresses (Base Sepolia)
 - **Factory V6**: `0xbF47f26c4e038038bf75E20755012Cd6997c9AfA`
 - **Subscription V6**: `0x4BF512C0eF46FD7C5F3F9522426E3F0413A8dB77`
 - **Collection Implementation V6**: `0x723D8583b56456A0343589114228281F37a3b290`
+- **ClaimableNFT Factory**: `0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A`
 - **Admin Wallet**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
 - **Treasury Wallet**: `0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9`
 - **Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1`
@@ -86,8 +87,9 @@ Visual artists (painters, illustrators, 3D artists) from underrepresented commun
 2. **AI-Guided Journey**: The agent provides step-by-step guidance to mint NFTs, connect wallet, understand royalties and Web3 concepts
 3. **Gasless Operations**: All actions are powered by gasless smart wallets on Base with EIP-712 meta-transactions
 4. **NFT Creation**: Users can create collections and mint NFTs with subscription-based quota management
-5. **Claimable NFTs**: Special secret code system for exclusive NFT distribution and events
-6. **Firebase Integration**: Real-time data synchronization and scalable backend infrastructure
+5. **Claimable NFT Factory**: Independent contracts for user differentiation and exclusive access control
+6. **Gasless Experience**: Complete gasless operations for claimable NFT interactions
+7. **Firebase Integration**: Real-time data synchronization and scalable backend infrastructure
 
 ## 🛠️ Setup (Dev Mode)
 
@@ -108,6 +110,11 @@ cd ART3-HUB
 cd ArtHubApp && npm install
 cd ../ArtHubContract && npm install
 cd ../ArtHubAgent && npm install
+
+# Test claimable NFT factory system
+cd ../ArtHubTests
+node check-deployments.js          # Verify factory deployment
+node test-gasless-port-3000.js     # Test gasless operations
 
 # Setup environment variables
 cp ArtHubApp/.env.example ArtHubApp/.env
@@ -978,5 +985,6 @@ graph TB
 - [**Architecture V5**](./ARCHITECTURE_V5.md) - Detailed technical architecture
 - [**Smart Contract Documentation**](./ArtHubContract/README.md) - Contract specifications
 - [**Frontend Setup Guide**](./ArtHubApp/README.md) - Frontend development guide
+- [**Test Suite Documentation**](./ArtHubTests/README.md) - Claimable NFT factory testing guide
 - [**AI Agent Documentation**](./ArtHubApp/docs/INTELLIGENT_CHAT_SYSTEM.md) - AI system details
 - [**Deployment Guide**](./ArtHubContract/DEPLOY_V5.md) - Contract deployment instructions

@@ -61,4 +61,56 @@ export class FirebaseStorageService {
       return false
     }
   }
+}
+
+// Helper function to handle base64 image uploads
+export async function handleBase64ImageUpload(
+  base64Image: string, 
+  userAddress: string
+): Promise<StorageUploadResult> {
+  console.log('🔄 Converting base64 to file...')
+  
+  // Extract MIME type and base64 data
+  const [header, data] = base64Image.split(',')
+  if (!header || !data) {
+    throw new Error('Invalid base64 image format')
+  }
+  
+  const mimeMatch = header.match(/data:([^;]+)/)
+  const mimeType = mimeMatch ? mimeMatch[1] : 'image/png'
+  
+  // Get file extension from MIME type
+  const extension = mimeType.split('/')[1] || 'png'
+  
+  console.log('📄 Image details:', { mimeType, extension })
+  
+  // Convert base64 to binary
+  const binaryString = atob(data)
+  const bytes = new Uint8Array(binaryString.length)
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i)
+  }
+  
+  // Create file object
+  const timestamp = Date.now()
+  const fileName = `admin-upload-${timestamp}.${extension}`
+  const file = new File([bytes], fileName, { type: mimeType })
+  
+  console.log('📁 Created file:', { 
+    name: file.name, 
+    size: file.size, 
+    type: file.type 
+  })
+  
+  // Upload to Firebase Storage
+  const uploadPath = `admin-nft-images/${userAddress}`
+  const result = await FirebaseStorageService.uploadFile(file, uploadPath)
+  
+  console.log('✅ Firebase upload successful:', {
+    path: result.path,
+    url: result.url,
+    fileName: result.fileName
+  })
+  
+  return result
 } 

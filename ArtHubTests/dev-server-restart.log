@@ -1,0 +1,830 @@
+
+> my-v0-project@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.10.48:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 1942ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 4.9s (655 modules)
+ GET /api/health 404 in 5089ms
+ ✓ Compiled in 260ms (314 modules)
+ ○ Compiling /api/admin/nfts ...
+ ✓ Compiled /api/admin/nfts in 4.1s (5878 modules)
+🔥 Using Firebase production service
+Farcaster frameConnector setup completed
+🚀 Deploying claimable NFT contract via factory...
+📋 Request data: {
+  title: 'Working Test NFT 1752947410701',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  claimCode: 'WORKING1752947410701',
+  startDate: '2025-07-19T17:50:10.701Z',
+  endDate: '2025-07-26T17:50:10.702Z',
+  status: 'published',
+  maxClaims: 5,
+  network: 'base-sepolia',
+  image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII='
+}
+🔧 Network configuration: { isTestingMode: true, targetChain: 'Base Sepolia', chainId: 84532 }
+🏭 Factory address lookup: {
+  isTestingMode: true,
+  factoryEnvVar: 'NEXT_PUBLIC_CLAIMABLE_NFT_FACTORY_84532',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A'
+}
+🔍 Verifying factory contract exists on blockchain...
+🔍 Verifying factory contract at: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+[ReferenceError: indexedDB is not defined]
+ ⨯ unhandledRejection: [ReferenceError: indexedDB is not defined]
+ ⨯ unhandledRejection:  [ReferenceError: indexedDB is not defined]
+✅ Factory contract verified: {
+  address: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  hasCode: true,
+  codeLength: 26658
+}
+✅ Factory contract functions verified (legacy version): { deployedContracts: 45 }
+🚀 Initiating gasless deployment...
+🚀 Deploying claimable NFT via gasless relayer...
+📋 Deployment parameters: {
+  title: 'Working Test NFT 1752947410701',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  creatorAddress: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+  chainId: 84532,
+  claimCode: 'WORKING1752947410701'
+}
+🏷️ Generated symbol: WORKINGTES
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 Gasless relay payload: {
+  type: 'deployClaimableNFT',
+  name: 'Working Test NFT 1752947410701',
+  symbol: 'WORKINGTES',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  userAddress: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+ ○ Compiling /api/gasless-relay ...
+ ✓ Compiled /api/gasless-relay in 593ms (5883 modules)
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'deployClaimableNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899902', sufficient: true }
+🏭 Executing gasless ClaimableNFT deployment...
+🔍 ClaimableNFT deployment params: {
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  name: 'Working Test NFT 1752947410701',
+  symbol: 'WORKINGTES',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  owner: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless ClaimableNFT deployment...
+✅ ClaimableNFT deployment simulation successful, address: 0x04EfbCf38B0B55F6fF012F52b2809aF4E3c3559D
+✅ Gasless transaction submitted by relayer: 0xdbf49713a89905fa73b4fa79a28ce2e00cd2996e55b4b5c65e4ebd1a139011cb
+🎉 Gasless transaction confirmed: {
+  hash: '0xdbf49713a89905fa73b4fa79a28ce2e00cd2996e55b4b5c65e4ebd1a139011cb',
+  status: 'success',
+  gasUsed: '2123784'
+}
+🔍 Looking for ClaimableNFTDeployed event in transaction logs...
+📄 Transaction receipt logs: 2 logs found
+🔍 Looking for event topic: 0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4
+🔍 Factory address: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+📄 Log: {
+  address: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+  topics: [
+    '0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0',
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x',
+  isFromFactory: false,
+  topicMatches: false
+}
+📄 Log: {
+  address: '0xeb91e58a59e7bcf8adc8cae4f12187826965503a',
+  topics: [
+    '0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4',
+    '0x00000000000000000000000004efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000687bdada000000000000000000000000000000000000000000000000000000000000001e576f726b696e672054657374204e465420313735323934373431303730310000000000000000000000000000000000000000000000000000000000000000000a574f524b494e4754455300000000000000000000000000000000000000000000',
+  isFromFactory: true,
+  topicMatches: true
+}
+🎯 Extracted ClaimableNFT address: 0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d
+ POST /api/gasless-relay 200 in 1965ms
+📥 Gasless relay response status: 200 OK
+✅ Gasless deployment successful: {
+  success: true,
+  transactionHash: '0xdbf49713a89905fa73b4fa79a28ce2e00cd2996e55b4b5c65e4ebd1a139011cb',
+  contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+  tokenId: null,
+  status: 'success',
+  gasUsed: '2123784',
+  relayerPaid: true
+}
+🎯 Contract deployed at: {
+  contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+  transactionHash: '0xdbf49713a89905fa73b4fa79a28ce2e00cd2996e55b4b5c65e4ebd1a139011cb',
+  gasUsed: '2123784',
+  success: true
+}
+📝 Adding claim code to deployed contract using gasless relayer...
+📝 Adding claim code via gasless relayer...
+🔍 AddClaimCode parameters: {
+  contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+  claimCode: 'WORKING1752947410701',
+  maxClaims: 0,
+  startTime: 1752947417,
+  endTime: 1784483417,
+  metadataURI: 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L',
+  chainId: 84532
+}
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 AddClaimCode payload: {
+  type: 'addClaimCode',
+  contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+  claimCode: 'WORKING1752947410701',
+  maxClaims: 0,
+  startTime: 1752947417,
+  endTime: 1784483417,
+  metadataURI: 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L',
+  chainId: 84532
+}
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'addClaimCode',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899900', sufficient: true }
+📝 Executing gasless addClaimCode with timestamp fix...
+🔍 AddClaimCode params: {
+  contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+  claimCode: 'WORKING1752947410701',
+  maxClaims: 0,
+  startTime: 1752947417,
+  endTime: 1784483417,
+  metadataURI: 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  providedTimestamps: 'Using exact timestamps from request'
+}
+🔍 Simulating gasless addClaimCode...
+✅ AddClaimCode simulation successful
+✅ Gasless transaction submitted by relayer: 0xdbb6d2d0aed42253eb47ceea713cc4ea8b02f9f3501c986079360c348526abf3
+🎉 Gasless transaction confirmed: {
+  hash: '0xdbb6d2d0aed42253eb47ceea713cc4ea8b02f9f3501c986079360c348526abf3',
+  status: 'success',
+  gasUsed: '189183'
+}
+ POST /api/gasless-relay 200 in 1254ms
+📥 AddClaimCode gasless relay response status: 200 OK
+✅ AddClaimCode gasless successful: {
+  success: true,
+  transactionHash: '0xdbb6d2d0aed42253eb47ceea713cc4ea8b02f9f3501c986079360c348526abf3',
+  contractAddress: null,
+  tokenId: null,
+  status: 'success',
+  gasUsed: '189183',
+  relayerPaid: true
+}
+✅ Claim code added successfully via gasless relayer
+✅ Claimable NFT contract deployed via factory: {
+  contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+  deploymentTxHash: '0xdbf49713a89905fa73b4fa79a28ce2e00cd2996e55b4b5c65e4ebd1a139011cb',
+  network: 'Base Sepolia',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  gasUsed: undefined,
+  status: undefined
+}
+🔍 Verifying deployed contract exists...
+🔍 Verifying deployed contract at: 0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d
+✅ Deployed contract verified: {
+  address: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+  hasCode: true,
+  codeLength: 18406
+}
+✅ Deployed contract functions verified: {
+  owner: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  name: 'Working Test NFT 1752947410701'
+}
+🖼️ Processing image... { imageProvided: true, imageType: 'string', imageLength: 114 }
+📤 Processing base64 image...
+🔄 Converting base64 to file...
+📄 Image details: { mimeType: 'image/png', extension: 'png' }
+📁 Created file: { name: 'admin-upload-1752947419566.png', size: 68, type: 'image/png' }
+✅ Firebase upload successful: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947419567-admin-upload-1752947419566.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947419567-admin-upload-1752947419566.png?alt=media&token=580c453a-b859-4a89-b309-4921f08b67cd',
+  fileName: '1752947419567-admin-upload-1752947419566.png'
+}
+✅ Base64 image uploaded successfully: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947419567-admin-upload-1752947419566.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947419567-admin-upload-1752947419566.png?alt=media&token=580c453a-b859-4a89-b309-4921f08b67cd'
+}
+💾 Creating NFT record in database...
+🖼️ Image processing complete: {
+  hasProcessedImage: true,
+  hasUploadedImageUrl: true,
+  processedImagePath: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947419567-admin-upload-1752947419566.png',
+  uploadedImageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947419567-admin-upload-1752947419566.png?alt=media&token=580c453a-b859-4a89-b309-4921f08b67cd'
+}
+📝 NFT creation input: {
+  title: 'Working Test NFT 1752947410701',
+  description: 'Testing with completely fresh NFT and fixed systems',
+  image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947419567-admin-upload-1752947419566.png',
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947419567-admin-upload-1752947419566.png?alt=media&token=580c453a-b859-4a89-b309-4921f08b67cd',
+  claimCode: 'WORKING1752947410701',
+  startDate: '2025-07-19T17:50:10.701Z',
+  endDate: '2025-07-26T17:50:10.702Z',
+  status: 'published',
+  maxClaims: 5,
+  network: 'base-sepolia',
+  contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+  deploymentTxHash: '0xdbf49713a89905fa73b4fa79a28ce2e00cd2996e55b4b5c65e4ebd1a139011cb',
+  imageProvided: true,
+  uploadedImageUrl: true
+}
+🔗 Using Pinata for metadata upload
+ ○ Compiling /api/upload-metadata-to-pinata ...
+ ✓ Compiled /api/upload-metadata-to-pinata in 522ms (5996 modules)
+ POST /api/upload-metadata-to-pinata 200 in 980ms
+✅ NFT record created successfully: {
+  id: 'mdajmtol5eh6upf1gnf',
+  title: 'Working Test NFT 1752947410701',
+  status: 'published',
+  contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+  deploymentTxHash: '0xdbf49713a89905fa73b4fa79a28ce2e00cd2996e55b4b5c65e4ebd1a139011cb',
+  hasImage: true,
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947419567-admin-upload-1752947419566.png?alt=media&token=580c453a-b859-4a89-b309-4921f08b67cd',
+  metadataUrl: undefined,
+  metadataIpfsHash: undefined
+}
+ POST /api/admin/nfts 201 in 10534ms
+ ✓ Compiled /api/nfts/claim in 467ms (5998 modules)
+🔥 Using Firebase production service
+Verifying claim code: WORKING1752947410701
+User wallet: 0x499D377eF114cC1BF7798cECBB38412701400daF
+Found 1 NFT(s) with claim code "WORKING1752947410701", using most recent: {
+  id: 'mdajmtol5eh6upf1gnf',
+  title: 'Working Test NFT 1752947410701',
+  contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+  createdAt: '2025-07-19T17:50:19.845Z'
+}
+Verification result: {
+  valid: true,
+  nft: {
+    endDate: '2025-07-26T17:50:10.702Z',
+    createdBy: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+    contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+    startDate: '2025-07-19T17:50:10.701Z',
+    description: 'Testing with completely fresh NFT and fixed systems',
+    currentClaims: 0,
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752947419567-admin-upload-1752947419566.png?alt=media&token=580c453a-b859-4a89-b309-4921f08b67cd',
+    image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752947419567-admin-upload-1752947419566.png',
+    updatedAt: '2025-07-19T17:50:21.157Z',
+    id: 'mdajmtol5eh6upf1gnf',
+    status: 'published',
+    createdAt: '2025-07-19T17:50:19.845Z',
+    metadataUrl: 'ipfs://QmRGnpeFFM3pXbrc2m1s99z3Z886sDJwPev1Ur3KP2f1bW',
+    network: 'base-sepolia',
+    claimCode: 'WORKING1752947410701',
+    metadataIpfsHash: 'QmRGnpeFFM3pXbrc2m1s99z3Z886sDJwPev1Ur3KP2f1bW',
+    maxClaims: 5,
+    title: 'Working Test NFT 1752947410701',
+    deploymentTxHash: '0xdbf49713a89905fa73b4fa79a28ce2e00cd2996e55b4b5c65e4ebd1a139011cb'
+  }
+}
+ GET /api/nfts/claim?code=WORKING1752947410701 200 in 877ms
+Processing claim for code: WORKING1752947410701
+User wallet: 0x499D377eF114cC1BF7798cECBB38412701400daF
+Transaction hash: undefined
+Token ID: undefined
+Found 1 NFT(s) with claim code "WORKING1752947410701", using most recent: {
+  id: 'mdajmtol5eh6upf1gnf',
+  title: 'Working Test NFT 1752947410701',
+  contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+  createdAt: '2025-07-19T17:50:19.845Z'
+}
+Claim code validated successfully for NFT: Working Test NFT 1752947410701
+Using contract address: 0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d
+🚀 Calling claimNFT on smart contract via gasless relayer...
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'claimNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899900', sufficient: true }
+🎯 Executing gasless claimNFT...
+🔍 ClaimNFT params: {
+  contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+  claimCode: 'WORKING1752947410701',
+  userAddress: '0x499D377eF114cC1BF7798cECBB38412701400daF',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless claimNFT...
+✅ ClaimNFT simulation successful, token ID: 0n
+🔨 Executing claimNFT transaction...
+⏳ Waiting for claim transaction to complete...
+✅ Claim transaction completed: {
+  hash: '0x007a131528c659d46d5531ec28ffa97d9bfb7cbde9c1f63a859cd5bc66413473',
+  status: 'success',
+  gasUsed: '279761'
+}
+🔍 Checking token ownership after claimNFT...
+🔍 Token ID from claimNFT: 0
+🔍 Contract address: 0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d
+✅ ClaimNFT transaction completed successfully
+🔍 Assuming token was minted directly to user (no transfer needed)
+✅ Gasless transaction submitted by relayer: 0x007a131528c659d46d5531ec28ffa97d9bfb7cbde9c1f63a859cd5bc66413473
+🎉 Gasless transaction confirmed: {
+  hash: '0x007a131528c659d46d5531ec28ffa97d9bfb7cbde9c1f63a859cd5bc66413473',
+  status: 'success',
+  gasUsed: '279761'
+}
+🔍 Token ID will be extracted from successful claim transaction...
+ POST /api/gasless-relay 200 in 1580ms
+✅ Blockchain claim successful: {
+  success: true,
+  transactionHash: '0x007a131528c659d46d5531ec28ffa97d9bfb7cbde9c1f63a859cd5bc66413473',
+  contractAddress: null,
+  tokenId: 0,
+  status: 'success',
+  gasUsed: '279761',
+  relayerPaid: true
+}
+NFT claimed successfully: {
+  nftId: 'mdajmtol5eh6upf1gnf',
+  userWallet: '0x499D377eF114cC1BF7798cECBB38412701400daF',
+  txHash: '0x007a131528c659d46d5531ec28ffa97d9bfb7cbde9c1f63a859cd5bc66413473',
+  tokenId: 0,
+  contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+  claimCode: 'WORKING1752947410701'
+}
+Claim processed successfully: {
+  success: true,
+  message: 'NFT claimed successfully',
+  claim: {
+    id: 'mdajn4m37h0g2t7h1nf',
+    nftId: 'mdajmtol5eh6upf1gnf',
+    userWallet: '0x499d377ef114cc1bf7798cecbb38412701400daf',
+    claimDate: '2025-07-19T17:50:34.011Z',
+    txHash: '0x007a131528c659d46d5531ec28ffa97d9bfb7cbde9c1f63a859cd5bc66413473',
+    tokenId: 0,
+    contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+    claimCode: 'WORKING1752947410701',
+    status: 'minted'
+  },
+  txHash: '0x007a131528c659d46d5531ec28ffa97d9bfb7cbde9c1f63a859cd5bc66413473',
+  tokenId: 0,
+  contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d',
+  network: 'base-sepolia'
+}
+ POST /api/nfts/claim 200 in 2128ms
+ ✓ Compiled in 1489ms (956 modules)
+ ✓ Compiled in 454ms (956 modules)
+ ✓ Compiled in 128ms (956 modules)
+ ✓ Compiled /middleware in 158ms (131 modules)
+ ○ Compiling /api/user-profile ...
+ ✓ Compiled /api/user-profile in 11.3s (13090 modules)
+🔥 Using Firebase production service
+Firebase config: {
+  projectId: 'art3-hub-78ef8',
+  authDomain: 'art3-hub-78ef8.firebaseapp.com',
+  isConfigured: true
+}
+Fetching profile for wallet: 0xc2564e41b7f5cb66d2d99466450cfebce9e8228f
+Firebase config: {
+  projectId: 'art3-hub-78ef8',
+  authDomain: 'art3-hub-78ef8.firebaseapp.com',
+  isConfigured: true
+}
+Fetching profile for wallet: 0x499d377ef114cc1bf7798cecbb38412701400daf
+Profile result: {
+  profile_complete: false,
+  id: '0xc2564e41b7f5cb66d2d99466450cfebce9e8228f',
+  updated_at: '2025-07-17T05:05:38.975Z',
+  wallet_address: '0xc2564e41b7f5cb66d2d99466450cfebce9e8228f',
+  created_at: '2025-07-17T05:05:38.975Z'
+}
+ GET /api/user-profile?wallet_address=0xc2564e41b7f5cb66d2d99466450cfebce9e8228f 200 in 1897ms
+Profile result: {
+  id: '0x499d377ef114cc1bf7798cecbb38412701400daf',
+  wallet_address: '0x499d377ef114cc1bf7798cecbb38412701400daf',
+  profile_complete: false,
+  created_at: '2025-07-18T01:11:07.314Z',
+  updated_at: '2025-07-18T01:11:07.314Z'
+}
+ GET /api/user-profile?wallet_address=0x499d377ef114cc1bf7798cecbb38412701400daf 200 in 11478ms
+ GET / 200 in 12304ms
+ GET / 200 in 2266ms
+🔥 Using Firebase production service
+ GET / 200 in 603ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 2.1s (12951 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 2242ms
+🔥 Using Firebase production service
+ HEAD / 200 in 531ms
+ HEAD / 200 in 48ms
+ ○ Compiling /api/user-profile ...
+ ✓ Compiled /api/user-profile in 527ms (6877 modules)
+🔥 Using Firebase production service
+Firebase config: {
+  projectId: 'art3-hub-78ef8',
+  authDomain: 'art3-hub-78ef8.firebaseapp.com',
+  isConfigured: true
+}
+Fetching profile for wallet: 0xc2564e41b7f5cb66d2d99466450cfebce9e8228f
+Profile result: {
+  updated_at: '2025-07-17T05:05:38.975Z',
+  id: '0xc2564e41b7f5cb66d2d99466450cfebce9e8228f',
+  wallet_address: '0xc2564e41b7f5cb66d2d99466450cfebce9e8228f',
+  profile_complete: false,
+  created_at: '2025-07-17T05:05:38.975Z'
+}
+ GET /api/user-profile?wallet_address=0xc2564e41b7f5cb66d2d99466450cfebce9e8228f 200 in 922ms
+Firebase config: {
+  projectId: 'art3-hub-78ef8',
+  authDomain: 'art3-hub-78ef8.firebaseapp.com',
+  isConfigured: true
+}
+Fetching profile for wallet: 0xc2564e41b7f5cb66d2d99466450cfebce9e8228f
+Profile result: {
+  updated_at: '2025-07-17T05:05:38.975Z',
+  id: '0xc2564e41b7f5cb66d2d99466450cfebce9e8228f',
+  wallet_address: '0xc2564e41b7f5cb66d2d99466450cfebce9e8228f',
+  profile_complete: false,
+  created_at: '2025-07-17T05:05:38.975Z'
+}
+ GET /api/user-profile?wallet_address=0xc2564e41b7f5cb66d2d99466450cfebce9e8228f 200 in 135ms
+ ○ Compiling /[locale]/admin ...
+ ✓ Compiled /[locale]/admin in 1601ms (13160 modules)
+ GET /admin 200 in 2131ms
+ ○ Compiling /api/admin/users ...
+ ✓ Compiled /api/admin/users in 857ms (13162 modules)
+🔥 Using Firebase production service
+ GET /api/admin/users?page=1&pageSize=10 200 in 1087ms
+ GET /api/admin/users?page=1&pageSize=10 200 in 45ms
+ ○ Compiling /[locale]/admin/nfts ...
+ ✓ Compiled /[locale]/admin/nfts in 1237ms (13184 modules)
+🔥 Using Firebase production service
+ GET /admin/nfts 200 in 2172ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 21ms
+ ○ Compiling /api/admin/nfts ...
+ ✓ Compiled /api/admin/nfts in 4.5s (10700 modules)
+🔥 Using Firebase production service
+Farcaster frameConnector setup completed
+WalletConnect Core is already initialized. This is probably a mistake and can lead to unexpected behavior. Init() was called 2 times.
+Firebase config: {
+  projectId: 'art3-hub-78ef8',
+  authDomain: 'art3-hub-78ef8.firebaseapp.com',
+  isConfigured: true
+}
+Fetching profile for wallet: 0xc2564e41b7f5cb66d2d99466450cfebce9e8228f
+🔥 Using Firebase production service
+ HEAD /admin/nfts 200 in 6405ms
+ HEAD /admin/nfts 200 in 5888ms
+ GET /api/admin/nfts 200 in 7385ms
+Profile result: {
+  updated_at: '2025-07-17T05:05:38.975Z',
+  created_at: '2025-07-17T05:05:38.975Z',
+  wallet_address: '0xc2564e41b7f5cb66d2d99466450cfebce9e8228f',
+  id: '0xc2564e41b7f5cb66d2d99466450cfebce9e8228f',
+  profile_complete: false
+}
+ GET /api/user-profile?wallet_address=0xc2564e41b7f5cb66d2d99466450cfebce9e8228f 200 in 6225ms
+Firebase config: {
+  projectId: 'art3-hub-78ef8',
+  authDomain: 'art3-hub-78ef8.firebaseapp.com',
+  isConfigured: true
+}
+Fetching profile for wallet: 0xc2564e41b7f5cb66d2d99466450cfebce9e8228f
+ GET /api/admin/nfts 200 in 172ms
+Profile result: {
+  updated_at: '2025-07-17T05:05:38.975Z',
+  created_at: '2025-07-17T05:05:38.975Z',
+  wallet_address: '0xc2564e41b7f5cb66d2d99466450cfebce9e8228f',
+  id: '0xc2564e41b7f5cb66d2d99466450cfebce9e8228f',
+  profile_complete: false
+}
+ GET /api/user-profile?wallet_address=0xc2564e41b7f5cb66d2d99466450cfebce9e8228f 200 in 174ms
+ GET /api/admin/nfts 200 in 419ms
+ GET /api/admin/nfts 200 in 54ms
+ ○ Compiling /[locale]/admin/nfts/create ...
+ ✓ Compiled /[locale]/admin/nfts/create in 4.1s (18651 modules)
+ GET /admin/nfts/create 200 in 4708ms
+🔥 Using Firebase production service
+Farcaster frameConnector setup completed
+WalletConnect Core is already initialized. This is probably a mistake and can lead to unexpected behavior. Init() was called 3 times.
+🚀 Deploying claimable NFT contract via factory...
+📋 Request data: {
+  title: 'Snoopy NFT',
+  description: 'Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT',
+  claimCode: 'SnoopyNFT',
+  startDate: '2025-07-19T17:59:38.632Z',
+  endDate: undefined,
+  status: 'published',
+  maxClaims: undefined,
+  network: 'baseSepolia',
+  image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOQAAADkCAYAAACIV4iNAAAEDmlDQ1BrQ0dDb2xvclNwYWNlR2VuZXJpY1JHQgAAOI2NVV1oHFUUPpu5syskzoPUpqaSDv41lLRsUtGE2uj+ZbNt3CyTbLRBkMns3Z1pJjPj/KRpKT4UQRDBqOCT4P9bwSchaqvtiy2itFCiBIMo+ND6R6HSFwnruTOzu5O4a73L3PnmnO9+595z7t4LkLgsW5beJQIsGq4t5dPis8fmxMQ6dMF90A190C0rjpUqlSYBG+PCv9rt7yDG3tf2t/f/Z+uuUEcBiN2F2Kw4yiLiZQD+FcWyXYAEQfvICddi+AnEO2ycIOISw7UAVxieD/Cyz5mRMohfRSwoqoz+xNuIB+cj9loEB3Pw2448NaitKSLLRck2q5pOI9O9g/t/tkXda8Tbg0+PszB9FN8DuPaXKnKW4YcQn1Xk3HSIry5ps8UQ/2W5aQnxIwBdu7yFcgrxPsRjVXu8HOh0qao30cArp9SZZxDfg3h1wTzKxu5E/LUxX5wKdX5SnAzmDx4A4OIqLbB69yMesE1pKojLjVdoNsfyiPi45hZmAn3uLWdpOtfQOaVmikEs7ovj8hFWpz7EV6mel0L9Xy23FMYlPYZenAx0yDB1/PX6dledmQjikjkXCxqMJS9WtfFCyH9XtSekEF+2dH+P4tzITduTygGfv58a5VCTH5PtXD7EFZiNyUDBhHnsFTBgE0SQIA9pfFtgo6cKGuhooeilaKH41eDs38Ip+f4At1Rq/sjr6NEwQqb/I/DQqsLvaFUjvAx+eWirddAJZnAj1DFJL0mSg/gcIpPkMBkhoyCSJ8lTZIxk0TpKDjXHliJzZPO50dR5ASNSnzeLvIvod0HG/mdkmOC0z8VKnzcQ2M/Yz2vKldduXjp9bleLu0ZWn7vWc+l0JGcaai10yNrUnXLP/8Jf59ewX+c3Wgz+B34Df+vbVrc16zTMVgp9um9bxEfzPU5kPqUtVWxhs6OiWTVW+gIfywB9uXi7CGcGW/zk98k/kmvJ95IfJn/j3uQ+4c5zn3Kfcd+AyF3gLnJfcl9xH3OfR2rUee80a+6vo7EK5mmXUdyfQlrYLTwoZIU9wsPCZEtP6BWGhAlhL3p2N6sTjRdduwbHsG9kq32sgBepc+xurLPW4T9URpYGJ3ym4+8zA05u44QjST8ZIoVtu3qE7fWmdn5LPdqvgcZz8Ww8BWJ8X3w0PhQ/wnCDGd+LvlHs8dRy6bLLDuKMaZ20tZrqisPJ5ONiCq8yKhYM5cCgKOu66Lsc0aYOtZdo5QCwezI4wm9J/v0X23mlZXOfBjj8Jzv3WrY5D+CsA9D7aMs2gGfjve8ArD6mePZSeCfEYt8CONWDw8FXTxrPqx/r9Vt4biXeANh8vV7/+/16ffMD1N8AuKD/A/8leAvFY9bLAAAAOGVYSWZNTQAqAAAACAABh2kABAAAAAEAAAAaAAAAAAACoAIABAAAAAEAAADkoAMABAAAAAEAAADkAAAAAAcZhwEAAEAASURBVHgB7J0HoB1Vtf7X6efcc3tPL6SS0AMBBKQj4B8VC1iwK/byLO/ZC/qUZ1esT30qiiKgIFJD751ACCG919vL6e3/+/bck9yEJCQkIdxwdzL3tJk9e2b2t1dfy5dKpUo23PbKHfD7/eb3+a1YKlqhULBcKWPZcNoiwZj5sxWWy/ksyXfhkFl1sGBBX8H6MhkLBKMWCVVYIs2+4Qor5HNWyvvcmPyFkvn8PvMHvCEWOKbE5qMPny9oRfNzLn4rFqyYC5kvH2YM+s04JsvGHv4tj9i35a3XYWmgY+8TvXmtOPBafil5w7HnHV/eYeC1fDyndS3HazgStu6elIViUb7LWT5ftJBFrYKP+VzOUrmklWI1FmEokRy76HroSEPNFfJWUKe+bUfEd/p6B997vw69v8GhN+ShNGK/VQDGO+680773je/Z4ucWW0VdpTU11tmxhx1ixx57jE0/5HA7aPJUy2aTFg2FLeILWIGNGctk81mJWZnnT9CBzGfBUt6Kgbz5jH3cbzxCAFxkovuYyawJANgs6Oe9sPZCCNqHt1NAKhQAEuOorIm5M2XTAmPBrrny93bV3/5i8+fPtRGjWu2b3/+hnfTqsyyfZtwc4It4uLQw79WHVphXQPMNU8i995S3pZDFYtGuvOZKe9+73mfNtUxDgKPJqVZKm2UzbLyvB6BnnHqaHXP0bJs+faZNmTTNRo4cDcgClg34rKi5CBmMMFVDHO+IAoArFviNfUqBguXpqeiHGpaiABIq7edcUNLANhTxefjcRxRS16gWDIetN5FijFHGZrZx1TK76II32Pyn5ll9pdmY5krrTCRsZVvJfn/5b+20094EB1EJpxAwP4uSKGWRRWhHrVjc8W87Oubl/P0wIPfi09kWkCUAOGrkSKsIF23mhBo7dGor1A2WE6wkYeHaOhO2oSdjnX0pa+9MWS4FsWM8Yltqa6oBaoONnjDeahvqbFTraGuqb7DJEybbiKYmGztmgjWPaBU/6LF3AFAUKQ/ZFAYdiNXXNpTlpQBkSRRtoKW5B9F4BeMJ2LzHH7OzTjnJSv0pO3Zmqx09vdWa6yOWLpbs1ieX2QNz223xspWAuNEq4hGLxQKwrLoa8bA7at65tPgdCG2YZd2LT1GTIgAJyyQzFovG7A+//1/L9yds1LgqO+vwJli1DsCSM3+4ZIE4lG1k0PyxmCVSVdbbWzCJ84lE0fr7CtbZlbHu1Hpb/uRy64eaJpNiXb2pCe6gjGbTph5kb33LBfbJT3wSFg9yw8TV+fPaYaAVy8gc+AzdKf+01191/dsCPhBgPJm0PffsXDv1+BOsErnxNWfOsMPHj7C1a5ZaAmGzAnb2pMNabcWqdrvwjefYXQ/MsxSydT5b3Lyw+CUYb6cdKEAsX9owhSzfib30WpLQN9A+/dGL7ao/X25nzhptx03xW1WgH2qG/Mc+frQkUsj4HEvqt1IhaKUi8lIpjCwYYQtD7fwGDqGqUhQFLImGJJUpWpqJump9hy1YttbWtEFN6yvswbsesZZRE60Qhg2G1SvB18LRQm2B4JYh6VN5eNt9Lf+6Lb3ZFaWOW5A4V/ke6PzZbNa62tfbccccZYV00k46osVmzxhvlg7aFf+83845tclGtsZYSIK2dGPBfnvVSvvClz9rn//S162TlSgWr3LjlDw9uJUBeqCxrOX7P/hah9/vpTvw7IL5VoIHaWytsmAQqohmJgDwfGwFyJjTpGb5DkEyBHWJIReWcn1oSzugKuuskNuAEqcTDHdYuNRuzbFua45usnHVbfb62RX27nPH2bmvbrDezqQdf/JJluyF+haQ1QpSm7xUj3bQeZBhy01gVAsGg/a2Cy+wQl/SDhtfacfNrOG6O23Nxh5YdbMeyD66aMv2d9moeN5Om91s3/rW9+2pR++xCtSugdL22VUtEOVFwjvTgfF30N08MC5of1+FY9HyeQsFQ9bfn7QwgJRsGQmijYHCOfnKzTFMGaz6YVi6EPJVCVNJKou2lN1KIb8F4zELVcWtvxiypeuTtmhVj3Ugb1ZGAxb2pS3Rtc6C2XY79vAGO3F2nfV0dtob3/K6zZcP/p1CZzB13PzjXn/DNEKBpFamjtJeBaDql3z1mzb3saetqdrsjNljLZPqsKq4z+ZB3WfPnmztPWkLBEIWY7GqQg4+aWaTHTohZCedfI4tW/o0nAJigITj0pap6r0V+GXS2fK9G8AQ/3NgXc3L4GHksKu5DWVGPF7pbIQFqGABdb4vl7cwCo8Q7KQfalJCfkqjJewv5GAzfZavCFsqErdcVYs9ud5vl/1rmV165TJbXxptqxOt9r//gkXtClsWTWoW2bAyht0z02nHHlpvrU1+e/ixu+wHP/6GxUJZyyf7rIB201CKFGGRN29QYrGW5W3Pbpmmj6c2FvCh/Wh4kZJzJRaNsD3x4NN22Q9/YvVYPM4/5SCrjvRZJaxpbyLvNKtHHXeUdaDYqgjFYNc5tpixajiBC88ab+PGmh1+xKtt7hOPoVkOWggbTiaDaQcWP4Ihtwhd9WH+KTo12J5dxcvp6GFA7uWnoRW7srLS2RBbWkcABL9T1kh7Go2GASFa0AFjtqyJKahjP/r9YE2TZSMNNm9lxr7/p3l2+Q2r7NzzL7KFyxfa32982P5x7f2GYtbmLe6waEwKHORPpmPEl7NYsd9Onj2R85p94+vfsMceedjiKJU0jpemeaAUxQpFghaJiSUv2Ve/9p8sGgGbMb7JWuthTft7MPXkrKsrZaPHjLRDDj/clq0tWTqHzMw9iEawQPqTOFG025vOnmInHdNgZ5x0sn3/kv+yTE87CxlchT9oPYk+y7DQ5OBEDrQ2DMi9/ETFsspbR6zbsbOPA4xFW9/da8FohfWijMkB2Ly8eaAs0Es8eSotEa63u59O2O+uXmxX3rrRjj/+TJv75CP2ze/+1CLxekv199ojjzwIALHjtfVYfyKLFjcE5WACZ/IWh9oeMbUSm14Ip4NKu+DCd8L+ZiwFlS7u5Sdclt1KukYG5EmN2EQHKKU8b4rYb6697q923/13WDSYtBOPboUC9lu8ErBil2xrT9iMaZOtpr7VuBxb0ZHnnkBfGWsW6bfky1gkvcnOPbre3nraePvudy61c894lc195F44Dnku4fWUhuvAM2mvX+Beng+7291efly7e/oDb3+xgql0CvewvB33quOcjXDBio3WnglbMlhtvQFMHP5a6/c1WL812iNLEnbFjc/ZP25dZeGqkXbLjTfb5dfcbLWjD7IkYpk/GMZQHrZ3XfwB+9pnL7ZkumQhPkvpWMgVrJDB1JHLQEHW2anHjLRCqt/6errsne96D7JZmXLti/vsQbGIIkpmFgdOIUqeRPmsfe0rX8SWanbY1Gqri6egfCic+DkAK7tuYx/2R9lSxzs8Ld3QCwseYAHhcJadCGxvQ7hg4WSHzRofss9fMNN62hfZOWeehVnkTFuxdL7VQP2LuNUdaG0YkPvgiYZCUC+2o4451g4+4igmWsj+essCe7ajwp7YGLN7VwTs6seS9qOr59u/7mhDhqyyH/7qu3b3Y/fYUafOgmr2WTWULlViIiNzfeKTn7KNG9fZh957ESwwIIWapNL4u6IIikIlpaGNFFPWVJGz4w5ttRhq25uu+7d9/9LvWTwSg31EvpPbC5M+hN+s5L4SrLTYvzAUSzKvxqtWQqbVJnc157LmvkVnA+XadhN9ZDhuK2tVi/ip3vjva23l8pVQR7MTD29Bdu6yAH3mMyUroKRKYMuprqyzutoGm3bIWJu7YK3hBWDpPOPCSdcHWQ/D8lbhQeHPbbKGWJu94+zJ9rbzJtqj991mJxx1mP3lTz9jPLg6DdLsDgx1SL8MA3IfPj5pA7/+39+ytu6EdaZDds1tC+y6uxbbdXcss4fmrTV/5Qj7xqXftacXLLW3vONdaFRR9kRCTs7szfZarLIC2fFa+8Xv/s++c8mXcRZoNxSxNFjVIDIkZLIkUok1PgA4Q0zQ2TMbcdPzW3ND3L751a/bDTfcAHXCvomsKqd3tSJueCXOpZZH0SRKmsEQ39+PnXR3GprVAoopKUHLLQQZ/NGPf2zVaFXHjcAFrpRgscg6ja9sQH6LoS0u4XVUa9lUGs+dM60TW+rilf38HAfdLBrcuCDDk/IrEsg5uTJa7LJJTSX7yIWzbTQKrE9+7JP20IP3l097wLwOupUHzDW9jC6kaK8+40T7v7//3qYcPNPGjJtihx5+tH36s5+wW2++2VYvX2bv/8jFFqmO415WY5XxaihI0ZK40kUCMfw9F9rbL3i7HX3Yofa2N59vPd1dRkAIk9aH/AjAoE0ykxQBgQz+EQAXC/bYeadMtBiTubm21t5w3nm2ePFid0/WrFljc+bMsX/9619266232jPznrGMHGrVJTJvDCqltq23Tdmk4X4c9EdUUbAuci5cHdwv991/rz3+2LMoaMwmj8M7CTtiiJ38bqARyxci1ov9sbKyBk+cgp1/1vnOceH+R9dwHVVuP7p141HAS5ZufVDBCn/WqvNJmPykHTVxBBTX7Io/XeFeBw1pyL8ddp3bx48wk0vbea97vV30hnfAimHawHWu6Ewffuvs7IY1rXVsaAL3siCUTNa8yspaa2/vtPPO/n+wZWb/842v4efqAQc9DU7XsmFCIQuAUlobdpLZQVpXy/ZZLQb1s44bZzfct8Tqa+J27tln2qmnnmpXXXUVbCr7c/4cHjTye21pbLXTTjnN3vPud9npZ5yK7Oudx7stkkE9k0kJZYqo8k4b1O3Pf/27VUIdZY0Y1xTFsaHXHSLPJFG/LN+LyAcYfwhKPQPf3DNPOsHueeQ+u/mh1XbO0Y0O5ZI5iSVjT0F+4PrgBhTlkkzlUA7BQOtmiQ3RTTpA2gvc4QPkKvfTZUgWisOiRfiXyRMfiTCXB5RytM4zQatqap2zgA/ta8QfhtoFMQGUrK2jz97yhrda36Z2++EX/8uOnjTRefh0dPYY/uWEVQElqKEP+XFwk+5WoViBXLdNG5G0158yCkraB/iSdtMN/7IaKLG2uroaax3RYqObR0PBojbnxtvtvHNfawdNmGhX/PkvgIUwrwGZMozRXjGZOt9mW+aAXVORJBqBD6oeZOySR//M8fruELxyqtCwylWwhOJHTYsGl+8AGZTPLbGh6cQG+8J/fASZ2OzxJT32wMK0pcOjLMG40ngwSSZNE7LVjxyeRCG2IRWwBau6rK+vZIcdepTr90D6s/UTPZCu7GVyLQKlNrWy4mPwe01qj0XUPpIL/ShjLsVkcI+dc9YZ9uG3XWhJvHBERtPJLMDQ0chtIhxQHPnDikqoD7FxtdgB/ShpSvkeGz8qaodMn+Q8gqT9lYE9iCJHdEaGeMmU+j6CzbK5pQUTTco++MEP2imnn25LlizFzgcVLaShmjji4WkUJXh6cCsyJj+aXgmRedBzxx134LuKAQTQTRlTDZAB5IDNVf67er/ZBgsrq8DpTK7XpkyZaJ/5xIcx55jdN3etXXfvCssFW3G8b0axVWXFMOwtNtq0v87ueGwFp4vBxgbtwrde5MWODh7UEH8/zLLu5wdYkKnANSYygLr99lvtR9//gU0cPcp+8cP/sT58POPxkPUleokKSQAu5j/ILrGBB+AohQ1aVCiuD4Cl+9GQii1FE5sHsBmA4ue1akA+BH8OhDCiTu4LRYkwSaJAwvulhCalsbXZFjy30KZMn2q33Xyrveq42RbG5in2FuQPjNV70ULDKd2xfX2daFevt8qqCuCetLpqtLlofr3LY4Cuif0lUwLvpdl1yiQ+9PV12Rc+/FF77P5H7VH8fxevydrv/rHQKYXGjaq2cEXQ1mzqt/nLllsKP91Nm5J22S9+YQ0NcBiOyfd6PxD+DgPyZfIUNWVJxmHvevvbcCUz+/1lP7BCsgfXASYwpo94FU4EyKNyiYVBBJiS7zDIc6DkM3SlgBCbZWUEb5morenP2WJYwHXr+5yixI99sIBt1CeNLJsT6YBOHuom7lSUUs29gLIWYjFPf82Z9o8r/2ZnnX22+y2B47vMMIOb2FmEYqsBiHffMQefXb81VFfgrxqwCij3Zt9wkXBRZDYtQXmOkeN5iPMHWUAKuYT97Dv/bce/7nXIh1FLZFK2aG3CFq7r49oKsPJZZEeADEv+s5//xC5637tZoLJOHBg8nqH+vrw8D/XrGILjF6AC1tvDJNdkZdJd8MbzoRZZ+/B7304A7xQ0pfjDYsxTiFEW75emxmrrwjIR8it3AMAAVVkmaAKWsq8YsUSowZb319iNTybtN9evQEmy1vp6e9G+auJCrYiyGFnvs4NGh60q2o1TQReudxjgoaBY5r1IFPoMBsjLg4JpRHOjvReHhMeffBTwmFXEkHMBRhRQFnB+yKYxaYSILsFm2LWhzeY9NR9wmTXUkUMIGKVQREl7q5hMyaBYIekDWyNX27apkyvgH2YXH9eQLvRZfUvUzjhmhr3zdSfaUYe0WM6XYAtae1fOquvH2uf+80vW2dNjb73ofbC6LEvI3Qda23q5O9CubghcT31LE/JXGg+dW+zmf99m9VU++9TF70ZZ2g4LCwVEqZFXigE0js3NDYDAYDFxumOCFwByCPmvhLE9a3X2zOJuux3zgeYpGLFaXFmPOXgKWM/aoqUrbcSEejvmyCl41sAuhsbYpvaMLVjQbfMXbcSIjwMBwKRHR3V160RFY1Dbk199uo0aPcIuvOAt9qY3v8kOP/RQ/GkBHUZ85cCRyWX9qlXYDTmomAPscag2zgbIiE676p4DA1JKEcJQ8CW3NJpS1hnA7H2Xh7r7Ufcce8QkW7Rovs2ejra1lLQbHthoDz3wkE2bMd3CsThUErnWkREWEV5h2OndUxq50wzxP8OA3G8PUJMIAKTlala0z3z6M1YPgg6bPtFq4FmLHZ0WhUrlmNg52E3mq40e0eDkRSlOoooVBHnZfAXuANV29e2LrL0vbXjVWTXs4vGHNdvUCXj7pHtxvfPZtDGNTF2/RQtryUqQx+4ZttGEch10bJPNOqjaHpy33hav7kLmQ4EioCH8ybYIbbM6jPhJ+MXLLvuZ/fRnP7Xx4yeSpeDj9tY3vdVqq5st00tOnBUrnUxbwgmgtioKq8pYFAMG2yr8CDZyZPCj8akl5njjJrInIAc7ZhsqijIWsGKzxJwRwxmgCZCdOrXeVsKyfuhDb7c777jdUsU02fbkuE+8J+OT1raEjXJAb7TfnuTePLFba/Zmh8N97d4d8MELzrnlNlu/ZjWsqx8lDOkSeZVZIJeHHOIiRxoeJh1enux7ximH2OMLN0ERG21Db9zum99rv7n2KVvf77c0Rpax48bb+Wcfb1Naw1aR7QCqCasMpJBLs2hZC9aL0ieJ6WDZypR19RXZ+m3E6Fo75YSp9obXHIXMitxaTKAkIj2lFgNkOaLCrDZWtIYqv9XHS9bXudo++6lPWWtri33n299ANs3Agra7aA2hsroCLSgi6VaxivpCMZOEWDXVxnCS38j1AHpmoBzVPSpXsBUrViCSJgna7rU4roOnHHOQzX96qV159ZXkDwKICuJWPyxmMh8daG2YQu7nJ5okkl7ubRGiQaox4rfhEPDMwoU2fcJICxPVQOiupfsIN4Ky9KFAuei977eLLv6UdaYqbPm6DVaUq120wUVLlDBTbOjugYKMxuSQgeoQFcJxBSIjcrmw3TW3zRasLLGPR7EEA9LB2oypXXb0UROsZUTY3vnaGXbPw8/ZknVoUAIRi1dEoLg+e/PZh1miuw33vT57evEGWyFs+eP2ne9/3X6CkuWQaYeTZ7XOfNkuC+eg3o6ZhJmFtS439MKwsWkb2Ry1BcsXKYuHhfBpTaC8kv8stM/+cs2D9oX3HIFCaw2ug2ZNqJUPnl5vH//sl+zU899jVbWsDlBULVCikAdaG6aQ+/GJyi4ZhprMnT8PVg2HcdjC44890j786c/bohWLLYRyBJJlUYz5JXjRyoZW680rHtDIP5PGPteIL2kVCpGgdDJQnID1wD6u29hOpgKAihAYlWGfJKd9yYBNmXYokfivsQfuecK6+/L27JLl9tOf/8q6s1H75R8ftbmL1sCy5u3sEybbm045yFoqs5YidGzW5GqLpdZZo7/bDhnht4vOmmLvff0RduS0ehvbzKLhRxu6aC7n9OyhTvgcYFSlBS43P0DKQ3ErK3y2Eo4giVIomSpYtAK3QYB/yX9/206YBaiLKLqCeUtnUBqV+mzm+DpLQtn//Me/OBbY9QelVBLoA60NU8j9+ETFrhWQ7+pGIDEtwfCPtpHQCDvyiCl2wbs/ZVPGNtih0yZCqUijGK21bijdVdfNscq6ZmfayBF2JQ0sKUw9RQzH59GCQhgtXQo5759+KFkOUPqixF32h+0Xl/3WIo2jHEUaOX68vXnku+z1b7jAvv39S+'... 67914 more characters
+}
+🔧 Network configuration: { isTestingMode: true, targetChain: 'Base Sepolia', chainId: 84532 }
+🏭 Factory address lookup: {
+  isTestingMode: true,
+  factoryEnvVar: 'NEXT_PUBLIC_CLAIMABLE_NFT_FACTORY_84532',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A'
+}
+🔍 Verifying factory contract exists on blockchain...
+🔍 Verifying factory contract at: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+✅ Factory contract verified: {
+  address: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  hasCode: true,
+  codeLength: 26658
+}
+✅ Factory contract functions verified (legacy version): { deployedContracts: 46 }
+🚀 Initiating gasless deployment...
+🚀 Deploying claimable NFT via gasless relayer...
+📋 Deployment parameters: {
+  title: 'Snoopy NFT',
+  description: 'Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT',
+  creatorAddress: '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f',
+  chainId: 84532,
+  claimCode: 'SnoopyNFT'
+}
+🏷️ Generated symbol: SNOOPYNFT
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 Gasless relay payload: {
+  type: 'deployClaimableNFT',
+  name: 'Snoopy NFT',
+  symbol: 'SNOOPYNFT',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  userAddress: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+ ○ Compiling /api/gasless-relay ...
+ ✓ Compiled /api/gasless-relay in 1674ms (11554 modules)
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'deployClaimableNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899900', sufficient: true }
+🏭 Executing gasless ClaimableNFT deployment...
+🔍 ClaimableNFT deployment params: {
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  name: 'Snoopy NFT',
+  symbol: 'SNOOPYNFT',
+  baseTokenURI: 'https://ipfs.io/ipfs/',
+  owner: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless ClaimableNFT deployment...
+✅ ClaimableNFT deployment simulation successful, address: 0x325553eA59c95640af4D963eA968D9758306EbE3
+✅ Gasless transaction submitted by relayer: 0xbd658badc9474289a7815d18a17be9b15c6d45535e9456261c3ee60be46a5f73
+🎉 Gasless transaction confirmed: {
+  hash: '0xbd658badc9474289a7815d18a17be9b15c6d45535e9456261c3ee60be46a5f73',
+  status: 'success',
+  gasUsed: '2123532'
+}
+🔍 Looking for ClaimableNFTDeployed event in transaction logs...
+📄 Transaction receipt logs: 2 logs found
+🔍 Looking for event topic: 0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4
+🔍 Factory address: 0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A
+📄 Log: {
+  address: '0x325553ea59c95640af4d963ea968d9758306ebe3',
+  topics: [
+    '0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0',
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x',
+  isFromFactory: false,
+  topicMatches: false
+}
+📄 Log: {
+  address: '0xeb91e58a59e7bcf8adc8cae4f12187826965503a',
+  topics: [
+    '0x656b419966b0d889ed440d99147265dd30ef2601fd02544f25866713f1e98dd4',
+    '0x000000000000000000000000325553ea59c95640af4d963ea968d9758306ebe3',
+    '0x000000000000000000000000209d896f4fd6c9c02dea6f7a70629236c1f027c1'
+  ],
+  data: '0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000687bdd38000000000000000000000000000000000000000000000000000000000000000a536e6f6f7079204e4654000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000009534e4f4f50594e46540000000000000000000000000000000000000000000000',
+  isFromFactory: true,
+  topicMatches: true
+}
+🎯 Extracted ClaimableNFT address: 0x325553ea59c95640af4d963ea968d9758306ebe3
+ POST /api/gasless-relay 200 in 3015ms
+📥 Gasless relay response status: 200 OK
+✅ Gasless deployment successful: {
+  success: true,
+  transactionHash: '0xbd658badc9474289a7815d18a17be9b15c6d45535e9456261c3ee60be46a5f73',
+  contractAddress: '0x325553ea59c95640af4d963ea968d9758306ebe3',
+  tokenId: null,
+  status: 'success',
+  gasUsed: '2123532',
+  relayerPaid: true
+}
+🎯 Contract deployed at: {
+  contractAddress: '0x325553ea59c95640af4d963ea968d9758306ebe3',
+  transactionHash: '0xbd658badc9474289a7815d18a17be9b15c6d45535e9456261c3ee60be46a5f73',
+  gasUsed: '2123532',
+  success: true
+}
+📝 Adding claim code to deployed contract using gasless relayer...
+📝 Adding claim code via gasless relayer...
+🔍 AddClaimCode parameters: {
+  contractAddress: '0x325553ea59c95640af4d963ea968d9758306ebe3',
+  claimCode: 'SnoopyNFT',
+  maxClaims: 0,
+  startTime: 1752948022,
+  endTime: 1784484022,
+  metadataURI: 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L',
+  chainId: 84532
+}
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+📤 AddClaimCode payload: {
+  type: 'addClaimCode',
+  contractAddress: '0x325553ea59c95640af4d963ea968d9758306ebe3',
+  claimCode: 'SnoopyNFT',
+  maxClaims: 0,
+  startTime: 1752948022,
+  endTime: 1784484022,
+  metadataURI: 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L',
+  chainId: 84532
+}
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'addClaimCode',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899900', sufficient: true }
+📝 Executing gasless addClaimCode with timestamp fix...
+🔍 AddClaimCode params: {
+  contractAddress: '0x325553ea59c95640af4d963ea968d9758306ebe3',
+  claimCode: 'SnoopyNFT',
+  maxClaims: 0,
+  startTime: 1752948022,
+  endTime: 1784484022,
+  metadataURI: 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  providedTimestamps: 'Using exact timestamps from request'
+}
+🔍 Simulating gasless addClaimCode...
+✅ AddClaimCode simulation successful
+✅ Gasless transaction submitted by relayer: 0xdf867e00b96395607235c935eff74983f5b8d5a0ce1f1e865e51a86ca909202e
+🎉 Gasless transaction confirmed: {
+  hash: '0xdf867e00b96395607235c935eff74983f5b8d5a0ce1f1e865e51a86ca909202e',
+  status: 'reverted',
+  gasUsed: '27665'
+}
+❌ Transaction reverted: {
+  hash: '0xdf867e00b96395607235c935eff74983f5b8d5a0ce1f1e865e51a86ca909202e',
+  status: 'reverted',
+  gasUsed: '27665'
+}
+ POST /api/gasless-relay 400 in 5227ms
+📥 AddClaimCode gasless relay response status: 400 Bad Request
+❌ AddClaimCode gasless relay error response: {
+  success: false,
+  error: 'Transaction reverted',
+  transactionHash: '0xdf867e00b96395607235c935eff74983f5b8d5a0ce1f1e865e51a86ca909202e',
+  contractAddress: null,
+  tokenId: null,
+  status: 'reverted',
+  gasUsed: '27665',
+  relayerPaid: true
+}
+Error adding claim code via gasless relayer: Error: AddClaimCode gasless failed: Transaction reverted
+    at addClaimCodeViaGaslessRelay (app/api/admin/nfts/route.ts:431:12)
+    at async deployClaimableNFTViaGaslessRelay (app/api/admin/nfts/route.ts:337:6)
+    at async POST (app/api/admin/nfts/route.ts:99:33)
+  429 |       const errorData = await gaslessResponse.json()
+  430 |       console.error('❌ AddClaimCode gasless relay error response:', errorData)
+> 431 |       throw new Error(`AddClaimCode gasless failed: ${errorData.error || errorData.message}`)
+      |            ^
+  432 |     }
+  433 |     
+  434 |     const addClaimCodeResult = await gaslessResponse.json()
+⚠️ Failed to add claim code via gasless relayer: AddClaimCode gasless failed: Transaction reverted
+✅ Claimable NFT contract deployed via factory: {
+  contractAddress: '0x325553ea59c95640af4d963ea968d9758306ebe3',
+  deploymentTxHash: '0xbd658badc9474289a7815d18a17be9b15c6d45535e9456261c3ee60be46a5f73',
+  network: 'Base Sepolia',
+  factoryAddress: '0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A',
+  gasUsed: undefined,
+  status: undefined
+}
+🔍 Verifying deployed contract exists...
+🔍 Verifying deployed contract at: 0x325553ea59c95640af4d963ea968d9758306ebe3
+✅ Deployed contract verified: {
+  address: '0x325553ea59c95640af4d963ea968d9758306ebe3',
+  hasCode: true,
+  codeLength: 18406
+}
+✅ Deployed contract functions verified: {
+  owner: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  name: 'Snoopy NFT'
+}
+🖼️ Processing image... { imageProvided: true, imageType: 'string', imageLength: 77914 }
+📤 Processing base64 image...
+🔄 Converting base64 to file...
+📄 Image details: { mimeType: 'image/png', extension: 'png' }
+📁 Created file: {
+  name: 'admin-upload-1752948028720.png',
+  size: 58417,
+  type: 'image/png'
+}
+✅ Firebase upload successful: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752948028721-admin-upload-1752948028720.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752948028721-admin-upload-1752948028720.png?alt=media&token=f76b18fc-80d2-407f-8ec9-89dde0de3d57',
+  fileName: '1752948028721-admin-upload-1752948028720.png'
+}
+✅ Base64 image uploaded successfully: {
+  path: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752948028721-admin-upload-1752948028720.png',
+  url: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752948028721-admin-upload-1752948028720.png?alt=media&token=f76b18fc-80d2-407f-8ec9-89dde0de3d57'
+}
+💾 Creating NFT record in database...
+🖼️ Image processing complete: {
+  hasProcessedImage: true,
+  hasUploadedImageUrl: true,
+  processedImagePath: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752948028721-admin-upload-1752948028720.png',
+  uploadedImageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752948028721-admin-upload-1752948028720.png?alt=media&token=f76b18fc-80d2-407f-8ec9-89dde0de3d57'
+}
+📝 NFT creation input: {
+  title: 'Snoopy NFT',
+  description: 'Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT Snoopy NFT',
+  image: 'admin-nft-images/0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f/1752948028721-admin-upload-1752948028720.png',
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752948028721-admin-upload-1752948028720.png?alt=media&token=f76b18fc-80d2-407f-8ec9-89dde0de3d57',
+  claimCode: 'SnoopyNFT',
+  startDate: '2025-07-19T17:59:38.632Z',
+  endDate: null,
+  status: 'published',
+  maxClaims: undefined,
+  network: 'baseSepolia',
+  contractAddress: '0x325553ea59c95640af4d963ea968d9758306ebe3',
+  deploymentTxHash: '0xbd658badc9474289a7815d18a17be9b15c6d45535e9456261c3ee60be46a5f73',
+  imageProvided: true,
+  uploadedImageUrl: true
+}
+🔗 Using Pinata for metadata upload
+ ○ Compiling /api/upload-metadata-to-pinata ...
+ ✓ Compiled /api/upload-metadata-to-pinata in 1774ms (11666 modules)
+ POST /api/upload-metadata-to-pinata 200 in 2306ms
+✅ NFT record created successfully: {
+  id: 'mdajzvtafjtsk7mrlbk',
+  title: 'Snoopy NFT',
+  status: 'published',
+  contractAddress: '0x325553ea59c95640af4d963ea968d9758306ebe3',
+  deploymentTxHash: '0xbd658badc9474289a7815d18a17be9b15c6d45535e9456261c3ee60be46a5f73',
+  hasImage: true,
+  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/art3-hub-78ef8.firebasestorage.app/o/admin-nft-images%2F0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f%2F1752948028721-admin-upload-1752948028720.png?alt=media&token=f76b18fc-80d2-407f-8ec9-89dde0de3d57',
+  metadataUrl: undefined,
+  metadataIpfsHash: undefined
+}
+ POST /api/admin/nfts 201 in 12728ms
+ GET /admin/nfts 200 in 43ms
+🔥 Using Firebase production service
+Farcaster frameConnector setup completed
+WalletConnect Core is already initialized. This is probably a mistake and can lead to unexpected behavior. Init() was called 4 times.
+ GET /api/admin/nfts 200 in 2281ms
+ GET /api/admin/nfts 200 in 234ms

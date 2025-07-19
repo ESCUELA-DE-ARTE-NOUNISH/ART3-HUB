@@ -5,13 +5,13 @@ import { NFTDetailView } from '@/components/admin/NFTDetailView'
 import { ArrowLeft, Pencil } from 'lucide-react'
 
 interface NFTDetailPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
-export default function NFTDetailPage({ params }: NFTDetailPageProps) {
-  const { id } = params
+export default async function NFTDetailPage({ params }: NFTDetailPageProps) {
+  const { id } = await params
   
   return (
     <div className="container max-w-4xl mx-auto p-4">

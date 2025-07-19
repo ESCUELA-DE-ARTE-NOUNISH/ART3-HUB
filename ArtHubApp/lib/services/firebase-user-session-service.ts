@@ -34,18 +34,24 @@ export class FirebaseUserSessionService {
       const existingSession = await getDoc(sessionRef)
       const now = getCurrentTimestamp()
       
-      // Process linked accounts from Privy
-      const linkedAccounts: PrivyLinkedAccount[] = privyUser.linkedAccounts?.map((account: any) => ({
-        type: account.type,
-        address: account.address,
-        email: account.email,
-        phone: account.phoneNumber,
-        subject: account.subject,
-        name: account.name,
-        username: account.username,
-        first_verified_at: account.firstVerifiedAt || now,
-        latest_verified_at: account.latestVerifiedAt || now
-      })) || []
+      // Process linked accounts from Privy - filter out undefined values
+      const linkedAccounts: PrivyLinkedAccount[] = privyUser.linkedAccounts?.map((account: any) => {
+        const processedAccount: any = {
+          type: account.type,
+          first_verified_at: account.firstVerifiedAt || now,
+          latest_verified_at: account.latestVerifiedAt || now
+        }
+        
+        // Only include fields that are not undefined
+        if (account.address !== undefined) processedAccount.address = account.address
+        if (account.email !== undefined) processedAccount.email = account.email
+        if (account.phoneNumber !== undefined) processedAccount.phone = account.phoneNumber
+        if (account.subject !== undefined) processedAccount.subject = account.subject
+        if (account.name !== undefined) processedAccount.name = account.name
+        if (account.username !== undefined) processedAccount.username = account.username
+        
+        return processedAccount as PrivyLinkedAccount
+      }) || []
 
       let sessionData: UserSession
 
@@ -56,8 +62,8 @@ export class FirebaseUserSessionService {
           ...currentData,
           last_login_date: now,
           total_logins: currentData.total_logins + 1,
-          email: privyUser.email?.address ?? currentData.email ?? null,
-          phone: privyUser.phone?.number ?? currentData.phone ?? null,
+          email: privyUser.email?.address || currentData.email || null,
+          phone: privyUser.phone?.number || currentData.phone || null,
           linked_accounts: linkedAccounts,
           updated_at: now
         }
@@ -65,8 +71,8 @@ export class FirebaseUserSessionService {
         await updateDoc(sessionRef, {
           last_login_date: now,
           total_logins: increment(1),
-          email: privyUser.email?.address ?? null,
-          phone: privyUser.phone?.number ?? null,
+          email: privyUser.email?.address || null,
+          phone: privyUser.phone?.number || null,
           linked_accounts: linkedAccounts,
           updated_at: now
         })
@@ -76,8 +82,8 @@ export class FirebaseUserSessionService {
           id: sessionId,
           wallet_address: walletAddress.toLowerCase(),
           privy_user_id: privyUser.id,
-          email: privyUser.email?.address ?? null,
-          phone: privyUser.phone?.number ?? null,
+          email: privyUser.email?.address || null,
+          phone: privyUser.phone?.number || null,
           linked_accounts: linkedAccounts,
           first_login_date: now,
           last_login_date: now,
@@ -143,14 +149,22 @@ export class FirebaseUserSessionService {
     }
 
     try {
-      const analyticsData: Omit<UserAnalytics, 'id'> = {
+      const analyticsData: any = {
         wallet_address: walletAddress.toLowerCase(),
         event_type: eventType,
         event_data: eventData,
-        user_agent: typeof window !== 'undefined' ? window.navigator?.userAgent : undefined,
-        session_id: additionalInfo.session_id,
-        ip_address: additionalInfo.ip_address,
         created_at: getCurrentTimestamp()
+      }
+      
+      // Only include fields that are not undefined
+      if (typeof window !== 'undefined' && window.navigator?.userAgent) {
+        analyticsData.user_agent = window.navigator.userAgent
+      }
+      if (additionalInfo.session_id !== undefined) {
+        analyticsData.session_id = additionalInfo.session_id
+      }
+      if (additionalInfo.ip_address !== undefined) {
+        analyticsData.ip_address = additionalInfo.ip_address
       }
 
       const analyticsRef = collection(db, COLLECTIONS.USER_ANALYTICS)

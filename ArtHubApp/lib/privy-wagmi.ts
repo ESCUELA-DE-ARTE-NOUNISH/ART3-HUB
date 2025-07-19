@@ -2,7 +2,6 @@ import { createConfig } from '@privy-io/wagmi'
 import { http } from 'wagmi'
 import { base, baseSepolia } from 'wagmi/chains'
 import { NextRequest } from 'next/server';
-import { COOKIES } from '@privy-io/react-auth';
 
 export interface PrivyLinkedAccount {
   type: string;
@@ -31,8 +30,8 @@ export interface PrivyUser {
 
 export async function getPrivyUserFromRequest(req: NextRequest): Promise<PrivyUser | null> {
   try {
-    // Extract token from cookies
-    const authToken = req.cookies.get(COOKIES.AUTH_TOKEN)?.value;
+    // Extract token from cookies using the correct cookie names
+    const authToken = req.cookies.get('privy-token')?.value;
     if (!authToken) {
       return null;
     }
@@ -40,7 +39,7 @@ export async function getPrivyUserFromRequest(req: NextRequest): Promise<PrivyUs
     // This is a simplified implementation - in a real app, you'd validate the token
     // with Privy's API and get the user data
     // For now, we'll extract the user ID from the auth cookies
-    const privyUserCookie = req.cookies.get(COOKIES.USER);
+    const privyUserCookie = req.cookies.get('privy-user');
     if (!privyUserCookie) {
       return null;
     }
@@ -59,33 +58,39 @@ export async function getPrivyUserFromRequest(req: NextRequest): Promise<PrivyUs
   }
 }
 
-// Get default chain based on testing mode
-const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
-const targetChain = isTestingMode ? baseSepolia : base
+// Function to create Wagmi config (called client-side)
+export function createPrivyWagmiConfig() {
+  // Get default chain based on testing mode
+  const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
+  const targetChain = isTestingMode ? baseSepolia : base
 
-// Configure chain-specific settings
-const chainConfig = {
-  [base.id]: {
-    ...base,
-    rpcUrls: {
-      ...base.rpcUrls,
-      default: { http: [process.env.NEXT_PUBLIC_BASE_RPC_URL || 'https://mainnet.base.org'] },
-    }
-  },
-  [baseSepolia.id]: {
-    ...baseSepolia,
-    rpcUrls: {
-      ...baseSepolia.rpcUrls,
-      default: { http: [process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org'] },
+  // Configure chain-specific settings
+  const chainConfig = {
+    [base.id]: {
+      ...base,
+      rpcUrls: {
+        ...base.rpcUrls,
+        default: { http: [process.env.NEXT_PUBLIC_BASE_RPC_URL || 'https://mainnet.base.org'] },
+      }
+    },
+    [baseSepolia.id]: {
+      ...baseSepolia,
+      rpcUrls: {
+        ...baseSepolia.rpcUrls,
+        default: { http: [process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org'] },
+      }
     }
   }
+
+  const configuredChain = chainConfig[targetChain.id]
+
+  return createConfig({
+    chains: [configuredChain],
+    transports: {
+      [configuredChain.id]: http(),
+    },
+  })
 }
 
-const configuredChain = chainConfig[targetChain.id]
-
-export const privyWagmiConfig = createConfig({
-  chains: [configuredChain],
-  transports: {
-    [configuredChain.id]: http(),
-  },
-})
+// Export config directly for server-side compatibility
+export const privyWagmiConfig = createPrivyWagmiConfig()

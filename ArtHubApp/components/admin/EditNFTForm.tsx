@@ -182,26 +182,17 @@ export function EditNFTForm({ nftId }: EditNFTFormProps) {
     setIsSaving(true)
     
     try {
-      // Handle image upload if there's a new image
+      // Handle image upload if there's a new image - convert to base64
       if (imageFile) {
-        const formData = new FormData()
-        formData.append('file', imageFile)
-        formData.append('nftId', nftId)
-        
-        // Upload image
-        const uploadResponse = await fetch('/api/admin/nfts/upload-image', {
-          method: 'POST',
-          body: formData,
+        const base64Image = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve(reader.result as string)
+          reader.onerror = reject
+          reader.readAsDataURL(imageFile)
         })
         
-        if (!uploadResponse.ok) {
-          throw new Error('Failed to upload image')
-        }
-        
-        const uploadResult = await uploadResponse.json()
-        
-        // Add image URL to values
-        values.image = uploadResult.imageUrl
+        // Add base64 image to values (admin API will handle upload and processing)
+        values.image = base64Image
       }
       
       // Update NFT
@@ -534,20 +525,6 @@ export function EditNFTForm({ nftId }: EditNFTFormProps) {
           )}
         />
 
-        {/* Image Preview */}
-        {nft.imageUrl && (
-          <div className="flex flex-col items-center p-4 border border-dashed rounded-lg bg-muted/50">
-            <div className="text-sm font-medium mb-2">Current Image</div>
-            <img 
-              src={nft.imageUrl} 
-              alt={nft.title} 
-              className="max-w-xs max-h-64 object-contain rounded-md" 
-            />
-            <p className="text-xs text-muted-foreground mt-2">
-              To change the image, please create a new NFT
-            </p>
-          </div>
-        )}
 
         {/* Submit Button */}
         <div className="flex justify-end gap-3">

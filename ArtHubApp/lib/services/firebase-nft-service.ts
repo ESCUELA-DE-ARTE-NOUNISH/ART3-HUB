@@ -85,14 +85,35 @@ export class FirebaseNFTService {
     }
 
     try {
-      const q = query(
-        collection(db, COLLECTIONS.NFTS),
-        where('wallet_address', '==', walletAddress.toLowerCase()),
-        orderBy('created_at', 'desc')
-      )
-      
-      const querySnapshot = await getDocs(q)
-      return querySnapshot.docs.map(doc => doc.data() as NFT)
+      // First try with composite index query
+      try {
+        const q = query(
+          collection(db, COLLECTIONS.NFTS),
+          where('wallet_address', '==', walletAddress.toLowerCase()),
+          orderBy('created_at', 'desc')
+        )
+        
+        const querySnapshot = await getDocs(q)
+        return querySnapshot.docs.map(doc => doc.data() as NFT)
+      } catch (indexError) {
+        console.log('🔄 Composite index not available, falling back to client-side sorting...')
+        
+        // Fallback: Get NFTs without orderBy and sort client-side
+        const q = query(
+          collection(db, COLLECTIONS.NFTS),
+          where('wallet_address', '==', walletAddress.toLowerCase())
+        )
+        
+        const querySnapshot = await getDocs(q)
+        const nfts = querySnapshot.docs.map(doc => doc.data() as NFT)
+        
+        // Sort client-side by created_at descending
+        return nfts.sort((a, b) => {
+          const dateA = new Date(a.created_at).getTime()
+          const dateB = new Date(b.created_at).getTime()
+          return dateB - dateA // Newest first
+        })
+      }
     } catch (error) {
       console.error('Error fetching NFTs by wallet:', error)
       return []

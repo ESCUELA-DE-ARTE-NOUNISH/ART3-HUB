@@ -1,0 +1,166 @@
+
+> my-v0-project@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.10.48:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 1660ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 4.6s (655 modules)
+ GET /api/health 404 in 4785ms
+ ✓ Compiled in 262ms (314 modules)
+ ○ Compiling /api/gasless-relay ...
+ ✓ Compiled /api/gasless-relay in 1364ms (1716 modules)
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'addClaimCode',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899898', sufficient: true }
+📝 Executing gasless addClaimCode with timestamp fix...
+🔍 AddClaimCode params: {
+  contractAddress: '0x325553ea59c95640af4d963ea968d9758306ebe3',
+  claimCode: 'SnoopyNFT',
+  maxClaims: 0,
+  startTime: 1752948426,
+  endTime: 1784484426,
+  metadataURI: 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  providedTimestamps: 'Using exact timestamps from request'
+}
+🔍 Simulating gasless addClaimCode...
+✅ AddClaimCode simulation successful
+✅ Gasless transaction submitted by relayer: 0xd786dd888f2d7a2f9ed3b2733a5ea6eed99089ab5ba92fa4714f058753a019aa
+🎉 Gasless transaction confirmed: {
+  hash: '0xd786dd888f2d7a2f9ed3b2733a5ea6eed99089ab5ba92fa4714f058753a019aa',
+  status: 'success',
+  gasUsed: '189051'
+}
+ POST /api/gasless-relay 200 in 2800ms
+ ✓ Compiled /api/nfts/claim in 280ms (1853 modules)
+🔥 Using Firebase production service
+Processing claim for code: SnoopyNFT
+User wallet: 0x274F2719A0A241f696D4f82f177160a2531cf4f5
+Transaction hash: undefined
+Token ID: undefined
+Found 1 NFT(s) with claim code "SnoopyNFT", using most recent: {
+  id: 'mdajzvtafjtsk7mrlbk',
+  title: 'Snoopy NFT',
+  contractAddress: '0x325553ea59c95640af4d963ea968d9758306ebe3',
+  createdAt: '2025-07-19T18:00:29.134Z'
+}
+Claim code validated successfully for NFT: Snoopy NFT
+Using contract address: 0x325553ea59c95640af4d963ea968d9758306ebe3
+🚀 Calling claimNFT on smart contract via gasless relayer...
+🌐 Calling gasless relay at: http://localhost:3000/api/gasless-relay
+🚀 Gasless relay API called
+📋 Relay request: {
+  type: 'claimNFT',
+  chainId: 84532,
+  hasVoucher: false,
+  hasSignature: false
+}
+🔧 Relayer setup: {
+  factoryAddress: null,
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1',
+  chainId: 84532
+}
+💰 Relayer balance check passed: { balance: '0.899898', sufficient: true }
+🎯 Executing gasless claimNFT...
+🔍 ClaimNFT params: {
+  contractAddress: '0x325553ea59c95640af4d963ea968d9758306ebe3',
+  claimCode: 'SnoopyNFT',
+  userAddress: '0x274F2719A0A241f696D4f82f177160a2531cf4f5',
+  relayerAccount: '0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1'
+}
+🔍 Simulating gasless claimNFT...
+✅ ClaimNFT simulation successful, token ID: 0n
+🔨 Executing claimNFT transaction...
+⏳ Waiting for claim transaction to complete...
+✅ Claim transaction completed: {
+  hash: '0x94deeaab8b8b5db74966edb9f1bc3ee7215ac231e1aaa0a799782f1c4cc2cc40',
+  status: 'success',
+  gasUsed: '279629'
+}
+🔍 Checking token ownership after claimNFT...
+🔍 Token ID from claimNFT: 0
+🔍 Contract address: 0x325553ea59c95640af4d963ea968d9758306ebe3
+✅ ClaimNFT transaction completed successfully
+🔍 Assuming token was minted directly to user (no transfer needed)
+✅ Gasless transaction submitted by relayer: 0x94deeaab8b8b5db74966edb9f1bc3ee7215ac231e1aaa0a799782f1c4cc2cc40
+🎉 Gasless transaction confirmed: {
+  hash: '0x94deeaab8b8b5db74966edb9f1bc3ee7215ac231e1aaa0a799782f1c4cc2cc40',
+  status: 'success',
+  gasUsed: '279629'
+}
+🔍 Token ID will be extracted from successful claim transaction...
+ POST /api/gasless-relay 200 in 1740ms
+✅ Blockchain claim successful: {
+  success: true,
+  transactionHash: '0x94deeaab8b8b5db74966edb9f1bc3ee7215ac231e1aaa0a799782f1c4cc2cc40',
+  contractAddress: null,
+  tokenId: 0,
+  status: 'success',
+  gasUsed: '279629',
+  relayerPaid: true
+}
+NFT claimed successfully: {
+  nftId: 'mdajzvtafjtsk7mrlbk',
+  userWallet: '0x274F2719A0A241f696D4f82f177160a2531cf4f5',
+  txHash: '0x94deeaab8b8b5db74966edb9f1bc3ee7215ac231e1aaa0a799782f1c4cc2cc40',
+  tokenId: 0,
+  contractAddress: '0x325553ea59c95640af4d963ea968d9758306ebe3',
+  claimCode: 'SnoopyNFT'
+}
+Claim processed successfully: {
+  success: true,
+  message: 'NFT claimed successfully',
+  claim: {
+    id: 'mdak8qb3oi91k3yatc',
+    nftId: 'mdajzvtafjtsk7mrlbk',
+    userWallet: '0x274f2719a0a241f696d4f82f177160a2531cf4f5',
+    claimDate: '2025-07-19T18:07:21.903Z',
+    txHash: '0x94deeaab8b8b5db74966edb9f1bc3ee7215ac231e1aaa0a799782f1c4cc2cc40',
+    tokenId: 0,
+    contractAddress: '0x325553ea59c95640af4d963ea968d9758306ebe3',
+    claimCode: 'SnoopyNFT',
+    status: 'minted'
+  },
+  txHash: '0x94deeaab8b8b5db74966edb9f1bc3ee7215ac231e1aaa0a799782f1c4cc2cc40',
+  tokenId: 0,
+  contractAddress: '0x325553ea59c95640af4d963ea968d9758306ebe3',
+  network: 'baseSepolia'
+}
+ POST /api/nfts/claim 200 in 2800ms
+ ✓ Compiled /middleware in 136ms (131 modules)
+ ○ Compiling /api/user-profile ...
+ ✓ Compiled /api/user-profile in 12.4s (14143 modules)
+🔥 Using Firebase production service
+Firebase config: {
+  projectId: 'art3-hub-78ef8',
+  authDomain: 'art3-hub-78ef8.firebaseapp.com',
+  isConfigured: true
+}
+Fetching profile for wallet: 0xc2564e41b7f5cb66d2d99466450cfebce9e8228f
+Profile result: {
+  created_at: '2025-07-17T05:05:38.975Z',
+  updated_at: '2025-07-17T05:05:38.975Z',
+  profile_complete: false,
+  wallet_address: '0xc2564e41b7f5cb66d2d99466450cfebce9e8228f',
+  id: '0xc2564e41b7f5cb66d2d99466450cfebce9e8228f'
+}
+ GET /api/user-profile?wallet_address=0xc2564e41b7f5cb66d2d99466450cfebce9e8228f 200 in 12874ms
+ GET / 200 in 13348ms
+ ✓ Compiled in 848ms (6227 modules)
+ ✓ Compiled in 365ms (6227 modules)

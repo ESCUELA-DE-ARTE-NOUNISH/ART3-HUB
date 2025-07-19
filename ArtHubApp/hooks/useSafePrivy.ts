@@ -5,6 +5,17 @@ import { useMiniKit } from '@coinbase/onchainkit/minikit'
 
 // Safe Privy hook that handles MiniKit mode gracefully
 export function useSafePrivy() {
+  // Check if we're on the client side
+  if (typeof window === 'undefined') {
+    return {
+      authenticated: false,
+      login: () => {},
+      logout: () => {},
+      user: null,
+      ready: false,
+    }
+  }
+
   try {
     const { context } = useMiniKit()
     const isMiniKit = !!context
@@ -36,6 +47,14 @@ export function useSafePrivy() {
 
 // Safe Wallets hook that handles MiniKit mode gracefully
 export function useSafeWallets() {
+  // Check if we're on the client side
+  if (typeof window === 'undefined') {
+    return {
+      wallets: [],
+      ready: false,
+    }
+  }
+
   try {
     const { context } = useMiniKit()
     const isMiniKit = !!context

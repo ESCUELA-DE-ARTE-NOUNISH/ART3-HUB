@@ -122,26 +122,18 @@ export function CreateNFTForm() {
     setIsSubmitting(true)
 
     try {
-      // First, upload the image
-      const formData = new FormData()
-      formData.append('file', imageFile)
-      
-      const uploadResponse = await fetch('/api/upload-to-pinata', {
-        method: 'POST',
-        body: formData,
+      // Convert image file to base64
+      const base64Image = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = reject
+        reader.readAsDataURL(imageFile)
       })
-      
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to upload image')
-      }
-      
-      const uploadData = await uploadResponse.json()
-      const imageHash = uploadData.ipfsHash
 
-      // Then, create the NFT with the image hash
+      // Create the NFT with base64 image (admin API will handle upload and processing)
       const nftData: CreateClaimableNFTInput = {
         ...values,
-        image: imageHash,
+        image: base64Image,
       }
 
       const createResponse = await fetch('/api/admin/nfts', {

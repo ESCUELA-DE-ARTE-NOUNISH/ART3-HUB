@@ -250,7 +250,7 @@ contract Art3HubClaimableNFT is ERC721URIStorage, ERC721Enumerable, Ownable {
      * @param interfaceId Interface ID to check
      * @return Boolean indicating if interface is supported
      */
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable, ERC721URIStorage) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721Enumerable, ERC721URIStorage) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
     
@@ -274,10 +274,24 @@ contract Art3HubClaimableNFT is ERC721URIStorage, ERC721Enumerable, Ownable {
     }
     
     /**
-     * @dev Override _burn function
-     * @param tokenId Token ID
+     * @dev Direct mint function for owner (bypasses claim codes)
+     * @param to Address to mint to
+     * @param metadataURI IPFS URI for the NFT metadata
+     * @return tokenId The token ID of the minted NFT
      */
-    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
-        super._burn(tokenId);
+    function ownerMint(address to, string calldata metadataURI) external onlyOwner returns (uint256) {
+        require(to != address(0), "Cannot mint to zero address");
+        require(bytes(metadataURI).length > 0, "MetadataURI cannot be empty");
+        require(_tokenIdCounter < maxSupply, "Maximum supply reached");
+        
+        // Mint NFT
+        uint256 tokenId = _tokenIdCounter;
+        _tokenIdCounter++;
+        
+        _mint(to, tokenId);
+        _setTokenURI(tokenId, metadataURI);
+        
+        return tokenId;
     }
+    
 } 

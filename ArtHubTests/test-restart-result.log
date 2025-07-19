@@ -1,0 +1,33 @@
+🧪 Creating completely fresh NFT with unique claim code...
+📋 Step 1: Creating admin NFT with working addClaimCode system...
+🔍 Creating NFT with claim code: WORKING1752947410701
+✅ NFT created: {
+  id: 'mdajmtol5eh6upf1gnf',
+  title: 'Working Test NFT 1752947410701',
+  claimCode: 'WORKING1752947410701',
+  contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d'
+}
+⏳ Step 2: Waiting 10 seconds for deployment and addClaimCode...
+📋 Step 3: Testing claim code validation...
+📋 Validation result: {
+  valid: true,
+  message: undefined,
+  contractAddress: undefined,
+  nftTitle: 'Working Test NFT 1752947410701'
+}
+📋 Step 4: Testing actual NFT claim...
+📄 Claim response status: 200
+📄 Claim response (first 300 chars): {"success":true,"message":"NFT claimed successfully","claim":{"id":"mdajn4m37h0g2t7h1nf","nftId":"mdajmtol5eh6upf1gnf","userWallet":"0x499d377ef114cc1bf7798cecbb38412701400daf","claimDate":"2025-07-19T17:50:34.011Z","txHash":"0x007a131528c659d46d5531ec28ffa97d9bfb7cbde9c1f63a859cd5bc66413473","token
+📄 Detailed claim result: {
+  success: true,
+  message: 'NFT claimed successfully',
+  txHash: '0x007a131528c659d46d5531ec28ffa97d9bfb7cbde9c1f63a859cd5bc66413473',
+  tokenId: 0,
+  contractAddress: '0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d'
+}
+🎉 SUCCESS: Complete fresh NFT mint-and-transfer flow working!
+🔗 Transaction Hash: 0x007a131528c659d46d5531ec28ffa97d9bfb7cbde9c1f63a859cd5bc66413473
+🏷️ Token ID: 0
+📝 Contract: 0x04efbcf38b0b55f6ff012f52b2809af4e3c3559d
+✅ The NFT minting process is fully operational!
+🎯 User can now use claim code: WORKING1752947410701
