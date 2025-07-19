@@ -28,7 +28,7 @@ import { getOpenSeaLink, parseNetworkString } from "@/lib/opensea-utils"
 const translations = {
   en: {
     title: "Create NFT",
-    subtitle: "Create NFTs with V4 gasless minting - Free Plan: 1 NFT/month, Master Plan: 10 NFTs/month, Elite Creator: 25 NFTs/month",
+    subtitle: "Create NFTs with V6 gasless minting - Free Plan: 1 NFT/month, Master Plan: 10 NFTs/month, Elite Creator: 25 NFTs/month",
     image: "Image",
     clickToUpload: "Click to upload",
     dragAndDrop: "or drag and drop",

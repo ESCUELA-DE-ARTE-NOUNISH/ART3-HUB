@@ -44,6 +44,20 @@ const ART3HUB_FACTORY_V4_ABI = [
     "type": "function"
   },
   {
+    "inputs": [{"name": "user", "type": "address"}],
+    "name": "getUserSubscriptionInfoV5",
+    "outputs": [
+      {"name": "planName", "type": "string"},
+      {"name": "nftsMinted", "type": "uint256"},
+      {"name": "nftLimit", "type": "uint256"},
+      {"name": "isActive", "type": "bool"},
+      {"name": "collectionsCreated", "type": "uint256"},
+      {"name": "collectionNames", "type": "string[]"}
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "totalCollections",
     "outputs": [{"name": "", "type": "uint256"}],
@@ -352,18 +366,31 @@ export class Art3HubV4Service {
     })
   }
 
-  // Get user subscription from V4 contract with Enhanced Factory Integration
+  // Get user subscription from V4/V6 contract with Enhanced Factory Integration
   async getUserSubscription(userAddress: Address): Promise<V4SubscriptionInfo> {
     try {
-      console.log('🔍 Getting V4 subscription for user:', userAddress)
+      console.log('🔍 Getting V4/V6 subscription for user:', userAddress)
       
-      // Use enhanced factory method for better UI integration
-      const factoryResult = await this.publicClient.readContract({
-        address: this.factoryAddress,
-        abi: ART3HUB_FACTORY_V4_ABI,
-        functionName: 'getUserSubscriptionInfo',
-        args: [userAddress]
-      })
+      // Try V6 function first, fallback to V4
+      let factoryResult: any
+      try {
+        factoryResult = await this.publicClient.readContract({
+          address: this.factoryAddress,
+          abi: ART3HUB_FACTORY_V4_ABI,
+          functionName: 'getUserSubscriptionInfoV5',
+          args: [userAddress]
+        })
+        console.log('✅ Using V6 getUserSubscriptionInfoV5 function')
+      } catch (error) {
+        console.log('⚠️ V6 function failed, trying V4 fallback:', error)
+        factoryResult = await this.publicClient.readContract({
+          address: this.factoryAddress,
+          abi: ART3HUB_FACTORY_V4_ABI,
+          functionName: 'getUserSubscriptionInfo',
+          args: [userAddress]
+        })
+        console.log('✅ Using V4 getUserSubscriptionInfo function')
+      }
       
       // Factory returns: [planName, nftsMinted, nftLimit, isActive]
       const [planName, nftsMinted, nftLimit, isActive] = factoryResult
