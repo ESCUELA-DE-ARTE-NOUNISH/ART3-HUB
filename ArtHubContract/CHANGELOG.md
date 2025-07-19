@@ -5,11 +5,39 @@ All notable changes to the Art3 Hub smart contracts will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.0] - 2025-01-17
+
+### 🔥 **V6 Major Release: Fresh Contract Deployment with Firebase Integration**
+
+Art3Hub V6 represents a complete fresh start with new smart contract deployment on Base Sepolia, designed to work seamlessly with the new Firebase backend architecture.
+
+#### Fresh V6 Contract Deployment
+- **🆕 Factory V6**: `0xbF47f26c4e038038bf75E20755012Cd6997c9AfA` - Brand new factory deployment
+- **🆕 Subscription V6**: `0x4BF512C0eF46FD7C5F3F9522426E3F0413A8dB77` - Enhanced subscription management
+- **🆕 Collection V6 Implementation**: `0x723D8583b56456A0343589114228281F37a3b290` - Optimized collection contract
+- **🆕 Admin Wallet**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f` - Environment-based admin configuration
+- **🆕 Treasury Wallet**: `0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9` - Secure treasury management
+- **🆕 Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1` - Enhanced gasless functionality
+
+#### Enhanced Features
+- **🛡️ Admin Management**: Environment-based admin wallet configuration with CRUD operations
+- **⚡ Base Network Focus**: Optimized specifically for Base blockchain performance
+- **🔐 Enhanced Security**: Environment variable-based configuration for better security
+- **📊 Platform Analytics**: Advanced metrics and monitoring capabilities
+- **🤝 Firebase Integration**: Designed to work seamlessly with Firebase Firestore backend
+
+#### Technical Improvements
+- **✅ All Contracts Verified**: Complete verification on Base Sepolia Explorer
+- **🎯 Clean Architecture**: Fresh deployment eliminates legacy contract dependencies
+- **⚡ Gas Optimization**: Improved gas efficiency for all operations
+- **🔄 Meta-Transaction Support**: Enhanced EIP-712 gasless functionality
+- **📈 Scalability**: Designed for high-volume operations and future growth
+
 ## [4.0.0] - 2025-06-21
 
 ### 🚀 **Major Release: Art3Hub V4 - Elite Creator Plan & Enhanced Subscription Management**
 
-Art3Hub V4 introduces the Elite Creator plan for professional artists and fixes the Free plan duration, providing a comprehensive three-tier subscription system with enhanced functionality.
+Art3Hub V4 introduced the Elite Creator plan for professional artists and fixed the Free plan duration, providing a comprehensive three-tier subscription system with enhanced functionality.
 
 ### 🆕 Added
 
