@@ -2,10 +2,29 @@ import { NextRequest, NextResponse } from 'next/server'
 import { NFTClaimService } from '@/lib/services/nft-claim-service'
 import { getSessionUserAddress } from '@/lib/utils'
 
-// ABI snippet for the NFT contract
-const NFT_ABI = [
-  "function mint(address to, string memory _tokenURI) external returns (uint256)"
-]
+// ABI for ClaimableNFT contract
+const CLAIMABLE_NFT_ABI = [
+  {
+    inputs: [{ name: "claimCode", type: "string" }],
+    name: "claimNFT",
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    inputs: [
+      { name: "claimCode", type: "string" },
+      { name: "user", type: "address" }
+    ],
+    name: "validateClaimCode",
+    outputs: [
+      { name: "valid", type: "bool" },
+      { name: "message", type: "string" }
+    ],
+    stateMutability: "view",
+    type: "function"
+  }
+] as const
 
 export async function POST(req: NextRequest) {
   try {
@@ -54,12 +73,48 @@ export async function POST(req: NextRequest) {
     
     console.log("Using contract address:", contractAddress)
     
+    // Call the smart contract's claimNFT function via gasless relayer
+    let blockchainResult;
+    try {
+      console.log("🚀 Calling claimNFT on smart contract via gasless relayer...")
+      
+      // Call gasless relayer to execute claimNFT on the contract
+      const gaslessResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/gasless-relay`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          type: 'claimNFT',
+          contractAddress,
+          claimCode,
+          userAddress: walletAddress,
+          chainId: 84532 // Base Sepolia for now
+        })
+      });
+      
+      if (!gaslessResponse.ok) {
+        const errorData = await gaslessResponse.json();
+        throw new Error(`Gasless relay failed: ${errorData.error || errorData.message}`);
+      }
+      
+      blockchainResult = await gaslessResponse.json();
+      console.log("✅ Blockchain claim successful:", blockchainResult);
+      
+    } catch (blockchainError) {
+      console.error("❌ Blockchain claim failed:", blockchainError);
+      return NextResponse.json({ 
+        success: false, 
+        message: `Failed to claim NFT on blockchain: ${blockchainError instanceof Error ? blockchainError.message : 'Unknown error'}`
+      });
+    }
+    
     // Process the claim in our database with transaction details
     const claimResult = await NFTClaimService.processClaim(
       dbValidation.nft!.id, 
       walletAddress,
-      txHash,
-      tokenId,
+      blockchainResult.transactionHash || blockchainResult.txHash,
+      blockchainResult.tokenId,
       contractAddress // Use the contract address from the NFT record
     )
     

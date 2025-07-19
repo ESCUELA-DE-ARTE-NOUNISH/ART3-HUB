@@ -320,17 +320,24 @@ export class NFTClaimService {
     }
     
     try {
-      // Find NFT with this claim code
+      // Find NFT with this claim code - case insensitive comparison
       const nftsRef = collection(db, COLLECTIONS.CLAIMABLE_NFTS)
-      const q = query(nftsRef, where('claimCode', '==', claimCode), where('status', '==', 'published'))
-      const snapshot = await getDocs(q)
+      const snapshot = await getDocs(nftsRef)
       
-      if (snapshot.empty) {
+      // Manual filtering for case-insensitive comparison
+      const matchingDocs = snapshot.docs.filter(doc => {
+        const data = doc.data()
+        return data.claimCode && 
+               data.claimCode.toLowerCase() === claimCode.toLowerCase() &&
+               data.status === 'published'
+      })
+      
+      if (matchingDocs.length === 0) {
         return { valid: false, message: 'Invalid claim code' }
       }
       
-      const nft = snapshot.docs[0].data() as ClaimableNFT
-      nft.id = snapshot.docs[0].id
+      const nft = matchingDocs[0].data() as ClaimableNFT
+      nft.id = matchingDocs[0].id
       
       const now = new Date()
       const startDate = new Date(nft.startDate)

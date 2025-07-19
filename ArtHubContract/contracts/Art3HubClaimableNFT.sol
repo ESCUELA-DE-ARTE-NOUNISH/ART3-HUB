@@ -250,7 +250,7 @@ contract Art3HubClaimableNFT is ERC721URIStorage, ERC721Enumerable, Ownable {
      * @param interfaceId Interface ID to check
      * @return Boolean indicating if interface is supported
      */
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable, ERC721URIStorage) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721Enumerable, ERC721URIStorage) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
     
@@ -273,11 +273,4 @@ contract Art3HubClaimableNFT is ERC721URIStorage, ERC721Enumerable, Ownable {
         super._increaseBalance(account, value);
     }
     
-    /**
-     * @dev Override _burn function
-     * @param tokenId Token ID
-     */
-    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
-        super._burn(tokenId);
-    }
 } 
