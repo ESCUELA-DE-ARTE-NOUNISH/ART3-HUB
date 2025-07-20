@@ -137,7 +137,7 @@ export class NFTClaimService {
           
           // Upload image to IPFS
           const imageUploadResult = await IPFSService.uploadFile(imageFile)
-          imageUrl = imageUploadResult.gatewayUrl
+          imageUrl = imageUploadResult.gatewayUrl // Use gateway URL format
           ipfsImageHash = imageUploadResult.ipfsHash
           
           console.log('✅ Image uploaded to IPFS:', {

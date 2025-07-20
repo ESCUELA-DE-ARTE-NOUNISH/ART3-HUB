@@ -311,6 +311,18 @@ export default function MyNFTsPage() {
       return nft.image_ipfs_hash // Direct Firebase Storage URL
     }
     
+    // Check if image_ipfs_hash is already a full gateway URL
+    if (nft.image_ipfs_hash && nft.image_ipfs_hash.startsWith('https://')) {
+      return nft.image_ipfs_hash // Direct gateway URL
+    }
+    
+    // Check if image_ipfs_hash uses ipfs:// protocol
+    if (nft.image_ipfs_hash && nft.image_ipfs_hash.startsWith('ipfs://')) {
+      // Extract the hash from ipfs:// URL and convert to gateway URL
+      const hash = nft.image_ipfs_hash.replace('ipfs://', '')
+      return `https://gateway.pinata.cloud/ipfs/${hash}`
+    }
+    
     // If the image_ipfs_hash is a valid IPFS hash (not placeholder), use IPFS
     if (nft.image_ipfs_hash && nft.image_ipfs_hash !== 'QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L') {
       return `https://gateway.pinata.cloud/ipfs/${nft.image_ipfs_hash}`
