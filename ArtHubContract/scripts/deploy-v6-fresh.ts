@@ -96,7 +96,7 @@ async function main() {
       ? "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" // Base mainnet USDC
       : "0x036CbD53842c5426634e7929541eC2318f3dCF7e"; // Base Sepolia USDC
     
-    const gaslessRelayer = deployer.address; // Temporary gasless relayer (same as deployer)
+    const gaslessRelayer = "0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1"; // Gasless relayer address
     const factoryPlaceholder = deployer.address; // Temporary factory address (will be updated)
     
     const subscriptionArgs = [

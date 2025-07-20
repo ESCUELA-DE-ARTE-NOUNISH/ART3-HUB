@@ -31,15 +31,16 @@
 - **Purpose**: ElizaOS-based AI agent for Web3 education
 - **Features**: Conversational guidance, memory persistence
 
-## 🔗 V6 Contract Addresses (Base Sepolia)
+## 🔗 V6 Contract Addresses (Base Sepolia) 
 
 | Contract | Address | Purpose |
 |----------|---------|---------|
-| **Factory V6** | `0xbF47f26c4e038038bf75E20755012Cd6997c9AfA` | Collection creation |
-| **Subscription V6** | `0x4BF512C0eF46FD7C5F3F9522426E3F0413A8dB77` | Subscription management |
-| **Collection V6** | `0x723D8583b56456A0343589114228281F37a3b290` | NFT implementation |
-| **ClaimableNFT Factory** | `0xeB91E58A59E7Bcf8ADC8cae4f12187826965503A` | Claimable NFT factory pattern |
+| **Factory V6** | `0x6A2a69a88b92B8566354ECE538aF46fC783b9DFd` | Collection creation |
+| **Subscription V6** | `0xd0611f925994fddD433a464886Ae3eF58Efb9EC9` | Subscription management |
+| **Collection V6** | `0xAecDa231ed8d8b9f5E9e39B3624FE2D073D86fB0` | NFT implementation |
+| **ClaimableNFT Factory** | `0x55248aC366d3F26b6aa480ed5fD82130C8C6842d` | Claimable NFT factory pattern |
 | **Admin Wallet** | `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f` | Platform admin |
+| **Gasless Relayer** | `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1` | Gasless transaction relayer |
 
 ## 🌟 Key Features
 

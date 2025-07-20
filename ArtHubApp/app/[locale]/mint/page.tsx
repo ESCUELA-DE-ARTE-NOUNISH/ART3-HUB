@@ -422,7 +422,7 @@ export default function MintPage() {
       <Header />
       
       <main className="container mx-auto px-4 py-8 pt-20">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto mb-12">
           {/* Page Header */}
           <div className="text-center mb-8">
             <div className="text-6xl mb-4">🎁</div>

@@ -1,9 +1,28 @@
+"use client"
+
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ClaimableNFTList } from '@/components/admin/ClaimableNFTList'
 import { ArrowLeft, Plus } from 'lucide-react'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAccount } from 'wagmi'
 
 export default function NFTsPage() {
+  const router = useRouter()
+  const { isConnected } = useAccount()
+
+  // Only redirect if user explicitly disconnects, not on initial load
+  useEffect(() => {
+    // Only redirect after the component has mounted and user is definitely disconnected
+    const checkConnection = setTimeout(() => {
+      if (!isConnected) {
+        router.push('/')
+      }
+    }, 1000) // Give time for wallet connection to be established
+
+    return () => clearTimeout(checkConnection)
+  }, [isConnected, router])
   return (
     <div className="container max-w-6xl mx-auto p-4">
       <div className="mb-6">

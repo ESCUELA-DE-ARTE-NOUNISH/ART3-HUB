@@ -37,6 +37,7 @@ export class FirebaseNFTService {
         id: nftId,
         ...nftData,
         wallet_address: nftData.wallet_address.toLowerCase(),
+        source: nftData.source || 'user_created',
         created_at: timestamp,
         updated_at: timestamp
       }
@@ -298,6 +299,68 @@ export class FirebaseNFTService {
         networkDistribution: {},
         averageRoyalty: 0
       }
+    }
+  }
+
+  /**
+   * Get NFTs by wallet address (only user-created NFTs for membership quota)
+   */
+  static async getUserCreatedNFTsByWallet(walletAddress: string): Promise<NFT[]> {
+    if (!isFirebaseConfigured()) {
+      console.warn('Firebase not configured, skipping NFT fetch')
+      return []
+    }
+
+    try {
+      const q = query(
+        collection(db, COLLECTIONS.NFTS),
+        where('wallet_address', '==', walletAddress.toLowerCase()),
+        where('source', '==', 'user_created')
+      )
+      
+      const querySnapshot = await getDocs(q)
+      const nfts = querySnapshot.docs.map(doc => doc.data() as NFT)
+      
+      // Sort client-side by created_at descending
+      return nfts.sort((a, b) => {
+        const dateA = new Date(a.created_at).getTime()
+        const dateB = new Date(b.created_at).getTime()
+        return dateB - dateA // Newest first
+      })
+    } catch (error) {
+      console.error('Error fetching user-created NFTs:', error)
+      return []
+    }
+  }
+
+  /**
+   * Get claimable NFTs by wallet address
+   */
+  static async getClaimableNFTsByWallet(walletAddress: string): Promise<NFT[]> {
+    if (!isFirebaseConfigured()) {
+      console.warn('Firebase not configured, skipping NFT fetch')
+      return []
+    }
+
+    try {
+      const q = query(
+        collection(db, COLLECTIONS.NFTS),
+        where('wallet_address', '==', walletAddress.toLowerCase()),
+        where('source', '==', 'claimable')
+      )
+      
+      const querySnapshot = await getDocs(q)
+      const nfts = querySnapshot.docs.map(doc => doc.data() as NFT)
+      
+      // Sort client-side by created_at descending
+      return nfts.sort((a, b) => {
+        const dateA = new Date(a.created_at).getTime()
+        const dateB = new Date(b.created_at).getTime()
+        return dateB - dateA // Newest first
+      })
+    } catch (error) {
+      console.error('Error fetching claimable NFTs:', error)
+      return []
     }
   }
 }

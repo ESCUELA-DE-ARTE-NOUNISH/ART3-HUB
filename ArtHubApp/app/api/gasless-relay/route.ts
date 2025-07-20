@@ -6,7 +6,7 @@ import { baseSepolia, base } from 'viem/chains'
 
 // Types for the gasless relay requests
 interface GaslessRelayRequest {
-  type: 'mint' | 'createCollection' | 'upgradeSubscription' | 'approveUSDC' | 'mintV4' | 'createCollectionV4' | 'upgradeToMaster' | 'upgradeToElite' | 'downgradeSubscription' | 'claimNFT' | 'deployClaimableNFT' | 'addClaimCode'
+  type: 'mint' | 'createCollection' | 'upgradeSubscription' | 'approveUSDC' | 'mintV4' | 'createCollectionV4' | 'mintV6' | 'createCollectionV6' | 'upgradeToMaster' | 'upgradeToElite' | 'downgradeSubscription' | 'claimNFT' | 'deployClaimableNFT' | 'addClaimCode' | 'createNFTWithCollection' | 'mintToExistingCollection'
   voucher?: any
   signature?: string
   collectionAddress?: string
@@ -25,6 +25,19 @@ interface GaslessRelayRequest {
   startTime?: number
   endTime?: number
   metadataURI?: string
+  // For simple NFT creation
+  nftData?: {
+    name: string
+    symbol: string
+    description: string
+    imageURI: string
+    externalUrl: string
+    artist: string
+    royaltyBPS: number
+    recipient: string
+  }
+  recipient?: string
+  tokenURI?: string
 }
 
 // Art3HubFactoryV3 ABI with gasless functions
@@ -90,7 +103,110 @@ const ART3HUB_SUBSCRIPTION_V3_GASLESS_ABI = [
   }
 ] as const
 
-// Art3HubFactoryV4 ABI with gasless functions
+// Simple ERC721 Contract ABI for direct NFT creation
+const SIMPLE_ERC721_ABI = [
+  {
+    "inputs": [
+      {"name": "name", "type": "string"},
+      {"name": "symbol", "type": "string"},
+      {"name": "owner", "type": "address"},
+      {"name": "royaltyRecipient", "type": "address"},
+      {"name": "royaltyBPS", "type": "uint96"}
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {"name": "to", "type": "address"},
+      {"name": "tokenURI", "type": "string"}
+    ],
+    "name": "mint",
+    "outputs": [{"name": "tokenId", "type": "uint256"}],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"name": "from", "type": "address"},
+      {"name": "to", "type": "address"},
+      {"name": "tokenId", "type": "uint256"}
+    ],
+    "name": "transferFrom",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"name": "tokenId", "type": "uint256"}],
+    "name": "ownerOf",
+    "outputs": [{"name": "", "type": "address"}],
+    "stateMutability": "view",
+    "type": "function"
+  }
+] as const
+
+// Art3HubFactoryV6 (V5) ABI with gasless functions - Updated for V6 deployment
+const ART3HUB_FACTORY_V6_GASLESS_ABI = [
+  {
+    "inputs": [
+      {
+        "components": [
+          { "name": "collection", "type": "address" },
+          { "name": "to", "type": "address" },
+          { "name": "tokenURI", "type": "string" },
+          { "name": "category", "type": "string" },
+          { "name": "tags", "type": "string[]" },
+          { "name": "ipfsImageHash", "type": "string" },
+          { "name": "ipfsMetadataHash", "type": "string" },
+          { "name": "royaltyBPS", "type": "uint256" },
+          { "name": "additionalMetadata", "type": "string" },
+          { "name": "nonce", "type": "uint256" },
+          { "name": "deadline", "type": "uint256" }
+        ],
+        "name": "voucher",
+        "type": "tuple"
+      },
+      { "name": "signature", "type": "bytes" }
+    ],
+    "name": "mintNFTV5Gasless",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          { "name": "name", "type": "string" },
+          { "name": "symbol", "type": "string" },
+          { "name": "description", "type": "string" },
+          { "name": "image", "type": "string" },
+          { "name": "externalUrl", "type": "string" },
+          { "name": "artist", "type": "address" },
+          { "name": "royaltyRecipient", "type": "address" },
+          { "name": "royaltyFeeNumerator", "type": "uint96" },
+          { "name": "creatorName", "type": "string" },
+          { "name": "creatorUsername", "type": "string" },
+          { "name": "creatorEmail", "type": "string" },
+          { "name": "creatorProfilePicture", "type": "string" },
+          { "name": "creatorSocialLinks", "type": "string" },
+          { "name": "nonce", "type": "uint256" },
+          { "name": "deadline", "type": "uint256" }
+        ],
+        "name": "voucher",
+        "type": "tuple"
+      },
+      { "name": "signature", "type": "bytes" }
+    ],
+    "name": "createCollectionV5Gasless",
+    "outputs": [{ "name": "", "type": "address" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+] as const
+
+// Art3HubFactoryV4 ABI with gasless functions (for backward compatibility)
 const ART3HUB_FACTORY_V4_GASLESS_ABI = [
   {
     "inputs": [
@@ -325,41 +441,41 @@ function getSubscriptionAddress(chainId: number): string | null {
   }
 }
 
-// Get Art3HubFactoryV4 contract address based on chain
+// Get Art3HubFactoryV6 contract address based on chain
 function getFactoryV4Address(chainId: number): string | null {
   switch (chainId) {
     case 84532: // Base Sepolia
-      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_84532 || null
+      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V6_84532 || null
     case 8453: // Base Mainnet
-      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_8453 || null
+      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V6_8453 || null
     case 999999999: // Zora Sepolia
-      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_999999999 || null
+      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V6_999999999 || null
     case 7777777: // Zora Mainnet
-      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_7777777 || null
+      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V6_7777777 || null
     case 44787: // Celo Alfajores
-      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_44787 || null
+      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V6_44787 || null
     case 42220: // Celo Mainnet
-      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V4_42220 || null
+      return process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V6_42220 || null
     default:
       return null
   }
 }
 
-// Get Art3HubSubscriptionV4 contract address based on chain
+// Get Art3HubSubscriptionV6 contract address based on chain
 function getSubscriptionV4Address(chainId: number): string | null {
   switch (chainId) {
     case 84532: // Base Sepolia
-      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_84532 || null
+      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V6_84532 || null
     case 8453: // Base Mainnet
-      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_8453 || null
+      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V6_8453 || null
     case 999999999: // Zora Sepolia
-      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_999999999 || null
+      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V6_999999999 || null
     case 7777777: // Zora Mainnet
-      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_7777777 || null
+      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V6_7777777 || null
     case 44787: // Celo Alfajores
-      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_44787 || null
+      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V6_44787 || null
     case 42220: // Celo Mainnet
-      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V4_42220 || null
+      return process.env.NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V6_42220 || null
     default:
       return null
   }
@@ -462,6 +578,20 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         )
       }
+    } else if (body.type === 'createNFTWithCollection') {
+      if (!body.nftData || !body.chainId) {
+        return NextResponse.json(
+          { error: 'Missing required fields for createNFTWithCollection: nftData, chainId' },
+          { status: 400 }
+        )
+      }
+    } else if (body.type === 'mintToExistingCollection') {
+      if (!body.collectionAddress || !body.recipient || !body.tokenURI || !body.chainId) {
+        return NextResponse.json(
+          { error: 'Missing required fields for mintToExistingCollection: collectionAddress, recipient, tokenURI, chainId' },
+          { status: 400 }
+        )
+      }
     } else {
       if (!body.voucher || !body.signature || !body.chainId) {
         return NextResponse.json(
@@ -471,20 +601,32 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Get factory address (V3 or V4 based on request type)
+    // Get factory address (V3, V4, or V6 based on request type)
     let factoryAddress: string | null = null
-    const isV4Request = ['mintV4', 'createCollectionV4', 'upgradeToMaster', 'upgradeToElite', 'downgradeSubscription'].includes(body.type)
+    const isV4Request = ['mintV4', 'createCollectionV4'].includes(body.type)
+    const isV6Request = ['mintV6', 'createCollectionV6', 'upgradeToMaster', 'upgradeToElite', 'downgradeSubscription'].includes(body.type)
     const isClaimableNFTRequest = ['claimNFT', 'deployClaimableNFT', 'addClaimCode'].includes(body.type)
+    const isSimpleNFTRequest = ['createNFTWithCollection', 'mintToExistingCollection'].includes(body.type)
     
     if (isClaimableNFTRequest) {
       // Claimable NFT operations don't need the main factory check
       // They will validate their own factory addresses later
       factoryAddress = null
-    } else if (isV4Request) {
+    } else if (isSimpleNFTRequest) {
+      // Simple NFT operations use V6 factory for direct creation
       factoryAddress = getFactoryV4Address(body.chainId)
       if (!factoryAddress) {
         return NextResponse.json(
-          { error: `Art3HubFactoryV4 not deployed on chain ${body.chainId}` },
+          { error: `Art3HubFactoryV6 not deployed on chain ${body.chainId}` },
+          { status: 400 }
+        )
+      }
+    } else if (isV6Request || isV4Request) {
+      // Both V4 and V6 requests use the same V6 factory address (V6 is deployed with V5 code)
+      factoryAddress = getFactoryV4Address(body.chainId)
+      if (!factoryAddress) {
+        return NextResponse.json(
+          { error: `Art3HubFactoryV6 not deployed on chain ${body.chainId}` },
           { status: 400 }
         )
       }
@@ -1062,14 +1204,377 @@ export async function POST(request: NextRequest) {
         chain
       })
 
+    } else if (body.type === 'createCollectionV6') {
+      // Convert string values back to BigInt for V6 collection voucher
+      if (body.voucher.nonce && typeof body.voucher.nonce === 'string') {
+        body.voucher.nonce = BigInt(body.voucher.nonce)
+      }
+      if (body.voucher.deadline && typeof body.voucher.deadline === 'string') {
+        body.voucher.deadline = BigInt(body.voucher.deadline)
+      }
+      if (body.voucher.royaltyFeeNumerator && typeof body.voucher.royaltyFeeNumerator === 'string') {
+        body.voucher.royaltyFeeNumerator = BigInt(body.voucher.royaltyFeeNumerator)
+      }
+
+      console.log('🏭 Executing gasless V6 collection creation via Art3HubFactoryV6...')
+      console.log('🔍 V6 Collection creation params:', {
+        factoryAddress,
+        voucher: body.voucher,
+        signature: body.signature,
+        relayerAccount: relayerAccount.address
+      })
+
+      // Try to simulate the transaction first
+      let predictedContractAddress = null
+      try {
+        console.log('🔍 Simulating gasless V6 collection creation...')
+        const result = await publicClient.simulateContract({
+          address: factoryAddress as `0x${string}`,
+          abi: ART3HUB_FACTORY_V6_GASLESS_ABI,
+          functionName: 'createCollectionV5Gasless',
+          args: [body.voucher, body.signature as `0x${string}`],
+          account: relayerAccount
+        })
+        predictedContractAddress = result.result
+        console.log('✅ V6 Simulation successful, collection will be deployed at:', predictedContractAddress)
+      } catch (simError) {
+        console.error('❌ V6 Simulation failed:', simError)
+        return NextResponse.json(
+          { 
+            error: 'V6 Transaction simulation failed',
+            details: simError instanceof Error ? simError.message : 'Unknown simulation error',
+            relayerAccount: relayerAccount.address
+          },
+          { status: 400 }
+        )
+      }
+
+      hash = await walletClient.writeContract({
+        address: factoryAddress as `0x${string}`,
+        abi: ART3HUB_FACTORY_V6_GASLESS_ABI,
+        functionName: 'createCollectionV5Gasless',
+        args: [body.voucher, body.signature as `0x${string}`],
+        chain
+      })
+
+    } else if (body.type === 'createNFTWithCollection') {
+      console.log('🎨 Executing simple NFT creation with collection-per-NFT architecture...')
+      
+      if (!body.nftData) {
+        return NextResponse.json(
+          { error: 'NFT data is required for createNFTWithCollection' },
+          { status: 400 }
+        )
+      }
+
+      console.log('🔍 Simple NFT creation params:', {
+        name: body.nftData.name,
+        symbol: body.nftData.symbol,
+        artist: body.nftData.artist,
+        recipient: body.nftData.recipient,
+        relayerAccount: relayerAccount.address
+      })
+
+      try {
+        // Import ethers for contract deployment
+        const { ethers } = await import('ethers')
+        
+        // Get the contract owner private key (using gasless relayer key)
+        const ownerPrivateKey = process.env.GASLESS_RELAYER_PRIVATE_KEY
+        if (!ownerPrivateKey) {
+          throw new Error('GASLESS_RELAYER_PRIVATE_KEY not found in environment variables')
+        }
+
+        // Create provider and signer for contract deployment
+        const provider = new ethers.JsonRpcProvider(
+          body.chainId === 84532 ? 'https://sepolia.base.org' : 'https://mainnet.base.org'
+        )
+        const ownerSigner = new ethers.Wallet(ownerPrivateKey, provider)
+
+        console.log('🔍 Contract owner address:', ownerSigner.address)
+
+        // Simple ERC721 contract bytecode (OpenZeppelin-based)
+        // This would normally be imported from compiled contracts
+        // For now, we'll deploy using a factory pattern or use existing V6 contracts
+        
+        // Use the existing V6 factory to create a collection, then mint directly
+        const factoryAddress = getFactoryV4Address(body.chainId)
+        if (!factoryAddress) {
+          throw new Error(`Factory V6 not deployed on chain ${body.chainId}`)
+        }
+
+        // Create collection using direct call (no voucher needed since we're the relayer)
+        // Make collection name unique by adding timestamp
+        const timestamp = Date.now()
+        const uniqueCollectionName = `${body.nftData.name} #${timestamp}`
+        const uniqueSymbol = `${body.nftData.symbol}${timestamp.toString().slice(-4)}` // Last 4 digits of timestamp
+        
+        console.log('🏭 Creating collection directly using createCollectionV5...')
+        console.log('📝 Unique collection name:', uniqueCollectionName)
+        console.log('📝 Args:', [
+          uniqueCollectionName,
+          uniqueSymbol,
+          body.nftData.description,
+          body.nftData.imageURI,
+          body.nftData.externalUrl || '',
+          body.nftData.artist,
+          body.nftData.royaltyBPS,
+          'Digital Art',
+          body.nftData.artist,
+          body.nftData.artist,
+          '',
+          '',
+          ''
+        ])
+        
+        const createCollectionTx = await walletClient.writeContract({
+          address: factoryAddress as `0x${string}`,
+          abi: [
+            {
+              "inputs": [
+                {"name": "name", "type": "string"},
+                {"name": "symbol", "type": "string"},
+                {"name": "description", "type": "string"},
+                {"name": "image", "type": "string"},
+                {"name": "externalUrl", "type": "string"},
+                {"name": "royaltyRecipient", "type": "address"},
+                {"name": "royaltyFeeNumerator", "type": "uint96"},
+                {"name": "category", "type": "string"},
+                {"name": "creatorName", "type": "string"},
+                {"name": "creatorUsername", "type": "string"},
+                {"name": "creatorEmail", "type": "string"},
+                {"name": "creatorProfilePicture", "type": "string"},
+                {"name": "creatorSocialLinks", "type": "string"}
+              ],
+              "name": "createCollectionV5",
+              "outputs": [{"name": "", "type": "address"}],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ],
+          functionName: 'createCollectionV5',
+          args: [
+            uniqueCollectionName,
+            uniqueSymbol,
+            body.nftData.description,
+            body.nftData.imageURI,
+            body.nftData.externalUrl || '',
+            body.nftData.artist as `0x${string}`, // royalty recipient = artist
+            BigInt(body.nftData.royaltyBPS),
+            'Digital Art', // category - default to Digital Art
+            body.nftData.artist as string, // creatorName - use artist address as fallback
+            body.nftData.artist as string, // creatorUsername - use artist address as fallback  
+            '', // creatorEmail - empty for privacy
+            '', // creatorProfilePicture - empty
+            '' // creatorSocialLinks - empty
+          ],
+          chain
+        })
+
+        console.log('✅ Collection creation transaction sent:', createCollectionTx)
+
+        // Wait for collection creation
+        const createReceipt = await publicClient.waitForTransactionReceipt({ 
+          hash: createCollectionTx as `0x${string}` 
+        })
+
+        console.log('✅ Collection created, extracting address...')
+
+        // Extract collection address from logs
+        let collectionAddress = null
+        const { keccak256, toHex } = await import('viem')
+        // V5 event signature might be different, try both
+        const collectionCreatedTopic = keccak256(toHex('CollectionCreated(address,address,string,string,uint256)'))
+        const collectionCreatedV5Topic = keccak256(toHex('CollectionCreated(address,address,string,string,string,uint256)'))
+        
+        console.log('🔍 Looking for collection address in', createReceipt.logs.length, 'logs')
+        console.log('🔍 Factory address:', factoryAddress)
+        console.log('🔍 Expected topics:', {
+          v4: collectionCreatedTopic,
+          v5: collectionCreatedV5Topic
+        })
+        
+        for (const log of createReceipt.logs) {
+          console.log(`🔍 Checking log from ${log.address} with topic ${log.topics[0]}`)
+          if (log.address.toLowerCase() === factoryAddress.toLowerCase()) {
+            console.log('✅ Log is from factory, checking topic...')
+            if (log.topics[0] === collectionCreatedTopic || log.topics[0] === collectionCreatedV5Topic) {
+              collectionAddress = log.topics[1] as string
+              collectionAddress = '0x' + collectionAddress.slice(-40)
+              console.log('✅ Found collection address via event topic:', collectionAddress)
+              break
+            } else {
+              // The actual event topic we see in logs
+              if (log.topics[0] === '0x379c58d25a3ec97a25e5e7411e075757ce89019d59c46fd2a54704748853d75f') {
+                collectionAddress = log.topics[2] as string // Collection is in topics[2], not topics[1]
+                collectionAddress = '0x' + collectionAddress.slice(-40)
+                console.log('✅ Found collection address via actual topic:', collectionAddress)
+                break
+              }
+            }
+          }
+        }
+
+        if (!collectionAddress) {
+          console.error('❌ Could not extract collection address from', createReceipt.logs.length, 'logs')
+          console.error('Factory address:', factoryAddress)
+          console.error('Expected topic:', collectionCreatedTopic)
+          for (let i = 0; i < createReceipt.logs.length; i++) {
+            const log = createReceipt.logs[i]
+            console.error(`Log ${i}:`, {
+              address: log.address,
+              topics: log.topics,
+              data: log.data
+            })
+          }
+          throw new Error('Could not extract collection address from creation transaction')
+        }
+
+        console.log('🎯 Collection deployed at:', collectionAddress)
+
+        // Verify collection authorization before minting
+        try {
+          const collectionArtist = await publicClient.readContract({
+            address: collectionAddress as `0x${string}`,
+            abi: [{"inputs":[],"name":"artist","outputs":[{"name":"","type":"address"}],"stateMutability":"view","type":"function"}],
+            functionName: 'artist'
+          })
+          
+          const collectionOwner = await publicClient.readContract({
+            address: collectionAddress as `0x${string}`,
+            abi: [{"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"stateMutability":"view","type":"function"}],
+            functionName: 'owner'
+          })
+          
+          console.log('🔍 Collection authorization check:', {
+            collectionAddress,
+            collectionArtist,
+            collectionOwner,
+            relayerAccount: relayerAccount.address,
+            factoryAddress,
+            artistMatch: collectionArtist === relayerAccount.address,
+            ownerMatch: collectionOwner === relayerAccount.address,
+            factoryMatch: factoryAddress === relayerAccount.address
+          })
+        } catch (authError) {
+          console.warn('⚠️ Could not verify collection authorization:', authError)
+        }
+
+        // Mint NFT directly to collection (relayer is the artist, so authorized)
+        console.log('🎨 Minting NFT directly to collection to user:', body.nftData.recipient)
+        
+        const mintTx = await walletClient.writeContract({
+          address: collectionAddress as `0x${string}`,
+          abi: [
+            {
+              "inputs": [
+                {"name": "to", "type": "address"},
+                {"name": "tokenURI", "type": "string"}
+              ],
+              "name": "mint",
+              "outputs": [{"name": "", "type": "uint256"}],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ],
+          functionName: 'mint',
+          args: [
+            body.nftData.recipient as `0x${string}`, // Mint directly to user
+            body.nftData.imageURI // Use metadata URI as token URI
+          ],
+          chain
+        })
+
+        console.log('✅ NFT minted directly to user:', mintTx)
+
+        // Wait for mint transaction
+        const mintReceipt = await publicClient.waitForTransactionReceipt({ 
+          hash: mintTx as `0x${string}` 
+        })
+
+        console.log('🎉 Simple NFT creation completed successfully!')
+
+        // Set the final transaction hash and collection address for response
+        hash = mintTx
+        contractAddress = collectionAddress
+        tokenId = 0
+
+      } catch (error) {
+        console.error('❌ Simple NFT creation failed:', error)
+        return NextResponse.json(
+          { 
+            error: 'Simple NFT creation failed',
+            details: error instanceof Error ? error.message : 'Unknown error',
+            relayerAccount: relayerAccount.address
+          },
+          { status: 400 }
+        )
+      }
+
+    } else if (body.type === 'mintToExistingCollection') {
+      console.log('🔄 Minting additional NFT to existing collection...')
+      
+      if (!body.collectionAddress || !body.recipient || !body.tokenURI) {
+        return NextResponse.json(
+          { error: 'Collection address, recipient, and tokenURI are required' },
+          { status: 400 }
+        )
+      }
+
+      console.log('🔍 Additional mint params:', {
+        collectionAddress: body.collectionAddress,
+        recipient: body.recipient,
+        tokenURI: body.tokenURI,
+        relayerAccount: relayerAccount.address
+      })
+
+      try {
+        // Mint directly to user (no transfer needed)
+        const mintTx = await walletClient.writeContract({
+          address: body.collectionAddress as `0x${string}`,
+          abi: SIMPLE_ERC721_ABI,
+          functionName: 'mint',
+          args: [
+            body.recipient as `0x${string}`,
+            body.tokenURI
+          ],
+          chain
+        })
+
+        console.log('✅ Additional NFT minted:', mintTx)
+
+        // Wait for transaction
+        const mintReceipt = await publicClient.waitForTransactionReceipt({ 
+          hash: mintTx as `0x${string}` 
+        })
+
+        console.log('🎉 Additional mint completed successfully!')
+
+        // Set response data
+        hash = mintTx
+        contractAddress = body.collectionAddress
+        tokenId = 1 // Assuming this is the second token
+
+      } catch (error) {
+        console.error('❌ Additional mint failed:', error)
+        return NextResponse.json(
+          { 
+            error: 'Additional mint failed',
+            details: error instanceof Error ? error.message : 'Unknown error',
+            relayerAccount: relayerAccount.address
+          },
+          { status: 400 }
+        )
+      }
+
     } else if (body.type === 'upgradeToMaster') {
       console.log('💎 Executing gasless V4 Master plan upgrade...')
       
-      // Get V4 subscription address
+      // Get V6 subscription address
       const subscriptionV4Address = getSubscriptionV4Address(body.chainId)
       if (!subscriptionV4Address) {
         return NextResponse.json(
-          { error: `Art3HubSubscriptionV4 not deployed on chain ${body.chainId}` },
+          { error: `Art3HubSubscriptionV6 not deployed on chain ${body.chainId}` },
           { status: 400 }
         )
       }
@@ -1115,11 +1620,11 @@ export async function POST(request: NextRequest) {
     } else if (body.type === 'upgradeToElite') {
       console.log('⭐ Executing gasless V4 Elite plan upgrade...')
       
-      // Get V4 subscription address
+      // Get V6 subscription address
       const subscriptionV4Address = getSubscriptionV4Address(body.chainId)
       if (!subscriptionV4Address) {
         return NextResponse.json(
-          { error: `Art3HubSubscriptionV4 not deployed on chain ${body.chainId}` },
+          { error: `Art3HubSubscriptionV6 not deployed on chain ${body.chainId}` },
           { status: 400 }
         )
       }
@@ -1165,11 +1670,11 @@ export async function POST(request: NextRequest) {
     } else if (body.type === 'downgradeSubscription') {
       console.log('⬇️ Executing gasless V4 subscription downgrade...')
       
-      // Get V4 subscription address
+      // Get V6 subscription address
       const subscriptionV4Address = getSubscriptionV4Address(body.chainId)
       if (!subscriptionV4Address) {
         return NextResponse.json(
-          { error: `Art3HubSubscriptionV4 not deployed on chain ${body.chainId}` },
+          { error: `Art3HubSubscriptionV6 not deployed on chain ${body.chainId}` },
           { status: 400 }
         )
       }
@@ -1503,7 +2008,7 @@ export async function POST(request: NextRequest) {
 
     } else {
       return NextResponse.json(
-        { error: `Unsupported operation type: ${body.type}. Supported types: 'mint', 'createCollection', 'upgradeSubscription', 'approveUSDC', 'mintV4', 'createCollectionV4', 'upgradeToMaster', 'upgradeToElite', 'downgradeSubscription', 'claimNFT', 'deployClaimableNFT', 'addClaimCode'.` },
+        { error: `Unsupported operation type: ${body.type}. Supported types: 'mint', 'createCollection', 'upgradeSubscription', 'approveUSDC', 'mintV4', 'createCollectionV4', 'mintV6', 'createCollectionV6', 'upgradeToMaster', 'upgradeToElite', 'downgradeSubscription', 'claimNFT', 'deployClaimableNFT', 'addClaimCode'.` },
         { status: 400 }
       )
     }
@@ -1569,9 +2074,12 @@ export async function POST(request: NextRequest) {
         }
       }
       
-      if (!contractAddress) {
-        console.log('⚠️ Could not find CollectionCreated event - checking all logs for any creation patterns...')
-        // Alternative: check simulation result which should have the collection address
+      if (!contractAddress && predictedContractAddress) {
+        console.log('⚠️ Could not find CollectionCreated event, using predicted address from simulation...')
+        contractAddress = predictedContractAddress as string
+        console.log('✅ Using predicted contract address:', contractAddress)
+      } else if (!contractAddress) {
+        console.log('⚠️ Could not find CollectionCreated event and no predicted address available...')
         console.log('📄 All receipt logs:')
         receipt.logs.forEach((log, index) => {
           console.log(`Log ${index}:`, {

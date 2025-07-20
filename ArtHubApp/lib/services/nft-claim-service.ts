@@ -559,7 +559,8 @@ export class NFTClaimService {
           network: nft.network || 'base',
           royalty_percentage: 0, // Default for claimable NFTs
           contract_address: finalContractAddress,
-          token_id: finalTokenId
+          token_id: finalTokenId,
+          source: 'claimable'
         })
         
         console.log("✅ NFT record created for /my-nfts page:", {
