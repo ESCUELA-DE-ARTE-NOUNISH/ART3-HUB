@@ -78,13 +78,13 @@ export function useNetworkClients() {
   
   const clients = createFreshClients()
   
-  console.log('🔄 Network clients update:', {
-    chainId,
-    refreshKey,
-    isCustom: clients.isCustom,
-    publicClientChain: clients.publicClient?.chain?.id,
-    walletClientChain: clients.walletClient?.chain?.id
-  })
+  // console.log('🔄 Network clients update:', {
+  //   chainId,
+  //   refreshKey,
+  //   isCustom: clients.isCustom,
+  //   publicClientChain: clients.publicClient?.chain?.id,
+  //   walletClientChain: clients.walletClient?.chain?.id
+  // })
   
   return clients
 }

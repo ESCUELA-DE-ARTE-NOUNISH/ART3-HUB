@@ -334,23 +334,23 @@ function CreateNFT() {
   // Get fresh clients that match the current network
   const { publicClient, walletClient, chainId: currentChainId } = useNetworkClients()
   
-  // Debug connection status
-  useEffect(() => {
-    console.log('🔗 Wallet connection status:', {
-      isConnected,
-      address,
-      connector: connector?.name,
-      status,
-      walletClient: !!walletClient,
-      walletClientChain: walletClient?.chain?.id,
-      publicClient: !!publicClient,
-      publicClientChain: publicClient?.chain?.id,
-      defaultWalletClient: !!defaultWalletClient,
-      defaultPublicClient: !!defaultPublicClient,
-      selectedNetwork,
-      currentChainId
-    })
-  }, [isConnected, address, connector, status, walletClient, publicClient, selectedNetwork, currentChainId])
+  // Debug connection status (disabled to reduce console noise)
+  // useEffect(() => {
+  //   console.log('🔗 Wallet connection status:', {
+  //     isConnected,
+  //     address,
+  //     connector: connector?.name,
+  //     status,
+  //     walletClient: !!walletClient,
+  //     walletClientChain: walletClient?.chain?.id,
+  //     publicClient: !!publicClient,
+  //     publicClientChain: publicClient?.chain?.id,
+  //     defaultWalletClient: !!defaultWalletClient,
+  //     defaultPublicClient: !!defaultPublicClient,
+  //     selectedNetwork,
+  //     currentChainId
+  //   })
+  // }, [isConnected, address, connector, status, walletClient, publicClient, selectedNetwork, currentChainId])
   
   // Load subscription data
   useEffect(() => {
@@ -391,28 +391,28 @@ function CreateNFT() {
             const nftData = await nftResponse.json()
             dbUserCreatedNftCount = nftData.count || 0
             
-            console.log('📊 NFT Count Analysis:', {
-              userCreatedNfts: dbUserCreatedNftCount
-            })
+            // console.log('📊 NFT Count Analysis:', {
+            //   userCreatedNfts: dbUserCreatedNftCount
+            // })
           }
         } catch (error) {
           console.warn('Could not fetch user-created NFT count from database:', error)
         }
         
-        console.log('🔍 V4 Subscription comparison:', {
-          blockchain: {
-            planName: subscription.planName,
-            plan: subscription.plan,
-            nftsMinted: subscription.nftsMinted,
-            nftLimit: subscription.nftLimit,
-            isActive: subscription.isActive,
-            canMint: canMintData.canMint,
-            remainingNFTs: canMintData.remainingNFTs
-          },
-          database: {
-            userCreatedNftCount: dbUserCreatedNftCount
-          }
-        })
+        // console.log('🔍 V4 Subscription comparison:', {
+        //   blockchain: {
+        //     planName: subscription.planName,
+        //     plan: subscription.plan,
+        //     nftsMinted: subscription.nftsMinted,
+        //     nftLimit: subscription.nftLimit,
+        //     isActive: subscription.isActive,
+        //     canMint: canMintData.canMint,
+        //     remainingNFTs: canMintData.remainingNFTs
+        //   },
+        //   database: {
+        //     userCreatedNftCount: dbUserCreatedNftCount
+        //   }
+        // })
         
         // Use database count for user-created NFTs only (excludes claimable NFTs)
         const actualUserCreatedNfts = Math.max(subscription.nftsMinted, dbUserCreatedNftCount)
@@ -462,7 +462,7 @@ function CreateNFT() {
   // Listen for global subscription refresh events (updated for V4)
   useEffect(() => {
     const handleRefreshV4Subscription = () => {
-      console.log('🔄 Global V4 subscription refresh event received')
+      // console.log('🔄 Global V4 subscription refresh event received')
       setSubscriptionData(null) // Clear data to trigger reload
     }
     
@@ -811,24 +811,24 @@ function CreateNFT() {
       // Get the actual chain ID from the wallet
       const currentChainId = await activeWalletClient.getChainId()
       
-      console.log('🔍 Detailed network information:', {
-        selectedNetwork,
-        targetNetwork,
-        targetChainId: targetNetwork.id,
-        currentChainId,
-        isTestingMode,
-        walletClientChain: activeWalletClient.chain?.id,
-        publicClientChain: publicClient?.chain?.id
-      })
+      // console.log('🔍 Detailed network information:', {
+      //   selectedNetwork,
+      //   targetNetwork,
+      //   targetChainId: targetNetwork.id,
+      //   currentChainId,
+      //   isTestingMode,
+      //   walletClientChain: activeWalletClient.chain?.id,
+      //   publicClientChain: publicClient?.chain?.id
+      // })
       
-      console.log('Network check:', {
-        selectedNetwork,
-        targetChainId: targetNetwork.id,
-        currentChainId,
-        isTestingMode,
-        targetNetwork,
-        walletClientChain: activeWalletClient.chain?.id
-      })
+      // console.log('Network check:', {
+      //   selectedNetwork,
+      //   targetChainId: targetNetwork.id,
+      //   currentChainId,
+      //   isTestingMode,
+      //   targetNetwork,
+      //   walletClientChain: activeWalletClient.chain?.id
+      // })
       
       if (currentChainId !== targetNetwork.id) {
         console.warn('Network mismatch detected:', {
@@ -948,7 +948,7 @@ function CreateNFT() {
         recipient: address // The connected user will receive the NFT
       })
       
-      console.log('🎨 Simple NFT created successfully:', nftResult)
+      // console.log('🎨 Simple NFT created successfully:', nftResult)
       
       setTransactionHash(nftResult.transactionHash)
       setMintResult({
@@ -961,7 +961,7 @@ function CreateNFT() {
       
       // Refresh subscription data to show updated quota
       try {
-        console.log('🔄 Refreshing V4 subscription data after NFT mint...')
+        // console.log('🔄 Refreshing V4 subscription data after NFT mint...')
         
         // Wait a moment for blockchain to process
         await new Promise(resolve => setTimeout(resolve, 2000))
@@ -987,20 +987,20 @@ function CreateNFT() {
         const actualNftsMinted = Math.max(updatedSubscription.nftsMinted, dbUserCreatedNftCount)
         const actualCanMint = actualNftsMinted < updatedSubscription.nftLimit
         
-        console.log('📊 Updated V4 subscription data comparison (user-created only):', {
-          blockchain: {
-            nftsMinted: updatedSubscription.nftsMinted,
-            nftLimit: updatedSubscription.nftLimit,
-            canMint: updatedCanMint.canMint
-          },
-          database: {
-            userCreatedNftCount: dbUserCreatedNftCount
-          },
-          final: {
-            nftsMinted: actualNftsMinted,
-            canMint: actualCanMint
-          }
-        })
+        // console.log('📊 Updated V4 subscription data comparison (user-created only):', {
+        //   blockchain: {
+        //     nftsMinted: updatedSubscription.nftsMinted,
+        //     nftLimit: updatedSubscription.nftLimit,
+        //     canMint: updatedCanMint.canMint
+        //   },
+        //   database: {
+        //     userCreatedNftCount: dbUserCreatedNftCount
+        //   },
+        //   final: {
+        //     nftsMinted: actualNftsMinted,
+        //     canMint: actualCanMint
+        //   }
+        // })
         
         setSubscriptionData({
           plan: updatedSubscription.plan, // Use plan directly like profile page
@@ -1010,7 +1010,7 @@ function CreateNFT() {
           canMint: actualCanMint
         })
         
-        console.log('✅ V4 Subscription data refreshed successfully')
+        // console.log('✅ V4 Subscription data refreshed successfully')
         
         // Trigger global subscription refresh event for other components (updated for V4)
         window.dispatchEvent(new CustomEvent('refreshV4Subscription'))
@@ -1037,17 +1037,17 @@ function CreateNFT() {
           token_id: nftResult.tokenId || 1
         }
         
-        console.log('🗄️ DATABASE STORAGE ANALYSIS:')
-        console.log('Raw Variables:')
-        console.log('- imageHash:', imageHash)
-        console.log('- metadataHash:', metadataHash)
-        console.log('- nftResult.transactionHash:', nftResult.transactionHash)
-        console.log('- nftResult.collectionAddress:', nftResult.collectionAddress)
-        console.log('- nftResult.tokenId:', nftResult.tokenId)
-        console.log('- selectedNetwork:', selectedNetwork)
-        console.log('- isTestingMode:', isTestingMode)
-        console.log('Final NFT Data Object:', nftData)
-        console.log('💾 Sending to database...', JSON.stringify(nftData, null, 2))
+        // console.log('🗄️ DATABASE STORAGE ANALYSIS:')
+        // console.log('Raw Variables:')
+        // console.log('- imageHash:', imageHash)
+        // console.log('- metadataHash:', metadataHash)
+        // console.log('- nftResult.transactionHash:', nftResult.transactionHash)
+        // console.log('- nftResult.collectionAddress:', nftResult.collectionAddress)
+        // console.log('- nftResult.tokenId:', nftResult.tokenId)
+        // console.log('- selectedNetwork:', selectedNetwork)
+        // console.log('- isTestingMode:', isTestingMode)
+        // console.log('Final NFT Data Object:', nftData)
+        // console.log('💾 Sending to database...', JSON.stringify(nftData, null, 2))
         
         const response = await fetch('/api/nfts', {
           method: 'POST',
@@ -1062,25 +1062,25 @@ function CreateNFT() {
           console.error('Response headers:', Object.fromEntries(response.headers.entries()))
         } else {
           const dbResult = await response.json()
-          console.log('✅ NFT stored in database successfully!')
-          console.log('Database Response:', dbResult)
-          console.log('Stored NFT Record:', dbResult.nft)
+          // console.log('✅ NFT stored in database successfully!')
+          // console.log('Database Response:', dbResult)
+          // console.log('Stored NFT Record:', dbResult.nft)
           
           // Compare what we sent vs what was stored
-          if (dbResult.nft) {
-            console.log('🔍 STORAGE VERIFICATION:')
-            console.log('Sent transaction_hash:', nftData.transaction_hash)
-            console.log('Stored transaction_hash:', dbResult.nft.transaction_hash)
-            console.log('Sent contract_address:', nftData.contract_address)
-            console.log('Stored contract_address:', dbResult.nft.contract_address)
-            console.log('Sent token_id:', nftData.token_id)
-            console.log('Stored token_id:', dbResult.nft.token_id)
-            console.log('Match Check:', {
-              transactionMatch: nftData.transaction_hash === dbResult.nft.transaction_hash,
-              contractMatch: nftData.contract_address === dbResult.nft.contract_address,
-              tokenMatch: nftData.token_id === dbResult.nft.token_id
-            })
-          }
+          // if (dbResult.nft) {
+          //   console.log('🔍 STORAGE VERIFICATION:')
+          //   console.log('Sent transaction_hash:', nftData.transaction_hash)
+          //   console.log('Stored transaction_hash:', dbResult.nft.transaction_hash)
+          //   console.log('Sent contract_address:', nftData.contract_address)
+          //   console.log('Stored contract_address:', dbResult.nft.contract_address)
+          //   console.log('Sent token_id:', nftData.token_id)
+          //   console.log('Stored token_id:', dbResult.nft.token_id)
+          //   console.log('Match Check:', {
+          //     transactionMatch: nftData.transaction_hash === dbResult.nft.transaction_hash,
+          //     contractMatch: nftData.contract_address === dbResult.nft.contract_address,
+          //     tokenMatch: nftData.token_id === dbResult.nft.token_id
+          //   })
+          // }
         }
       } catch (error) {
         console.error('Failed to store NFT in database:', error)
@@ -1265,7 +1265,7 @@ function CreateNFT() {
                       {subscriptionData && subscriptionData.plan === 'FREE' && subscriptionData.canMint && (
                         <div className="border rounded-lg p-3 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
                           <p className="text-sm font-medium text-blue-900 mb-2">💡 Want to create more NFTs?</p>
-                          <div className="flex flex-col sm:flex-row gap-2">
+                          <div className="flex flex-col gap-2 max-w-sm mx-auto min-h-36">
                             <Button 
                               type="button"
                               size="sm" 

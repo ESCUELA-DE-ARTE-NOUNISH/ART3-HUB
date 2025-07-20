@@ -19,10 +19,9 @@ const translations = {
   en: {
     title: "My Collection",
     filterOptions: [
-      { value: "all", label: "All NFTs" },
-      { value: "created", label: "Created by me" },
-      { value: "collected", label: "Collected" },
-      { value: "recent", label: "Recently minted" }
+      { value: "all", label: "All" },
+      { value: "created", label: "Created by Me" },
+      { value: "collected", label: "Collected" }
     ],
     sortOptions: [
       { value: "newest", label: "Newest first" },
@@ -55,10 +54,9 @@ const translations = {
   es: {
     title: "Mi Colección",
     filterOptions: [
-      { value: "all", label: "Todos los NFTs" },
+      { value: "all", label: "Todos" },
       { value: "created", label: "Creados por mí" },
-      { value: "collected", label: "Coleccionados" },
-      { value: "recent", label: "Acuñados recientemente" }
+      { value: "collected", label: "Coleccionados" }
     ],
     sortOptions: [
       { value: "newest", label: "Más recientes primero" },
@@ -91,10 +89,9 @@ const translations = {
   fr: {
     title: "Ma Collection",
     filterOptions: [
-      { value: "all", label: "Tous les NFTs" },
+      { value: "all", label: "Tous" },
       { value: "created", label: "Créés par moi" },
-      { value: "collected", label: "Collectionnés" },
-      { value: "recent", label: "Récemment frappés" }
+      { value: "collected", label: "Collectionnés" }
     ],
     sortOptions: [
       { value: "newest", label: "Plus récents d'abord" },
@@ -127,10 +124,9 @@ const translations = {
   pt: {
     title: "Minha Coleção",
     filterOptions: [
-      { value: "all", label: "Todos os NFTs" },
+      { value: "all", label: "Todos" },
       { value: "created", label: "Criados por mim" },
-      { value: "collected", label: "Colecionados" },
-      { value: "recent", label: "Recentemente cunhados" }
+      { value: "collected", label: "Colecionados" }
     ],
     sortOptions: [
       { value: "newest", label: "Mais recentes primeiro" },
@@ -175,6 +171,7 @@ interface NFT {
   created_at: string
   contract_address?: string
   token_id?: number
+  source?: 'user_created' | 'claimable'
 }
 
 export default function MyNFTsPage() {
@@ -333,18 +330,11 @@ export default function MyNFTsPage() {
         case "all":
           return true
         case "created":
-          // Currently all NFTs in our database are created by the user
-          // Future enhancement: add 'creator_address' field to distinguish created vs collected
-          return true
+          // NFTs created by the user through the platform
+          return nft.source === 'user_created'
         case "collected":
-          // Future enhancement: NFTs collected from other creators
-          // For now, return empty array as all current NFTs are self-created
-          return false
-        case "recent":
-          // Show NFTs from the last 7 days
-          const weekAgo = new Date()
-          weekAgo.setDate(weekAgo.getDate() - 7)
-          return new Date(nft.created_at) > weekAgo
+          // NFTs minted/claimed through claimable NFT system
+          return nft.source === 'claimable'
         default:
           return true
       }
@@ -391,7 +381,7 @@ export default function MyNFTsPage() {
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 max-w-7xl">
         <div className="mb-6 md:mb-8">
           <Tabs value={selectedFilter} onValueChange={setSelectedFilter} className="w-full">
-            <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-1 h-auto p-1 max-w-2xl mx-auto">
+            <TabsList className="grid grid-cols-3 gap-1 h-auto p-1 max-w-lg mx-auto">
               {t.filterOptions.map((option) => (
                 <TabsTrigger 
                   key={option.value} 

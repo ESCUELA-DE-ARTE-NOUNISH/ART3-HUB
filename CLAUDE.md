@@ -4,11 +4,13 @@
 
 **ART3-HUB** is a comprehensive Web3 NFT platform designed for artists (especially in LATAM) to enter the Web3 space with AI-guided onboarding, gasless NFT creation, and subscription-based services.
 
-### Current Version: V6 (January 2025)
+### Current Version: V6.1 (Active July 2025) - Collection-per-NFT Architecture
 - **Database**: Migrated from Supabase to Firebase Firestore
-- **Smart Contracts**: Fresh V6 deployment on Base Sepolia
-- **Architecture**: Base-only optimized deployment
-- **AI System**: Advanced conversational AI agent with memory persistence
+- **Smart Contracts**: Fresh V6 deployment with gasless relayer as owner
+- **Architecture**: Collection-per-NFT system for enhanced marketplace compatibility
+- **Gasless System**: Simplified direct relayer integration replacing voucher system
+- **Security**: Complete private key audit and environment-only storage, key rotation completed (July 2025)
+- **Quota Tracking**: Smart user-created NFT distinction for accurate subscription limits
 
 ## 🏗️ Project Structure
 
@@ -31,24 +33,26 @@
 - **Purpose**: ElizaOS-based AI agent for Web3 education
 - **Features**: Conversational guidance, memory persistence
 
-## 🔗 V6 Contract Addresses (Base Sepolia) 
+## 🔗 V6 Contract Addresses (Base Sepolia) - Collection-per-NFT Architecture
 
 | Contract | Address | Purpose |
 |----------|---------|---------|
-| **Factory V6** | `0x6A2a69a88b92B8566354ECE538aF46fC783b9DFd` | Collection creation |
-| **Subscription V6** | `0xd0611f925994fddD433a464886Ae3eF58Efb9EC9` | Subscription management |
-| **Collection V6** | `0xAecDa231ed8d8b9f5E9e39B3624FE2D073D86fB0` | NFT implementation |
+| **Factory V6** | `0x5BAa7723492352668a5060d578E901D0dfdf28Af` | Collection-per-NFT creation |
+| **Subscription V6** | `0xCfa74f044E0200a03687cB6424C9B6B5D7B7f4fd` | Subscription management |
+| **Collection V6** | `0x931743f8b80B4EaB5f27AB1AAAF73118cCD74a29` | NFT implementation |
 | **ClaimableNFT Factory** | `0x55248aC366d3F26b6aa480ed5fD82130C8C6842d` | Claimable NFT factory pattern |
 | **Admin Wallet** | `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f` | Platform admin |
-| **Gasless Relayer** | `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1` | Gasless transaction relayer |
+| **Gasless Relayer** | `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1` | Contract owner for gasless operations |
 
 ## 🌟 Key Features
 
 ### For Users
+- **Collection-per-NFT Creation**: Each NFT gets its own collection contract for marketplace flexibility
 - **AI-Guided Onboarding**: Step-by-step Web3 education
-- **Gasless Operations**: All transactions are gasless for users
+- **Gasless Operations**: All transactions are gasless for users via simplified relayer system
+- **Smart Quota Tracking**: Only user-created NFTs count toward subscription limits (claimable NFTs are free)
 - **Multi-language**: English, Spanish, French, Portuguese
-- **Subscription Plans**: Free (1 NFT/month), Master ($4.99/month, 10 NFTs), Elite ($9.99/month, 25 NFTs)
+- **Subscription Plans**: Free (1 user-created NFT/month), Master ($4.99/month, 10 NFTs), Elite ($9.99/month, 25 NFTs)
 
 ### For Admins
 - **Claimable NFT System**: Factory pattern for independent claimable NFT contracts
@@ -58,9 +62,11 @@
 - **Platform Analytics**: Comprehensive usage metrics
 
 ### Technical Features
+- **Collection-per-NFT Architecture**: Individual collection contracts for each NFT enabling marketplace functionality
+- **Simplified Gasless System**: Direct relayer integration using secure configuration
 - **Firebase Integration**: Real-time data, scalable NoSQL storage
 - **Base Network**: Optimized for Base blockchain
-- **Meta-transactions**: EIP-712 gasless functionality
+- **Security Audited**: All sensitive configuration secured in environment variables only
 - **IPFS Storage**: Pinata integration for decentralized storage
 
 ## 📁 Key Directory Structure
@@ -169,15 +175,16 @@ npm run lint
 - Environment-based sensitive configuration
 - Input validation and sanitization
 
-## 🚀 Recent Major Changes (V6)
+## 🚀 Recent Major Changes (V6.1 - Collection-per-NFT Architecture)
 
-1. **Firebase Migration**: Complete transition from Supabase to Firebase
-2. **Fresh Contracts**: New V6 smart contract deployment
-3. **Claimable NFT Factory Pattern**: Independent contracts for user differentiation
-4. **Gasless Operations**: Complete gasless experience for claimable NFT operations
-5. **Admin System**: Environment-based admin management
-6. **AI Enhancements**: Improved conversation system with memory
-7. **Test Organization**: Structured test suite in `/ArtHubTests` directory
+1. **Collection-per-NFT System**: Revolutionary architecture where each NFT gets its own collection contract
+2. **Simplified Gasless Relayer**: Eliminated complex voucher system for direct contract interaction
+3. **Smart Quota Tracking**: Only user-created NFTs count toward subscription limits (claimable NFTs excluded)
+4. **Security Configuration Audit**: Complete audit ensuring all sensitive data is environment-only
+5. **Contract Redeployment**: Fresh V6 contracts with gasless relayer as owner
+6. **Admin System Improvements**: Fixed redirect issues and enhanced authentication
+7. **Firebase Migration**: Complete transition from Supabase to Firebase
+8. **Enhanced Marketplace Compatibility**: Individual collections enable future marketplace features
 
 ## 🎯 Development Guidelines
 
@@ -188,9 +195,9 @@ npm run lint
    - These systems are independent and must never interfere with each other
 
 2. **Security Requirements**
-   - **NEVER** copy private keys in any code, comments, or documentation
-   - Private keys must ONLY exist in `.env` files and be referenced via environment variables
-   - Use environment variable references like `process.env.PRIVATE_KEY_NAME` in code
+   - **NEVER** copy sensitive configuration in any code, comments, or documentation
+   - Sensitive data must ONLY exist in `.env` files and be referenced via environment variables
+   - Use environment variable references like `process.env.VARIABLE_NAME` in code
    - All sensitive credentials stay in environment configuration only
 
 ### When Adding Features
@@ -235,6 +242,6 @@ npm run lint
 
 ---
 
-**Last Updated**: January 19, 2025 (V6 Release)
+**Last Updated**: July 19, 2025 (V6.1 Collection-per-NFT Release - Security Update)
 **Branch**: process-update-request-nfts (current)
-**Status**: V6 deployment complete, Firebase migration successful
+**Status**: V6.1 Collection-per-NFT architecture operational, private key security rotation completed, documentation current

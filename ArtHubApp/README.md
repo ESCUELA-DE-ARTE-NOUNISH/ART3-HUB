@@ -1,39 +1,41 @@
 # Art3 Hub Frontend Application
 
-> **🚀 V6 Update (January 2025): Firebase Integration & Fresh Smart Contracts**
+> **🚀 V6 Update (July 2025): Collection-per-NFT Architecture & Firebase Integration**
 
-A modern, multi-platform Web3 NFT creation and marketplace platform built with Next.js, integrating with **Art3Hub V6 smart contracts** for decentralized NFT collection creation with **Firebase backend**.
+A modern, multi-platform Web3 NFT creation and marketplace platform built with Next.js, integrating with **Art3Hub V6 smart contracts** for **collection-per-NFT architecture** with **Firebase backend**.
 
 ## 🚀 Features
 
 ### Core Functionality
-- **🎨 NFT Collection Creation**: Deploy your own ERC-721 collections via **Art3Hub V6 Factory**
-- **💎 Subscription-Based Minting**: Gasless NFT creation with tiered subscription plans
+- **🎨 Collection-per-NFT Creation**: Deploy individual collections for each NFT via **Art3Hub V6 Factory** - **NEW ARCHITECTURE**
+- **💎 Simplified Gasless Minting**: Direct gasless NFT creation with relayer architecture - **REDESIGNED**
 - **🔍 NFT Discovery & Marketplace**: Explore, search, and discover NFTs with advanced filtering
 - **🎬 Branded Splash Screen**: Animated GIF intro with logo transition for premium app experience
 - **🌐 Base Network Optimized**: Focused deployment on Base network for optimal performance
 - **📱 Multi-Platform**: Browser, mobile, and Farcaster frame compatibility
 - **🌍 Internationalization**: Support for English, Spanish, French, and Portuguese
 - **💎 IPFS Storage**: Decentralized file storage via Pinata integration
-- **🤖 AI Assistant**: Educational Web3 learning companion
+- **🤖 AI Assistant**: Educational Web3 learning companion with persistent memory
 - **🔥 Firebase Backend**: Modern, scalable database solution - **NEW in V6**
 - **🛡️ Admin System**: Secure admin management with environment-based configuration - **NEW in V6**
+- **🎯 Claimable NFT Factory**: Independent contract deployment for each claimable NFT type - **NEW**
 
 ### Smart Contract Integration
-- **Art3Hub Factory V6**: Fresh deployment with enhanced gasless functionality - **UPDATED**
-- **Art3Hub Subscription V6**: Enhanced USDC-based subscription plans with auto-enrollment - **UPDATED**
+- **Collection-per-NFT Architecture**: Each NFT gets its own collection contract for marketplace flexibility - **NEW**
+- **Gasless Relayer System**: Direct contract interaction using secure relayer configuration - **REDESIGNED**
+- **Auto-Transfer**: NFTs are minted to relayer then transferred to user automatically - **NEW**
+- **Art3Hub Factory V6**: Fresh deployment with gasless relayer as owner - **UPDATED**
+- **Art3Hub Subscription V6**: Enhanced USDC-based subscription plans - **UPDATED**
 - **ERC-2981 Royalties**: Automatic royalty enforcement on secondary sales
 - **OpenSea Compatible**: Full marketplace integration with enhanced metadata support
-- **EIP-712 Meta-Transactions**: Built-in gasless operations for all subscribers
 - **Base Network Focused**: Optimized for Base network performance
-- **Auto-Enrollment**: Seamless onboarding with automatic Free plan enrollment
-- **Real-time Fees**: Dynamic deployment fee fetching from contracts
-- **Fresh Contract Addresses**: New V6 deployment for clean start - **NEW**
+- **Security**: All sensitive configuration secured in environment variables only - **AUDITED**
 
-### Subscription Plans
-- **Plan Gratuito (Free)**: 1 NFT per year, auto-enrollment, gasless creation
-- **Plan Master**: $4.99/month, 10 NFTs per month, gasless minting with meta-transactions
-- **Auto-Enrollment**: New users automatically enrolled in Free plan on first interaction
+### Subscription Plans & User-Created NFT Tracking
+- **Free Plan**: 1 user-created NFT per month, gasless creation - **UPDATED QUOTA CALCULATION**
+- **Master Plan**: $4.99/month, 10 user-created NFTs per month, gasless minting - **UPDATED QUOTA CALCULATION**
+- **Elite Creator Plan**: $9.99/month, 25 user-created NFTs per month, premium features - **UPDATED QUOTA CALCULATION**
+- **Smart Quota Tracking**: Only user-created NFTs count toward monthly limits (excludes claimable NFTs) - **NEW**
 - **USDC Payments**: Stable cross-chain subscription payments
 
 ## 🏗️ Architecture
@@ -119,13 +121,16 @@ ArtHubApp/
    NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
    NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
 
-   # Art3Hub V6 Contract Addresses - FRESH DEPLOYMENT
-   NEXT_PUBLIC_ART3HUB_FACTORY_V6_84532=0x6A2a69a88b92B8566354ECE538aF46fC783b9DFd
-   NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V6_84532=0xd0611f925994fddD433a464886Ae3eF58Efb9EC9
-   NEXT_PUBLIC_ART3HUB_COLLECTION_V6_IMPL_84532=0xAecDa231ed8d8b9f5E9e39B3624FE2D073D86fB0
+   # Art3Hub V6 Contract Addresses - FRESH DEPLOYMENT with Gasless Relayer as Owner
+   NEXT_PUBLIC_ART3HUB_FACTORY_V6_84532=0x5BAa7723492352668a5060d578E901D0dfdf28Af
+   NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V6_84532=0xCfa74f044E0200a03687cB6424C9B6B5D7B7f4fd
+   NEXT_PUBLIC_ART3HUB_COLLECTION_V6_IMPL_84532=0x931743f8b80B4EaB5f27AB1AAAF73118cCD74a29
+
+   # Gasless Relayer Configuration - Collection-per-NFT Architecture
+   GASLESS_RELAYER_PRIVATE_KEY=your_secure_relayer_key
 
    # Admin Configuration - NEW in V6
-   NEXT_PUBLIC_ADMIN_WALLET=0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f
+   NEXT_PUBLIC_ADMIN_WALLET=your_admin_wallet_address
 
    # Network Mode (true for testnet, false for mainnet)
    NEXT_PUBLIC_IS_TESTING_MODE=true
@@ -157,63 +162,75 @@ ArtHubApp/
 
 ### Deployed Contracts
 
-#### Base Sepolia (Testnet) - V6 Fresh Deployment
-- **Factory V6 Contract**: [`0x6A2a69a88b92B8566354ECE538aF46fC783b9DFd`](https://sepolia.basescan.org/address/0x6A2a69a88b92B8566354ECE538aF46fC783b9DFd#code)
-- **Subscription V6 Contract**: [`0xd0611f925994fddD433a464886Ae3eF58Efb9EC9`](https://sepolia.basescan.org/address/0xd0611f925994fddD433a464886Ae3eF58Efb9EC9#code)
-- **Collection V6 Implementation**: [`0xAecDa231ed8d8b9f5E9e39B3624FE2D073D86fB0`](https://sepolia.basescan.org/address/0xAecDa231ed8d8b9f5E9e39B3624FE2D073D86fB0#code)
+#### Base Sepolia (Testnet) - V6 Fresh Deployment with Collection-per-NFT Architecture
+- **Factory V6 Contract**: [`0x5BAa7723492352668a5060d578E901D0dfdf28Af`](https://sepolia.basescan.org/address/0x5BAa7723492352668a5060d578E901D0dfdf28Af#code)
+- **Subscription V6 Contract**: [`0xCfa74f044E0200a03687cB6424C9B6B5D7B7f4fd`](https://sepolia.basescan.org/address/0xCfa74f044E0200a03687cB6424C9B6B5D7B7f4fd#code)
+- **Collection V6 Implementation**: [`0x931743f8b80B4EaB5f27AB1AAAF73118cCD74a29`](https://sepolia.basescan.org/address/0x931743f8b80B4EaB5f27AB1AAAF73118cCD74a29#code)
+- **Claimable NFT Factory**: [`0x55248aC366d3F26b6aa480ed5fD82130C8C6842d`](https://sepolia.basescan.org/address/0x55248aC366d3F26b6aa480ed5fD82130C8C6842d#code)
 - **USDC Token (Base Sepolia)**: [`0x036CbD53842c5426634e7929541eC2318f3dCF7e`](https://sepolia.basescan.org/address/0x036CbD53842c5426634e7929541eC2318f3dCF7e#code)
 - **Admin Wallet**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+- **Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1` (Contract Owner)
 - **Chain ID**: 84532
 - **Explorer**: [Base Sepolia Scan](https://sepolia.basescan.org)
-- **Deployment Date**: January 17, 2025
-- **Status**: ✅ All V6 contracts verified and operational
+- **Deployment Date**: January 19, 2025
+- **Status**: ✅ All V6 contracts verified and operational with gasless relayer as owner
 
-### Contract Integration Flow
+### Contract Integration Flow - Collection-per-NFT Architecture
 
-1. **Subscription Management**
+1. **Simplified NFT Creation with Collection-per-NFT**
    ```typescript
-   const subscriptionService = new SubscriptionService(publicClient, walletClient, chainId)
+   import { SimpleNFTService } from '@/lib/services/simple-nft-service'
    
-   // Check user's subscription status
-   const subscription = await subscriptionService.getUserSubscription(userAddress)
-   console.log(`Plan: ${subscription.planName}, NFTs: ${subscription.nftsMinted}/${subscription.nftLimit}`)
+   const simpleNFTService = new SimpleNFTService(84532) // Base Sepolia
    
-   // Subscribe to Free Plan (1 NFT/year)
-   const freeHash = await subscriptionService.subscribeToFreePlan()
-   
-   // Upgrade to Master Plan ($4.99/month, 10 NFTs/month, gasless)
-   const masterHash = await subscriptionService.subscribeToMasterPlan()
-   ```
-
-2. **Collection Creation**
-   ```typescript
-   const art3HubService = createArt3HubService(publicClient, walletClient, 'base', true)
-   
-   const result = await art3HubService.createCollection({
-     name: "My Art Collection",
-     symbol: "MYART",
-     description: "A collection of my digital artwork",
+   // Create NFT with its own collection contract
+   const result = await simpleNFTService.createNFT({
+     name: "My Artwork",
+     symbol: "ART",
+     description: "A unique digital artwork",
      imageURI: "ipfs://QmHash...",
-     maxSupply: 10000,
-     mintPrice: "0.001", // ETH
-     contractAdmin: artistAddress,
-     fundsRecipient: artistAddress,
-     royaltyBPS: 1000, // 10%
+     externalUrl: "https://myart.com",
+     artist: "0x123...", // User's wallet address
+     royaltyBPS: 1000, // 10% royalties
+     recipient: "0x123..." // User's wallet address
+   })
+   
+   console.log(`NFT created! Collection: ${result.collectionAddress}, Token ID: ${result.tokenId}`)
+   ```
+
+2. **Gasless Relayer System**
+   ```typescript
+   // Backend gasless relay handles all contract interactions
+   const response = await fetch('/api/gasless-relay', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({
+       type: 'createNFTWithCollection',
+       chainId: 84532,
+       nftData: {
+         name: "Art Collection",
+         symbol: "ART",
+         description: "My digital artwork",
+         imageURI: "ipfs://QmHash...",
+         artist: userAddress,
+         royaltyBPS: 1000,
+         recipient: userAddress
+       }
+     })
    })
    ```
 
-3. **NFT Minting (V2 with Subscription)**
+3. **Subscription Management with User-Created NFT Tracking**
    ```typescript
-   // For Master Plan subscribers - gasless minting with meta-transactions
-   const mintResult = await art3HubService.mintTokenV2({
-     collectionContract: result.contractAddress,
-     recipient: userAddress,
-     tokenURI: "ipfs://QmTokenHash...",
-     title: "Artwork Title",
-     description: "Artwork description",
-     royaltyBPS: 1500, // 15% for this specific NFT
-     useMetaTransaction: true // Gasless for premium subscribers
-   })
+   const { art3hubV4Service } = createArt3HubV4ServiceWithUtils(publicClient, walletClient, 'base', true)
+   
+   // Check subscription status (only counts user-created NFTs, not claimable NFTs)
+   const subscription = await art3hubV4Service.getUserSubscription(userAddress)
+   console.log(`Plan: ${subscription.planName}`)
+   console.log(`User-created NFTs: ${subscription.nftsMinted}/${subscription.nftLimit}`)
+   
+   // Upgrade to Master Plan ($4.99/month, 10 user-created NFTs/month)
+   const masterHash = await art3hubV4Service.upgradeToMasterPlanGasless(false)
    ```
 
 ## 🌐 Multi-Platform Support

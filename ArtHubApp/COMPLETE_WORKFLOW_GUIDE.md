@@ -9,9 +9,8 @@ The claimable NFT workflow is now fully implemented and ready for real testing o
 ```bash
 # Current working configuration:
 NEXT_PUBLIC_IS_TESTING_MODE=true
-NEXT_PUBLIC_ADMIN_WALLET=0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f
+NEXT_PUBLIC_ADMIN_WALLET=your_admin_wallet_address
 NEXT_PUBLIC_CLAIMABLE_NFT_CONTRACT_84532=0x4A679253410272dd5232B3Ff7cF5dbB88f295319
-GASLESS_RELAYER_PRIVATE_KEY=<your_private_key_here>
 ```
 
 ## 🚀 Complete Workflow Test
@@ -21,8 +20,7 @@ GASLESS_RELAYER_PRIVATE_KEY=<your_private_key_here>
 **URL**: `http://localhost:3000/admin/nfts/create`
 
 **Requirements**:
-- Connect wallet with address: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
-- This is the admin wallet configured in the environment
+- Connect with authorized admin wallet as configured in environment
 
 **Process**:
 1. **Navigate to admin page**: `http://localhost:3000/admin/nfts/create`
@@ -85,8 +83,8 @@ if (contractAddress === '0x4A679253410272dd5232B3Ff7cF5dbB88f295319') {
 
 ### **Admin Authorization**:
 ```typescript
-// Only this wallet can create NFTs:
-const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET // 0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f
+// Only authorized admin wallet can create NFTs:
+const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET
 ```
 
 ### **Network Detection**:
@@ -169,8 +167,7 @@ When you want to deploy and use a real ClaimableNFT contract:
 
 3. **Ensure contract ownership**:
    ```bash
-   # The deployed contract owner should be:
-   GASLESS_RELAYER_PRIVATE_KEY=<private_key_of_contract_owner>
+   # The deployed contract owner uses secure relayer configuration
    ```
 
 ## ✨ **THE WORKFLOW IS COMPLETE AND WORKING!**

@@ -5,7 +5,43 @@ All notable changes to the Art3 Hub Frontend Application will be documented in t
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.0.0] - 2025-01-19
+## [4.1.0] - 2025-07-19
+
+### 🔥 **V6 Collection-per-NFT Architecture: Major System Redesign**
+
+#### Revolutionary Collection-per-NFT Architecture
+- **🎯 Individual Collection Contracts**: Each NFT now gets its own collection contract for enhanced marketplace compatibility
+- **🚀 Simplified Gasless System**: Complete redesign eliminating complex voucher-based transactions
+- **🔄 Direct Relayer Integration**: Using secure relayer configuration for direct contract interaction
+- **📈 Enhanced Marketplace Potential**: Individual collections enable future marketplace features like copy creation and trading
+
+#### Smart Subscription Quota Tracking
+- **📊 User-Created NFT Distinction**: Only user-created NFTs count toward monthly subscription limits
+- **🎁 Claimable NFT Exclusion**: Claimable NFTs no longer consume subscription quotas
+- **⚡ Real-time Progress Tracking**: Accurate progress bars showing only user-created NFT usage
+- **🔍 Database-Driven Counting**: Firebase integration for precise NFT counting
+
+#### Security Configuration Audit
+- **🛡️ Complete Security Review**: Comprehensive audit ensuring no sensitive data outside .env files
+- **🔐 Single Relayer Configuration**: Consolidated to single secure relayer configuration for all operations
+- **✅ Environment-Only Storage**: All sensitive configuration secured in environment variables only
+- **🔒 Production-Ready Security**: Enhanced security practices for deployment
+
+#### Enhanced Admin System
+- **🚪 Improved Authentication**: Fixed admin page redirect issues for better UX
+- **🔧 Simplified Logic**: Streamlined admin route protection and wallet disconnection handling
+- **👥 Environment-Based Configuration**: Admin wallets managed through environment variables
+- **📱 Better Mobile Experience**: Enhanced admin interface for mobile devices
+
+#### V6 Contract Redeployment with Gasless Relayer as Owner
+- **🆕 Fresh V6 Contracts**: New deployment with gasless relayer as contract owner
+  - **Factory V6**: `0x5BAa7723492352668a5060d578E901D0dfdf28Af`
+  - **Subscription V6**: `0xCfa74f044E0200a03687cB6424C9B6B5D7B7f4fd`
+  - **Collection V6 Implementation**: `0x931743f8b80B4EaB5f27AB1AAAF73118cCD74a29`
+  - **Claimable NFT Factory**: `0x55248aC366d3F26b6aa480ed5fD82130C8C6842d`
+  - **Owner**: Gasless Relayer Configuration
+
+## [4.0.0] - 2025-01-17
 
 ### 🔥 **V6 Major Release: Firebase Migration & Fresh Smart Contracts**
 
@@ -16,16 +52,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Real-time Updates**: Live data synchronization across all clients
   - **Enhanced Security**: Firebase Authentication and security rules
 
-#### Fresh V6 Smart Contract Deployment
+#### Fresh V6 Smart Contract Deployment (Initial - Later Redeployed)
 - **🆕 Clean V6 Contracts**: Brand new smart contract deployment on Base Sepolia
-  - **Factory V6**: `0xbF47f26c4e038038bf75E20755012Cd6997c9AfA`
-  - **Subscription V6**: `0x4BF512C0eF46FD7C5F3F9522426E3F0413A8dB77`
-  - **Collection V6 Implementation**: `0x723D8583b56456A0343589114228281F37a3b290`
+  - **Factory V6**: `0xbF47f26c4e038038bf75E20755012Cd6997c9AfA` (Initial)
+  - **Subscription V6**: `0x4BF512C0eF46FD7C5F3F9522426E3F0413A8dB77` (Initial)
+  - **Collection V6 Implementation**: `0x723D8583b56456A0343589114228281F37a3b290` (Initial)
   - **Enhanced Gasless System**: Improved meta-transaction functionality
 
 #### Advanced Admin Management System
 - **🛡️ Environment-Based Admin Configuration**: Secure admin wallet management
-  - **Default Admin Wallet**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+  - **Environment-Based Admin Configuration**: Secure admin wallet management
   - **CRUD Operations**: Add, edit, remove, and list admin wallets
   - **localStorage Management**: Secure local admin data storage
   - **Route Protection**: Admin-only access control for sensitive operations

@@ -782,7 +782,7 @@ export default function AdminPage() {
                     Create and manage NFTs that can be claimed with special codes.
                   </CardDescription>
                 </div>
-                <Button asChild className="bg-indigo-500 hover:bg-indigo-600 w-full md:w-auto mt-2 md:mt-0">
+                <Button asChild className="w-full md:w-auto mt-2 md:mt-0">
                   <a href="/admin/nfts">Manage NFTs</a>
                 </Button>
               </div>

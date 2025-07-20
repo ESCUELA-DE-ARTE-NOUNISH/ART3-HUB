@@ -1,0 +1,41 @@
+{
+  "network": "baseSepolia",
+  "chainId": 84532,
+  "timestamp": "2025-07-20T03:42:43.306Z",
+  "deployer": "0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd",
+  "contracts": {
+    "subscription": {
+      "address": "0x8aFf71f5dCb7Ad2C77f0Ec5a0A4D914394dB8c13",
+      "args": [
+        "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "0x946b7dc627D245877BDf9c59bce626db333Fc01c",
+        "0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1",
+        "0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd",
+        "0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1"
+      ]
+    },
+    "factory": {
+      "address": "0x2380a7e74480d44f2Fe05B8cA2BDc9d012F56BE8",
+      "args": [
+        "0x8aFf71f5dCb7Ad2C77f0Ec5a0A4D914394dB8c13",
+        "0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1",
+        "0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1"
+      ]
+    },
+    "collectionImplementation": {
+      "address": "0x1cFe8bb79A4f174BE4650f5100AF6B9878D39661",
+      "args": []
+    }
+  },
+  "gasUsed": {
+    "subscription": "2531178",
+    "factory": "8639819",
+    "collectionImplementation": "5317519",
+    "total": "16488516"
+  },
+  "verification": {
+    "subscription": "✅ Verified | ❌ Ownership Transfer Failed",
+    "factory": "✅ Verified | ❌ Ownership Transfer Failed",
+    "collectionImplementation": "✅ Verified"
+  }
+}
