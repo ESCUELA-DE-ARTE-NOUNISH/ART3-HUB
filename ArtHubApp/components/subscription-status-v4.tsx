@@ -412,7 +412,7 @@ export function SubscriptionStatusV4({ translations: t, onRefresh }: Subscriptio
           
           <div className="grid grid-cols-1 gap-3">
             {/* Free Plan */}
-            <Card className={`relative ${subscriptionData.plan === 'FREE' ? 'ring-2 ring-green-500 bg-green-50' : 'hover:shadow-md transition-shadow'}`}>
+            <Card className={`relative ${subscriptionData.plan === 'FREE' ? 'ring-2 ring-green-500 bg-green-50 text-black' : 'hover:shadow-md transition-shadow'}`}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">

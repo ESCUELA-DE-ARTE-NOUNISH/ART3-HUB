@@ -11,7 +11,7 @@ The complete claimable NFT workflow is now implemented and tested. Here's exactl
 
 **Process**:
 ```
-1. Admin logs in with wallet: 0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f
+1. Admin logs in with authorized admin wallet
 2. Admin fills out NFT form:
    - Title: "Special Event NFT"
    - Description: "Exclusive NFT for our community"
@@ -51,9 +51,8 @@ The complete claimable NFT workflow is now implemented and tested. Here's exactl
 ```bash
 # Current Setup (Testing Mode)
 NEXT_PUBLIC_IS_TESTING_MODE=true
-NEXT_PUBLIC_ADMIN_WALLET=0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f
+NEXT_PUBLIC_ADMIN_WALLET=your_admin_wallet_address
 NEXT_PUBLIC_CLAIMABLE_NFT_CONTRACT_84532=0x1234567890123456789012345678901234567890
-ADMIN_PRIVATE_KEY=<your_private_key_here>
 ```
 
 ### Contract Detection Logic
@@ -91,7 +90,7 @@ function isClaimCodeUsed(string memory claimCode) public view returns (bool)
 
 ### Step 1: Access Admin Interface
 1. Navigate to `http://localhost:3001/admin/nfts/create`
-2. Make sure you're connected with admin wallet: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+2. Make sure you're connected with authorized admin wallet
 
 ### Step 2: Create Claimable NFT
 ```
@@ -139,11 +138,10 @@ Network: Base Sepolia
 The entire workflow is controlled by the app's private wallet:
 
 ### Admin Operations:
-- **Private Key**: `ADMIN_PRIVATE_KEY` (stored securely in .env for server-side contract calls)
-- **Admin Wallet**: `NEXT_PUBLIC_ADMIN_WALLET` (for authorization)
+- **Admin System**: Environment-based configuration for authorization
 
 ### Contract Deployment:
-- App deploys ClaimableNFT contracts using admin private key
+- App deploys ClaimableNFT contracts using secure relayer configuration
 - Admin controls who can mint NFTs (owner-only functions)
 
 ### User Operations:
@@ -170,7 +168,7 @@ The entire workflow is controlled by the app's private wallet:
 - [x] Owner-only contract minting
 - [x] Claim code uniqueness
 - [x] Wallet authorization
-- [x] Private key protection
+- [x] Secure configuration protection
 
 ### ✅ User Experience:
 - [x] Intuitive admin interface
@@ -186,7 +184,7 @@ The entire workflow is controlled by the app's private wallet:
 
 - ✅ **Admin can create NFTs** with properties and secret codes
 - ✅ **Users can claim NFTs** using secret codes at `/mint`
-- ✅ **App private wallet controls** the entire process
+- ✅ **App secure relayer controls** the entire process
 - ✅ **Real blockchain integration** ready for production
 - ✅ **Testing mode** works perfectly for development
 

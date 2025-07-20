@@ -10,9 +10,11 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2, QrCode, Key, Gift, CheckCircle, AlertCircle } from "lucide-react"
+import { Loader2, QrCode, Key, Gift, CheckCircle, AlertCircle, User } from "lucide-react"
 import { useAccount } from "wagmi"
 import { useToast } from "@/hooks/use-toast"
+import { useUserProfile } from "@/hooks/useUserProfile"
+import Link from "next/link"
 
 // Helper functions for blockchain URLs
 function getExplorerUrl(network: string, hash: string, type: 'tx' | 'address' = 'tx'): string {
@@ -74,6 +76,9 @@ interface MintTranslations {
   step3: string
   examples: string
   exampleCodes: string[]
+  profileRequired: string
+  profileRequiredDesc: string
+  completeProfile: string
 }
 
 const translations: Record<string, MintTranslations> = {
@@ -104,7 +109,10 @@ const translations: Record<string, MintTranslations> = {
     step2: "Enter the code or scan the QR code",
     step3: "Mint your exclusive NFT directly to your wallet",
     examples: "Example codes for testing",
-    exampleCodes: ["WELCOME2024", "ARTFEST2024", "BETA_USER", "EARLY_ADOPTER"]
+    exampleCodes: ["WELCOME2024", "ARTFEST2024", "BETA_USER", "EARLY_ADOPTER"],
+    profileRequired: "Profile Required",
+    profileRequiredDesc: "Complete your Profile in order to Collect a NFT",
+    completeProfile: "Complete Profile"
   },
   es: {
     title: "Acuñar NFT",
@@ -133,7 +141,10 @@ const translations: Record<string, MintTranslations> = {
     step2: "Ingresa el código o escanea el código QR",
     step3: "Acuña tu NFT exclusivo directamente a tu billetera",
     examples: "Códigos de ejemplo para pruebas",
-    exampleCodes: ["BIENVENIDO2024", "ARTFEST2024", "USUARIO_BETA", "ADOPTANTE_TEMPRANO"]
+    exampleCodes: ["BIENVENIDO2024", "ARTFEST2024", "USUARIO_BETA", "ADOPTANTE_TEMPRANO"],
+    profileRequired: "Perfil Requerido",
+    profileRequiredDesc: "Completa tu Perfil para Coleccionar un NFT",
+    completeProfile: "Completar Perfil"
   },
   pt: {
     title: "Cunhar NFT",
@@ -162,7 +173,10 @@ const translations: Record<string, MintTranslations> = {
     step2: "Digite o código ou escaneie o código QR",
     step3: "Cunhe seu NFT exclusivo diretamente para sua carteira",
     examples: "Códigos de exemplo para testes",
-    exampleCodes: ["BEMVINDO2024", "ARTFEST2024", "USUARIO_BETA", "ADOTANTE_PRECOCE"]
+    exampleCodes: ["BEMVINDO2024", "ARTFEST2024", "USUARIO_BETA", "ADOTANTE_PRECOCE"],
+    profileRequired: "Perfil Necessário",
+    profileRequiredDesc: "Complete seu Perfil para Colecionar um NFT",
+    completeProfile: "Completar Perfil"
   },
   fr: {
     title: "Frapper NFT",
@@ -191,7 +205,10 @@ const translations: Record<string, MintTranslations> = {
     step2: "Entrez le code ou scannez le code QR",
     step3: "Frappez votre NFT exclusif directement dans votre portefeuille",
     examples: "Codes d'exemple pour les tests",
-    exampleCodes: ["BIENVENUE2024", "ARTFEST2024", "UTILISATEUR_BETA", "ADOPTEUR_PRECOCE"]
+    exampleCodes: ["BIENVENUE2024", "ARTFEST2024", "UTILISATEUR_BETA", "ADOPTEUR_PRECOCE"],
+    profileRequired: "Profil Requis",
+    profileRequiredDesc: "Complétez votre Profil pour Collectionner un NFT",
+    completeProfile: "Compléter le Profil"
   }
 }
 
@@ -228,6 +245,7 @@ export default function MintPage() {
   
   const { address, isConnected } = useAccount()
   const { toast } = useToast()
+  const { userProfile, loading: profileLoading, isProfileComplete } = useUserProfile()
 
   // Handle secret code input
   const handleSecretCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -446,6 +464,27 @@ export default function MintPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Profile Requirement Check */}
+              {isConnected && !profileLoading && !isProfileComplete && (
+                <Alert className="border-amber-200 bg-amber-50">
+                  <User className="h-4 w-4 text-amber-600" />
+                  <AlertDescription className="text-amber-700">
+                    <div className="flex items-center justify-between">
+                      <span>{t.profileRequiredDesc}</span>
+                      <Link href={`/${locale}/profile`}>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="ml-3 bg-amber-100 border-amber-300 text-amber-800 hover:bg-amber-200"
+                        >
+                          {t.completeProfile}
+                        </Button>
+                      </Link>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
+
               {/* Secret Code Input */}
               <div className="space-y-2">
                 <Label htmlFor="secretCode">{t.secretCodeLabel}</Label>
@@ -456,7 +495,7 @@ export default function MintPage() {
                   value={secretCode}
                   onChange={handleSecretCodeChange}
                   className="text-center font-mono text-lg"
-                  disabled={isLoading || isVerifying}
+                  disabled={isLoading || isVerifying || (isConnected && !isProfileComplete)}
                 />
                 <p className="text-xs text-muted-foreground text-center">
                   Claim codes are case-insensitive
@@ -467,8 +506,8 @@ export default function MintPage() {
               {!verifiedNFT && (
                 <Button
                   onClick={verifyClaimCode}
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-                  disabled={isVerifying || isLoading || !secretCode.trim()}
+                  className="w-full text-white"
+                  disabled={isVerifying || isLoading || !secretCode.trim() || (isConnected && !isProfileComplete)}
                 >
                   {isVerifying ? (
                     <>
@@ -510,7 +549,7 @@ export default function MintPage() {
                 variant="outline"
                 onClick={handleQrScan}
                 className="w-full"
-                disabled={isLoading || isVerifying}
+                disabled={isLoading || isVerifying || (isConnected && !isProfileComplete)}
               >
                 <QrCode className="h-4 w-4 mr-2" />
                 {t.qrCodeButton}
@@ -521,7 +560,7 @@ export default function MintPage() {
                 <Button
                   onClick={handleMint}
                   className="w-full bg-pink-500 hover:bg-pink-600"
-                  disabled={isLoading}
+                  disabled={isLoading || !isProfileComplete}
                 >
                   {isLoading ? (
                     <>
@@ -532,6 +571,11 @@ export default function MintPage() {
                     <>
                       <Gift className="h-4 w-4 mr-2" />
                       {t.walletRequired}
+                    </>
+                  ) : !isProfileComplete ? (
+                    <>
+                      <User className="h-4 w-4 mr-2" />
+                      {t.profileRequired}
                     </>
                   ) : (
                     <>

@@ -69,15 +69,12 @@ The ClaimableNFT contract includes:
 ## Environment Variables Reference
 
 ```bash
-# Required for real contract deployment
-ADMIN_PRIVATE_KEY=your_private_key_here
-
 # Contract addresses (set after deployment)
 NEXT_PUBLIC_CLAIMABLE_NFT_CONTRACT_84532=  # Base Sepolia
 NEXT_PUBLIC_CLAIMABLE_NFT_CONTRACT_8453=   # Base Mainnet
 
 # Admin wallet (for authorization)
-NEXT_PUBLIC_ADMIN_WALLET=0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f
+NEXT_PUBLIC_ADMIN_WALLET=your_admin_wallet_address
 
 # Network mode
 NEXT_PUBLIC_IS_TESTING_MODE=true  # true for testnet, false for mainnet
@@ -87,7 +84,7 @@ NEXT_PUBLIC_IS_TESTING_MODE=true  # true for testnet, false for mainnet
 
 ⚠️ **Important Security Considerations:**
 
-1. **Private Key Security**: Replace the demo `ADMIN_PRIVATE_KEY` with a secure, production private key
+1. **Configuration Security**: Use secure environment variable configuration for production
 2. **Admin Wallet**: Ensure only authorized admins have access to the admin wallet
 3. **Environment Variables**: Keep `.env` file secure and never commit private keys to version control
 4. **Testing**: Always test on testnet before deploying to mainnet

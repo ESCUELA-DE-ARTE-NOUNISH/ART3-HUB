@@ -66,6 +66,24 @@ export function CreateNFTForm() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
+  // Get the active chain ID from environment
+  const activeChainId = process.env.NEXT_PUBLIC_ACTIVE_CHAIN_ID || '84532'
+  
+  // Map chain ID to network name
+  const getNetworkName = (chainId: string) => {
+    switch (chainId) {
+      case '8453': return 'base'
+      case '84532': return 'baseSepolia'
+      case '7777777': return 'zora'
+      case '999999999': return 'zoraTestnet'
+      case '42220': return 'celo'
+      case '44787': return 'celoSepolia'
+      default: return 'baseSepolia'
+    }
+  }
+
+  const selectedNetwork = getNetworkName(activeChainId)
+
   // Create form
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -75,7 +93,7 @@ export function CreateNFTForm() {
       claimCode: '',
       startDate: new Date(),
       status: 'draft',
-      network: 'base',
+      network: selectedNetwork,
     },
   })
 
@@ -409,27 +427,31 @@ export function CreateNFTForm() {
           )}
         />
 
-        {/* Network */}
+        {/* Network - Fixed based on environment */}
         <FormField
           control={form.control}
           name="network"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Network</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value || 'base'}>
+              <Select onValueChange={field.onChange} defaultValue={selectedNetwork} disabled>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select blockchain network" />
+                  <SelectTrigger disabled className="opacity-75">
+                    <SelectValue />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="base">Base</SelectItem>
+                  <SelectItem value="base">Base Mainnet</SelectItem>
                   <SelectItem value="baseSepolia">Base Sepolia (Testnet)</SelectItem>
-                  <SelectItem value="zora">Zora</SelectItem>
+                  <SelectItem value="zora">Zora Mainnet</SelectItem>
                   <SelectItem value="zoraTestnet">Zora Testnet</SelectItem>
-                  <SelectItem value="celo">Celo</SelectItem>
+                  <SelectItem value="celo">Celo Mainnet</SelectItem>
+                  <SelectItem value="celoSepolia">Celo Sepolia (Testnet)</SelectItem>
                 </SelectContent>
               </Select>
+              <FormDescription>
+                Network is automatically set based on NEXT_PUBLIC_ACTIVE_CHAIN_ID ({activeChainId})
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

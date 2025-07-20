@@ -31,8 +31,7 @@ Dynamic and innovative Onchain developer with a robust ability to analyze and im
 
 - Ivanna León – Project Manager & Community Lead: Founder of Nounish IRL, she bridges educational vision with Web3 development, leading teams and initiatives to scale impact from LATAM.
   
-- Claudio CMO
--  Visual artist & creative director with 10+ years in the arts field
+- Claudio CMO - Visual artist & creative director with 10+ years in the arts field
 	•	Built a personal brand with 30K+ followers across platforms (Instagram, TikTok, X)
 	•	Leads communities with 12K+ members, focused on creators and web3 onboarding
 	•	Has organically reached over 3 million views with art and web3-related content

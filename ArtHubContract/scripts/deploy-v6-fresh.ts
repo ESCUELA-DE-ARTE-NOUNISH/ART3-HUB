@@ -89,14 +89,14 @@ async function main() {
     const SubscriptionFactory = await ethers.getContractFactory("Art3HubSubscriptionV4");
     
     // Treasury wallet for receiving subscription fees
-    const treasuryWallet = "0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9";
+    const treasuryWallet = process.env.TREASURY_WALLET || "0x946b7dc627D245877BDf9c59bce626db333Fc01c";
     
     // USDC addresses for Base networks
     const usdcAddress = network.chainId === 8453n 
       ? "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" // Base mainnet USDC
       : "0x036CbD53842c5426634e7929541eC2318f3dCF7e"; // Base Sepolia USDC
     
-    const gaslessRelayer = "0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1"; // Gasless relayer address
+    const gaslessRelayer = process.env.GASLESS_RELAYER || "0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1"; // Gasless relayer address
     const factoryPlaceholder = deployer.address; // Temporary factory address (will be updated)
     
     const subscriptionArgs = [
