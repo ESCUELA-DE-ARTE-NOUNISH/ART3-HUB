@@ -68,6 +68,8 @@ export async function POST(req: NextRequest) {
     console.log('🎨 NFT Title:', dbValidation.nft?.title)
     console.log('📅 Created:', dbValidation.nft?.createdAt)
     console.log('🔑 Claim Code:', dbValidation.nft?.claimCode)
+    console.log('🖼️ Image URL:', dbValidation.nft?.imageUrl)
+    console.log('📄 Metadata URL:', dbValidation.nft?.metadataUrl)
     console.log('📍 Database validation approach: ACTIVE')
     
     // Get the contract address from the NFT record
@@ -100,6 +102,30 @@ export async function POST(req: NextRequest) {
       console.log('🎯 Using ownerMint - no claim codes needed on contract!')
       console.log(`🌐 Calling gasless relay at: ${baseUrl}/api/gasless-relay`)
       
+      let metadataURI = dbValidation.nft!.metadataUrl
+      
+      // If no metadata URL exists, upload metadata now
+      if (!metadataURI) {
+        console.log('⚠️ No metadata URL found, uploading metadata to IPFS before minting...')
+        try {
+          const metadataHash = await NFTClaimService.uploadMetadataToPinata(dbValidation.nft!)
+          // Refresh NFT data to get the updated metadata URL
+          const refreshedValidation = await NFTClaimService.verifyClaimCode(claimCode, walletAddress)
+          if (refreshedValidation.valid && refreshedValidation.nft?.metadataUrl) {
+            metadataURI = refreshedValidation.nft.metadataUrl
+            console.log('✅ Metadata uploaded successfully:', metadataURI)
+          } else {
+            console.log('⚠️ Metadata upload succeeded but URL not found, using fallback')
+            metadataURI = 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L'
+          }
+        } catch (error) {
+          console.error('❌ Failed to upload metadata:', error)
+          metadataURI = 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L'
+        }
+      }
+      
+      console.log('📄 Final metadata URI being sent:', metadataURI)
+      
       const gaslessResponse = await fetch(`${baseUrl}/api/gasless-relay`, {
         method: 'POST',
         headers: {
@@ -110,7 +136,7 @@ export async function POST(req: NextRequest) {
           contractAddress,
           userAddress: walletAddress,
           claimCode, // Include for legacy contract compatibility
-          metadataURI: dbValidation.nft!.imageUrl || 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L',
+          metadataURI: metadataURI,
           chainId: 84532 // Base Sepolia for now
         })
       });
