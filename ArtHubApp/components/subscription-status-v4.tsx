@@ -111,47 +111,53 @@ export function SubscriptionStatusV4({ translations: t, onRefresh }: Subscriptio
       const subscription = await art3hubV4Service.getUserSubscription(address)
       const canMintData = await art3hubV4Service.canUserMint(address)
       
-      // Also check database for actual NFT count (same as create page)
-      let dbNftCount = 0
+      // Check database for user-created NFT count only (excluding claimable NFTs)
+      let dbUserCreatedNftCount = 0
+      let dbTotalNftCount = 0
       try {
-        const nftResponse = await fetch(`/api/nfts?wallet_address=${address}`)
-        if (nftResponse.ok) {
-          const nftData = await nftResponse.json()
-          dbNftCount = nftData.nfts?.length || 0
-          console.log('📊 Database NFT count:', dbNftCount)
-          console.log('📊 Database NFT data sample:', nftData.nfts?.slice(0, 2))
+        const userCreatedResponse = await fetch(`/api/nfts/user-created?wallet_address=${address}`)
+        if (userCreatedResponse.ok) {
+          const userCreatedData = await userCreatedResponse.json()
+          dbUserCreatedNftCount = userCreatedData.count || 0
+          console.log('📊 Database user-created NFT count:', dbUserCreatedNftCount)
         } else {
-          console.warn('Database NFT query failed:', nftResponse.status)
+          console.warn('Database user-created NFT query failed:', userCreatedResponse.status)
+        }
+
+        // Also get total count for information display (but not for quota calculation)
+        const totalResponse = await fetch(`/api/nfts?wallet_address=${address}`)
+        if (totalResponse.ok) {
+          const totalData = await totalResponse.json()
+          dbTotalNftCount = totalData.nfts?.length || 0
+          console.log('📊 Database total NFT count (info only):', dbTotalNftCount)
         }
       } catch (error) {
         console.warn('Could not fetch NFT count from database:', error)
       }
       
-      // Also try to get count from current month/plan period
-      let monthlyNftCount = 0
+      // Also try to get user-created count from current month/plan period
+      let monthlyUserCreatedNftCount = 0
       try {
         const now = new Date()
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-        const monthlyResponse = await fetch(`/api/nfts?wallet_address=${address}&created_after=${startOfMonth}`)
-        if (monthlyResponse.ok) {
-          const monthlyData = await monthlyResponse.json()
-          monthlyNftCount = monthlyData.nfts?.length || 0
-          console.log('📊 Monthly NFT count:', monthlyNftCount)
-        }
+        // For now, use the total user-created count since we don't have monthly filtering on the user-created endpoint
+        // TODO: Add date filtering to the user-created endpoint if needed
+        monthlyUserCreatedNftCount = dbUserCreatedNftCount
+        console.log('📊 Monthly user-created NFT count (using total for now):', monthlyUserCreatedNftCount)
       } catch (error) {
-        console.warn('Could not fetch monthly NFT count:', error)
+        console.warn('Could not fetch monthly user-created NFT count:', error)
       }
       
-      // Use the highest count among contract, database total, and monthly count
+      // Use only user-created NFT counts for quota calculation (excluding claimable NFTs)
       // Note: When upgrading plans, contract count might reset but database has the real history
-      // For monthly plans, we should ideally track monthly usage, but for now use total count
-      const actualNftsMinted = Math.max(subscription.nftsMinted, dbNftCount, monthlyNftCount)
+      const actualNftsMinted = Math.max(subscription.nftsMinted, dbUserCreatedNftCount, monthlyUserCreatedNftCount)
       const actualRemainingNFTs = Math.max(0, subscription.nftLimit - actualNftsMinted)
       
-      console.log('📊 NFT count calculation:', {
+      console.log('📊 NFT count calculation (user-created only):', {
         contractCount: subscription.nftsMinted,
-        dbCount: dbNftCount,
-        monthlyCount: monthlyNftCount,
+        dbUserCreatedCount: dbUserCreatedNftCount,
+        dbTotalCount: dbTotalNftCount,
+        monthlyUserCreatedCount: monthlyUserCreatedNftCount,
         actualNftsMinted,
         nftLimit: subscription.nftLimit,
         actualRemainingNFTs
@@ -169,7 +175,9 @@ export function SubscriptionStatusV4({ translations: t, onRefresh }: Subscriptio
       setSubscriptionData({
         ...subscription,
         nftsMinted: actualNftsMinted,
-        remainingNFTs: actualRemainingNFTs
+        remainingNFTs: actualRemainingNFTs,
+        totalNFTs: dbTotalNftCount, // Add total NFT count for information display
+        userCreatedNFTs: dbUserCreatedNftCount // Add user-created count for clarity
       })
       
     } catch (error) {
@@ -372,6 +380,12 @@ export function SubscriptionStatusV4({ translations: t, onRefresh }: Subscriptio
           <p className="text-xs text-muted-foreground mt-1">
             {subscriptionData.remainingNFTs} NFTs remaining this {t.month}
           </p>
+          {/* Show total NFT information if available */}
+          {subscriptionData.totalNFTs !== undefined && subscriptionData.totalNFTs > subscriptionData.nftsMinted && (
+            <p className="text-xs text-blue-600 mt-1">
+              ℹ️ You have {subscriptionData.totalNFTs} total NFTs (including {subscriptionData.totalNFTs - subscriptionData.nftsMinted} claimable NFTs). Only user-created NFTs count toward your monthly quota.
+            </p>
+          )}
         </div>
 
         {/* Gasless Minting Status */}
@@ -393,7 +407,7 @@ export function SubscriptionStatusV4({ translations: t, onRefresh }: Subscriptio
         )}
 
         {/* Subscription Plans Cards */}
-        <div className="space-y-4 pt-4 border-t">
+        <div className="space-y-4 pt-4 border-t max-w-md mx-auto">
           <h4 className="text-sm font-medium">Subscription Plans</h4>
           
           <div className="grid grid-cols-1 gap-3">
@@ -425,7 +439,7 @@ export function SubscriptionStatusV4({ translations: t, onRefresh }: Subscriptio
             </Card>
 
             {/* Master Plan */}
-            <Card className={`relative ${subscriptionData.plan === 'MASTER' ? 'ring-2 ring-purple-500 bg-purple-50' : 'hover:shadow-md transition-shadow cursor-pointer'}`}>
+            <Card className={`relative ${subscriptionData.plan === 'MASTER' ? 'ring-2 ring-purple-500 bg-purple-200 text-black' : 'hover:shadow-md transition-shadow cursor-pointer texxt-white'}`}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">

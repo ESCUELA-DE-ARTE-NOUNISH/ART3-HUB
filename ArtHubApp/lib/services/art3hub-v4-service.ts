@@ -44,6 +44,20 @@ const ART3HUB_FACTORY_V4_ABI = [
     "type": "function"
   },
   {
+    "inputs": [{"name": "user", "type": "address"}],
+    "name": "getUserSubscriptionInfoV5",
+    "outputs": [
+      {"name": "planName", "type": "string"},
+      {"name": "nftsMinted", "type": "uint256"},
+      {"name": "nftLimit", "type": "uint256"},
+      {"name": "isActive", "type": "bool"},
+      {"name": "collectionsCreated", "type": "uint256"},
+      {"name": "collectionNames", "type": "string[]"}
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "totalCollections",
     "outputs": [{"name": "", "type": "uint256"}],
@@ -314,6 +328,8 @@ export interface V4SubscriptionInfo {
   isActive: boolean
   autoRenew: boolean
   hasGaslessMinting: boolean
+  totalNFTs?: number // Total NFTs including claimable NFTs (for information display)
+  userCreatedNFTs?: number // Only user-created NFTs (for clarity)
 }
 
 export class Art3HubV4Service {
@@ -352,18 +368,31 @@ export class Art3HubV4Service {
     })
   }
 
-  // Get user subscription from V4 contract with Enhanced Factory Integration
+  // Get user subscription from V4/V6 contract with Enhanced Factory Integration
   async getUserSubscription(userAddress: Address): Promise<V4SubscriptionInfo> {
     try {
-      console.log('🔍 Getting V4 subscription for user:', userAddress)
+      console.log('🔍 Getting V4/V6 subscription for user:', userAddress)
       
-      // Use enhanced factory method for better UI integration
-      const factoryResult = await this.publicClient.readContract({
-        address: this.factoryAddress,
-        abi: ART3HUB_FACTORY_V4_ABI,
-        functionName: 'getUserSubscriptionInfo',
-        args: [userAddress]
-      })
+      // Try V6 function first, fallback to V4
+      let factoryResult: any
+      try {
+        factoryResult = await this.publicClient.readContract({
+          address: this.factoryAddress,
+          abi: ART3HUB_FACTORY_V4_ABI,
+          functionName: 'getUserSubscriptionInfoV5',
+          args: [userAddress]
+        })
+        console.log('✅ Using V6 getUserSubscriptionInfoV5 function')
+      } catch (error) {
+        console.log('⚠️ V6 function failed, trying V4 fallback:', error)
+        factoryResult = await this.publicClient.readContract({
+          address: this.factoryAddress,
+          abi: ART3HUB_FACTORY_V4_ABI,
+          functionName: 'getUserSubscriptionInfo',
+          args: [userAddress]
+        })
+        console.log('✅ Using V4 getUserSubscriptionInfo function')
+      }
       
       // Factory returns: [planName, nftsMinted, nftLimit, isActive]
       const [planName, nftsMinted, nftLimit, isActive] = factoryResult
@@ -736,9 +765,52 @@ export class Art3HubV4Service {
         artist: params.artist
       })
       
-      // V4 contracts handle subscription automatically with auto-enrollment
-      console.log('🔍 V4 contracts will handle subscription management automatically')
-      console.log('📋 Collection creation will auto-enroll user if needed')
+      // Check user subscription status first
+      const userAddress = this.walletClient.account!.address
+      console.log('🔍 Checking subscription for user:', userAddress)
+      
+      let subscription
+      try {
+        subscription = await this.getUserSubscription(userAddress)
+        console.log('🔍 User subscription status:', {
+          isActive: subscription.isActive,
+          plan: subscription.plan,
+          remainingNFTs: subscription.remainingNFTs
+        })
+      } catch (error) {
+        console.error('❌ Error getting subscription status:', error)
+        // Set default subscription if check fails
+        subscription = {
+          plan: 'FREE' as const,
+          planName: 'Free Plan',
+          expiresAt: null,
+          nftsMinted: 0,
+          nftLimit: 1,
+          remainingNFTs: 1,
+          isActive: false,
+          autoRenew: false,
+          hasGaslessMinting: true
+        }
+        console.log('⚠️ Using default subscription, will attempt enrollment')
+      }
+      
+      // If user is not active, subscribe to free plan first
+      if (!subscription.isActive) {
+        console.log('📝 User not enrolled, subscribing to Free Plan...')
+        try {
+          const subscriptionHash = await this.subscribeToFreePlan()
+          console.log('✅ Free plan subscription successful:', subscriptionHash)
+          
+          // Wait for subscription to be confirmed
+          await this.publicClient.waitForTransactionReceipt({ hash: subscriptionHash as `0x${string}` })
+          console.log('✅ Subscription confirmed, proceeding with collection creation')
+        } catch (error) {
+          console.error('❌ Failed to subscribe to free plan:', error)
+          throw new Error('Please try again - subscription enrollment failed')
+        }
+      } else {
+        console.log('✅ User has active subscription, proceeding with collection creation')
+      }
       
       // Convert royalty BPS to fee numerator (out of 10000)
       const royaltyFeeNumerator = BigInt(params.royaltyBPS)
@@ -835,23 +907,29 @@ export class Art3HubV4Service {
         artist: params.artist,
         royaltyRecipient: params.royaltyRecipient,
         royaltyFeeNumerator,
+        // V6 (V5) additional creator profile fields
+        creatorName: params.name, // Use collection name as creator name for now
+        creatorUsername: params.artist, // Use artist address as username for now
+        creatorEmail: '', // Empty for now
+        creatorProfilePicture: '', // Empty for now
+        creatorSocialLinks: '', // Empty for now
         nonce,
         deadline
       }
       
-      console.log('📝 V4 Collection voucher details:', voucher)
+      console.log('📝 V6 Collection voucher details:', voucher)
       
-      // EIP-712 domain for V4
+      // EIP-712 domain for V6 (V5)
       const domain = {
-        name: 'Art3HubFactoryV4',
+        name: 'Art3HubFactoryV5',
         version: '1',
         chainId: this.chainId,
         verifyingContract: this.factoryAddress
       } as const
       
-      // EIP-712 types for V4
+      // EIP-712 types for V6 (V5)
       const types = {
-        CollectionVoucher: [
+        CollectionVoucherV5: [
           { name: 'name', type: 'string' },
           { name: 'symbol', type: 'string' },
           { name: 'description', type: 'string' },
@@ -860,6 +938,11 @@ export class Art3HubV4Service {
           { name: 'artist', type: 'address' },
           { name: 'royaltyRecipient', type: 'address' },
           { name: 'royaltyFeeNumerator', type: 'uint96' },
+          { name: 'creatorName', type: 'string' },
+          { name: 'creatorUsername', type: 'string' },
+          { name: 'creatorEmail', type: 'string' },
+          { name: 'creatorProfilePicture', type: 'string' },
+          { name: 'creatorSocialLinks', type: 'string' },
           { name: 'nonce', type: 'uint256' },
           { name: 'deadline', type: 'uint256' }
         ]
@@ -870,7 +953,7 @@ export class Art3HubV4Service {
         account: this.walletClient.account!,
         domain,
         types,
-        primaryType: 'CollectionVoucher',
+        primaryType: 'CollectionVoucherV5',
         message: voucher
       })
       
@@ -897,14 +980,14 @@ export class Art3HubV4Service {
         deadline: voucher.deadline.toString()
       }
       
-      // Send to relayer API endpoint with V4 type
+      // Send to relayer API endpoint with V6 type
       const response = await fetch('/api/gasless-relay', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          type: 'createCollectionV4',
+          type: 'createCollectionV6',
           voucher: serializableVoucher,
           signature,
           chainId: this.chainId
@@ -919,9 +1002,20 @@ export class Art3HubV4Service {
       const result = await response.json()
       console.log('✅ Gasless V4 collection creation successful:', result)
       
+      // Extract contract address from the response - check multiple possible fields
+      let contractAddress = result.contractAddress
+      if (!contractAddress && result.collectionAddress) {
+        contractAddress = result.collectionAddress
+      }
+      if (!contractAddress && result.address) {
+        contractAddress = result.address
+      }
+      
+      console.log('📋 Extracted contract address:', contractAddress)
+      
       return {
         transactionHash: result.transactionHash,
-        contractAddress: result.contractAddress,
+        contractAddress: contractAddress as Address,
         gasless: true,
         collectionData: {
           name: voucher.name,

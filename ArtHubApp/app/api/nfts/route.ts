@@ -38,7 +38,8 @@ export async function POST(request: NextRequest) {
       network,
       royalty_percentage: parseFloat(royalty_percentage) || 0,
       contract_address,
-      token_id
+      token_id,
+      source: 'user_created' as const
     }
 
     const nft = await FirebaseNFTService.createNFT(nftData)

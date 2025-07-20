@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import Header from "@/components/header"
 import { Button } from "@/components/ui/button"
@@ -268,8 +268,9 @@ export default function AdminPage() {
   const params = useParams()
   const locale = (params?.locale as string) || defaultLocale
   const t = translations[locale] || translations.en
+  const router = useRouter()
   
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
   const { toast } = useToast()
   const adminService = useAdminService()
   
@@ -286,6 +287,20 @@ export default function AdminPage() {
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [editLabel, setEditLabel] = useState("")
   const [importFile, setImportFile] = useState<File | null>(null)
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false)
+
+  // Redirect to landing page only if user explicitly disconnects
+  useEffect(() => {
+    // Only redirect if user is definitely disconnected after initial load
+    const checkConnection = setTimeout(() => {
+      if (!isConnected) {
+        router.push('/')
+      }
+      setHasCheckedAuth(true)
+    }, 1000) // Give time for wallet connection to be established
+
+    return () => clearTimeout(checkConnection)
+  }, [isConnected, router])
 
   // Load admin data and check permissions
   useEffect(() => {
@@ -300,6 +315,20 @@ export default function AdminPage() {
     const interval = setInterval(loadAdminData, 5000)
     return () => clearInterval(interval)
   }, [address, adminService])
+
+  // Show loading state until auth check is complete
+  if (!hasCheckedAuth) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <main className="container mx-auto px-4 py-8 pt-20">
+          <div className="max-w-2xl mx-auto text-center">
+            Loading...
+          </div>
+        </main>
+      </div>
+    )
+  }
 
   // Access control - redirect if not admin
   if (!isCurrentUserAdmin) {

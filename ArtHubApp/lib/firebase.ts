@@ -68,6 +68,7 @@ export interface NFT {
   royalty_percentage: number
   contract_address?: string
   token_id?: number
+  source: 'user_created' | 'claimable'
   created_at: string
   updated_at: string
 }

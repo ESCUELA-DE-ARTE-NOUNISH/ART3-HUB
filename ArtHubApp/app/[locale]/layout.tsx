@@ -14,7 +14,11 @@ import { PrivyAppProvider } from "@/providers/PrivyProvider"
 import AppWrapper from "@/components/app-wrapper"
 import UserSessionTracker from "@/components/UserSessionTracker"
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap',
+  preload: true
+})
 
 export async function generateMetadata(): Promise<Metadata> {
   const URL = process.env.NEXT_PUBLIC_URL;

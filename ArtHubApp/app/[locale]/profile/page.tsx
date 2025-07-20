@@ -386,7 +386,7 @@ export default function ProfilePage() {
       </div>
       
       {/* Subscription Status Section */}
-      <div className="container mx-auto px-4 mt-8">
+      <div className="container mx-auto px-4 mt-8 mb-12">
         <SubscriptionStatusV4 
           translations={t} 
           onRefresh={() => {

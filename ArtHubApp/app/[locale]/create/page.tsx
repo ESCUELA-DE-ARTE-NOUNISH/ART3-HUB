@@ -13,7 +13,7 @@ import { ImagePlus, Loader2, ExternalLink } from "lucide-react"
 import { useAccount, usePublicClient, useWalletClient, useBalance } from "wagmi"
 import { useNetworkClients } from "@/hooks/useNetworkClients"
 import { IPFSService, type NFTMetadata } from "@/lib/services/ipfs-service"
-import { createArt3HubV4ServiceWithUtils, type V4SubscriptionInfo } from "@/lib/services/art3hub-v4-service"
+import { createArt3HubV4ServiceWithUtils } from "@/lib/services/art3hub-v4-service"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -28,7 +28,7 @@ import { getOpenSeaLink, parseNetworkString } from "@/lib/opensea-utils"
 const translations = {
   en: {
     title: "Create NFT",
-    subtitle: "Create NFTs with V4 gasless minting - Free Plan: 1 NFT/month, Master Plan: 10 NFTs/month, Elite Creator: 25 NFTs/month",
+    subtitle: "Create NFTs with V6 gasless minting - Free Plan: 1 NFT/month, Master Plan: 10 NFTs/month, Elite Creator: 25 NFTs/month",
     image: "Image",
     clickToUpload: "Click to upload",
     dragAndDrop: "or drag and drop",
@@ -383,16 +383,20 @@ function CreateNFT() {
         const subscription = await art3hubV4Service.getUserSubscription(address)
         const canMintData = await art3hubV4Service.canUserMint(address)
         
-        // Also check database for actual NFT count
-        let dbNftCount = 0
+        // Check database for actual user-created NFT count (excluding claimable NFTs)
+        let dbUserCreatedNftCount = 0
         try {
-          const nftResponse = await fetch(`/api/nfts?wallet_address=${address}`)
+          const nftResponse = await fetch(`/api/nfts/user-created?wallet_address=${address}`)
           if (nftResponse.ok) {
             const nftData = await nftResponse.json()
-            dbNftCount = nftData.nfts?.length || 0
+            dbUserCreatedNftCount = nftData.count || 0
+            
+            console.log('📊 NFT Count Analysis:', {
+              userCreatedNfts: dbUserCreatedNftCount
+            })
           }
         } catch (error) {
-          console.warn('Could not fetch NFT count from database:', error)
+          console.warn('Could not fetch user-created NFT count from database:', error)
         }
         
         console.log('🔍 V4 Subscription comparison:', {
@@ -406,20 +410,20 @@ function CreateNFT() {
             remainingNFTs: canMintData.remainingNFTs
           },
           database: {
-            nftCount: dbNftCount
+            userCreatedNftCount: dbUserCreatedNftCount
           }
         })
         
-        // Use database count if it's higher (more accurate)
-        const actualNftsMinted = Math.max(subscription.nftsMinted, dbNftCount)
-        const actualCanMint = actualNftsMinted < subscription.nftLimit
+        // Use database count for user-created NFTs only (excludes claimable NFTs)
+        const actualUserCreatedNfts = Math.max(subscription.nftsMinted, dbUserCreatedNftCount)
+        const actualCanMint = actualUserCreatedNfts < subscription.nftLimit
         
         if (isMounted) {
           setSubscriptionData({
             plan: subscription.plan, // Use plan directly instead of planName (like profile page)
             isActive: subscription.isActive,
             nftQuota: subscription.nftLimit,
-            nftsMinted: actualNftsMinted,
+            nftsMinted: actualUserCreatedNfts, // Only count user-created NFTs, not claimable ones
             canMint: actualCanMint
           })
         }
@@ -914,11 +918,11 @@ function CreateNFT() {
 
       if (subscriptionData.nftsMinted >= subscriptionData.nftQuota) {
         toast({
-          title: "NFT Quota Exceeded",
-          description: `You have used all ${subscriptionData.nftQuota} NFTs in your ${
+          title: "NFT Creation Quota Exceeded",
+          description: `You have used all ${subscriptionData.nftQuota} created NFTs in your ${
             subscriptionData.plan === 'FREE' ? 'Free' : 
             subscriptionData.plan === 'MASTER' ? 'Master' : 'Elite Creator'
-          } plan.`,
+          } plan. Note: Claimable NFTs don't count toward this quota.`,
           variant: "destructive",
         })
         setIsLoading(false)
@@ -926,61 +930,32 @@ function CreateNFT() {
         return
       }
       
-      setMintStatus('Creating NFT (gasless with V5)...')
+      // Use new simplified NFT creation architecture
+      setMintStatus('Creating NFT with collection-per-NFT architecture...')
       
-      // Create Art3Hub V4 service (using V5 contracts through V4 interface)
-      const { art3hubV4Service } = createArt3HubV4ServiceWithUtils(publicClient, activeWalletClient, selectedNetwork, isTestingMode)
+      // Import the new simple service
+      const { createSimpleNFTService } = await import('@/lib/services/simple-nft-service')
+      const simpleNFTService = createSimpleNFTService(publicClient, walletClient, targetNetwork.id)
       
-      const collectionParams = {
+      const nftResult = await simpleNFTService.createNFT({
         name: title,
         symbol: title.replace(/\s+/g, '').toUpperCase().slice(0, 6) || 'ART3',
         description,
         imageURI: metadataUpload.ipfsUrl,
         externalUrl: '',
         artist: address,
-        royaltyRecipient: address,
-        royaltyBPS: Math.round(parseFloat(royaltyPercentage) * 100) // Convert percentage to basis points
-      }
-      
-      // Create collection first with V5 service
-      setMintStatus('Creating V5 collection...')
-      const collectionResult = await art3hubV4Service.createCollection({
-        name: title,
-        symbol: title.replace(/\s+/g, '').toUpperCase().slice(0, 6) || 'ART3',
-        description,
-        imageURI: metadataUpload.ipfsUrl,
-        externalUrl: '',
-        artist: address,
-        royaltyRecipient: address,
-        royaltyBPS: Math.round(parseFloat(royaltyPercentage) * 100) // Convert percentage to basis points
+        royaltyBPS: Math.round(parseFloat(royaltyPercentage) * 100), // Convert percentage to basis points
+        recipient: address // The connected user will receive the NFT
       })
       
-      console.log('🎨 Collection created successfully:', collectionResult.contractAddress)
+      console.log('🎨 Simple NFT created successfully:', nftResult)
       
-      // Wait longer to ensure collection is fully registered with factory
-      setMintStatus('Waiting for collection registration...')
-      await new Promise(resolve => setTimeout(resolve, 3000)) // Increased from 1.5s to 3s
-      
-      // Mint NFT to the newly created collection
-      setMintStatus('Minting NFT to V5 collection...')
-      const mintResult = await art3hubV4Service.mintNFT({
-        collectionContract: collectionResult.contractAddress,
-        recipient: address,
-        tokenURI: metadataUpload.ipfsUrl
-      })
-      
-      console.log('🔍 V5 TRANSACTION RESULTS:')
-      console.log('Collection Result:', collectionResult)
-      console.log('Mint Result:', mintResult)
-      console.log('Collection Contract:', collectionResult.contractAddress)
-      console.log('Mint Transaction Hash:', mintResult.transactionHash)
-      
-      setTransactionHash(mintResult.transactionHash)
+      setTransactionHash(nftResult.transactionHash)
       setMintResult({
-        transactionHash: mintResult.transactionHash,
-        contractAddress: collectionResult.contractAddress,
-        tokenId: mintResult.tokenId || 1, // V4 might not return tokenId, default to 1
-        gasless: mintResult.gasless
+        transactionHash: nftResult.transactionHash,
+        contractAddress: nftResult.collectionAddress,
+        tokenId: nftResult.tokenId,
+        gasless: nftResult.gasless
       })
       setMintStatus('') // Clear the loading status when successful
       
@@ -996,30 +971,30 @@ function CreateNFT() {
         const updatedSubscription = await refreshService.getUserSubscription(address)
         const updatedCanMint = await refreshService.canUserMint(address)
         
-        // Also check database for latest NFT count
-        let dbNftCount = 0
+        // Check database for user-created NFT count only (excluding claimable NFTs)
+        let dbUserCreatedNftCount = 0
         try {
-          const nftResponse = await fetch(`/api/nfts?wallet_address=${address}`)
-          if (nftResponse.ok) {
-            const nftData = await nftResponse.json()
-            dbNftCount = nftData.nfts?.length || 0
+          const userCreatedResponse = await fetch(`/api/nfts/user-created?wallet_address=${address}`)
+          if (userCreatedResponse.ok) {
+            const userCreatedData = await userCreatedResponse.json()
+            dbUserCreatedNftCount = userCreatedData.count || 0
           }
         } catch (error) {
-          console.warn('Could not fetch updated NFT count from database:', error)
+          console.warn('Could not fetch updated user-created NFT count from database:', error)
         }
         
-        // Use database count if it's higher (more accurate)
-        const actualNftsMinted = Math.max(updatedSubscription.nftsMinted, dbNftCount)
+        // Use database user-created count if it's higher (more accurate)
+        const actualNftsMinted = Math.max(updatedSubscription.nftsMinted, dbUserCreatedNftCount)
         const actualCanMint = actualNftsMinted < updatedSubscription.nftLimit
         
-        console.log('📊 Updated V4 subscription data comparison:', {
+        console.log('📊 Updated V4 subscription data comparison (user-created only):', {
           blockchain: {
             nftsMinted: updatedSubscription.nftsMinted,
             nftLimit: updatedSubscription.nftLimit,
             canMint: updatedCanMint.canMint
           },
           database: {
-            nftCount: dbNftCount
+            userCreatedNftCount: dbUserCreatedNftCount
           },
           final: {
             nftsMinted: actualNftsMinted,
@@ -1053,22 +1028,22 @@ function CreateNFT() {
           category: category,
           image_ipfs_hash: imageHash, // Use the variable we stored earlier
           metadata_ipfs_hash: metadataHash, // Use the variable we stored earlier
-          transaction_hash: mintResult.transactionHash,
+          transaction_hash: nftResult.transactionHash,
           network: isTestingMode 
             ? `${selectedNetwork}-${selectedNetwork === 'base' ? 'sepolia' : selectedNetwork === 'zora' ? 'sepolia' : 'alfajores'}` 
             : selectedNetwork,
           royalty_percentage: parseFloat(royaltyPercentage),
-          contract_address: collectionResult.contractAddress || null,
-          token_id: mintResult.tokenId || 1
+          contract_address: nftResult.collectionAddress || null,
+          token_id: nftResult.tokenId || 1
         }
         
         console.log('🗄️ DATABASE STORAGE ANALYSIS:')
         console.log('Raw Variables:')
         console.log('- imageHash:', imageHash)
         console.log('- metadataHash:', metadataHash)
-        console.log('- mintResult.transactionHash:', mintResult.transactionHash)
-        console.log('- collectionResult.contractAddress:', collectionResult.contractAddress)
-        console.log('- mintResult.tokenId:', mintResult.tokenId)
+        console.log('- nftResult.transactionHash:', nftResult.transactionHash)
+        console.log('- nftResult.collectionAddress:', nftResult.collectionAddress)
+        console.log('- nftResult.tokenId:', nftResult.tokenId)
         console.log('- selectedNetwork:', selectedNetwork)
         console.log('- isTestingMode:', isTestingMode)
         console.log('Final NFT Data Object:', nftData)
@@ -1105,30 +1080,6 @@ function CreateNFT() {
               contractMatch: nftData.contract_address === dbResult.nft.contract_address,
               tokenMatch: nftData.token_id === dbResult.nft.token_id
             })
-          }
-          
-          // If we have a collection address and it's different from what was initially stored, update it
-          if (collectionResult.contractAddress && nftData.contract_address !== collectionResult.contractAddress) {
-            console.log('🔄 Updating database with correct collection address...')
-            try {
-              const updateResponse = await fetch('/api/nfts/update-contract', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  transaction_hash: mintResult.transactionHash,
-                  contract_address: collectionResult.contractAddress
-                })
-              })
-              
-              if (updateResponse.ok) {
-                const updateResult = await updateResponse.json()
-                console.log('✅ Contract address updated in database:', updateResult)
-              } else {
-                console.warn('Failed to update contract address:', await updateResponse.text())
-              }
-            } catch (updateError) {
-              console.warn('Error updating contract address:', updateError)
-            }
           }
         }
       } catch (error) {
@@ -1204,24 +1155,42 @@ function CreateNFT() {
                       </div>
                       
                       {/* Subscription Information */}
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <div className="flex-1">
-                          <Label className="text-sm font-medium text-gray-700">{t.subscription || 'Subscription'}</Label>
-                          <p className="text-sm font-semibold text-gray-900">
-                            {subscriptionLoading ? (
-                              <span className="animate-pulse">Loading...</span>
-                            ) : subscriptionData ? (
-                              `${
-                                subscriptionData.plan === 'FREE' ? 'Free Plan' : 
-                                subscriptionData.plan === 'MASTER' ? 'Master Plan' : 'Elite Creator Plan'
-                              } (${subscriptionData.nftsMinted}/${subscriptionData.nftQuota} NFTs used)`
-                            ) : (
-                              "Free Plan (0/1 NFTs used)"
-                            )}
-                          </p>
-                        </div>
-                        <div className="text-left sm:text-right">
-                          <p className="text-xs text-gray-500">{t.gaslessMinting || 'Gasless Minting'}</p>
+                      <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                          <div className="flex-1">
+                            <Label className="text-sm font-medium text-gray-700">{t.subscription || 'Subscription'}</Label>
+                            <div className="mt-1">
+                              <p className="text-base font-bold text-gray-900">
+                                {subscriptionLoading ? (
+                                  <span className="animate-pulse">Loading...</span>
+                                ) : subscriptionData ? (
+                                  `${
+                                    subscriptionData.plan === 'FREE' ? '🆓 Free Plan' : 
+                                    subscriptionData.plan === 'MASTER' ? '💎 Master Plan' : '👑 Elite Creator Plan'
+                                  }`
+                                ) : (
+                                  "🆓 Free Plan"
+                                )}
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                {subscriptionData ? (
+                                  `${subscriptionData.nftsMinted}/${subscriptionData.nftQuota} created NFTs used`
+                                ) : (
+                                  "0/1 created NFTs used"
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-left sm:text-right">
+                            <div className="space-y-1">
+                              <p className="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                                ⚡ {t.gaslessMinting || 'Gasless Minting'}
+                              </p>
+                              <p className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                                🎁 Claimable NFTs don't count
+                              </p>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       
@@ -1230,14 +1199,14 @@ function CreateNFT() {
                         <Alert className="border-orange-200 bg-orange-50">
                           <AlertTitle className="text-orange-800">{t.quotaExceeded || 'NFT Quota Exceeded'}</AlertTitle>
                           <AlertDescription className="text-orange-700 space-y-3">
-                            <p>{t.quotaExceededDesc || `You have used all ${subscriptionData.nftQuota} NFTs in your ${
+                            <p>{t.quotaExceededDesc || `You have used all ${subscriptionData.nftQuota} created NFTs in your ${
                               subscriptionData.plan === 'FREE' ? 'Free' : 
                               subscriptionData.plan === 'MASTER' ? 'Master' : 'Elite Creator'
-                            } plan. Please upgrade to mint more NFTs.`}</p>
+                            } plan. Note: Claimable NFTs don't count toward this quota. Upgrade to create more NFTs.`}</p>
                             
                             {/* Upgrade Options */}
                             {subscriptionData.plan === 'FREE' && (
-                              <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                              <div className="flex flex-col gap-2 pt-2 max-w-sm mx-auto min-h-36">
                                 <Button 
                                   type="button"
                                   size="sm" 
