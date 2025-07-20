@@ -137,7 +137,7 @@ export class NFTClaimService {
           
           // Upload image to IPFS
           const imageUploadResult = await IPFSService.uploadFile(imageFile)
-          imageUrl = imageUploadResult.gatewayUrl // Use gateway URL format
+          imageUrl = imageUploadResult.ipfsUrl // Use standard ipfs:// protocol format for metadata
           ipfsImageHash = imageUploadResult.ipfsHash
           
           console.log('✅ Image uploaded to IPFS:', {
@@ -296,7 +296,22 @@ export class NFTClaimService {
       await updateDoc(nftRef, formattedData)
       
       // Get updated NFT
-      return await this.getClaimableNFT(id)
+      const updatedNft = await this.getClaimableNFT(id)
+      
+      // If status was changed to published and we don't have metadata URL yet, upload metadata
+      if (updateData.status === 'published' && updatedNft && !updatedNft.metadataUrl) {
+        try {
+          console.log('🔄 NFT published without metadata URL, uploading metadata to IPFS...')
+          await this.uploadMetadataToPinata(updatedNft)
+          // Get the NFT again to include the updated metadata URL
+          return await this.getClaimableNFT(id)
+        } catch (error) {
+          console.error('❌ Failed to upload metadata during update:', error)
+          // Return the NFT even if metadata upload fails
+        }
+      }
+      
+      return updatedNft
     } catch (error) {
       console.error('Error updating claimable NFT:', error)
       return null

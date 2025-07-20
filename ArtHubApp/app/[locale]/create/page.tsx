@@ -789,7 +789,7 @@ function CreateNFT() {
       const metadata: NFTMetadata = {
         name: title,
         description: description,
-        image: imageUpload.gatewayUrl, // Use gateway URL format
+        image: imageUpload.ipfsUrl, // Use standard ipfs:// protocol format for metadata
         attributes: [],
         royalty: {
           recipient: address,
