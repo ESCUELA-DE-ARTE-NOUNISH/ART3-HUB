@@ -44,10 +44,20 @@ export function UsersList({ pageSize = 10 }: UsersListProps) {
     fetchUsers()
   }, [page, pageSize])
 
-  // Format date
-  const formatDate = (dateString: string) => {
+  // Format date and time in EST timezone
+  const formatDateTimeEST = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleDateString()
+      const date = new Date(dateString)
+      return date.toLocaleString('en-US', {
+        timeZone: 'America/New_York',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      })
     } catch (e) {
       return '—'
     }
@@ -87,8 +97,16 @@ export function UsersList({ pageSize = 10 }: UsersListProps) {
                     <TableCell className="truncate max-w-[120px]">
                       {user.email || <span className="text-muted-foreground">—</span>}
                     </TableCell>
-                    <TableCell className="hidden sm:table-cell">{formatDate(user.createdAt)}</TableCell>
-                    <TableCell className="hidden sm:table-cell">{formatDate(user.lastLogin)}</TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      <span className="text-sm">
+                        {formatDateTimeEST(user.createdAt)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      <span className="text-sm">
+                        {formatDateTimeEST(user.lastLogin)}
+                      </span>
+                    </TableCell>
                     <TableCell className="text-center">
                       {user.isProfileComplete ? (
                         <span className="inline-block rounded-full bg-green-500 w-3 h-3" title="Complete" />

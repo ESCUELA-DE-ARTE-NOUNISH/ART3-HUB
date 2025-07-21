@@ -113,7 +113,12 @@ class AdminService {
     try {
       // Validate address format (basic validation)
       if (!address || !address.match(/^0x[a-fA-F0-9]{40}$/)) {
-        return { success: false, message: 'Invalid wallet address format' }
+        const actualLength = address ? address.length : 0
+        const expectedLength = 42 // 0x + 40 hex characters
+        return { 
+          success: false, 
+          message: `Invalid wallet address format. Expected 42 characters (0x + 40 hex), got ${actualLength} characters. Please check the address: ${address}` 
+        }
       }
 
       // Check if admin already exists

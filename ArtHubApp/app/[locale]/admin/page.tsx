@@ -264,6 +264,21 @@ const translations: Record<string, AdminTranslations> = {
   }
 }
 
+// Helper function to format date in EST timezone
+const formatDateTimeEST = (dateString: string): string => {
+  const date = new Date(dateString)
+  return date.toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  })
+}
+
 export default function AdminPage() {
   const params = useParams()
   const locale = (params?.locale as string) || defaultLocale
@@ -352,8 +367,13 @@ export default function AdminPage() {
   }
 
   // Handle adding new admin
-  const handleAddAdmin = async () => {
+  const handleAddAdmin = () => {
+    console.log('🔧 handleAddAdmin called', { newAdminAddress, newAdminLabel, address })
+    console.log('🔍 Admin service available:', !!adminService)
+    console.log('🔍 Admin service type:', typeof adminService)
+    
     if (!newAdminAddress.trim()) {
+      console.log('❌ Invalid address, showing toast')
       toast({
         title: t.invalidAddress,
         description: t.enterAddress,
@@ -362,12 +382,16 @@ export default function AdminPage() {
       return
     }
 
+    console.log('✅ Address validation passed, setting loading state')
     setIsAddingAdmin(true)
     
     try {
+      console.log('🚀 Calling adminService.addAdmin')
       const result = adminService.addAdmin(newAdminAddress.trim(), address || "unknown", newAdminLabel.trim() || undefined)
+      console.log('📨 Result received:', result)
       
       if (result.success) {
+        console.log('✅ Success, updating UI')
         toast({
           title: "Success",
           description: result.message,
@@ -377,6 +401,7 @@ export default function AdminPage() {
         setNewAdminLabel("")
         setShowAddDialog(false)
       } else {
+        console.log('❌ Error result:', result.message)
         toast({
           title: "Error",
           description: result.message,
@@ -384,12 +409,14 @@ export default function AdminPage() {
         })
       }
     } catch (error) {
+      console.error('💥 Exception caught:', error)
       toast({
         title: "Error",
         description: "Failed to add administrator",
         variant: "destructive",
       })
     } finally {
+      console.log('🏁 Finally block, resetting loading state')
       setIsAddingAdmin(false)
     }
   }
@@ -649,9 +676,14 @@ export default function AdminPage() {
                         {t.cancel}
                       </Button>
                       <Button 
-                        onClick={handleAddAdmin} 
+                        onClick={(e) => {
+                          console.log('🖱️ Add Wallet button clicked!')
+                          e.preventDefault()
+                          handleAddAdmin()
+                        }} 
                         disabled={isAddingAdmin}
                         className="bg-pink-500 hover:bg-pink-600"
+                        type="button"
                       >
                         {isAddingAdmin ? "Adding..." : t.addWallet}
                       </Button>
@@ -702,7 +734,9 @@ export default function AdminPage() {
                         </code>
                       </TableCell>
                       <TableCell>
-                        {new Date(admin.addedAt).toLocaleDateString()}
+                        <span className="text-sm">
+                          {formatDateTimeEST(admin.addedAt)}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <Badge variant={admin.isActive ? "default" : "secondary"}>
