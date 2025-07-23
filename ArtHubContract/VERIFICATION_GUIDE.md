@@ -99,7 +99,7 @@ const subscriptionArgs = ethers.AbiCoder.defaultAbiCoder().encode(
     "0xCccCCccc7021b32EBb4e8C08314bD62F7c653EC4", // USDC
     "0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9", // Treasury
     "0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1", // Relayer
-    "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f"  // Owner
+    "<ADMIN_WALLET_ADDRESS>"  // Owner
   ]
 );
 
@@ -109,7 +109,7 @@ const factoryArgs = ethers.AbiCoder.defaultAbiCoder().encode(
   [
     "0x20D07582c3cB6a0b32Aa8be59456c6BBBaDD993D", // Subscription Manager
     "0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1", // Relayer
-    "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f"  // Owner
+    "<ADMIN_WALLET_ADDRESS>"  // Owner
   ]
 );
 

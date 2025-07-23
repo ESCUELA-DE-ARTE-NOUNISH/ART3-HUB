@@ -33,16 +33,16 @@
 - **Purpose**: ElizaOS-based AI agent for Web3 education
 - **Features**: Conversational guidance, memory persistence
 
-## 🔗 V6 Contract Addresses (Base Sepolia) - Collection-per-NFT Architecture
+## 🔗 V6 UPGRADEABLE Contract Addresses (Base Sepolia) - Collection-per-NFT Architecture
 
 | Contract | Address | Purpose |
 |----------|---------|---------|
-| **Factory V6** | `0xA23EcC9944055A0Ffd135939B69E6425a44abE08` | Collection-per-NFT creation |
-| **Subscription V6** | `0x21FC4b7D9dc40323Abbd0Efa4AD93872720D0Ac0` | Subscription management |
-| **Collection V6** | `0x22196fE4D4a93377C6F5a74090EfF869e439Df7d` | NFT implementation |
-| **ClaimableNFT Factory** | `0x12a6C91C0e2a6d1E8e6Ef537107b6F5a12Eeb51C` | Claimable NFT factory pattern |
-| **Admin Wallet** | `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f` | Platform admin |
-| **Gasless Relayer** | `0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd` | Contract owner for gasless operations |
+| **Factory V6 Proxy** | `0x87DfC71B55a41825fe8EAA8a8724D8982b92DeBe` | Collection-per-NFT creation (upgradeable) |
+| **Subscription V6 Proxy** | `0x3B2D7fD4972077Fa1dbE60335c6CDF84b02fE555` | Subscription management (upgradeable) |
+| **Collection V6 Implementation** | `0xA7a5C3c097f291411501129cB69029eCe0F7C45E` | NFT implementation (clone base) |
+| **ClaimableNFT Factory V6 Proxy** | `0x51dD5FE61CF5B537853877A6dE50E7F74c24310A` | Claimable NFT factory (upgradeable) |
+| **Admin Wallet (Owner)** | `<ADMIN_WALLET_ADDRESS>` | Platform admin & upgrade authority |
+| **Gasless Relayer** | `<GASLESS_RELAYER_ADDRESS>` | Operational transactions |
 
 ## 🌟 Key Features
 
@@ -119,7 +119,7 @@ npm run lint
 ## 🛡️ Admin System
 
 ### Environment-Based Configuration
-- **Default Admin**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+- **Default Admin**: `<ADMIN_WALLET_ADDRESS>`
 - **Access Control**: localStorage-based admin management
 - **CRUD Operations**: Full admin wallet management
 - **Route Protection**: Admin-only access to sensitive areas

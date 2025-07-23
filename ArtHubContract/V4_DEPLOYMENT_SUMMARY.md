@@ -83,7 +83,7 @@ All networks are configured with the new V4 plan structure:
 ### **Wallet Addresses:**
 - **Treasury**: `0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9`
 - **Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1`
-- **Contract Owner**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+- **Contract Owner**: `<ADMIN_WALLET_ADDRESS>`
 
 ### **USDC Token Addresses:**
 - **Base Sepolia**: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`

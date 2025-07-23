@@ -168,8 +168,8 @@ ArtHubApp/
 - **Collection V6 Implementation**: [`0x22196fE4D4a93377C6F5a74090EfF869e439Df7d`](https://sepolia.basescan.org/address/0x22196fE4D4a93377C6F5a74090EfF869e439Df7d#code)
 - **Claimable NFT Factory**: [`0x12a6C91C0e2a6d1E8e6Ef537107b6F5a12Eeb51C`](https://sepolia.basescan.org/address/0x12a6C91C0e2a6d1E8e6Ef537107b6F5a12Eeb51C#code)
 - **USDC Token (Base Sepolia)**: [`0x036CbD53842c5426634e7929541eC2318f3dCF7e`](https://sepolia.basescan.org/address/0x036CbD53842c5426634e7929541eC2318f3dCF7e#code)
-- **Admin Wallet**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
-- **Gasless Relayer**: `0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd` (Contract Owner)
+- **Admin Wallet**: `<ADMIN_WALLET_ADDRESS>`
+- **Gasless Relayer**: `<GASLESS_RELAYER_ADDRESS>` (Contract Owner)
 - **Chain ID**: 84532
 - **Explorer**: [Base Sepolia Scan](https://sepolia.basescan.org)
 - **Deployment Date**: January 19, 2025

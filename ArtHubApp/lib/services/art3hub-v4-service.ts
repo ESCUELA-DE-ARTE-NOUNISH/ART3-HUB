@@ -368,86 +368,85 @@ export class Art3HubV4Service {
     })
   }
 
-  // Get user subscription from V4/V6 contract with Enhanced Factory Integration
+  // Get user subscription from V6 contract
   async getUserSubscription(userAddress: Address): Promise<V4SubscriptionInfo> {
     try {
-      console.log('🔍 Getting V4/V6 subscription for user:', userAddress)
+      console.log('🔍 Getting V6 subscription for user:', userAddress)
       
-      // Try V6 function first, fallback to V4
-      let factoryResult: any
       try {
-        factoryResult = await this.publicClient.readContract({
-          address: this.factoryAddress,
-          abi: ART3HUB_FACTORY_V4_ABI,
-          functionName: 'getUserSubscriptionInfoV5',
+        // V6 contracts - get subscription data directly from subscription contract
+        const subscriptionResult = await this.publicClient.readContract({
+          address: this.subscriptionAddress,
+          abi: ART3HUB_SUBSCRIPTION_V4_ABI,
+          functionName: 'getSubscription',
           args: [userAddress]
         })
-        console.log('✅ Using V6 getUserSubscriptionInfoV5 function')
-      } catch (error) {
-        console.log('⚠️ V6 function failed, trying V4 fallback:', error)
-        factoryResult = await this.publicClient.readContract({
-          address: this.factoryAddress,
-          abi: ART3HUB_FACTORY_V4_ABI,
-          functionName: 'getUserSubscriptionInfo',
-          args: [userAddress]
-        })
-        console.log('✅ Using V4 getUserSubscriptionInfo function')
+        console.log('✅ V6 subscription contract call successful')
+        
+        // Subscription returns: [plan, expiresAt, nftsMinted, nftLimit, isActive, hasGaslessMinting]
+        const [plan, expiresAt, nftsMinted, nftLimit, isActive, hasGaslessMinting] = subscriptionResult
+        
+        // Map plan numbers to plan names
+        const planName = plan === 0 ? 'FREE Plan' : plan === 1 ? 'MASTER Plan' : plan === 2 ? 'ELITE Plan' : 'Unknown Plan'
+        
+        // Map plan numbers to types
+        let planType: 'FREE' | 'MASTER' | 'ELITE'
+        switch (plan) {
+          case 0: planType = 'FREE'; break
+          case 1: planType = 'MASTER'; break
+          case 2: planType = 'ELITE'; break
+          default: planType = 'FREE'
+        }
+        
+        const remainingNFTs = Number(nftLimit) - Number(nftsMinted)
+        
+        const result: V4SubscriptionInfo = {
+          plan: planType,
+          planName: planName,
+          expiresAt: Number(expiresAt) > 0 ? new Date(Number(expiresAt) * 1000) : null,
+          nftsMinted: Number(nftsMinted),
+          nftLimit: Number(nftLimit),
+          remainingNFTs: Math.max(0, remainingNFTs),
+          isActive: isActive,
+          autoRenew: false, // V6 doesn't return autoRenew in getSubscription
+          hasGaslessMinting: hasGaslessMinting
+        }
+        
+        console.log('📋 V6 Subscription info:', result)
+        return result
+        
+      } catch (subscriptionError) {
+        console.log('❌ V6 subscription contract failed:', subscriptionError)
+        
+        // For V6 contracts, if subscription call fails, user likely needs to be enrolled
+        // Return default free plan that will trigger enrollment
+        return {
+          plan: 'FREE',
+          planName: 'Free Plan',
+          expiresAt: null,
+          nftsMinted: 0,
+          nftLimit: 1, // V6 Free Plan: 1 NFT/month
+          remainingNFTs: 1,
+          isActive: false, // Not active, will trigger enrollment
+          autoRenew: false,
+          hasGaslessMinting: true // V6 has built-in gasless for all plans
+        }
       }
-      
-      // Factory returns: [planName, nftsMinted, nftLimit, isActive]
-      const [planName, nftsMinted, nftLimit, isActive] = factoryResult
-      
-      // Get additional subscription details from subscription contract
-      const subscriptionResult = await this.publicClient.readContract({
-        address: this.subscriptionAddress,
-        abi: ART3HUB_SUBSCRIPTION_V4_ABI,
-        functionName: 'getSubscription',
-        args: [userAddress]
-      })
-      
-      // Subscription returns: [plan, expiresAt, nftsMinted, nftLimit, isActive, hasGaslessMinting]
-      const [plan, expiresAt, , , , hasGaslessMinting] = subscriptionResult
-      
-      // Map plan numbers to types (V4 has Elite Creator plan)
-      let planType: 'FREE' | 'MASTER' | 'ELITE'
-      switch (plan) {
-        case 0: planType = 'FREE'; break
-        case 1: planType = 'MASTER'; break
-        case 2: planType = 'ELITE'; break
-        default: planType = 'FREE'
-      }
-      
-      const remainingNFTs = Number(nftLimit) - Number(nftsMinted)
-      
-      const result: V4SubscriptionInfo = {
-        plan: planType,
-        planName: planName || `${planType} Plan`,
-        expiresAt: Number(expiresAt) > 0 ? new Date(Number(expiresAt) * 1000) : null,
-        nftsMinted: Number(nftsMinted),
-        nftLimit: Number(nftLimit),
-        remainingNFTs: Math.max(0, remainingNFTs),
-        isActive: isActive,
-        autoRenew: false, // V4 doesn't return autoRenew in getSubscription
-        hasGaslessMinting: hasGaslessMinting
-      }
-      
-      console.log('📋 V4 Subscription info:', result)
-      return result
       
     } catch (error) {
-      console.error('❌ Error getting V4 subscription:', error)
+      console.error('❌ Error getting V6 subscription:', error)
       
-      // Return default inactive subscription
+      // Return default inactive subscription for V6
       return {
         plan: 'FREE',
         planName: 'Free Plan',
         expiresAt: null,
         nftsMinted: 0,
-        nftLimit: 1, // V4 Free Plan: 1 NFT/month
+        nftLimit: 1, // V6 Free Plan: 1 NFT/month
         remainingNFTs: 1,
         isActive: false,
         autoRenew: false,
-        hasGaslessMinting: true // V4 has built-in gasless for all plans
+        hasGaslessMinting: true // V6 has built-in gasless for all plans
       }
     }
   }
@@ -728,17 +727,23 @@ export class Art3HubV4Service {
     }
   }
 
-  // Check if user can mint NFTs
+  // Check if user can mint NFTs (V6 subscription-based checking)
   async canUserMint(userAddress: Address, amount: number = 1): Promise<{ canMint: boolean; remainingNFTs: number }> {
     try {
-      const canMint = await this.publicClient.readContract({
-        address: this.subscriptionAddress,
-        abi: ART3HUB_SUBSCRIPTION_V4_ABI,
-        functionName: 'canUserMint',
-        args: [userAddress, BigInt(amount)]
-      })
+      console.log('🔍 Checking if user can mint NFTs (V6):', { userAddress, amount })
       
+      // Get subscription info from V6 contract
       const subscription = await this.getUserSubscription(userAddress)
+      
+      // Check if user has remaining NFTs in their quota
+      const canMint = subscription.isActive && subscription.remainingNFTs >= amount
+      
+      console.log('📋 V6 Mint capability check:', {
+        isActive: subscription.isActive,
+        remainingNFTs: subscription.remainingNFTs,
+        requestedAmount: amount,
+        canMint
+      })
       
       return {
         canMint,
@@ -746,12 +751,12 @@ export class Art3HubV4Service {
       }
       
     } catch (error) {
-      console.error('Error checking V4 mint capability:', error)
+      console.error('❌ Error checking V6 mint capability:', error)
       return { canMint: false, remainingNFTs: 0 }
     }
   }
 
-  // Create a collection with built-in gasless functionality (V4)
+  // Create a collection with built-in gasless functionality (V6)
   async createCollection(params: Art3HubV4CollectionParams): Promise<V4CollectionCreationResult> {
     if (!this.walletClient) {
       throw new Error('Wallet client not available')

@@ -27,7 +27,7 @@ Art3Hub V6 represents a complete fresh start with new smart contracts on Base Se
 - **Configurable Admin Wallet**: Environment variable-based configuration
 - **CRUD Operations**: Full admin management capabilities
 - **Security**: Environment-based access control
-- **Default Admin**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+- **Default Admin**: `<ADMIN_WALLET_ADDRESS>`
 
 ## 📅 Deployment Details
 
@@ -60,8 +60,8 @@ Art3Hub V6 represents a complete fresh start with new smart contracts on Base Se
 #### Supporting Infrastructure
 - **USDC Token**: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
 - **Treasury Wallet**: `0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9`
-- **Admin Wallet**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
-- **Gasless Relayer**: `0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd`
+- **Admin Wallet**: `<ADMIN_WALLET_ADDRESS>`
+- **Gasless Relayer**: `<GASLESS_RELAYER_ADDRESS>`
 
 ## 🔄 Migration Process
 

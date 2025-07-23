@@ -1,0 +1,56 @@
+{
+  "network": "baseSepolia",
+  "chainId": 84532,
+  "timestamp": "2025-07-23T04:18:48.899Z",
+  "deployer": "0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd",
+  "newOwner": "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f",
+  "gaslessRelayer": "0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd",
+  "contracts": {
+    "subscription": {
+      "proxy": "0xd2914AA38Ec2909c1aCF89aD86F445e4d0574d60",
+      "implementation": "0x9afc3ebEBFA19e4E5235e369937a46376ebE6A71",
+      "args": [
+        "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f",
+        "0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd",
+        "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "0x946b7dc627D245877BDf9c59bce626db333Fc01c",
+        "0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd"
+      ]
+    },
+    "factory": {
+      "proxy": "0x580736b454aadDa6837390eB40C5fB1431b033bb",
+      "implementation": "0x3E4A7526D1F9f443154eFa948e79a235bE692929",
+      "args": [
+        "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f",
+        "0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd",
+        "0xd2914AA38Ec2909c1aCF89aD86F445e4d0574d60",
+        "0x553D7f07979ee712fC72ccD84fd22d174aFf1DdA"
+      ]
+    },
+    "collectionImplementation": {
+      "address": "0x553D7f07979ee712fC72ccD84fd22d174aFf1DdA",
+      "args": []
+    },
+    "claimableNFTFactory": {
+      "proxy": "0xa67fb32492218fBAD3D05Baa83DD5BaE60Df166B",
+      "implementation": "0x6FE79cF5312e1bCDbf0384be98EE0629cB0a6076",
+      "args": [
+        "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f",
+        "0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd"
+      ]
+    }
+  },
+  "gasUsed": {
+    "subscription": "524108",
+    "factory": "321917",
+    "collectionImplementation": "5317519",
+    "claimableNFTFactory": "203367",
+    "total": "6366911"
+  },
+  "verification": {
+    "subscription": "✅ Verified",
+    "factory": "✅ Verified",
+    "collectionImplementation": "✅ Verified",
+    "claimableNFTFactory": "✅ Verified"
+  }
+}

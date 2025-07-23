@@ -4,7 +4,7 @@
 ## Network Information
 - **Network**: baseSepolia
 - **Chain ID**: 84532
-- **Deployer**: 0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd
+- **Deployer**: <GASLESS_RELAYER_ADDRESS>
 - **Deployment Time**: 2025-07-20T03:43:41.812Z
 
 ## Deployed Contracts

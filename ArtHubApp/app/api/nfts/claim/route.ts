@@ -90,6 +90,8 @@ export async function POST(req: NextRequest) {
     
     // Call the smart contract's ownerMint function via gasless relayer (no claim codes needed!)
     let blockchainResult;
+    let metadataURI = dbValidation.nft!.metadataUrl; // Declare outside try block
+    
     try {
       console.log("🚀 Calling ownerMint on smart contract via gasless relayer (database-only validation)...")
       
@@ -100,7 +102,6 @@ export async function POST(req: NextRequest) {
       
       // CRITICAL: Ensure metadata is uploaded BEFORE minting
       console.log('📄 Checking metadata URL before minting...')
-      let metadataURI = dbValidation.nft!.metadataUrl
       
       // If no metadata URL exists, upload metadata BEFORE calling gasless relay
       if (!metadataURI) {
@@ -212,7 +213,8 @@ export async function POST(req: NextRequest) {
       walletAddress,
       blockchainResult.transactionHash || blockchainResult.txHash,
       blockchainResult.tokenId,
-      contractAddress // Use the contract address from the NFT record
+      contractAddress, // Use the contract address from the NFT record
+      metadataURI // Pass the metadata URI that was actually minted
     )
     
     console.log('\\n🎉 CLAIM PROCESSING COMPLETE!')
