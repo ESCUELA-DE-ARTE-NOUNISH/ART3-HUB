@@ -96,7 +96,15 @@ async function main() {
       ? "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" // Base mainnet USDC
       : "0x036CbD53842c5426634e7929541eC2318f3dCF7e"; // Base Sepolia USDC
     
-    const gaslessRelayer = process.env.GASLESS_RELAYER || "0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1"; // Gasless relayer address
+    // Get gasless relayer from private key
+    const gaslessRelayerPrivateKey = process.env.GASLESS_RELAYER_PRIVATE_KEY;
+    if (!gaslessRelayerPrivateKey) {
+      throw new Error("❌ GASLESS_RELAYER_PRIVATE_KEY not found in environment");
+    }
+    
+    const gaslessRelayerWallet = new ethers.Wallet(gaslessRelayerPrivateKey);
+    const gaslessRelayer = gaslessRelayerWallet.address;
+    console.log("🔑 Using gasless relayer:", gaslessRelayer);
     const factoryPlaceholder = deployer.address; // Temporary factory address (will be updated)
     
     const subscriptionArgs = [

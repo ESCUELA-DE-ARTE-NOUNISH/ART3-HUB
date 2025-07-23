@@ -61,7 +61,7 @@ Art3Hub V6 represents a complete fresh start with new smart contracts on Base Se
 - **USDC Token**: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
 - **Treasury Wallet**: `0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9`
 - **Admin Wallet**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
-- **Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1`
+- **Gasless Relayer**: `0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd`
 
 ## 🔄 Migration Process
 

@@ -33,13 +33,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **👥 Environment-Based Configuration**: Admin wallets managed through environment variables
 - **📱 Better Mobile Experience**: Enhanced admin interface for mobile devices
 
-#### V6 Contract Redeployment with Gasless Relayer as Owner
-- **🆕 Fresh V6 Contracts**: New deployment with gasless relayer as contract owner
-  - **Factory V6**: `0x5BAa7723492352668a5060d578E901D0dfdf28Af`
-  - **Subscription V6**: `0xCfa74f044E0200a03687cB6424C9B6B5D7B7f4fd`
-  - **Collection V6 Implementation**: `0x931743f8b80B4EaB5f27AB1AAAF73118cCD74a29`
-  - **Claimable NFT Factory**: `0x55248aC366d3F26b6aa480ed5fD82130C8C6842d`
-  - **Owner**: Gasless Relayer Configuration
+#### V6 Contract Redeployment with Secure Gasless Relayer as Owner
+- **🆕 Fresh V6 Contracts**: New deployment with secure gasless relayer as contract owner
+  - **Factory V6**: `0xA23EcC9944055A0Ffd135939B69E6425a44abE08`
+  - **Subscription V6**: `0x21FC4b7D9dc40323Abbd0Efa4AD93872720D0Ac0`
+  - **Collection V6 Implementation**: `0x22196fE4D4a93377C6F5a74090EfF869e439Df7d`
+  - **Claimable NFT Factory**: `0x12a6C91C0e2a6d1E8e6Ef537107b6F5a12Eeb51C`
+  - **Owner**: Secure Gasless Relayer Configuration
 
 ## [4.0.0] - 2025-01-17
 

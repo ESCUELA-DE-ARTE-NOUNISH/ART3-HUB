@@ -37,12 +37,12 @@
 
 | Contract | Address | Purpose |
 |----------|---------|---------|
-| **Factory V6** | `0x5BAa7723492352668a5060d578E901D0dfdf28Af` | Collection-per-NFT creation |
-| **Subscription V6** | `0xCfa74f044E0200a03687cB6424C9B6B5D7B7f4fd` | Subscription management |
-| **Collection V6** | `0x931743f8b80B4EaB5f27AB1AAAF73118cCD74a29` | NFT implementation |
-| **ClaimableNFT Factory** | `0x55248aC366d3F26b6aa480ed5fD82130C8C6842d` | Claimable NFT factory pattern |
+| **Factory V6** | `0xA23EcC9944055A0Ffd135939B69E6425a44abE08` | Collection-per-NFT creation |
+| **Subscription V6** | `0x21FC4b7D9dc40323Abbd0Efa4AD93872720D0Ac0` | Subscription management |
+| **Collection V6** | `0x22196fE4D4a93377C6F5a74090EfF869e439Df7d` | NFT implementation |
+| **ClaimableNFT Factory** | `0x12a6C91C0e2a6d1E8e6Ef537107b6F5a12Eeb51C` | Claimable NFT factory pattern |
 | **Admin Wallet** | `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f` | Platform admin |
-| **Gasless Relayer** | `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1` | Contract owner for gasless operations |
+| **Gasless Relayer** | `0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd` | Contract owner for gasless operations |
 
 ## 🌟 Key Features
 

@@ -1,0 +1,21 @@
+{
+  "network": {
+    "name": "baseSepolia",
+    "chainId": 84532
+  },
+  "deployer": "0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd",
+  "contracts": {
+    "Art3HubClaimableNFTFactory": {
+      "address": "0x12a6C91C0e2a6d1E8e6Ef537107b6F5a12Eeb51C",
+      "deploymentTx": "0x70af934e3f580c55ab98c4172e67527b7b1693f56ca55b37302744c1d2760fd1"
+    },
+    "testNFT": {
+      "address": "0x54646606e56ba343e210a2424812AAE24598B476",
+      "claimCode": "TEST-CODE-123"
+    }
+  },
+  "timestamp": "2025-07-23T01:54:32.041Z",
+  "gasUsed": {
+    "factory": "3051434"
+  }
+}
