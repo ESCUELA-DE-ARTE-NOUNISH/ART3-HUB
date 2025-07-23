@@ -98,13 +98,11 @@ export async function POST(req: NextRequest) {
       const host = req.headers.get('host') || 'localhost:3000'
       const baseUrl = `${protocol}://${host}`
       
-      // Skip all claim code setup - use ownerMint directly!
-      console.log('🎯 Using ownerMint - no claim codes needed on contract!')
-      console.log(`🌐 Calling gasless relay at: ${baseUrl}/api/gasless-relay`)
-      
+      // CRITICAL: Ensure metadata is uploaded BEFORE minting
+      console.log('📄 Checking metadata URL before minting...')
       let metadataURI = dbValidation.nft!.metadataUrl
       
-      // If no metadata URL exists, upload metadata now
+      // If no metadata URL exists, upload metadata BEFORE calling gasless relay
       if (!metadataURI) {
         console.log('⚠️ No metadata URL found, uploading metadata to IPFS before minting...')
         try {
@@ -113,18 +111,53 @@ export async function POST(req: NextRequest) {
           const refreshedValidation = await NFTClaimService.verifyClaimCode(claimCode, walletAddress)
           if (refreshedValidation.valid && refreshedValidation.nft?.metadataUrl) {
             metadataURI = refreshedValidation.nft.metadataUrl
-            console.log('✅ Metadata uploaded successfully:', metadataURI)
+            console.log('✅ Metadata uploaded successfully before minting:', metadataURI)
           } else {
-            console.log('⚠️ Metadata upload succeeded but URL not found, using fallback')
-            metadataURI = 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L'
+            console.log('⚠️ Metadata upload succeeded but URL not found, using IPFS hash fallback')
+            metadataURI = `https://ipfs.io/ipfs/${metadataHash}`
           }
         } catch (error) {
-          console.error('❌ Failed to upload metadata:', error)
+          console.error('❌ Failed to upload metadata before minting:', error)
+          // Use fallback metadata but log the issue
           metadataURI = 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L'
+          console.warn('📄 Using fallback metadata URI due to upload failure')
         }
+      } else {
+        console.log('✅ Metadata URL already exists:', metadataURI)
       }
       
-      console.log('📄 Final metadata URI being sent:', metadataURI)
+      console.log('📄 Final metadata URI confirmed for minting:', metadataURI)
+      console.log('🎯 Using ownerMint - no claim codes needed on contract!')
+      console.log(`🌐 Calling gasless relay at: ${baseUrl}/api/gasless-relay`)
+      
+      // 🔍 CRITICAL DEBUG: Log exactly what we're sending to gasless relay
+      console.log('\\n🔍 CRITICAL DEBUG: Payload being sent to gasless relay:')
+      console.log('======================================================')
+      console.log('📄 metadataURI being sent:', JSON.stringify(metadataURI))
+      console.log('📄 metadataURI type:', typeof metadataURI)
+      console.log('📄 metadataURI length:', metadataURI?.length)
+      console.log('======================================================')
+      
+      // 🔍 DEBUG: Test metadata URL accessibility
+      if (metadataURI && metadataURI.startsWith('http')) {
+        try {
+          console.log('🧪 TESTING: Verifying metadata URL is accessible...')
+          const testResponse = await fetch(metadataURI)
+          if (testResponse.ok) {
+            const testMetadata = await testResponse.json()
+            console.log('✅ METADATA TEST SUCCESS:', {
+              url: metadataURI,
+              name: testMetadata.name,
+              description: testMetadata.description,
+              image: testMetadata.image?.substring(0, 50) + '...'
+            })
+          } else {
+            console.error('❌ METADATA TEST FAILED:', testResponse.status, testResponse.statusText)
+          }
+        } catch (metaTestError) {
+          console.error('❌ METADATA TEST ERROR:', metaTestError.message)
+        }
+      }
       
       const gaslessResponse = await fetch(`${baseUrl}/api/gasless-relay`, {
         method: 'POST',

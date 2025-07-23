@@ -1726,17 +1726,53 @@ export async function POST(request: NextRequest) {
       console.log('📍 Contract:', body.contractAddress)
       console.log('👤 User:', body.userAddress)
       console.log('🤖 Relayer:', relayerAccount.address)
-      console.log('🔑 Claim Code:', body.claimCode || 'None (ownerMint)')
+      console.log('🔑 Claim Code:', body.claimCode || 'None (database-only)')
       console.log('🖼️ Metadata URI:', body.metadataURI || 'Default IPFS')
-      console.log('🎯 Strategy: Try ownerMint first, fallback to claimNFT')
+      console.log('🎯 Strategy: Database-only validation + ownerMint with metadata')
       console.log('=================================\\n')
 
-      // Try ownerMint first (new contracts), fallback to claimNFT (old contracts)
-      const metadataURI = body.metadataURI || 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L'
-      let useOwnerMint = true;
+      // 🎯 DATABASE-ONLY CLAIM VALIDATION APPROACH
+      // Claims are validated in database only, contracts use ownerMint directly with metadata
+      let metadataURI = body.metadataURI || 'https://ipfs.io/ipfs/QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L'
       
+      // 🔧 CRITICAL FIX: The smart contracts are adding their own IPFS gateway prefix!
+      // We need to send only the IPFS hash, not the full URL
+      console.log('🔍 Original metadataURI received:', metadataURI)
+      
+      let ipfsHash = ''
+      if (metadataURI.startsWith('ipfs://')) {
+        // Extract hash from ipfs:// protocol
+        ipfsHash = metadataURI.replace('ipfs://', '')
+        console.log('🔧 Extracted IPFS hash from ipfs:// protocol:', ipfsHash)
+      } else if (metadataURI.includes('ipfs.io/ipfs/')) {
+        // Extract hash from gateway URL
+        const match = metadataURI.match(/\/ipfs\/([^/?]+)/)
+        if (match) {
+          ipfsHash = match[1]
+          console.log('🔧 Extracted IPFS hash from gateway URL:', ipfsHash)
+        }
+      } else {
+        // Assume it's already just a hash
+        ipfsHash = metadataURI
+        console.log('🔧 Using provided string as IPFS hash:', ipfsHash)
+      }
+      
+      // 🎯 CRITICAL: Send only the IPFS hash - let the contract add the prefix
+      metadataURI = ipfsHash
+      console.log('🔧 Final metadataURI (hash only for contract):', metadataURI)
+      
+      console.log('\\n🎯 DATABASE-ONLY CLAIM VALIDATION')
+      console.log('===================================')
+      console.log('📝 Strategy: All contracts use ownerMint directly')
+      console.log('🔐 Claim codes validated in database only (not on contract)')
+      console.log('📄 Metadata URI attached to each individual token')
+      console.log('🚫 No claim codes stored on smart contracts')
+      console.log('===================================')
+      
+      // Always use ownerMint - database handles claim validation
       try {
-        console.log('🔍 Step 1: Testing ownerMint approach...')
+        console.log('🔍 Testing ownerMint with metadata URI...')
+        console.log('📄 Metadata URI:', metadataURI)
         const simResult = await publicClient.simulateContract({
           address: body.contractAddress as `0x${string}`,
           abi: CLAIMABLE_NFT_ABI,
@@ -1745,136 +1781,100 @@ export async function POST(request: NextRequest) {
           account: relayerAccount
         })
         claimTokenId = simResult.result as bigint
-        console.log('🎉 SUCCESS: Contract supports ownerMint!')
+        console.log('✅ OwnerMint simulation successful!')
         console.log('🎯 Token ID will be:', claimTokenId.toString())
-        console.log('📝 Approach: NEW - Direct user minting, no claim codes needed')
+        console.log('📄 Metadata will be attached to token via ownerMint')
       } catch (ownerMintError) {
-        console.log('\\n⚠️  FALLBACK: OwnerMint not available')
-        console.log('====================================')
-        console.log('📝 This is a LEGACY contract deployed before ownerMint support')
-        console.log('🔄 Switching to traditional claimNFT approach with claim codes')
-        console.log('====================================')
-        useOwnerMint = false;
-        
-        // Fallback to claimNFT for older contracts
-        if (!body.claimCode) {
-          return NextResponse.json(
-            { 
-              error: 'Old contract detected: claimCode required for legacy contracts',
-              details: 'This contract was deployed before ownerMint support. Please provide claimCode.',
-              suggestion: 'Create a new NFT to use the new ownerMint approach'
-            },
-            { status: 400 }
-          )
-        }
-        
-        // For legacy contracts, we might need to add the claim code first
-        console.log('🔄 Ensuring claim code is active on legacy contract...')
-        try {
-          // Try to add claim code to contract (might already exist)
-          const currentTime = Math.floor(Date.now() / 1000)
-          const endTime = currentTime + (365 * 24 * 60 * 60) // 1 year from now
-          
-          const addClaimCodeResult = await addClaimCodeToContract({
-            contractAddress: body.contractAddress!,
-            claimCode: body.claimCode,
-            maxClaims: 0,
-            startTime: currentTime,
-            endTime: endTime,
-            metadataURI: metadataURI,
-            chainId: Number(body.chainId),
-            publicClient,
-            walletClient,
-            relayerAccount
-          })
-          console.log('✅ Claim code added to legacy contract')
-        } catch (addError) {
-          console.log('⚠️ Claim code might already exist on contract:', addError instanceof Error ? addError.message : 'Unknown error')
-          // Continue anyway - the code might already be there
-        }
-        
-        try {
-          console.log('🔍 Simulating gasless claimNFT (legacy)...')
-          const simResult = await publicClient.simulateContract({
-            address: body.contractAddress as `0x${string}`,
-            abi: CLAIMABLE_NFT_ABI,
-            functionName: 'claimNFT',
-            args: [body.claimCode],
-            account: relayerAccount
-          })
-          claimTokenId = simResult.result as bigint
-          console.log('✅ ClaimNFT simulation successful, token ID:', claimTokenId)
-        } catch (claimError) {
-          console.error('❌ Both ownerMint and claimNFT simulation failed:', claimError)
-          return NextResponse.json(
-            { 
-              error: 'Contract simulation failed',
-              details: claimError instanceof Error ? claimError.message : 'Unknown simulation error',
-              relayerAccount: relayerAccount.address
-            },
-            { status: 400 }
-          )
-        }
+        console.error('❌ OwnerMint failed - contract may not support this function:', ownerMintError)
+        return NextResponse.json(
+          { 
+            error: 'Contract does not support ownerMint',
+            details: 'This contract was deployed with an older version. Please recreate the claimable NFT to use the database-only approach.',
+            suggestion: 'Delete and recreate the claimable NFT to get a contract with ownerMint support',
+            technicalDetails: ownerMintError instanceof Error ? ownerMintError.message : 'Unknown simulation error'
+          },
+          { status: 400 }
+        )
       }
 
-      // Execute the appropriate transaction based on contract type
-      if (useOwnerMint) {
-        console.log('🔨 Executing ownerMint transaction (new contract)...')
-        hash = await walletClient.writeContract({
-          address: body.contractAddress as `0x${string}`,
-          abi: CLAIMABLE_NFT_ABI,
-          functionName: 'ownerMint',
-          args: [body.userAddress! as `0x${string}`, metadataURI],
-          chain
-        })
-      } else {
-        console.log('🔨 Executing claimNFT transaction (legacy contract)...')
-        hash = await walletClient.writeContract({
-          address: body.contractAddress as `0x${string}`,
-          abi: CLAIMABLE_NFT_ABI,
-          functionName: 'claimNFT',
-          args: [body.claimCode!],
-          chain
-        })
+      // Execute ownerMint transaction with metadata (database-only validation)
+      console.log('🔨 Executing ownerMint transaction with metadata URI...')
+      console.log('📄 Final metadata URI for minting:', metadataURI)
+      console.log('🔍 DETAILED TRANSACTION INFO:')
+      console.log('  - Contract:', body.contractAddress)
+      console.log('  - User:', body.userAddress)
+      console.log('  - Metadata URI:', metadataURI)
+      console.log('  - URI Length:', metadataURI?.length)
+      console.log('  - URI Type:', typeof metadataURI)
+      console.log('  - Chain:', chain.id)
+      
+      // 🧪 TEST: Verify metadata URI one more time before contract call
+      if (metadataURI && metadataURI.startsWith('http')) {
+        try {
+          console.log('🧪 FINAL METADATA TEST before contract call...')
+          const finalTestResponse = await fetch(metadataURI)
+          if (finalTestResponse.ok) {
+            const finalTestMetadata = await finalTestResponse.json()
+            console.log('✅ FINAL METADATA TEST PASSED:', {
+              accessible: true,
+              hasName: !!finalTestMetadata.name,
+              hasDescription: !!finalTestMetadata.description,
+              hasImage: !!finalTestMetadata.image
+            })
+          } else {
+            console.error('❌ FINAL METADATA TEST FAILED:', finalTestResponse.status)
+          }
+        } catch (finalTestError) {
+          console.error('❌ FINAL METADATA TEST ERROR:', finalTestError.message)
+        }
       }
+      
+      // Log the exact arguments being passed to the contract
+      const contractArgs = [body.userAddress! as `0x${string}`, metadataURI]
+      console.log('🔍 EXACT CONTRACT ARGUMENTS:')
+      console.log('  - Arg 0 (to address):', contractArgs[0])
+      console.log('  - Arg 1 (metadataURI):', JSON.stringify(contractArgs[1]))
+      console.log('  - Arg 1 raw string:', contractArgs[1])
+      console.log('  - Arg 1 length:', contractArgs[1].length)
+      console.log('  - Arg 1 type:', typeof contractArgs[1])
+      
+      hash = await walletClient.writeContract({
+        address: body.contractAddress as `0x${string}`,
+        abi: CLAIMABLE_NFT_ABI,
+        functionName: 'ownerMint',
+        args: contractArgs,
+        chain
+      })
 
-      // Wait for the claim transaction to complete
-      console.log('⏳ Waiting for claim transaction to complete...')
+      // Wait for the ownerMint transaction to complete
+      console.log('⏳ Waiting for ownerMint transaction to complete...')
       const claimReceipt = await publicClient.waitForTransactionReceipt({ 
         hash: hash as `0x${string}` 
       })
 
-      console.log('✅ Claim transaction completed:', {
+      console.log('✅ OwnerMint transaction completed successfully!')
+      console.log('📊 Transaction details:', {
         hash,
         status: claimReceipt.status,
-        gasUsed: claimReceipt.gasUsed.toString()
+        gasUsed: claimReceipt.gasUsed.toString(),
+        tokenId: claimTokenId?.toString()
       })
 
-      // Check who actually owns the token after claimNFT
-      console.log('🔍 Checking token ownership after claimNFT...')
-      console.log('🔍 Token ID from claimNFT:', claimTokenId?.toString() || 'unknown')
-      console.log('🔍 Contract address:', body.contractAddress)
-      
-      // Use the exact tokenId returned by claimNFT (should be 0-based)
+      // Verify token was minted correctly
       if (claimTokenId === null) {
         return NextResponse.json(
-          { error: 'Failed to get token ID from claimNFT' },
+          { error: 'Failed to get token ID from ownerMint' },
           { status: 500 }
         )
       }
       
-      const actualTokenId = claimTokenId
-      tokenId = Number(actualTokenId)
-
-      // Skip ownership check and transfer for now since claimNFT function behavior is unclear
-      // The claimNFT might be minting directly to the user rather than the relayer
-      console.log('✅ ClaimNFT transaction completed successfully')
-      console.log('🔍 Assuming token was minted directly to user (no transfer needed)')
+      tokenId = Number(claimTokenId)
       
-      // Set token ID for response
-      tokenId = Number(actualTokenId)
-      
-      // Skip the transfer logic since claimNFT likely mints directly to the intended recipient
+      console.log('🎉 NFT minted successfully with metadata!')
+      console.log('👤 Owner:', body.userAddress)
+      console.log('🎯 Token ID:', tokenId)
+      console.log('📄 Metadata URI:', metadataURI)
+      console.log('🔐 Database-only claim validation completed')
 
     } else if (body.type === 'deployClaimableNFT') {
       console.log('🏭 Executing gasless ClaimableNFT deployment...')
