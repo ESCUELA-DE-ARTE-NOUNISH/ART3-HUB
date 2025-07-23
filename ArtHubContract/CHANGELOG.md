@@ -15,7 +15,7 @@ Art3Hub V6 represents a complete fresh start with new smart contract deployment 
 - **🆕 Factory V6**: `0xbF47f26c4e038038bf75E20755012Cd6997c9AfA` - Brand new factory deployment
 - **🆕 Subscription V6**: `0x4BF512C0eF46FD7C5F3F9522426E3F0413A8dB77` - Enhanced subscription management
 - **🆕 Collection V6 Implementation**: `0x723D8583b56456A0343589114228281F37a3b290` - Optimized collection contract
-- **🆕 Admin Wallet**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f` - Environment-based admin configuration
+- **🆕 Admin Wallet**: `<ADMIN_WALLET_ADDRESS>` - Environment-based admin configuration
 - **🆕 Treasury Wallet**: `0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9` - Secure treasury management
 - **🆕 Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1` - Enhanced gasless functionality
 
@@ -786,7 +786,7 @@ Artist → Subscribes to Plan → Gets Quota → Creates Collection → Mints NF
 - **Art3HubFactoryV2**: [`0x75Ed9ACB51D2BEaCfD6c76099D63d3a0009F4a40`](https://sepolia.basescan.org/address/0x75Ed9ACB51D2BEaCfD6c76099D63d3a0009F4a40#code)
 - **GaslessRelayer**: [`0x5116F90f3a26c7d825bE6Aa74544187b43c52a56`](https://sepolia.basescan.org/address/0x5116F90f3a26c7d825bE6Aa74544187b43c52a56#code)
 - **USDC Token**: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
-- **Deployer**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+- **Deployer**: `<ADMIN_WALLET_ADDRESS>`
 - **Platform Fee**: 2.5%
 - **Blockscout**: [All contracts](https://base-sepolia.blockscout.com/)
 
@@ -796,13 +796,13 @@ Artist → Subscribes to Plan → Gets Quota → Creates Collection → Mints NF
 - **Art3HubFactoryV2**: [`0x270B8770F59c767ff55595e893c7E16A88347FE9`](https://sepolia.explorer.zora.energy/address/0x270B8770F59c767ff55595e893c7E16A88347FE9#code)
 - **GaslessRelayer**: [`0xA68f7C09EdBF3aD3705ECc652E132BAeD2a29F85`](https://sepolia.explorer.zora.energy/address/0xA68f7C09EdBF3aD3705ECc652E132BAeD2a29F85#code)
 - **USDC Token**: `0xCccCCccc7021b32EBb4e8C08314bD62F7c653EC4` (placeholder)
-- **Deployer**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+- **Deployer**: `<ADMIN_WALLET_ADDRESS>`
 - **Platform Fee**: 2.5%
 - **Blockscout**: [All contracts](https://zora-sepolia.blockscout.com/)
 
 #### Configuration Details
 - **OpenSea Proxy Registry**: `0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC` (both networks)
-- **Platform Fee Recipient**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+- **Platform Fee Recipient**: `<ADMIN_WALLET_ADDRESS>`
 - **Platform Fee**: 2.5% (unchanged from V1)
 - **Deployment Fees**: ❌ Eliminated (subscription-based access)
 - **Gasless Transactions**: Enabled on all deployed networks
@@ -963,12 +963,12 @@ npx hardhat verify --network baseSepolia [ADDRESS] [CONSTRUCTOR_ARGS]
 ### Updated
 - **Hardhat Configuration**: Added optimizer settings and viaIR compilation for complex contracts
 - **README.md**: Added Base Sepolia contract addresses and verification commands
-- **Factory Owner**: Set to deployer address `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+- **Factory Owner**: Set to deployer address `<ADMIN_WALLET_ADDRESS>`
 
 ### Configuration
 - **Deployment Fee**: 0.001 ETH per collection creation
 - **Platform Fee**: 2.5% (250 basis points) on primary mints
-- **Fee Recipient**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+- **Fee Recipient**: `<ADMIN_WALLET_ADDRESS>`
 - **Network**: Base Sepolia (Chain ID: 84532)
 - **OpenSea Proxy Registry**: `0x0000000000000000000000000000000000000000` (testnet limitation)
 

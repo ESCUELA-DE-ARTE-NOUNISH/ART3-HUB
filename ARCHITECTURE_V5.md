@@ -536,7 +536,7 @@ graph TB
 ```mermaid
 graph TB
     subgraph "🔐 Admin Authentication"
-        DEFAULT[Default Admin<br/>0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f]
+        DEFAULT[Default Admin<br/><ADMIN_WALLET_ADDRESS>]
         WALLET_CHECK[Wallet Verification<br/>Address validation]
         AUTH_STATE[Authentication State<br/>Login status tracking]
     end

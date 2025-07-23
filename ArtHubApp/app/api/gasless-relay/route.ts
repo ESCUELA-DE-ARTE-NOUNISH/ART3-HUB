@@ -1309,22 +1309,17 @@ export async function POST(request: NextRequest) {
         const uniqueCollectionName = `${body.nftData.name} #${timestamp}`
         const uniqueSymbol = `${body.nftData.symbol}${timestamp.toString().slice(-4)}` // Last 4 digits of timestamp
         
-        console.log('🏭 Creating collection directly using createCollectionV5...')
+        console.log('🏭 Creating collection directly using V6 createCollectionV6Gasless...')
         console.log('📝 Unique collection name:', uniqueCollectionName)
-        console.log('📝 Args:', [
+        console.log('📝 V6 Args:', [
+          body.nftData.artist, // creator
           uniqueCollectionName,
           uniqueSymbol,
           body.nftData.description,
           body.nftData.imageURI,
           body.nftData.externalUrl || '',
-          body.nftData.artist,
-          body.nftData.royaltyBPS,
-          'Digital Art',
-          body.nftData.artist,
-          body.nftData.artist,
-          '',
-          '',
-          ''
+          body.nftData.artist, // royalty recipient = artist
+          body.nftData.royaltyBPS
         ])
         
         const createCollectionTx = await walletClient.writeContract({
@@ -1332,41 +1327,31 @@ export async function POST(request: NextRequest) {
           abi: [
             {
               "inputs": [
+                {"name": "creator", "type": "address"},
                 {"name": "name", "type": "string"},
                 {"name": "symbol", "type": "string"},
                 {"name": "description", "type": "string"},
                 {"name": "image", "type": "string"},
                 {"name": "externalUrl", "type": "string"},
                 {"name": "royaltyRecipient", "type": "address"},
-                {"name": "royaltyFeeNumerator", "type": "uint96"},
-                {"name": "category", "type": "string"},
-                {"name": "creatorName", "type": "string"},
-                {"name": "creatorUsername", "type": "string"},
-                {"name": "creatorEmail", "type": "string"},
-                {"name": "creatorProfilePicture", "type": "string"},
-                {"name": "creatorSocialLinks", "type": "string"}
+                {"name": "royaltyFeeNumerator", "type": "uint96"}
               ],
-              "name": "createCollectionV5",
+              "name": "createCollectionV6Gasless",
               "outputs": [{"name": "", "type": "address"}],
               "stateMutability": "nonpayable",
               "type": "function"
             }
           ],
-          functionName: 'createCollectionV5',
+          functionName: 'createCollectionV6Gasless',
           args: [
+            body.nftData.artist as `0x${string}`, // creator
             uniqueCollectionName,
             uniqueSymbol,
             body.nftData.description,
             body.nftData.imageURI,
             body.nftData.externalUrl || '',
             body.nftData.artist as `0x${string}`, // royalty recipient = artist
-            BigInt(body.nftData.royaltyBPS),
-            'Digital Art', // category - default to Digital Art
-            body.nftData.artist as string, // creatorName - use artist address as fallback
-            body.nftData.artist as string, // creatorUsername - use artist address as fallback  
-            '', // creatorEmail - empty for privacy
-            '', // creatorProfilePicture - empty
-            '' // creatorSocialLinks - empty
+            BigInt(body.nftData.royaltyBPS)
           ],
           chain
         })
@@ -1383,13 +1368,15 @@ export async function POST(request: NextRequest) {
         // Extract collection address from logs
         let collectionAddress = null
         const { keccak256, toHex } = await import('viem')
-        // V5 event signature might be different, try both
-        const collectionCreatedTopic = keccak256(toHex('CollectionCreated(address,address,string,string,uint256)'))
-        const collectionCreatedV5Topic = keccak256(toHex('CollectionCreated(address,address,string,string,string,uint256)'))
+        // Different event signatures for different versions
+        const collectionCreatedV6Topic = keccak256(toHex('CollectionCreated(address,address,string,string)')) // V6
+        const collectionCreatedTopic = keccak256(toHex('CollectionCreated(address,address,string,string,uint256)')) // V4
+        const collectionCreatedV5Topic = keccak256(toHex('CollectionCreated(address,address,string,string,string,uint256)')) // V5
         
         console.log('🔍 Looking for collection address in', createReceipt.logs.length, 'logs')
         console.log('🔍 Factory address:', factoryAddress)
         console.log('🔍 Expected topics:', {
+          v6: collectionCreatedV6Topic,
           v4: collectionCreatedTopic,
           v5: collectionCreatedV5Topic
         })
@@ -1398,7 +1385,7 @@ export async function POST(request: NextRequest) {
           console.log(`🔍 Checking log from ${log.address} with topic ${log.topics[0]}`)
           if (log.address.toLowerCase() === factoryAddress.toLowerCase()) {
             console.log('✅ Log is from factory, checking topic...')
-            if (log.topics[0] === collectionCreatedTopic || log.topics[0] === collectionCreatedV5Topic) {
+            if (log.topics[0] === collectionCreatedV6Topic || log.topics[0] === collectionCreatedTopic || log.topics[0] === collectionCreatedV5Topic) {
               collectionAddress = log.topics[1] as string
               collectionAddress = '0x' + collectionAddress.slice(-40)
               console.log('✅ Found collection address via event topic:', collectionAddress)
@@ -1460,32 +1447,34 @@ export async function POST(request: NextRequest) {
           console.warn('⚠️ Could not verify collection authorization:', authError)
         }
 
-        // Mint NFT directly to collection (relayer is the artist, so authorized)
-        console.log('🎨 Minting NFT directly to collection to user:', body.nftData.recipient)
+        // Mint NFT via factory's V6 gasless minting function
+        console.log('🎨 Minting NFT via factory V6 gasless function to user:', body.nftData.recipient)
         
         const mintTx = await walletClient.writeContract({
-          address: collectionAddress as `0x${string}`,
+          address: factoryAddress as `0x${string}`,
           abi: [
             {
               "inputs": [
+                {"name": "collection", "type": "address"},
                 {"name": "to", "type": "address"},
                 {"name": "tokenURI", "type": "string"}
               ],
-              "name": "mint",
+              "name": "mintNFTV6Gasless",
               "outputs": [{"name": "", "type": "uint256"}],
               "stateMutability": "nonpayable",
               "type": "function"
             }
           ],
-          functionName: 'mint',
+          functionName: 'mintNFTV6Gasless',
           args: [
+            collectionAddress as `0x${string}`, // Collection address
             body.nftData.recipient as `0x${string}`, // Mint directly to user
             body.nftData.imageURI // Use metadata URI as token URI
           ],
           chain
         })
 
-        console.log('✅ NFT minted directly to user:', mintTx)
+        console.log('✅ NFT minted via factory to user:', mintTx)
 
         // Wait for mint transaction
         const mintReceipt = await publicClient.waitForTransactionReceipt({ 
@@ -2095,7 +2084,7 @@ export async function POST(request: NextRequest) {
       
       // Calculate the ClaimableNFTDeployed event topic hash
       const { keccak256, toHex } = await import('viem')
-      const claimableNFTDeployedTopic = keccak256(toHex('ClaimableNFTDeployed(address,string,string,address,uint256)'))
+      const claimableNFTDeployedTopic = keccak256(toHex('ClaimableNFTDeployed(address,string,string,address)'))
       console.log('🔍 Looking for event topic:', claimableNFTDeployedTopic)
       
       const claimableFactoryAddress = getClaimableNFTFactoryAddress(body.chainId)

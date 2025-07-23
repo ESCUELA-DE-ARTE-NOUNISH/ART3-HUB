@@ -6,13 +6,13 @@
 - **Chain ID**: 84532
 - **Deployment Date**: 2025-07-16T03:32:18.923Z
 - **Deployer**: 0x499D377eF114cC1BF7798cECBB38412701400daF
-- **Final Owner**: 0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f
+- **Final Owner**: <ADMIN_WALLET_ADDRESS>
 
 ## Contract Addresses
 
 ### Art3HubSubscriptionV4
 - **Address**: `0x78d2B5377c77A38E4A3Eb193aa417F865be62FC4`
-- **Constructor Args**: `["0x036CbD53842c5426634e7929541eC2318f3dCF7e","0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9","0x499D377eF114cC1BF7798cECBB38412701400daF","0x499D377eF114cC1BF7798cECBB38412701400daF","0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f"]`
+- **Constructor Args**: `["0x036CbD53842c5426634e7929541eC2318f3dCF7e","0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9","0x499D377eF114cC1BF7798cECBB38412701400daF","0x499D377eF114cC1BF7798cECBB38412701400daF","<ADMIN_WALLET_ADDRESS>"]`
 - **Gas Used**: 2531178
 - **Verification**: ✅ Verified | ✅ Ownership Transferred
 
@@ -24,7 +24,7 @@
 
 ### Art3HubFactoryV5
 - **Address**: `0x183d5bA9dB1D381F82C79703E2d6D394bfAA643c`
-- **Constructor Args**: `["0x78d2B5377c77A38E4A3Eb193aa417F865be62FC4","0x499D377eF114cC1BF7798cECBB38412701400daF","0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f"]`
+- **Constructor Args**: `["0x78d2B5377c77A38E4A3Eb193aa417F865be62FC4","0x499D377eF114cC1BF7798cECBB38412701400daF","<ADMIN_WALLET_ADDRESS>"]`
 - **Gas Used**: 8639819
 - **Verification**: ✅ Verified | ✅ Ownership Transferred
 
@@ -57,7 +57,7 @@ NEXT_PUBLIC_ART3HUB_COLLECTION_V5_IMPL_84532=0x024baF02baB39f783D2b86A6fEF9A6492
 
 ## Ownership Transfer
 - **Deployer**: 0x499D377eF114cC1BF7798cECBB38412701400daF (used for deployment and verification)
-- **Final Owner**: 0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f (receives ownership of all contracts)
+- **Final Owner**: <ADMIN_WALLET_ADDRESS> (receives ownership of all contracts)
 - **Transfer Status**: Check verification status above
 
 ## Next Steps
@@ -78,5 +78,5 @@ npx hardhat verify --network baseSepolia 0x78d2B5377c77A38E4A3Eb193aa417F865be62
 npx hardhat verify --network baseSepolia 0x024baF02baB39f783D2b86A6fEF9A6492bBC0250
 
 # Verify Art3HubFactoryV5
-npx hardhat verify --network baseSepolia 0x183d5bA9dB1D381F82C79703E2d6D394bfAA643c "0x78d2B5377c77A38E4A3Eb193aa417F865be62FC4" "0x499D377eF114cC1BF7798cECBB38412701400daF" "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f"
+npx hardhat verify --network baseSepolia 0x183d5bA9dB1D381F82C79703E2d6D394bfAA643c "0x78d2B5377c77A38E4A3Eb193aa417F865be62FC4" "0x499D377eF114cC1BF7798cECBB38412701400daF" "<ADMIN_WALLET_ADDRESS>"
 ```

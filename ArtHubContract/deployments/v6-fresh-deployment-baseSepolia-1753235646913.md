@@ -5,14 +5,14 @@
 - **Network**: baseSepolia
 - **Chain ID**: 84532
 - **Deployment Date**: 2025-07-23T01:53:48.586Z
-- **Deployer**: 0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd
-- **Final Owner**: 0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd
+- **Deployer**: <GASLESS_RELAYER_ADDRESS>
+- **Final Owner**: <GASLESS_RELAYER_ADDRESS>
 
 ## Contract Addresses
 
 ### Art3HubSubscriptionV4 (V6 Instance)
 - **Address**: `0x21FC4b7D9dc40323Abbd0Efa4AD93872720D0Ac0`
-- **Constructor Args**: `["0x036CbD53842c5426634e7929541eC2318f3dCF7e","0x946b7dc627D245877BDf9c59bce626db333Fc01c","0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd","0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd","0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd"]`
+- **Constructor Args**: `["0x036CbD53842c5426634e7929541eC2318f3dCF7e","0x946b7dc627D245877BDf9c59bce626db333Fc01c","<GASLESS_RELAYER_ADDRESS>","<GASLESS_RELAYER_ADDRESS>","<GASLESS_RELAYER_ADDRESS>"]`
 - **Gas Used**: 2531178
 - **Verification**: ✅ Verified
 
@@ -24,7 +24,7 @@
 
 ### Art3HubFactoryV5 (V6 Instance)
 - **Address**: `0xA23EcC9944055A0Ffd135939B69E6425a44abE08`
-- **Constructor Args**: `["0x21FC4b7D9dc40323Abbd0Efa4AD93872720D0Ac0","0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd","0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd"]`
+- **Constructor Args**: `["0x21FC4b7D9dc40323Abbd0Efa4AD93872720D0Ac0","<GASLESS_RELAYER_ADDRESS>","<GASLESS_RELAYER_ADDRESS>"]`
 - **Gas Used**: 8639819
 - **Verification**: ✅ Verified
 

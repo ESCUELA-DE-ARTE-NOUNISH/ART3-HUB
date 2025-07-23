@@ -482,7 +482,8 @@ export class NFTClaimService {
     userWallet: string,
     txHash?: string,
     tokenId?: number,
-    contractAddress?: string
+    contractAddress?: string,
+    metadataUri?: string
   ): Promise<{ 
     success: boolean; 
     message: string; 
@@ -546,15 +547,22 @@ export class NFTClaimService {
       try {
         const { FirebaseNFTService } = await import('./firebase-nft-service')
         
-        // Extract IPFS hash from imageUrl if it's a gateway URL
+        // Use the metadataUri if provided (this is what was actually minted to the contract)
         let imageIpfsHash = ''
-        if (nft.imageUrl) {
+        if (metadataUri) {
+          // If metadataUri is provided, extract the hash from it
+          const metadataMatch = metadataUri.match(/(?:ipfs:\/\/|\/ipfs\/|^)([a-zA-Z0-9]+)/)
+          if (metadataMatch) {
+            imageIpfsHash = metadataMatch[1]
+          }
+        } else if (nft.imageUrl) {
+          // Fallback to extracting from imageUrl
           const ipfsMatch = nft.imageUrl.match(/\/ipfs\/([^/?]+)/)
           if (ipfsMatch) {
             imageIpfsHash = ipfsMatch[1]
           } else {
-            // If not an IPFS URL, use a placeholder hash
-            imageIpfsHash = 'QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L'
+            // If not an IPFS URL, use the stored metadata hash if available
+            imageIpfsHash = nft.metadataIpfsHash || nft.imageIpfsHash || ''
           }
         }
         
