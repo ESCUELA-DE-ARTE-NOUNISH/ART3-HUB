@@ -26,7 +26,17 @@ async function main() {
     console.log("\n📦 Deploying Art3HubClaimableNFTFactory...");
     const ClaimableNFTFactory = await ethers.getContractFactory("Art3HubClaimableNFTFactory");
     
-    const factory = await ClaimableNFTFactory.deploy(deployer.address);
+    // Get gasless relayer from private key to use as owner
+    const gaslessRelayerPrivateKey = process.env.GASLESS_RELAYER_PRIVATE_KEY;
+    if (!gaslessRelayerPrivateKey) {
+      throw new Error("❌ GASLESS_RELAYER_PRIVATE_KEY not found in environment");
+    }
+    
+    const gaslessRelayerWallet = new ethers.Wallet(gaslessRelayerPrivateKey);
+    const gaslessRelayer = gaslessRelayerWallet.address;
+    console.log("🔑 Using gasless relayer as owner:", gaslessRelayer);
+    
+    const factory = await ClaimableNFTFactory.deploy(gaslessRelayer);
     await factory.waitForDeployment();
     
     const factoryAddress = await factory.getAddress();
@@ -38,7 +48,7 @@ async function main() {
       "Test Claimable NFT",
       "TCNFT", 
       "https://ipfs.io/ipfs/test-metadata/",
-      deployer.address
+      gaslessRelayer
     );
     
     const testReceipt = await testTx.wait();

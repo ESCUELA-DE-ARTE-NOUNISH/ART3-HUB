@@ -16,10 +16,10 @@
 - **Factory V6**: `0x6A2a69a88b92B8566354ECE538aF46fC783b9DFd`
 - **Subscription V6**: `0xd0611f925994fddD433a464886Ae3eF58Efb9EC9`
 - **Collection Implementation V6**: `0xAecDa231ed8d8b9f5E9e39B3624FE2D073D86fB0`
-- **ClaimableNFT Factory**: `0x55248aC366d3F26b6aa480ed5fD82130C8C6842d`
+- **ClaimableNFT Factory**: `0x12a6C91C0e2a6d1E8e6Ef537107b6F5a12Eeb51C`
 - **Admin Wallet**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
 - **Treasury Wallet**: `0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9`
-- **Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1`
+- **Gasless Relayer**: `0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd`
 
 ---
 

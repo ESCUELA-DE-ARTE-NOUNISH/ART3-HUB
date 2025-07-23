@@ -121,10 +121,10 @@ ArtHubApp/
    NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
    NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
 
-   # Art3Hub V6 Contract Addresses - FRESH DEPLOYMENT with Gasless Relayer as Owner
-   NEXT_PUBLIC_ART3HUB_FACTORY_V6_84532=0x5BAa7723492352668a5060d578E901D0dfdf28Af
-   NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V6_84532=0xCfa74f044E0200a03687cB6424C9B6B5D7B7f4fd
-   NEXT_PUBLIC_ART3HUB_COLLECTION_V6_IMPL_84532=0x931743f8b80B4EaB5f27AB1AAAF73118cCD74a29
+   # Art3Hub V6 Contract Addresses - FRESH DEPLOYMENT with Secure Gasless Relayer as Owner
+   NEXT_PUBLIC_ART3HUB_FACTORY_V6_84532=0xA23EcC9944055A0Ffd135939B69E6425a44abE08
+   NEXT_PUBLIC_ART3HUB_SUBSCRIPTION_V6_84532=0x21FC4b7D9dc40323Abbd0Efa4AD93872720D0Ac0
+   NEXT_PUBLIC_ART3HUB_COLLECTION_V6_IMPL_84532=0x22196fE4D4a93377C6F5a74090EfF869e439Df7d
 
    # Gasless Relayer Configuration - Collection-per-NFT Architecture
    GASLESS_RELAYER_PRIVATE_KEY=your_secure_relayer_key
@@ -163,13 +163,13 @@ ArtHubApp/
 ### Deployed Contracts
 
 #### Base Sepolia (Testnet) - V6 Fresh Deployment with Collection-per-NFT Architecture
-- **Factory V6 Contract**: [`0x5BAa7723492352668a5060d578E901D0dfdf28Af`](https://sepolia.basescan.org/address/0x5BAa7723492352668a5060d578E901D0dfdf28Af#code)
-- **Subscription V6 Contract**: [`0xCfa74f044E0200a03687cB6424C9B6B5D7B7f4fd`](https://sepolia.basescan.org/address/0xCfa74f044E0200a03687cB6424C9B6B5D7B7f4fd#code)
-- **Collection V6 Implementation**: [`0x931743f8b80B4EaB5f27AB1AAAF73118cCD74a29`](https://sepolia.basescan.org/address/0x931743f8b80B4EaB5f27AB1AAAF73118cCD74a29#code)
-- **Claimable NFT Factory**: [`0x55248aC366d3F26b6aa480ed5fD82130C8C6842d`](https://sepolia.basescan.org/address/0x55248aC366d3F26b6aa480ed5fD82130C8C6842d#code)
+- **Factory V6 Contract**: [`0xA23EcC9944055A0Ffd135939B69E6425a44abE08`](https://sepolia.basescan.org/address/0xA23EcC9944055A0Ffd135939B69E6425a44abE08#code)
+- **Subscription V6 Contract**: [`0x21FC4b7D9dc40323Abbd0Efa4AD93872720D0Ac0`](https://sepolia.basescan.org/address/0x21FC4b7D9dc40323Abbd0Efa4AD93872720D0Ac0#code)
+- **Collection V6 Implementation**: [`0x22196fE4D4a93377C6F5a74090EfF869e439Df7d`](https://sepolia.basescan.org/address/0x22196fE4D4a93377C6F5a74090EfF869e439Df7d#code)
+- **Claimable NFT Factory**: [`0x12a6C91C0e2a6d1E8e6Ef537107b6F5a12Eeb51C`](https://sepolia.basescan.org/address/0x12a6C91C0e2a6d1E8e6Ef537107b6F5a12Eeb51C#code)
 - **USDC Token (Base Sepolia)**: [`0x036CbD53842c5426634e7929541eC2318f3dCF7e`](https://sepolia.basescan.org/address/0x036CbD53842c5426634e7929541eC2318f3dCF7e#code)
 - **Admin Wallet**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
-- **Gasless Relayer**: `0x209D896f4Fd6C9c02deA6f7a70629236C1F027C1` (Contract Owner)
+- **Gasless Relayer**: `0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd` (Contract Owner)
 - **Chain ID**: 84532
 - **Explorer**: [Base Sepolia Scan](https://sepolia.basescan.org)
 - **Deployment Date**: January 19, 2025
