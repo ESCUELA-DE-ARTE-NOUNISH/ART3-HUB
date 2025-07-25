@@ -60,9 +60,25 @@ export default function Navigation() {
   
   // Check if current user is admin
   useEffect(() => {
-    const currentAddress = userAddress || wallets[0]?.address
-    setIsCurrentUserAdmin(adminService.isAdmin(currentAddress))
-  }, [userAddress, wallets, adminService])
+    const checkAdminStatus = async () => {
+      const currentAddress = userAddress || wallets[0]?.address
+      
+      if (currentAddress) {
+        try {
+          const isAdmin = await adminService.isAdmin(currentAddress)
+          setIsCurrentUserAdmin(isAdmin)
+        } catch (error) {
+          console.error('Error checking admin status:', error)
+          // Fallback to sync method if Firebase is unavailable
+          setIsCurrentUserAdmin(adminService.isAdminSync(currentAddress))
+        }
+      } else {
+        setIsCurrentUserAdmin(false)
+      }
+    }
+    
+    checkAdminStatus()
+  }, [userAddress, wallets, adminService, isActuallyConnected])
   
   // Simple labels with no translation dependencies
   const labels = {

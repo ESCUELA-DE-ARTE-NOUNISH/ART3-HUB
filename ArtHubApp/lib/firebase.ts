@@ -126,6 +126,15 @@ export interface AssessmentResponse {
   created_at: string
 }
 
+export interface AdminWallet {
+  id: string
+  address: string
+  addedBy: string
+  addedAt: string
+  isActive: boolean
+  label?: string
+}
+
 // Firebase configuration
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -193,7 +202,8 @@ export const COLLECTIONS = {
   USER_MEMORY: 'user_memory',
   CONVERSATION_SESSIONS: 'conversation_sessions',
   CONVERSATION_MESSAGES: 'conversation_messages',
-  ASSESSMENT_RESPONSES: 'assessment_responses'
+  ASSESSMENT_RESPONSES: 'assessment_responses',
+  ADMIN_WALLETS: 'admin_wallets'
 } as const
 
 // Helper function to generate document ID

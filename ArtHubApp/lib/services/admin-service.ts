@@ -1,90 +1,113 @@
 /**
  * Admin Service - Manages admin wallet access and CRUD operations
+ * Updated to use Firebase instead of localStorage for cross-device admin access
  */
 
-export interface AdminWallet {
-  id: string
-  address: string
-  addedBy: string
-  addedAt: string
-  isActive: boolean
-  label?: string
-}
+import { FirebaseAdminService } from './firebase-admin-service'
+import type { AdminWallet } from '@/lib/firebase'
 
-const ADMIN_WALLETS_KEY = 'art3hub_admin_wallets'
 const DEFAULT_ADMIN_WALLET = process.env.NEXT_PUBLIC_ADMIN_WALLET || '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f'
 
 class AdminService {
   private adminWallets: AdminWallet[] = []
+  private isLoaded = false
 
   constructor() {
     this.loadAdminWallets()
   }
 
   /**
-   * Load admin wallets from localStorage with default admin
+   * Load admin wallets from Firebase
    */
-  private loadAdminWallets(): void {
+  private async loadAdminWallets(): Promise<void> {
     if (typeof window === 'undefined') return
 
+    try {
+      // Ensure default admin exists first
+      await FirebaseAdminService.initializeDefaultAdmin()
+      
+      this.adminWallets = await FirebaseAdminService.getAllAdmins()
+      this.isLoaded = true
+      
+      // Auto-migrate from localStorage if Firebase is empty and localStorage has data
+      if (this.adminWallets.length === 0) {
+        await this.migrateFromLocalStorageIfNeeded()
+      }
+    } catch (error) {
+      console.error('Failed to load admin wallets from Firebase:', error)
+      // Fallback to localStorage temporarily
+      this.loadFromLocalStorageFallback()
+    }
+  }
+
+  /**
+   * Migrate from localStorage to Firebase if needed
+   */
+  private async migrateFromLocalStorageIfNeeded(): Promise<void> {
+    const ADMIN_WALLETS_KEY = 'art3hub_admin_wallets'
+    
+    try {
+      const stored = localStorage.getItem(ADMIN_WALLETS_KEY)
+      if (stored) {
+        const result = await FirebaseAdminService.migrateFromLocalStorage('migration-system')
+        console.log('Migration result:', result.message)
+        
+        // Reload admin wallets after migration
+        this.adminWallets = await FirebaseAdminService.getAllAdmins()
+      }
+    } catch (error) {
+      console.error('Failed to migrate from localStorage:', error)
+    }
+  }
+
+  /**
+   * Fallback to localStorage if Firebase is unavailable
+   */
+  private loadFromLocalStorageFallback(): void {
+    const ADMIN_WALLETS_KEY = 'art3hub_admin_wallets'
+    
     try {
       const stored = localStorage.getItem(ADMIN_WALLETS_KEY)
       if (stored) {
         this.adminWallets = JSON.parse(stored)
-      }
-
-      // Ensure default admin wallet exists
-      if (!this.adminWallets.find(admin => admin.address.toLowerCase() === DEFAULT_ADMIN_WALLET.toLowerCase())) {
-        const defaultAdmin: AdminWallet = {
+      } else {
+        // Initialize with default admin
+        this.adminWallets = [{
           id: crypto.randomUUID(),
           address: DEFAULT_ADMIN_WALLET,
           addedBy: 'system',
           addedAt: new Date().toISOString(),
           isActive: true,
           label: 'Default Admin'
-        }
-        this.adminWallets.push(defaultAdmin)
-        this.saveAdminWallets()
+        }]
       }
+      this.isLoaded = true
     } catch (error) {
-      console.error('Failed to load admin wallets:', error)
-      // Initialize with default admin if loading fails
-      this.initializeDefaultAdmin()
-    }
-  }
-
-  /**
-   * Initialize with default admin wallet
-   */
-  private initializeDefaultAdmin(): void {
-    this.adminWallets = [{
-      id: crypto.randomUUID(),
-      address: DEFAULT_ADMIN_WALLET,
-      addedBy: 'system',
-      addedAt: new Date().toISOString(),
-      isActive: true,
-      label: 'Default Admin'
-    }]
-    this.saveAdminWallets()
-  }
-
-  /**
-   * Save admin wallets to localStorage
-   */
-  private saveAdminWallets(): void {
-    if (typeof window === 'undefined') return
-
-    try {
-      localStorage.setItem(ADMIN_WALLETS_KEY, JSON.stringify(this.adminWallets))
-    } catch (error) {
-      console.error('Failed to save admin wallets:', error)
+      console.error('Failed to load from localStorage fallback:', error)
     }
   }
 
   /**
    * Check if a wallet address is an admin
    */
-  isAdmin(address: string | undefined): boolean {
+  async isAdmin(address: string | undefined): Promise<boolean> {
+    if (!address) return false
+    
+    try {
+      return await FirebaseAdminService.isAdmin(address)
+    } catch (error) {
+      console.error('Error checking admin status:', error)
+      // Fallback to local cache
+      return this.adminWallets.some(
+        admin => admin.isActive && admin.address.toLowerCase() === address.toLowerCase()
+      )
+    }
+  }
+
+  /**
+   * Synchronous admin check using cached data (for components that need immediate response)
+   */
+  isAdminSync(address: string | undefined): boolean {
     if (!address) return false
     
     return this.adminWallets.some(
@@ -95,66 +118,48 @@ class AdminService {
   /**
    * Get all admin wallets
    */
-  getAllAdmins(): AdminWallet[] {
+  async getAllAdmins(): Promise<AdminWallet[]> {
+    try {
+      this.adminWallets = await FirebaseAdminService.getAllAdmins()
+      return [...this.adminWallets]
+    } catch (error) {
+      console.error('Error getting all admins:', error)
+      return [...this.adminWallets] // Return cached data
+    }
+  }
+
+  /**
+   * Get all admin wallets (synchronous from cache)
+   */
+  getAllAdminsSync(): AdminWallet[] {
     return [...this.adminWallets]
   }
 
   /**
    * Get active admin wallets only
    */
-  getActiveAdmins(): AdminWallet[] {
-    return this.adminWallets.filter(admin => admin.isActive)
+  async getActiveAdmins(): Promise<AdminWallet[]> {
+    try {
+      return await FirebaseAdminService.getActiveAdmins()
+    } catch (error) {
+      console.error('Error getting active admins:', error)
+      return this.adminWallets.filter(admin => admin.isActive)
+    }
   }
 
   /**
    * Add a new admin wallet
    */
-  addAdmin(address: string, addedBy: string, label?: string): { success: boolean; message: string; admin?: AdminWallet } {
+  async addAdmin(address: string, addedBy: string, label?: string): Promise<{ success: boolean; message: string; admin?: AdminWallet }> {
     try {
-      // Validate address format (basic validation)
-      if (!address || !address.match(/^0x[a-fA-F0-9]{40}$/)) {
-        const actualLength = address ? address.length : 0
-        const expectedLength = 42 // 0x + 40 hex characters
-        return { 
-          success: false, 
-          message: `Invalid wallet address format. Expected 42 characters (0x + 40 hex), got ${actualLength} characters. Please check the address: ${address}` 
-        }
+      const result = await FirebaseAdminService.addAdmin(address, addedBy, label)
+      
+      // Update local cache
+      if (result.success) {
+        this.adminWallets = await FirebaseAdminService.getAllAdmins()
       }
-
-      // Check if admin already exists
-      const existingAdmin = this.adminWallets.find(
-        admin => admin.address.toLowerCase() === address.toLowerCase()
-      )
-
-      if (existingAdmin) {
-        if (existingAdmin.isActive) {
-          return { success: false, message: 'This wallet is already an admin' }
-        } else {
-          // Reactivate existing admin
-          existingAdmin.isActive = true
-          existingAdmin.addedBy = addedBy
-          existingAdmin.addedAt = new Date().toISOString()
-          if (label) existingAdmin.label = label
-          
-          this.saveAdminWallets()
-          return { success: true, message: 'Admin wallet reactivated successfully', admin: existingAdmin }
-        }
-      }
-
-      // Add new admin
-      const newAdmin: AdminWallet = {
-        id: crypto.randomUUID(),
-        address: address,
-        addedBy: addedBy,
-        addedAt: new Date().toISOString(),
-        isActive: true,
-        label: label
-      }
-
-      this.adminWallets.push(newAdmin)
-      this.saveAdminWallets()
-
-      return { success: true, message: 'Admin wallet added successfully', admin: newAdmin }
+      
+      return result
     } catch (error) {
       console.error('Failed to add admin:', error)
       return { success: false, message: 'Failed to add admin wallet' }
@@ -164,31 +169,16 @@ class AdminService {
   /**
    * Update an admin wallet
    */
-  updateAdmin(id: string, updates: Partial<Pick<AdminWallet, 'label' | 'isActive'>>, updatedBy: string): { success: boolean; message: string } {
+  async updateAdmin(id: string, updates: Partial<Pick<AdminWallet, 'label' | 'isActive'>>, updatedBy: string): Promise<{ success: boolean; message: string }> {
     try {
-      const adminIndex = this.adminWallets.findIndex(admin => admin.id === id)
+      const result = await FirebaseAdminService.updateAdmin(id, updates, updatedBy)
       
-      if (adminIndex === -1) {
-        return { success: false, message: 'Admin wallet not found' }
+      // Update local cache
+      if (result.success) {
+        this.adminWallets = await FirebaseAdminService.getAllAdmins()
       }
-
-      const admin = this.adminWallets[adminIndex]
-
-      // Prevent deactivating the default admin
-      if (admin.address.toLowerCase() === DEFAULT_ADMIN_WALLET.toLowerCase() && updates.isActive === false) {
-        return { success: false, message: 'Cannot deactivate the default admin wallet' }
-      }
-
-      // Update admin
-      this.adminWallets[adminIndex] = {
-        ...admin,
-        ...updates,
-        addedBy: updatedBy, // Track who made the update
-        addedAt: new Date().toISOString()
-      }
-
-      this.saveAdminWallets()
-      return { success: true, message: 'Admin wallet updated successfully' }
+      
+      return result
     } catch (error) {
       console.error('Failed to update admin:', error)
       return { success: false, message: 'Failed to update admin wallet' }
@@ -198,20 +188,16 @@ class AdminService {
   /**
    * Remove an admin wallet (soft delete by deactivating)
    */
-  removeAdmin(id: string, removedBy: string): { success: boolean; message: string } {
+  async removeAdmin(id: string, removedBy: string): Promise<{ success: boolean; message: string }> {
     try {
-      const admin = this.adminWallets.find(admin => admin.id === id)
+      const result = await FirebaseAdminService.removeAdmin(id, removedBy)
       
-      if (!admin) {
-        return { success: false, message: 'Admin wallet not found' }
+      // Update local cache
+      if (result.success) {
+        this.adminWallets = await FirebaseAdminService.getAllAdmins()
       }
-
-      // Prevent removing the default admin
-      if (admin.address.toLowerCase() === DEFAULT_ADMIN_WALLET.toLowerCase()) {
-        return { success: false, message: 'Cannot remove the default admin wallet' }
-      }
-
-      return this.updateAdmin(id, { isActive: false }, removedBy)
+      
+      return result
     } catch (error) {
       console.error('Failed to remove admin:', error)
       return { success: false, message: 'Failed to remove admin wallet' }
@@ -221,23 +207,16 @@ class AdminService {
   /**
    * Hard delete an admin wallet (for testing purposes only)
    */
-  deleteAdmin(id: string): { success: boolean; message: string } {
+  async deleteAdmin(id: string): Promise<{ success: boolean; message: string }> {
     try {
-      const admin = this.adminWallets.find(admin => admin.id === id)
+      const result = await FirebaseAdminService.deleteAdmin(id)
       
-      if (!admin) {
-        return { success: false, message: 'Admin wallet not found' }
+      // Update local cache
+      if (result.success) {
+        this.adminWallets = await FirebaseAdminService.getAllAdmins()
       }
-
-      // Prevent deleting the default admin
-      if (admin.address.toLowerCase() === DEFAULT_ADMIN_WALLET.toLowerCase()) {
-        return { success: false, message: 'Cannot delete the default admin wallet' }
-      }
-
-      this.adminWallets = this.adminWallets.filter(admin => admin.id !== id)
-      this.saveAdminWallets()
-
-      return { success: true, message: 'Admin wallet deleted successfully' }
+      
+      return result
     } catch (error) {
       console.error('Failed to delete admin:', error)
       return { success: false, message: 'Failed to delete admin wallet' }
@@ -247,50 +226,57 @@ class AdminService {
   /**
    * Get admin count
    */
-  getAdminCount(): { total: number; active: number } {
-    return {
-      total: this.adminWallets.length,
-      active: this.adminWallets.filter(admin => admin.isActive).length
+  async getAdminCount(): Promise<{ total: number; active: number }> {
+    try {
+      return await FirebaseAdminService.getAdminCount()
+    } catch (error) {
+      console.error('Failed to get admin count:', error)
+      return {
+        total: this.adminWallets.length,
+        active: this.adminWallets.filter(admin => admin.isActive).length
+      }
     }
   }
 
   /**
    * Export admin wallets (for backup)
    */
-  exportAdmins(): string {
-    return JSON.stringify(this.adminWallets, null, 2)
+  async exportAdmins(): Promise<string> {
+    try {
+      return await FirebaseAdminService.exportAdmins()
+    } catch (error) {
+      console.error('Failed to export admins:', error)
+      return JSON.stringify(this.adminWallets, null, 2)
+    }
   }
 
   /**
    * Import admin wallets (for restore)
    */
-  importAdmins(data: string, importedBy: string): { success: boolean; message: string; imported?: number } {
+  async importAdmins(data: string, importedBy: string): Promise<{ success: boolean; message: string; imported?: number }> {
     try {
-      const importedAdmins: AdminWallet[] = JSON.parse(data)
+      const result = await FirebaseAdminService.importAdmins(data, importedBy)
       
-      if (!Array.isArray(importedAdmins)) {
-        return { success: false, message: 'Invalid import data format' }
+      // Update local cache
+      if (result.success) {
+        this.adminWallets = await FirebaseAdminService.getAllAdmins()
       }
-
-      let importedCount = 0
       
-      for (const admin of importedAdmins) {
-        if (admin.address && admin.address.match(/^0x[a-fA-F0-9]{40}$/)) {
-          const result = this.addAdmin(admin.address, importedBy, admin.label)
-          if (result.success) {
-            importedCount++
-          }
-        }
-      }
-
-      return { 
-        success: true, 
-        message: `Successfully imported ${importedCount} admin wallets`, 
-        imported: importedCount 
-      }
+      return result
     } catch (error) {
       console.error('Failed to import admins:', error)
       return { success: false, message: 'Failed to import admin wallets' }
+    }
+  }
+
+  /**
+   * Force refresh admin wallets from Firebase
+   */
+  async refreshAdmins(): Promise<void> {
+    try {
+      this.adminWallets = await FirebaseAdminService.getAllAdmins()
+    } catch (error) {
+      console.error('Failed to refresh admins:', error)
     }
   }
 }
