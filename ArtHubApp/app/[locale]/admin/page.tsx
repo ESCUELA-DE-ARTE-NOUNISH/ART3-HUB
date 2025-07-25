@@ -319,15 +319,35 @@ export default function AdminPage() {
 
   // Load admin data and check permissions
   useEffect(() => {
-    const loadAdminData = () => {
-      setIsCurrentUserAdmin(adminService.isAdmin(address))
-      setAdmins(adminService.getAllAdmins())
+    const loadAdminData = async () => {
+      try {
+        // Check admin status
+        if (address) {
+          const isAdmin = await adminService.isAdmin(address)
+          setIsCurrentUserAdmin(isAdmin)
+        } else {
+          setIsCurrentUserAdmin(false)
+        }
+        
+        // Load admin wallets
+        const adminWallets = await adminService.getAllAdmins()
+        setAdmins(adminWallets)
+        setHasCheckedAuth(true)
+      } catch (error) {
+        console.error('Error loading admin data:', error)
+        // Fallback to sync methods if Firebase is unavailable
+        if (address) {
+          setIsCurrentUserAdmin(adminService.isAdminSync(address))
+        }
+        setAdmins(adminService.getAllAdminsSync())
+        setHasCheckedAuth(true)
+      }
     }
     
     loadAdminData()
     
-    // Refresh data every 5 seconds
-    const interval = setInterval(loadAdminData, 5000)
+    // Refresh data every 30 seconds (reduced frequency for Firebase)
+    const interval = setInterval(loadAdminData, 30000)
     return () => clearInterval(interval)
   }, [address, adminService])
 
@@ -367,7 +387,7 @@ export default function AdminPage() {
   }
 
   // Handle adding new admin
-  const handleAddAdmin = () => {
+  const handleAddAdmin = async () => {
     console.log('🔧 handleAddAdmin called', { newAdminAddress, newAdminLabel, address })
     console.log('🔍 Admin service available:', !!adminService)
     console.log('🔍 Admin service type:', typeof adminService)
@@ -387,7 +407,7 @@ export default function AdminPage() {
     
     try {
       console.log('🚀 Calling adminService.addAdmin')
-      const result = adminService.addAdmin(newAdminAddress.trim(), address || "unknown", newAdminLabel.trim() || undefined)
+      const result = await adminService.addAdmin(newAdminAddress.trim(), address || "unknown", newAdminLabel.trim() || undefined)
       console.log('📨 Result received:', result)
       
       if (result.success) {
@@ -396,7 +416,8 @@ export default function AdminPage() {
           title: "Success",
           description: result.message,
         })
-        setAdmins(adminService.getAllAdmins())
+        const updatedAdmins = await adminService.getAllAdmins()
+        setAdmins(updatedAdmins)
         setNewAdminAddress("")
         setNewAdminLabel("")
         setShowAddDialog(false)
@@ -432,14 +453,15 @@ export default function AdminPage() {
     if (!editingAdmin) return
 
     try {
-      const result = adminService.updateAdmin(editingAdmin.id, { label: editLabel.trim() || undefined }, address || "unknown")
+      const result = await adminService.updateAdmin(editingAdmin.id, { label: editLabel.trim() || undefined }, address || "unknown")
       
       if (result.success) {
         toast({
           title: "Success",
           description: result.message,
         })
-        setAdmins(adminService.getAllAdmins())
+        const updatedAdmins = await adminService.getAllAdmins()
+        setAdmins(updatedAdmins)
         setShowEditDialog(false)
         setEditingAdmin(null)
       } else {
@@ -461,14 +483,15 @@ export default function AdminPage() {
   // Handle toggling admin status
   const handleToggleAdmin = async (admin: AdminWallet) => {
     try {
-      const result = adminService.updateAdmin(admin.id, { isActive: !admin.isActive }, address || "unknown")
+      const result = await adminService.updateAdmin(admin.id, { isActive: !admin.isActive }, address || "unknown")
       
       if (result.success) {
         toast({
           title: "Success",
           description: result.message,
         })
-        setAdmins(adminService.getAllAdmins())
+        const updatedAdmins = await adminService.getAllAdmins()
+        setAdmins(updatedAdmins)
       } else {
         toast({
           title: "Error",
@@ -490,14 +513,15 @@ export default function AdminPage() {
     if (!adminToRemove) return
 
     try {
-      const result = adminService.removeAdmin(adminToRemove.id, address || "unknown")
+      const result = await adminService.removeAdmin(adminToRemove.id, address || "unknown")
       
       if (result.success) {
         toast({
           title: "Success",
           description: result.message,
         })
-        setAdmins(adminService.getAllAdmins())
+        const updatedAdmins = await adminService.getAllAdmins()
+        setAdmins(updatedAdmins)
       } else {
         toast({
           title: "Error",
@@ -518,9 +542,9 @@ export default function AdminPage() {
   }
 
   // Handle export
-  const handleExport = () => {
+  const handleExport = async () => {
     try {
-      const data = adminService.exportAdmins()
+      const data = await adminService.exportAdmins()
       const blob = new Blob([data], { type: 'application/json' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -557,14 +581,15 @@ export default function AdminPage() {
 
     try {
       const text = await importFile.text()
-      const result = adminService.importAdmins(text, address || "unknown")
+      const result = await adminService.importAdmins(text, address || "unknown")
       
       if (result.success) {
         toast({
           title: "Success",
           description: result.message,
         })
-        setAdmins(adminService.getAllAdmins())
+        const updatedAdmins = await adminService.getAllAdmins()
+        setAdmins(updatedAdmins)
         setImportFile(null)
       } else {
         toast({
