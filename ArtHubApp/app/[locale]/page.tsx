@@ -139,11 +139,24 @@ export default function Home() {
     }
   })
 
+  // Debug: Log state changes
+  useEffect(() => {
+    console.log('📊 HOME PAGE STATE UPDATE:', {
+      showWalletAlert,
+      isActuallyConnected,
+      wagmiConnected,
+      authenticated,
+      context: !!context,
+      walletsLength: wallets?.length || 0,
+      connectorsCount: connectors.length
+    })
+  }, [showWalletAlert, isActuallyConnected, wagmiConnected, authenticated, context, wallets, connectors])
+
   // Update locale when params change
   useEffect(() => {
     const currentLocale = (params?.locale as string) || defaultLocale
     setLocale(currentLocale)
-  }, [params])
+  }, [params?.locale]) // Only depend on the locale value, not the entire params object
 
   // Load messages when locale changes
   useEffect(() => {
@@ -207,14 +220,24 @@ export default function Home() {
   // Handle Create NFT button click with wallet connection check
   const handleCreateNftClick = (e: React.MouseEvent) => {
     e.preventDefault()
+    console.log('🎯 CREATE NFT BUTTON CLICKED')
+    console.log('📊 Connection Status:', {
+      isActuallyConnected,
+      wagmiConnected,
+      authenticated,
+      context: !!context,
+      walletsLength: wallets?.length || 0
+    })
     
     if (!isActuallyConnected) {
       // Show alert dialog that wallet connection is required
+      console.log('🚨 USER NOT CONNECTED - SHOWING WALLET ALERT')
       setShowWalletAlert(true)
       return
     }
     
     // If connected, navigate to create page
+    console.log('✅ USER CONNECTED - NAVIGATING TO CREATE PAGE')
     router.push(`/${locale}/create`)
   }
 
@@ -234,38 +257,69 @@ export default function Home() {
 
   // Handle wallet connection from the alert dialog
   const handleWalletConnect = async () => {
+    console.log('🎯 WALLET CONNECT BUTTON CLICKED')
+    console.log('📊 Environment State:', {
+      context: !!context,
+      hasPrivy: !!process.env.NEXT_PUBLIC_PRIVY_APP_ID,
+      connectorsCount: connectors.length,
+      connectors: connectors.map(c => ({ id: c.id, name: c.name, type: c.type }))
+    })
+    
     try {
       const hasPrivy = !!process.env.NEXT_PUBLIC_PRIVY_APP_ID
       
       if (context) {
-        // In MiniKit/Farcaster environment - use wagmi connectors
-        if (connectors.length > 0) {
-          connect({ connector: connectors[0] })
+        // In MiniKit/Farcaster environment - prioritize Farcaster connector
+        console.log('🔄 FARCASTER MODE: Attempting wallet connection in Farcaster environment')
+        console.log('🔍 Available connectors:', connectors.map(c => ({ id: c.id, name: c.name, type: c.type })))
+        
+        // Look for the Farcaster frame connector first
+        const farcasterConnector = connectors.find(c => c.id === 'farcaster' || c.type === 'frameConnector')
+        console.log('🔍 Farcaster connector found:', !!farcasterConnector, farcasterConnector?.name)
+        
+        if (farcasterConnector) {
+          console.log('✅ USING FARCASTER CONNECTOR:', farcasterConnector.name)
+          console.log('🔄 Calling connect() with Farcaster connector...')
+          await connect({ connector: farcasterConnector })
+          console.log('✅ Connect() call completed')
+        } else if (connectors.length > 0) {
+          // Fallback to first available connector
+          console.log('⚠️ FALLBACK: Farcaster connector not found, using first available:', connectors[0].name)
+          await connect({ connector: connectors[0] })
         } else {
-          throw new Error('No connectors available in MiniKit')
+          console.error('❌ NO CONNECTORS AVAILABLE in MiniKit environment')
+          throw new Error('No connectors available in MiniKit environment')
         }
       } else if (hasPrivy) {
         // In browser with Privy - use Privy login
+        console.log('🔄 BROWSER MODE: Using Privy login in browser environment')
         login()
       } else {
         // Fallback to wagmi connectors
+        console.log('🔄 FALLBACK MODE: Using wagmi connectors as fallback')
         const injectedConnector = connectors.find(c => c.id === 'injected')
         const walletConnectConnector = connectors.find(c => c.id === 'walletConnect')
         
         if (injectedConnector && window.ethereum) {
-          connect({ connector: injectedConnector })
+          await connect({ connector: injectedConnector })
         } else if (walletConnectConnector) {
-          connect({ connector: walletConnectConnector })
+          await connect({ connector: walletConnectConnector })
         } else {
           throw new Error('No suitable wallet connector found')
         }
       }
       
       // Close the dialog
+      console.log('🔄 Closing wallet alert dialog...')
       setShowWalletAlert(false)
+      console.log('✅ WALLET CONNECTION PROCESS COMPLETED')
       
     } catch (error) {
-      console.error('Failed to connect wallet:', error)
+      console.error('❌ WALLET CONNECTION FAILED:', {
+        error: error.message,
+        stack: error.stack,
+        name: error.name
+      })
       toast({
         title: messages.walletRequired.connectionFailed,
         description: messages.walletRequired.connectionFailedDescription,
@@ -414,7 +468,13 @@ export default function Home() {
       )}
 
       {/* Wallet Connection Required Alert Dialog */}
-      <AlertDialog open={showWalletAlert} onOpenChange={setShowWalletAlert}>
+      <AlertDialog 
+        open={showWalletAlert} 
+        onOpenChange={(open) => {
+          console.log('🔄 Alert Dialog onOpenChange:', open)
+          setShowWalletAlert(open)
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-pink-500">
@@ -425,10 +485,21 @@ export default function Home() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{messages.common.cancel}</AlertDialogCancel>
+            <AlertDialogCancel 
+              onClick={() => {
+                console.log('🚫 CANCEL BUTTON CLICKED')
+                setShowWalletAlert(false)
+              }}
+            >
+              {messages.common.cancel}
+            </AlertDialogCancel>
             <AlertDialogAction 
               className="bg-pink-500 hover:bg-pink-600"
-              onClick={handleWalletConnect}
+              onClick={(e) => {
+                console.log('🎯 JOIN NOW BUTTON CLICKED IN DIALOG')
+                e.preventDefault()
+                handleWalletConnect()
+              }}
             >
               {messages.walletRequired.connectButton}
             </AlertDialogAction>

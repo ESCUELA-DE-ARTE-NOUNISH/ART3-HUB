@@ -63,6 +63,12 @@ export default function Navigation() {
     const checkAdminStatus = async () => {
       const currentAddress = userAddress || wallets[0]?.address
       
+      // Skip admin checking in Farcaster Mini App environment
+      if (context) {
+        setIsCurrentUserAdmin(false)
+        return
+      }
+      
       if (currentAddress) {
         try {
           const isAdmin = await adminService.isAdmin(currentAddress)
@@ -78,7 +84,7 @@ export default function Navigation() {
     }
     
     checkAdminStatus()
-  }, [userAddress, wallets, adminService, isActuallyConnected])
+  }, [userAddress, wallets, adminService, isActuallyConnected, context])
   
   // Simple labels with no translation dependencies
   const labels = {
@@ -193,38 +199,69 @@ export default function Navigation() {
 
   // Handle wallet connection from the alert dialog
   const handleWalletConnect = async () => {
+    console.log('🎯 NAVIGATION: WALLET CONNECT BUTTON CLICKED')
+    console.log('📊 Navigation Environment State:', {
+      context: !!context,
+      hasPrivy: !!process.env.NEXT_PUBLIC_PRIVY_APP_ID,
+      connectorsCount: connectors.length,
+      connectors: connectors.map(c => ({ id: c.id, name: c.name, type: c.type }))
+    })
+    
     try {
       const hasPrivy = !!process.env.NEXT_PUBLIC_PRIVY_APP_ID
       
       if (context) {
-        // In MiniKit/Farcaster environment - use wagmi connectors
-        if (connectors.length > 0) {
-          connect({ connector: connectors[0] })
+        // In MiniKit/Farcaster environment - prioritize Farcaster connector
+        console.log('🔄 NAVIGATION FARCASTER MODE: Attempting wallet connection in Farcaster environment')
+        console.log('🔍 Navigation Available connectors:', connectors.map(c => ({ id: c.id, name: c.name, type: c.type })))
+        
+        // Look for the Farcaster frame connector first
+        const farcasterConnector = connectors.find(c => c.id === 'farcaster' || c.type === 'frameConnector')
+        console.log('🔍 Navigation Farcaster connector found:', !!farcasterConnector, farcasterConnector?.name)
+        
+        if (farcasterConnector) {
+          console.log('✅ NAVIGATION: USING FARCASTER CONNECTOR:', farcasterConnector.name)
+          console.log('🔄 Navigation: Calling connect() with Farcaster connector...')
+          await connect({ connector: farcasterConnector })
+          console.log('✅ Navigation: Connect() call completed')
+        } else if (connectors.length > 0) {
+          // Fallback to first available connector
+          console.log('⚠️ NAVIGATION FALLBACK: Farcaster connector not found, using first available:', connectors[0].name)
+          await connect({ connector: connectors[0] })
         } else {
-          throw new Error('No connectors available in MiniKit')
+          console.error('❌ NAVIGATION: NO CONNECTORS AVAILABLE in MiniKit environment')
+          throw new Error('No connectors available in MiniKit environment')
         }
       } else if (hasPrivy) {
         // In browser with Privy - use Privy login
+        console.log('🔄 NAVIGATION BROWSER MODE: Using Privy login in browser environment')
         login()
       } else {
         // Fallback to wagmi connectors
+        console.log('🔄 NAVIGATION FALLBACK MODE: Using wagmi connectors as fallback')
         const injectedConnector = connectors.find(c => c.id === 'injected')
         const walletConnectConnector = connectors.find(c => c.id === 'walletConnect')
         
         if (injectedConnector && window.ethereum) {
-          connect({ connector: injectedConnector })
+          await connect({ connector: injectedConnector })
         } else if (walletConnectConnector) {
-          connect({ connector: walletConnectConnector })
+          await connect({ connector: walletConnectConnector })
         } else {
           throw new Error('No suitable wallet connector found')
         }
       }
       
       // Close the dialog
+      console.log('🔄 Navigation: Closing wallet alert dialog...')
       setShowWalletAlert(false)
+      console.log('✅ NAVIGATION: WALLET CONNECTION PROCESS COMPLETED')
       
     } catch (error) {
-      console.error('Failed to connect wallet:', error)
+      console.error('❌ NAVIGATION: WALLET CONNECTION FAILED:', {
+        error: error.message,
+        stack: error.stack,
+        name: error.name
+      })
       toast({
         title: walletMessages.connectionFailed,
         description: walletMessages.connectionFailedDescription,
@@ -235,10 +272,22 @@ export default function Navigation() {
 
   // Handle navigation with wallet check
   const handleProtectedNavigation = (path: string) => {
+    console.log('🎯 NAVIGATION: PROTECTED NAVIGATION CLICKED:', path)
+    console.log('📊 Navigation Connection Status:', {
+      isActuallyConnected,
+      wagmiConnected,
+      authenticated,
+      context: !!context,
+      walletsLength: wallets?.length || 0
+    })
+    
     if (!isActuallyConnected) {
+      console.log('🚨 NAVIGATION: USER NOT CONNECTED - SHOWING WALLET ALERT')
       setShowWalletAlert(true)
       return
     }
+    
+    console.log('✅ NAVIGATION: USER CONNECTED - NAVIGATING TO:', path)
     router.push(getLocalizedPath(path))
   }
 
@@ -325,7 +374,13 @@ export default function Navigation() {
       </div>
 
       {/* Wallet Connection Required Alert Dialog */}
-      <AlertDialog open={showWalletAlert} onOpenChange={setShowWalletAlert}>
+      <AlertDialog 
+        open={showWalletAlert} 
+        onOpenChange={(open) => {
+          console.log('🔄 NAVIGATION: Alert Dialog onOpenChange:', open)
+          setShowWalletAlert(open)
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-pink-500">
@@ -336,10 +391,21 @@ export default function Navigation() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{walletMessages.cancel}</AlertDialogCancel>
+            <AlertDialogCancel 
+              onClick={() => {
+                console.log('🚫 NAVIGATION: CANCEL BUTTON CLICKED')
+                setShowWalletAlert(false)
+              }}
+            >
+              {walletMessages.cancel}
+            </AlertDialogCancel>
             <AlertDialogAction 
               className="bg-pink-500 hover:bg-pink-600"
-              onClick={handleWalletConnect}
+              onClick={(e) => {
+                console.log('🎯 NAVIGATION: JOIN NOW BUTTON CLICKED IN DIALOG')
+                e.preventDefault()
+                handleWalletConnect()
+              }}
             >
               {walletMessages.connectButton}
             </AlertDialogAction>

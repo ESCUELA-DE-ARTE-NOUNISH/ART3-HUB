@@ -5,6 +5,7 @@
 
 import { FirebaseAdminService } from './firebase-admin-service'
 import type { AdminWallet } from '@/lib/firebase'
+import { isFarcasterEnvironment } from '@/lib/utils/environment'
 
 const DEFAULT_ADMIN_WALLET = process.env.NEXT_PUBLIC_ADMIN_WALLET || '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f'
 
@@ -21,6 +22,13 @@ class AdminService {
    */
   private async loadAdminWallets(): Promise<void> {
     if (typeof window === 'undefined') return
+
+    // Skip Firebase operations in Farcaster environment
+    if (isFarcasterEnvironment()) {
+      console.log('🔄 Skipping admin wallet loading in Farcaster environment')
+      this.isLoaded = true
+      return
+    }
 
     try {
       // Ensure default admin exists first

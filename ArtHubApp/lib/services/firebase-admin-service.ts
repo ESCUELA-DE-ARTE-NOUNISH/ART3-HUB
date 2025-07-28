@@ -18,6 +18,8 @@ import {
   getCurrentTimestamp 
 } from '@/lib/firebase'
 
+import { isFarcasterEnvironment } from '@/lib/utils/environment'
+
 const DEFAULT_ADMIN_WALLET = process.env.NEXT_PUBLIC_ADMIN_WALLET || '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f'
 
 export class FirebaseAdminService {
@@ -28,6 +30,12 @@ export class FirebaseAdminService {
    * Initialize default admin wallet in Firebase if it doesn't exist
    */
   static async initializeDefaultAdmin(): Promise<void> {
+    // Skip initialization in Farcaster Mini App environment
+    if (isFarcasterEnvironment()) {
+      console.log('🔄 Skipping admin initialization in Farcaster environment')
+      return
+    }
+
     // Prevent multiple concurrent initializations
     if (this.isInitializing || this.hasInitialized) {
       console.log('🔄 Admin initialization already in progress or completed, skipping...')
@@ -222,6 +230,11 @@ export class FirebaseAdminService {
    * Check if a wallet address is an admin
    */
   static async isAdmin(address: string | undefined): Promise<boolean> {
+    // Skip Firebase calls in Farcaster environment
+    if (isFarcasterEnvironment()) {
+      return false
+    }
+
     if (!address) {
       return false
     }
