@@ -5,6 +5,7 @@ import "../globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import Navigation from "@/components/navigation"
 import { Providers } from "@/providers/MiniKitProvider"
+import { FarcasterProvider } from "@/providers/FarcasterProvider"
 import LanguageSelector from "@/components/language-selector"
 import { locales } from "@/config/i18n"
 import HtmlWithLang from "@/components/html-with-lang";
@@ -61,10 +62,11 @@ export default function LocalizedRootLayout({
     <HtmlWithLang>
       <body className={inter.className} suppressHydrationWarning={true}>
         <ThemeProvider attribute="class" defaultTheme="light">
-          <Providers>
-            <PrivyAppProvider>
-              <UserSessionTracker>
-                <AppWrapper>
+          <FarcasterProvider>
+            <Providers>
+              <PrivyAppProvider>
+                <UserSessionTracker>
+                  <AppWrapper>
                   <div className="flex flex-col min-h-screen">
                   {/* Header with wallet and language selector */}
                   <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b">
@@ -80,10 +82,11 @@ export default function LocalizedRootLayout({
                   </main>
                   <Navigation />
                   </div>
-                </AppWrapper>
-              </UserSessionTracker>
-            </PrivyAppProvider>
-          </Providers>
+                  </AppWrapper>
+                </UserSessionTracker>
+              </PrivyAppProvider>
+            </Providers>
+          </FarcasterProvider>
         </ThemeProvider>
       </body>
     </HtmlWithLang>

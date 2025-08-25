@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Wallet, LogOut, ChevronDown, SwitchCamera, User, CheckCircle, XCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { truncateEthAddress } from "@/lib/utils"
-import { useSafeMiniKit } from '@/hooks/useSafeMiniKit'
+import { useSafeFarcaster } from '@/providers/FarcasterProvider'
 import { useSafePrivy, useSafeWallets } from '@/hooks/useSafePrivy'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import {
@@ -27,8 +27,16 @@ export function ConnectMenu() {
   const params = useParams()
   const locale = (params?.locale as string) || defaultLocale
   
-  // Translation messages for join button
-  const joinMessages = {
+  // Translation messages for connection button
+  const connectionMessages = {
+    connectWallet: locale === 'es' ? 'Conectar Cartera' :
+                   locale === 'pt' ? 'Conectar Carteira' :
+                   locale === 'fr' ? 'Connecter Portefeuille' :
+                   'Connect Wallet',
+    connected: locale === 'es' ? 'Conectado' :
+               locale === 'pt' ? 'Conectado' :
+               locale === 'fr' ? 'Connecté' :
+               'Connected',
     joinNow: locale === 'es' ? 'Únete Ahora' :
              locale === 'pt' ? 'Juntar-se Agora' :
              locale === 'fr' ? 'Rejoindre Maintenant' :
@@ -42,9 +50,9 @@ export function ConnectMenu() {
   const router = useRouter()
   
   // MiniKit context - this will tell us if we're in a MiniKit environment
-  const { context } = useSafeMiniKit()
+  const { context, isFarcasterEnvironment } = useSafeFarcaster()
   // Simple detection - if MiniKitProvider is active, context will exist
-  const isMiniKit = !!context
+  const isMiniKit = isFarcasterEnvironment
   
   // User profile tracking
   const { userProfile, isProfileComplete } = useUserProfile()
@@ -66,15 +74,18 @@ export function ConnectMenu() {
     setMounted(true)
   }, [])
 
-  // Note: Removed auto-connection to prevent user rejection errors
-  // Users will need to manually connect their wallet in MiniKit
+  // Check frameConnector availability without auto-connecting (following Base MiniApp best practices)
   useEffect(() => {
     if (mounted && isMiniKit && connectors.length > 0) {
-      const farcasterConnector = connectors.find(c => c.id === 'farcaster')
+      const farcasterConnector = connectors.find(c => c.id === 'farcaster' || c.type === 'frameConnector')
+      console.log('🔍 Available connectors in MiniKit:', connectors.map(c => ({ id: c.id, name: c.name, type: c.type })))
+      
       if (farcasterConnector) {
-        console.log('Farcaster connector available in MiniKit (manual connection required)')
+        console.log('✅ Farcaster frameConnector is ready for on-demand connection')
+        console.log('📚 Following Base MiniApp best practice: "Gate wallet only at the point of onchain action"')
       } else {
-        console.warn('Farcaster connector not found in MiniKit environment')
+        console.warn('❌ Farcaster frameConnector not found in MiniKit environment')
+        console.log('🔍 Available connectors:', connectors.map(c => ({ id: c.id, name: c.name, type: c.type })))
       }
     }
   }, [mounted, isMiniKit, connectors])
@@ -266,71 +277,64 @@ export function ConnectMenu() {
 
   // Determine which UI to show based on environment
   if (isMiniKit) {
-    // MiniKit environment - show manual connect button
+    // MiniKit environment - show connect button or connection status
     return (
       <div className="flex flex-col items-end gap-2">
         <Button
           onClick={async () => {
-            console.log('🎯 CONNECT MENU: JOIN NOW BUTTON CLICKED IN FARCASTER')
+            console.log('🎯 FARCASTER: User requesting wallet connection for onchain action')
             console.log('📊 ConnectMenu Environment State:', {
               isMiniKit,
               context: !!context,
+              isConnected,
               connectorsCount: connectors.length,
               connectors: connectors.map(c => ({ id: c.id, name: c.name, type: c.type }))
             })
             
             try {
-              // Log all available connectors with full details
-              console.log('🔍 DETAILED CONNECTORS ANALYSIS:')
-              connectors.forEach((connector, index) => {
-                console.log(`  Connector ${index}:`, {
-                  id: connector.id,
-                  name: connector.name,
-                  type: connector.type,
-                  uid: connector.uid,
-                  icon: connector.icon
-                })
-              })
-              
               // Look for the Farcaster frame connector first
               const farcasterConnector = connectors.find(c => c.id === 'farcaster' || c.type === 'frameConnector')
-              console.log('🔍 ConnectMenu Farcaster connector found:', !!farcasterConnector, farcasterConnector?.name)
+              console.log('🔍 Farcaster connector found:', !!farcasterConnector, farcasterConnector?.name)
+              console.log('🔍 All connectors:', connectors.map(c => ({ id: c.id, name: c.name, type: c.type })))
               
               if (farcasterConnector) {
-                console.log('✅ CONNECT MENU: USING FARCASTER CONNECTOR:', farcasterConnector.name)
-                console.log('🔄 ConnectMenu: Calling connect() with Farcaster connector...')
+                console.log('✅ Connecting with Farcaster frameConnector:', farcasterConnector.name)
+                console.log('📚 Base MiniApp: Gating wallet at point of onchain action')
                 await connect({ connector: farcasterConnector })
-                console.log('✅ ConnectMenu: Connect() call completed')
+                console.log('✅ Farcaster wallet connection successful!')
               } else {
-                console.error('❌ CONNECT MENU: NO FARCASTER CONNECTOR FOUND')
+                console.error('❌ Farcaster frameConnector not available')
                 console.log('🔍 Available connectors:', connectors.map(c => ({ id: c.id, name: c.name, type: c.type })))
                 
                 // Try to connect with the first available connector as fallback
                 if (connectors.length > 0) {
-                  console.log('🔄 CONNECT MENU: TRYING FALLBACK WITH FIRST CONNECTOR:', connectors[0].name)
+                  console.log('🔄 Attempting fallback connection with:', connectors[0].name)
                   await connect({ connector: connectors[0] })
-                  console.log('✅ ConnectMenu: Fallback connection completed')
+                  console.log('✅ Fallback connection successful')
                 } else {
-                  setError('No connectors available')
+                  setError('No wallet connectors available')
                 }
               }
             } catch (error) {
-              console.error('❌ CONNECT MENU: FARCASTER CONNECTION FAILED:', {
+              console.error('❌ Farcaster wallet connection failed:', {
                 error: error.message,
                 stack: error.stack,
                 name: error.name
               })
-              setError('Failed to connect Farcaster wallet. Please try again.')
+              setError('Failed to connect wallet. Please try again.')
             }
           }}
           className={cn(
-            "bg-pink-500 hover:bg-pink-600",
+            isConnected 
+              ? "bg-green-500 hover:bg-green-600" 
+              : "bg-pink-500 hover:bg-pink-600",
             "text-white",
             "flex items-center gap-2"
           )}
+          disabled={isConnected}
         >
           <User className="h-4 w-4" />
-          {joinMessages.joinNow}
+          {isConnected ? connectionMessages.connected : connectionMessages.connectWallet}
         </Button>
         {error && (
           <p className="text-sm text-red-500 animate-fade-in">

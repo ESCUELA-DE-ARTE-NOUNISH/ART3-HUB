@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSafeMiniKit } from '@/hooks/useSafeMiniKit'
+import { useSafeFarcaster } from '@/providers/FarcasterProvider'
 import { sdk } from "@farcaster/miniapp-sdk"
 import SplashScreen from "./splash-screen"
 import FarcasterDebug from "./farcaster-debug"
@@ -49,14 +49,14 @@ export default function AppWrapper({ children }: AppWrapperProps) {
   let isMiniKit = false;
   
   try {
-    const miniKitData = useSafeMiniKit();
-    context = miniKitData.context;
-    setFrameReady = miniKitData.setFrameReady;
-    isFrameReady = miniKitData.isFrameReady;
-    isMiniKit = !!context;
+    const farcasterData = useSafeFarcaster();
+    context = farcasterData.context;
+    setFrameReady = farcasterData.setFrameReady;
+    isFrameReady = farcasterData.isFrameReady;
+    isMiniKit = farcasterData.isFarcasterEnvironment;
   } catch (error) {
-    // MiniKitProvider not available (browser mode)
-    console.log('📍 Browser mode detected - MiniKit not available');
+    // FarcasterProvider not available (browser mode)
+    console.log('📍 Browser mode detected - Farcaster not available');
     context = null;
     setFrameReady = () => {};
     isFrameReady = false;

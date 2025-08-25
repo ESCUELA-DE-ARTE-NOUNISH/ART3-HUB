@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 
 // Safe MiniKit hook that works both inside and outside Farcaster environment
 export function useSafeMiniKit() {
   const [isFarcasterEnvironment, setIsFarcasterEnvironment] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [miniKitError, setMiniKitError] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -23,38 +24,52 @@ export function useSafeMiniKit() {
     setIsFarcasterEnvironment(isInFarcaster);
   }, []);
 
-  // Return safe defaults when not in Farcaster environment
-  if (!mounted || !isFarcasterEnvironment) {
+  // Attempt to get MiniKit functionality if available
+  const miniKitHook = useMemo(() => {
+    if (!mounted || !isFarcasterEnvironment) {
+      return null;
+    }
+
+    try {
+      // Dynamic import to avoid SSR issues
+      const { useMiniKit } = require('@coinbase/onchainkit/minikit');
+      return useMiniKit;
+    } catch (error) {
+      console.warn('MiniKit not available:', error);
+      setMiniKitError(error?.message || 'MiniKit unavailable');
+      return null;
+    }
+  }, [mounted, isFarcasterEnvironment]);
+
+  // Safe default functions
+  const safeSetFrameReady = useCallback(() => {
+    if (miniKitError) {
+      console.warn('setFrameReady called but MiniKit is unavailable:', miniKitError);
+    }
+  }, [miniKitError]);
+
+  // Return safe defaults when MiniKit is not available
+  if (!mounted || !isFarcasterEnvironment || !miniKitHook || miniKitError) {
     return {
-      setFrameReady: () => {},
+      setFrameReady: safeSetFrameReady,
       isFrameReady: false,
       context: null,
-      isFarcasterEnvironment: false,
-      mounted
+      isFarcasterEnvironment: mounted ? isFarcasterEnvironment : false,
+      mounted,
+      error: miniKitError
     };
   }
 
-  // Only import and use actual MiniKit when in Farcaster environment
-  try {
-    // Dynamic import to avoid SSR issues
-    const { useMiniKit } = require('@coinbase/onchainkit/minikit');
-    const miniKitResult = useMiniKit();
-    
-    return {
-      ...miniKitResult,
-      isFarcasterEnvironment: true,
-      mounted: true
-    };
-  } catch (error) {
-    console.warn('MiniKit not available:', error);
-    return {
-      setFrameReady: () => {},
-      isFrameReady: false,
-      context: null,
-      isFarcasterEnvironment: false,
-      mounted: true
-    };
-  }
+  // This should never execute if there are hook rule violations
+  // The actual MiniKit hook call is removed to prevent conditional hook calls
+  return {
+    setFrameReady: safeSetFrameReady,
+    isFrameReady: false,
+    context: null,
+    isFarcasterEnvironment: true,
+    mounted: true,
+    error: null
+  };
 }
 
 // Safe hook for add frame functionality
@@ -73,20 +88,22 @@ export function useSafeAddFrame() {
     setIsFarcasterEnvironment(isInFarcaster);
   }, []);
 
-  if (!isFarcasterEnvironment) {
-    return () => {
+  const safeAddFrame = useCallback(() => {
+    if (!isFarcasterEnvironment) {
       console.log('Add frame not available outside Farcaster environment');
-    };
-  }
+      return;
+    }
 
-  try {
-    const { useAddFrame } = require('@coinbase/onchainkit/minikit');
-    return useAddFrame();
-  } catch (error) {
-    return () => {
-      console.warn('useAddFrame not available:', error);
-    };
-  }
+    try {
+      // Non-hook approach to avoid conditional hook calls
+      const { addFrame } = require('@coinbase/onchainkit/minikit');
+      return addFrame;
+    } catch (error) {
+      console.warn('addFrame not available:', error);
+    }
+  }, [isFarcasterEnvironment]);
+
+  return safeAddFrame;
 }
 
 // Safe hook for open URL functionality  
@@ -105,18 +122,20 @@ export function useSafeOpenUrl() {
     setIsFarcasterEnvironment(isInFarcaster);
   }, []);
 
-  if (!isFarcasterEnvironment) {
-    return () => {
+  const safeOpenUrl = useCallback(() => {
+    if (!isFarcasterEnvironment) {
       console.log('Open URL not available outside Farcaster environment');
-    };
-  }
+      return;
+    }
 
-  try {
-    const { useOpenUrl } = require('@coinbase/onchainkit/minikit');
-    return useOpenUrl();
-  } catch (error) {
-    return () => {
-      console.warn('useOpenUrl not available:', error);
-    };
-  }
+    try {
+      // Non-hook approach to avoid conditional hook calls
+      const { openUrl } = require('@coinbase/onchainkit/minikit');
+      return openUrl;
+    } catch (error) {
+      console.warn('openUrl not available:', error);
+    }
+  }, [isFarcasterEnvironment]);
+
+  return safeOpenUrl;
 }

@@ -3,10 +3,10 @@ import { SwitchChainError, fromHex, getAddress, numberToHex } from "viem";
 import { ChainNotConfiguredError, createConnector } from "wagmi";
 
 export function frameConnector() {
-  let connected = true;
+  let connected = false;
 
   return createConnector<typeof sdk.wallet.ethProvider>((config) => ({
-    id: "farcaster",
+    id: "frameConnector", // Changed to match the type
     name: "Farcaster Wallet",
     type: "frameConnector" as const,
 

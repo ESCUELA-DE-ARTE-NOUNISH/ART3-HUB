@@ -5,6 +5,8 @@ import { WagmiProvider as PrivyWagmiProvider } from '@privy-io/wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { base, baseSepolia } from 'wagmi/chains'
 import { createPrivyWagmiConfig } from '@/lib/privy-wagmi'
+import { config as mainWagmiConfig } from '@/lib/wagmi'
+import { WagmiProvider } from 'wagmi'
 // Import MiniKit conditionally to avoid SSR issues
 let useMiniKit: any = null
 try {
@@ -41,7 +43,7 @@ const FallbackWalletsContext = createContext({
   wallets: [],
 })
 
-// Fallback providers for MiniKit mode
+// Fallback providers for MiniKit/Farcaster mode
 function FallbackPrivyProvider({ children }: { children: React.ReactNode }) {
   return (
     <FallbackPrivyContext.Provider value={{
@@ -52,7 +54,9 @@ function FallbackPrivyProvider({ children }: { children: React.ReactNode }) {
     }}>
       <FallbackWalletsContext.Provider value={{ wallets: [] }}>
         <QueryClientProvider client={queryClient}>
-          {children}
+          <WagmiProvider config={mainWagmiConfig}>
+            {children}
+          </WagmiProvider>
         </QueryClientProvider>
       </FallbackWalletsContext.Provider>
     </FallbackPrivyContext.Provider>
@@ -71,24 +75,57 @@ export function PrivyAppProvider({ children }: PrivyAppProviderProps) {
     return createPrivyWagmiConfig()
   }, [])
   
-  // Use client-side check without hooks during SSR
-  const [isMiniKit, setIsMiniKit] = React.useState(false)
-  
-  React.useEffect(() => {
-    // Check for MiniKit only on client side
-    try {
-      if (useMiniKit) {
-        const { context } = useMiniKit()
-        setIsMiniKit(!!context)
-      }
-    } catch (error) {
-      // Ignore error if MiniKit hook fails
-      setIsMiniKit(false)
+  // Detect Farcaster environment during initial render (not in useEffect) to prevent SSR Privy initialization
+  const [isFarcasterEnvironment, setIsFarcasterEnvironment] = React.useState(() => {
+    // Server-side: always use fallback to prevent Privy SSR errors
+    if (typeof window === 'undefined') {
+      return true; // Assume Farcaster on server to use fallback provider
     }
-  }, [])
+    
+    // Client-side: detect actual environment
+    const isInFarcaster = !!(window as any).webkit?.messageHandlers?.farcaster ||
+      !!(window as any).farcaster ||
+      window !== window.parent || // iframe check
+      window.location.href.includes('farcaster') ||
+      navigator.userAgent.includes('Farcaster');
+      
+    console.log('🎯 PrivyProvider Farcaster Detection (initial):', {
+      isInFarcaster,
+      hasWebkit: !!(window as any).webkit,
+      hasFarcasterHandler: !!(window as any).webkit?.messageHandlers?.farcaster,
+      hasFarcasterGlobal: !!(window as any).farcaster,
+      isIframe: window !== window.parent,
+      hasPrivyAppId: !!appId
+    });
+    
+    return isInFarcaster;
+  })
   
-  // If no Privy app ID is provided or we're in MiniKit, use fallback provider
-  if (!appId || isMiniKit) {
+  // Update environment detection on client-side only
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const isInFarcaster = !!(window as any).webkit?.messageHandlers?.farcaster ||
+      !!(window as any).farcaster ||
+      window !== window.parent || // iframe check
+      window.location.href.includes('farcaster') ||
+      navigator.userAgent.includes('Farcaster');
+    
+    console.log('🎯 PrivyProvider Farcaster Detection (useEffect):', {
+      isInFarcaster,
+      hasWebkit: !!(window as any).webkit,
+      hasFarcasterHandler: !!(window as any).webkit?.messageHandlers?.farcaster,
+      hasFarcasterGlobal: !!(window as any).farcaster,
+      isIframe: window !== window.parent,
+      hasPrivyAppId: !!appId
+    });
+    
+    setIsFarcasterEnvironment(isInFarcaster)
+  }, [appId])
+  
+  // If no Privy app ID is provided or we're in Farcaster, use fallback provider
+  if (!appId || isFarcasterEnvironment) {
+    console.log('🎯 PrivyProvider: Using fallback provider', { hasAppId: !!appId, isFarcasterEnvironment });
     return <FallbackPrivyProvider>{children}</FallbackPrivyProvider>
   }
 

@@ -24,11 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-import {
-  useSafeMiniKit,
-  useSafeAddFrame,
-  useSafeOpenUrl,
-} from "@/hooks/useSafeMiniKit";
+import { useSafeFarcaster } from "@/providers/FarcasterProvider";
 import {
   Name,
   Identity,
@@ -46,7 +42,7 @@ import {
 
 export default function Home() {
 
-  const { setFrameReady, isFrameReady, context } = useSafeMiniKit();
+  const { setFrameReady, isFrameReady, context, isFarcasterEnvironment } = useSafeFarcaster();
 
   const params = useParams()
   const router = useRouter()
@@ -147,10 +143,11 @@ export default function Home() {
       wagmiConnected,
       authenticated,
       context: !!context,
+      isFarcasterEnvironment,
       walletsLength: wallets?.length || 0,
       connectorsCount: connectors.length
     })
-  }, [showWalletAlert, isActuallyConnected, wagmiConnected, authenticated, context, wallets, connectors])
+  }, [showWalletAlert, isActuallyConnected, wagmiConnected, authenticated, context, isFarcasterEnvironment, wallets, connectors])
 
   // Update locale when params change
   useEffect(() => {

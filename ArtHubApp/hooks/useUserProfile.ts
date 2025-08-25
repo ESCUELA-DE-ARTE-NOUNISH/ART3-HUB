@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import { useSafePrivy, useSafeWallets } from '@/hooks/useSafePrivy'
-import { useSafeMiniKit } from '@/hooks/useSafeMiniKit'
+import { useSafeFarcaster } from '@/providers/FarcasterProvider'
 import { ApiService } from '@/lib/services/api-service'
 import type { UserProfile } from '@/lib/firebase'
 
@@ -14,7 +14,7 @@ export function useUserProfile() {
 
   // Get wallet connection state from different sources
   const { isConnected, address } = useAccount()
-  const { context } = useSafeMiniKit()
+  const { context } = useSafeFarcaster()
   const isMiniKit = !!context
 
   // Safe Privy hooks that handle MiniKit mode

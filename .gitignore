@@ -1,1 +1,15 @@
+# Environment files (SECURITY: Never commit these!)
+ArtHubApp/.env
+ArtHubApp/.env.local
+ArtHubApp/.env.production
 ArtHubApp/.env.original
+ArtHubContract/.env
+ArtHubContract/.env.local
+ArtHubAgent/.env
+ArtHubAgent/.env.local
+
+# General environment file patterns
+.env
+.env.local
+.env.production
+.env.staging
