@@ -43,6 +43,7 @@ export function ConnectMenu() {
   
   // MiniKit context - this will tell us if we're in a MiniKit environment
   const { context } = useMiniKit()
+  // Simple detection - if MiniKitProvider is active, context will exist
   const isMiniKit = !!context
   
   // User profile tracking
@@ -269,10 +270,57 @@ export function ConnectMenu() {
     return (
       <div className="flex flex-col items-end gap-2">
         <Button
-          onClick={() => {
-            const farcasterConnector = connectors.find(c => c.id === 'farcaster')
-            if (farcasterConnector) {
-              connect({ connector: farcasterConnector })
+          onClick={async () => {
+            console.log('🎯 CONNECT MENU: JOIN NOW BUTTON CLICKED IN FARCASTER')
+            console.log('📊 ConnectMenu Environment State:', {
+              isMiniKit,
+              context: !!context,
+              connectorsCount: connectors.length,
+              connectors: connectors.map(c => ({ id: c.id, name: c.name, type: c.type }))
+            })
+            
+            try {
+              // Log all available connectors with full details
+              console.log('🔍 DETAILED CONNECTORS ANALYSIS:')
+              connectors.forEach((connector, index) => {
+                console.log(`  Connector ${index}:`, {
+                  id: connector.id,
+                  name: connector.name,
+                  type: connector.type,
+                  uid: connector.uid,
+                  icon: connector.icon
+                })
+              })
+              
+              // Look for the Farcaster frame connector first
+              const farcasterConnector = connectors.find(c => c.id === 'farcaster' || c.type === 'frameConnector')
+              console.log('🔍 ConnectMenu Farcaster connector found:', !!farcasterConnector, farcasterConnector?.name)
+              
+              if (farcasterConnector) {
+                console.log('✅ CONNECT MENU: USING FARCASTER CONNECTOR:', farcasterConnector.name)
+                console.log('🔄 ConnectMenu: Calling connect() with Farcaster connector...')
+                await connect({ connector: farcasterConnector })
+                console.log('✅ ConnectMenu: Connect() call completed')
+              } else {
+                console.error('❌ CONNECT MENU: NO FARCASTER CONNECTOR FOUND')
+                console.log('🔍 Available connectors:', connectors.map(c => ({ id: c.id, name: c.name, type: c.type })))
+                
+                // Try to connect with the first available connector as fallback
+                if (connectors.length > 0) {
+                  console.log('🔄 CONNECT MENU: TRYING FALLBACK WITH FIRST CONNECTOR:', connectors[0].name)
+                  await connect({ connector: connectors[0] })
+                  console.log('✅ ConnectMenu: Fallback connection completed')
+                } else {
+                  setError('No connectors available')
+                }
+              }
+            } catch (error) {
+              console.error('❌ CONNECT MENU: FARCASTER CONNECTION FAILED:', {
+                error: error.message,
+                stack: error.stack,
+                name: error.name
+              })
+              setError('Failed to connect Farcaster wallet. Please try again.')
             }
           }}
           className={cn(
