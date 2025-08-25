@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { sdk } from "@farcaster/miniapp-sdk"
-import { useSafeMiniKit } from '@/hooks/useSafeMiniKit'
+import { useSafeFarcaster } from '@/providers/FarcasterProvider'
 
 export default function FarcasterDebug() {
   const [debugInfo, setDebugInfo] = useState<any>({})
   const [readyCallStatus, setReadyCallStatus] = useState<string>('Not called')
-  const { context, setFrameReady, isFrameReady } = useSafeMiniKit()
+  const { context, setFrameReady, isFrameReady } = useSafeFarcaster()
 
   useEffect(() => {
     const info = {

@@ -203,42 +203,134 @@ const ART3HUB_COLLECTION_V4_ABI = [
   }
 ] as const
 
-// Helper function to create public client for specific chain
-function createChainSpecificPublicClient(chainId: number): PublicClient {
+// RPC endpoints for Base mainnet (browser-compatible, fast-responding endpoints only)
+const BASE_MAINNET_RPC_ENDPOINTS = [
+  process.env.NEXT_PUBLIC_BASE_RPC_URL || 'https://mainnet.base.org',
+  'https://base-rpc.publicnode.com',
+  'https://base.meowrpc.com'
+]
+
+// RPC endpoints for Base Sepolia (fallback options)
+const BASE_SEPOLIA_RPC_ENDPOINTS = [
+  process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org',
+  'https://base-sepolia-rpc.publicnode.com',
+  'https://sepolia.base.org'
+]
+
+// Retry mechanism with exponential backoff and multiple RPC endpoints
+async function retryWithFallback<T>(
+  operation: (client: PublicClient) => Promise<T>,
+  chainId: number,
+  maxRetries: number = 3,
+  initialDelayMs: number = 1000
+): Promise<T> {
+  const endpoints = chainId === 8453 ? BASE_MAINNET_RPC_ENDPOINTS : 
+                   chainId === 84532 ? BASE_SEPOLIA_RPC_ENDPOINTS :
+                   [getDefaultRpcEndpoint(chainId)]
+
+  let lastError: Error | null = null
+
+  for (let endpointIndex = 0; endpointIndex < endpoints.length; endpointIndex++) {
+    const endpoint = endpoints[endpointIndex]
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        console.log(`🔄 Attempting RPC call (endpoint ${endpointIndex + 1}/${endpoints.length}, attempt ${attempt + 1}/${maxRetries}):`, endpoint)
+        
+        const client = createPublicClientForEndpoint(chainId, endpoint)
+        const result = await operation(client)
+        
+        console.log(`✅ RPC call successful on endpoint ${endpointIndex + 1}, attempt ${attempt + 1}`)
+        return result
+        
+      } catch (error) {
+        lastError = error as Error
+        const is429 = lastError.message?.includes('429') || lastError.message?.includes('Too Many Requests')
+        const isRateLimit = is429 || lastError.message?.includes('rate limit') || lastError.message?.includes('quota')
+        
+        console.log(`❌ RPC call failed (endpoint ${endpointIndex + 1}, attempt ${attempt + 1}):`, {
+          error: lastError.message,
+          isRateLimit,
+          nextAction: attempt < maxRetries - 1 ? 'retry' : endpointIndex < endpoints.length - 1 ? 'next endpoint' : 'fail'
+        })
+
+        // If rate limited and not the last attempt, wait with exponential backoff
+        if (isRateLimit && attempt < maxRetries - 1) {
+          const delay = initialDelayMs * Math.pow(2, attempt) + Math.random() * 1000
+          console.log(`⏳ Rate limited, waiting ${delay.toFixed(0)}ms before retry...`)
+          await new Promise(resolve => setTimeout(resolve, delay))
+        } else if (!isRateLimit && attempt < maxRetries - 1) {
+          // For non-rate-limit errors, shorter delay
+          const delay = 500 * (attempt + 1)
+          console.log(`⏳ Non-rate-limit error, waiting ${delay}ms before retry...`)
+          await new Promise(resolve => setTimeout(resolve, delay))
+        }
+      }
+    }
+    
+    // If we've exhausted retries for this endpoint and it's rate limited, try next endpoint immediately
+    if (endpointIndex < endpoints.length - 1) {
+      console.log(`🔄 Switching to next RPC endpoint...`)
+    }
+  }
+
+  console.error('❌ All RPC endpoints and retries exhausted')
+  throw lastError || new Error('All RPC endpoints failed')
+}
+
+function getDefaultRpcEndpoint(chainId: number): string {
+  switch (chainId) {
+    case 84532: return 'https://sepolia.base.org'
+    case 8453: return 'https://mainnet.base.org'
+    case 999999999: return 'https://sepolia.rpc.zora.energy'
+    case 7777777: return 'https://rpc.zora.energy'
+    case 44787: return 'https://alfajores-forno.celo-testnet.org'
+    case 42220: return 'https://forno.celo.org'
+    default: throw new Error(`Unsupported chain ID: ${chainId}`)
+  }
+}
+
+function createPublicClientForEndpoint(chainId: number, endpoint: string): PublicClient {
   switch (chainId) {
     case 84532: // Base Sepolia
       return createPublicClient({
         chain: baseSepolia,
-        transport: http(process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org')
+        transport: http(endpoint)
       })
     case 8453: // Base Mainnet
       return createPublicClient({
         chain: base,
-        transport: http(process.env.NEXT_PUBLIC_BASE_RPC_URL || 'https://mainnet.base.org')
+        transport: http(endpoint)
       })
     case 999999999: // Zora Sepolia
       return createPublicClient({
         chain: zoraSepolia,
-        transport: http(process.env.NEXT_PUBLIC_ZORA_SEPOLIA_RPC_URL || 'https://sepolia.rpc.zora.energy')
+        transport: http(endpoint)
       })
     case 7777777: // Zora Mainnet
       return createPublicClient({
         chain: zora,
-        transport: http(process.env.NEXT_PUBLIC_ZORA_RPC_URL || 'https://rpc.zora.energy')
+        transport: http(endpoint)
       })
     case 44787: // Celo Alfajores
       return createPublicClient({
         chain: celoAlfajores,
-        transport: http(process.env.NEXT_PUBLIC_CELO_ALFAJORES_RPC_URL || 'https://alfajores-forno.celo-testnet.org')
+        transport: http(endpoint)
       })
     case 42220: // Celo Mainnet
       return createPublicClient({
         chain: celo,
-        transport: http(process.env.NEXT_PUBLIC_CELO_RPC_URL || 'https://forno.celo.org')
+        transport: http(endpoint)
       })
     default:
       throw new Error(`Unsupported chain ID: ${chainId}`)
   }
+}
+
+// Helper function to create public client for specific chain
+function createChainSpecificPublicClient(chainId: number): PublicClient {
+  const endpoint = getDefaultRpcEndpoint(chainId)
+  return createPublicClientForEndpoint(chainId, endpoint)
 }
 
 // Get Art3HubFactoryV4 contract address based on network (Updated to use V6 contracts)
@@ -368,20 +460,28 @@ export class Art3HubV4Service {
     })
   }
 
-  // Get user subscription from V6 contract
+  // Get user subscription from V6 contract with robust retry mechanism
   async getUserSubscription(userAddress: Address): Promise<V4SubscriptionInfo> {
     try {
       console.log('🔍 Getting V6 subscription for user:', userAddress)
       
       try {
-        // V6 contracts - get subscription data directly from subscription contract
-        const subscriptionResult = await this.publicClient.readContract({
-          address: this.subscriptionAddress,
-          abi: ART3HUB_SUBSCRIPTION_V4_ABI,
-          functionName: 'getSubscription',
-          args: [userAddress]
-        })
-        console.log('✅ V6 subscription contract call successful')
+        // Use retry mechanism with fallback RPC endpoints to handle rate limiting
+        const subscriptionResult = await retryWithFallback(
+          async (client: PublicClient) => {
+            return await client.readContract({
+              address: this.subscriptionAddress,
+              abi: ART3HUB_SUBSCRIPTION_V4_ABI,
+              functionName: 'getSubscription',
+              args: [userAddress]
+            })
+          },
+          this.chainId,
+          3, // maxRetries
+          1000 // initialDelayMs
+        )
+        
+        console.log('✅ V6 subscription contract call successful with retry mechanism')
         
         // Subscription returns: [plan, expiresAt, nftsMinted, nftLimit, isActive, hasGaslessMinting]
         const [plan, expiresAt, nftsMinted, nftLimit, isActive, hasGaslessMinting] = subscriptionResult
@@ -416,7 +516,30 @@ export class Art3HubV4Service {
         return result
         
       } catch (subscriptionError) {
-        console.log('❌ V6 subscription contract failed:', subscriptionError)
+        console.log('❌ V6 subscription contract failed after all retries:', subscriptionError)
+        
+        // Check specific error types for better handling
+        const errorMessage = subscriptionError?.message || ''
+        const isContractRevert = errorMessage.includes('reverted') || 
+                                errorMessage.includes('Execution reverted') ||
+                                errorMessage.includes('getSubscription') ||
+                                errorMessage.includes('ContractFunctionExecutionError')
+        const isRateLimit = errorMessage.includes('429') || 
+                           errorMessage.includes('Too Many Requests') ||
+                           errorMessage.includes('rate limit') ||
+                           errorMessage.includes('quota')
+        const isCORSError = errorMessage.includes('CORS') || 
+                           errorMessage.includes('blocked by CORS policy')
+        
+        if (isContractRevert && !isRateLimit && !isCORSError) {
+          console.log('ℹ️  User not enrolled in V6 subscription system (contract reverted) - returning defaults for enrollment')
+        } else if (isRateLimit) {
+          console.log('⚠️  Rate limiting detected even after all retries and fallbacks')
+        } else if (isCORSError) {
+          console.log('🚫 CORS policy error detected - endpoint not browser-compatible')
+        } else {
+          console.log('❓ Unknown subscription error type:', errorMessage.substring(0, 100))
+        }
         
         // For V6 contracts, if subscription call fails, user likely needs to be enrolled
         // Return default free plan that will trigger enrollment
@@ -513,21 +636,28 @@ export class Art3HubV4Service {
       
       console.log(`💰 Checking USDC allowance for ${amount.toString()} tokens...`)
       
-      // Check current allowance
-      const allowance = await this.publicClient.readContract({
-        address: usdcAddress,
-        abi: [
-          {
-            "inputs": [{"name": "owner", "type": "address"}, {"name": "spender", "type": "address"}],
-            "name": "allowance",
-            "outputs": [{"name": "", "type": "uint256"}],
-            "stateMutability": "view",
-            "type": "function"
-          }
-        ],
-        functionName: 'allowance',
-        args: [userAddress, this.subscriptionAddress]
-      })
+      // Check current allowance with retry mechanism to handle rate limiting
+      const allowance = await retryWithFallback(
+        async (client: PublicClient) => {
+          return await client.readContract({
+            address: usdcAddress,
+            abi: [
+              {
+                "inputs": [{"name": "owner", "type": "address"}, {"name": "spender", "type": "address"}],
+                "name": "allowance",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "stateMutability": "view",
+                "type": "function"
+              }
+            ],
+            functionName: 'allowance',
+            args: [userAddress, this.subscriptionAddress]
+          })
+        },
+        this.chainId,
+        2, // maxRetries (less than subscription check)
+        800 // initialDelayMs
+      )
       
       console.log(`Current USDC allowance: ${allowance.toString()}`)
       
@@ -556,8 +686,15 @@ export class Art3HubV4Service {
       
       console.log(`💰 USDC approval transaction sent: ${approvalHash}`)
       
-      // Wait for approval confirmation
-      await this.publicClient.waitForTransactionReceipt({ hash: approvalHash })
+      // Wait for approval confirmation with retry mechanism
+      await retryWithFallback(
+        async (client: PublicClient) => {
+          return await client.waitForTransactionReceipt({ hash: approvalHash })
+        },
+        this.chainId,
+        3, // maxRetries
+        2000 // initialDelayMs - longer for transaction receipts
+      )
       
       console.log('✅ USDC approval confirmed')
       
