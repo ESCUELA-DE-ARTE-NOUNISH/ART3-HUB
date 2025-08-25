@@ -1,0 +1,47 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users collection - users can read/write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // NFTs collection - users can read all, write their own
+    match /nfts/{nftId} {
+      allow read: if true; // Public read access for NFTs
+      allow create, update: if request.auth != null;
+      allow delete: if request.auth != null && 
+        (resource.data.creatorAddress == request.auth.token.address || 
+         resource.data.ownerAddress == request.auth.token.address);
+    }
+    
+    // Chat memory collection - users can read/write their own chat history
+    match /chat_memory/{userId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // User sessions - users can manage their own sessions
+    match /user_sessions/{sessionId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Claimable NFTs - read access for all, write only for admins
+    match /claimable_nfts/{nftId} {
+      allow read: if true; // Anyone can read claimable NFTs
+      allow write: if false; // Claimable NFTs managed via API only
+    }
+    
+    // Admin wallets collection - PERMISSIVE FOR DEVELOPMENT
+    // TODO: Restrict this in production with proper admin verification
+    match /admin_wallets/{adminId} {
+      allow read, write: if true; // Temporary permissive rule for development
+    }
+    
+    // Default deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

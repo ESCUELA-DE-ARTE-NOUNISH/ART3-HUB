@@ -27,13 +27,26 @@
 - **Language**: Solidity 0.8.28
 - **Framework**: Hardhat
 - **Standards**: OpenZeppelin v5.1.0
-- **Network**: Base Sepolia (testnet), Base Mainnet (future)
+- **Network**: Base Sepolia (testnet), Base Mainnet (production ready)
 
 #### 3. **ArtHubAgent/** - AI Agent System
 - **Purpose**: ElizaOS-based AI agent for Web3 education
 - **Features**: Conversational guidance, memory persistence
 
-## 🔗 V6 UPGRADEABLE Contract Addresses (Base Sepolia) - Collection-per-NFT Architecture
+## 🔗 V6 UPGRADEABLE Contract Addresses - Collection-per-NFT Architecture
+
+### Base Mainnet (Production) - Chain ID: 8453 ✅
+
+| Contract | Address | Purpose |
+|----------|---------|---------|
+| **Factory V6 Proxy** | `0x8E8f86a2e5BCb6436474833764B3C68cEF89D18D` | Collection-per-NFT creation (upgradeable) |
+| **Subscription V6 Proxy** | `0x2380a7e74480d44f2Fe05B8cA2BDc9d012F56BE8` | Subscription management (upgradeable) |
+| **Collection V6 Implementation** | `0x8aFf71f5dCb7Ad2C77f0Ec5a0A4D914394dB8c13` | NFT implementation (clone base) |
+| **ClaimableNFT Factory V6 Proxy** | `0xB253b65b330A51DD452f32617730565d6f6A6b33` | Claimable NFT factory (upgradeable) |
+| **Admin Wallet (Owner)** | `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f` | Platform admin & upgrade authority |
+| **Gasless Relayer** | `0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd` | Operational transactions |
+
+### Base Sepolia (Testnet) - Chain ID: 84532
 
 | Contract | Address | Purpose |
 |----------|---------|---------|
@@ -41,8 +54,6 @@
 | **Subscription V6 Proxy** | `0x3B2D7fD4972077Fa1dbE60335c6CDF84b02fE555` | Subscription management (upgradeable) |
 | **Collection V6 Implementation** | `0xA7a5C3c097f291411501129cB69029eCe0F7C45E` | NFT implementation (clone base) |
 | **ClaimableNFT Factory V6 Proxy** | `0x51dD5FE61CF5B537853877A6dE50E7F74c24310A` | Claimable NFT factory (upgradeable) |
-| **Admin Wallet (Owner)** | `<ADMIN_WALLET_ADDRESS>` | Platform admin & upgrade authority |
-| **Gasless Relayer** | `<GASLESS_RELAYER_ADDRESS>` | Operational transactions |
 
 ## 🌟 Key Features
 

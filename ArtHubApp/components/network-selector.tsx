@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { SUPPORTED_NETWORKS, getActiveNetwork, isBaseOnlyDeployment, type NetworkConfig } from '@/lib/networks'
 import { useSwitchChain, useChainId, useAccount } from 'wagmi'
 import { useToast } from '@/hooks/use-toast'
-import { useMiniKit } from '@coinbase/onchainkit/minikit'
+import { useSafeMiniKit } from '@/hooks/useSafeMiniKit'
 
 interface NetworkSelectorProps {
   selectedNetwork: string
@@ -20,7 +20,7 @@ export function NetworkSelector({ selectedNetwork, onNetworkChange, locale = 'en
   const currentChainId = useChainId()
   const { isConnected } = useAccount()
   const { toast } = useToast()
-  const { context } = useMiniKit()
+  const { context } = useSafeMiniKit()
   const isMiniKit = !!context
   const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
   const isBaseOnlyMode = baseOnly || isBaseOnlyDeployment()

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useMiniKit } from '@coinbase/onchainkit/minikit'
+import { useSafeMiniKit } from '@/hooks/useSafeMiniKit'
 import { sdk } from "@farcaster/miniapp-sdk"
 import SplashScreen from "./splash-screen"
 import FarcasterDebug from "./farcaster-debug"
@@ -49,7 +49,7 @@ export default function AppWrapper({ children }: AppWrapperProps) {
   let isMiniKit = false;
   
   try {
-    const miniKitData = useMiniKit();
+    const miniKitData = useSafeMiniKit();
     context = miniKitData.context;
     setFrameReady = miniKitData.setFrameReady;
     isFrameReady = miniKitData.isFrameReady;

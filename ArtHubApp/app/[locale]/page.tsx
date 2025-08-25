@@ -25,10 +25,10 @@ import {
 } from "@/components/ui/alert-dialog"
 
 import {
-  useMiniKit,
-  useAddFrame,
-  useOpenUrl,
-} from "@coinbase/onchainkit/minikit";
+  useSafeMiniKit,
+  useSafeAddFrame,
+  useSafeOpenUrl,
+} from "@/hooks/useSafeMiniKit";
 import {
   Name,
   Identity,
@@ -46,7 +46,7 @@ import {
 
 export default function Home() {
 
-  const { setFrameReady, isFrameReady, context } = useMiniKit();
+  const { setFrameReady, isFrameReady, context } = useSafeMiniKit();
 
   const params = useParams()
   const router = useRouter()
