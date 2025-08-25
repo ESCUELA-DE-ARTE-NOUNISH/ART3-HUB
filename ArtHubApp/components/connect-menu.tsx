@@ -359,7 +359,7 @@ export function ConnectMenu() {
           )}
         >
           <User className="h-4 w-4" />
-          {joinMessages.joinNow}
+          {connectionMessages.joinNow}
         </Button>
         {error && (
           <p className="text-sm text-red-500 animate-fade-in">

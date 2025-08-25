@@ -15,6 +15,7 @@ const nextConfig = {
   },
   // Add this configuration to allow ngrok domains
   allowedDevOrigins: [
+    'app.art3hub.xyz/',
     'art3-hub.vercel.app/',
     'codalabs.ngrok.io',
     '*.ngrok.io', // This will allow any ngrok subdomain
