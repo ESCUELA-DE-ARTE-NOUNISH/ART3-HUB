@@ -5,21 +5,31 @@
 ## 🔥 V6 Major Updates
 
 - **🗄️ Database Migration**: Complete migration from Supabase to Firebase for improved scalability
-- **🆕 Fresh V6 Contracts**: New smart contracts deployed on Base Sepolia with clean addresses
+- **🆕 Fresh V6 Contracts**: New smart contracts deployed on **Base Mainnet & Sepolia** with clean addresses
 - **🛡️ Enhanced Admin System**: Configurable admin wallet system with environment-based security
 - **🧹 Clean Architecture**: Fresh start with optimized Base-only deployment
 - **⚡ Improved Performance**: Enhanced on-chain data storage and social features
 - **🤖 AI Agent Integration**: Advanced AI-powered guidance system for Web3 onboarding
 - **💎 Claimable NFT Factory Pattern**: Independent contracts for user differentiation and access control
 
-### 📋 V6 Contract Addresses (Base Sepolia)
-- **Factory V6**: `0x6A2a69a88b92B8566354ECE538aF46fC783b9DFd`
-- **Subscription V6**: `0xd0611f925994fddD433a464886Ae3eF58Efb9EC9`
-- **Collection Implementation V6**: `0xAecDa231ed8d8b9f5E9e39B3624FE2D073D86fB0`
-- **ClaimableNFT Factory**: `0x12a6C91C0e2a6d1E8e6Ef537107b6F5a12Eeb51C`
-- **Admin Wallet**: `<ADMIN_WALLET_ADDRESS>`
-- **Treasury Wallet**: `0x8ea4b5e25c45d34596758dA2d3F27a8096eeFEb9`
-- **Gasless Relayer**: `<GASLESS_RELAYER_ADDRESS>`
+### 📋 V6 Contract Addresses
+
+#### 🚀 Base Mainnet (Production - ACTIVE)
+- **Factory V6**: `0x8E8f86a2e5BCb6436474833764B3C68cEF89D18D`
+- **Subscription V6**: `0x2380a7e74480d44f2Fe05B8cA2BDc9d012F56BE8`
+- **Collection Implementation V6**: `0x8aFf71f5dCb7Ad2C77f0Ec5a0A4D914394dB8c13`
+- **ClaimableNFT Factory**: `0xB253b65b330A51DD452f32617730565d6f6A6b33`
+
+#### 🧪 Base Sepolia (Testing)
+- **Factory V6**: `0x87DfC71B55a41825fe8EAA8a8724D8982b92DeBe`
+- **Subscription V6**: `0x3B2D7fD4972077Fa1dbE60335c6CDF84b02fE555`
+- **Collection Implementation V6**: `0xA7a5C3c097f291411501129cB69029eCe0F7C45E`
+- **ClaimableNFT Factory**: `0x51dD5FE61CF5B537853877A6dE50E7F74c24310A`
+
+#### 🔐 System Configuration
+- **Admin Wallet**: `0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f`
+- **Treasury Wallet**: `0x946b7dc627D245877BDf9c59bce626db333Fc01c`
+- **Gasless Relayer**: `0x825f993Da8912Ae70545F8e6AD47eBCeCe0fdFCd`
 
 ---
 
@@ -65,9 +75,9 @@ This Mini App combines AI Agents + Base onchain tools to make onboarding frictio
 - **Database**: **Firebase Firestore** (migrated from Supabase) - **NEW in V6**
 - **Storage**: Firebase Storage + Pinata IPFS
 - **AI System**: OpenAI GPT-4 + LangChain + Custom Memory System
-- **Smart Contracts**: **Art3Hub V6 Contracts** (Base-optimized NFT tools) - **UPDATED**
-- **Web3**: Privy + Wagmi + Viem + Base Smart Wallets & Basenames
-- **Blockchain**: Solidity 0.8.28 + Hardhat + OpenZeppelin
+- **Smart Contracts**: **Art3Hub V6 Contracts** (Base Mainnet + Sepolia deployment) - **PRODUCTION READY**
+- **Web3**: Privy + Wagmi + Viem + Base Smart Wallets & Basenames + Farcaster MiniApp Integration
+- **Blockchain**: Solidity 0.8.28 + Hardhat + OpenZeppelin + Base Network
 
 ## 👤 Team
 
@@ -127,9 +137,10 @@ cd ArtHubApp && npm run dev
 
 Configure your Firebase and Web3 settings in `.env` files:
 - Firebase API keys and project configuration
-- Smart contract addresses (V6 Base Sepolia)
+- Smart contract addresses (V6 Base Mainnet & Sepolia)
 - IPFS storage credentials (Pinata)
 - OpenAI API key for AI agent
+- Network mode configuration (mainnet/testnet)
 
 # 🎨 Art Hub — Mini App for Web3 Artists (Base Hackathon)
 
