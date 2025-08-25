@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { sdk } from "@farcaster/miniapp-sdk"
-import { useMiniKit } from '@coinbase/onchainkit/minikit'
+import { useSafeMiniKit } from '@/hooks/useSafeMiniKit'
 
 export default function FarcasterDebug() {
   const [debugInfo, setDebugInfo] = useState<any>({})
   const [readyCallStatus, setReadyCallStatus] = useState<string>('Not called')
-  const { context, setFrameReady, isFrameReady } = useMiniKit()
+  const { context, setFrameReady, isFrameReady } = useSafeMiniKit()
 
   useEffect(() => {
     const info = {
@@ -65,6 +65,8 @@ export default function FarcasterDebug() {
   }
 
   if (typeof window === 'undefined') return null
+
+  return (<></>)
 
   return (
     <div className="fixed top-0 left-0 w-full bg-black text-white p-4 text-xs z-50 overflow-auto max-h-64">

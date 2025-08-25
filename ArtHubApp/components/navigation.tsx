@@ -6,7 +6,7 @@ import { usePathname, useParams, useRouter } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import { useAccount, useConnect } from 'wagmi'
 import { useSafePrivy, useSafeWallets } from '@/hooks/useSafePrivy'
-import { useMiniKit } from '@coinbase/onchainkit/minikit'
+import { useSafeMiniKit } from '@/hooks/useSafeMiniKit'
 import { useToast } from '@/hooks/use-toast'
 import { useState, useEffect } from 'react'
 import { useAdminService } from '@/lib/services/admin-service'
@@ -33,7 +33,7 @@ export default function Navigation() {
   // Wallet connection hooks
   const { isConnected: wagmiConnected, address: userAddress } = useAccount()
   const { connect, connectors } = useConnect()
-  const { context } = useMiniKit()
+  const { context } = useSafeMiniKit()
 
   // Safe Privy hooks that handle MiniKit mode
   const { authenticated, login } = useSafePrivy()

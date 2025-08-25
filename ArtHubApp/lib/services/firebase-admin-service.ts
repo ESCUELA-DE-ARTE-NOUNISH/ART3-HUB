@@ -136,8 +136,13 @@ export class FirebaseAdminService {
       const adminRef = doc(db, COLLECTIONS.ADMIN_WALLETS, adminData.id)
       await setDoc(adminRef, adminData)
       return adminData
-    } catch (error) {
-      console.error('Error creating admin:', error)
+    } catch (error: any) {
+      // Only log permission errors as warnings, not errors (expected in dev without rules)
+      if (error?.code === 'permission-denied' || error?.message?.includes('insufficient permissions')) {
+        console.warn('📝 Firebase admin creation blocked by security rules (expected in development)')
+      } else {
+        console.error('Error creating admin:', error)
+      }
       return null
     }
   }
@@ -167,8 +172,13 @@ export class FirebaseAdminService {
       }
       
       return null
-    } catch (error) {
-      console.error('Error getting admin by address:', error)
+    } catch (error: any) {
+      // Only log permission errors as warnings (expected in dev without rules)
+      if (error?.code === 'permission-denied' || error?.message?.includes('insufficient permissions')) {
+        console.warn('📝 Firebase admin read blocked by security rules (expected in development)')
+      } else {
+        console.error('Error getting admin by address:', error)
+      }
       return null
     }
   }
@@ -191,8 +201,13 @@ export class FirebaseAdminService {
       })
       
       return admins
-    } catch (error) {
-      console.error('Error getting all admins:', error)
+    } catch (error: any) {
+      // Only log permission errors as warnings (expected in dev without rules)
+      if (error?.code === 'permission-denied' || error?.message?.includes('insufficient permissions')) {
+        console.warn('📝 Firebase admin query blocked by security rules (expected in development)')
+      } else {
+        console.error('Error getting all admins:', error)
+      }
       return []
     }
   }

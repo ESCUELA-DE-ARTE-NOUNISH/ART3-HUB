@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Wallet, LogOut, ChevronDown, SwitchCamera, User, CheckCircle, XCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { truncateEthAddress } from "@/lib/utils"
-import { useMiniKit } from '@coinbase/onchainkit/minikit'
+import { useSafeMiniKit } from '@/hooks/useSafeMiniKit'
 import { useSafePrivy, useSafeWallets } from '@/hooks/useSafePrivy'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import {
@@ -42,7 +42,7 @@ export function ConnectMenu() {
   const router = useRouter()
   
   // MiniKit context - this will tell us if we're in a MiniKit environment
-  const { context } = useMiniKit()
+  const { context } = useSafeMiniKit()
   // Simple detection - if MiniKitProvider is active, context will exist
   const isMiniKit = !!context
   
