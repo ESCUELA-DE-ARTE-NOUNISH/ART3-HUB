@@ -11,6 +11,7 @@ import { truncateEthAddress } from "@/lib/utils"
 import { useSafeFarcaster } from '@/providers/FarcasterProvider'
 import { useSafePrivy, useSafeWallets } from '@/hooks/useSafePrivy'
 import { useUserProfile } from '@/hooks/useUserProfile'
+import { getEnvironmentInfo, logEnvironmentInfo } from '@/lib/utils/environment'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,8 +52,18 @@ export function ConnectMenu() {
   
   // MiniKit context - this will tell us if we're in a MiniKit environment
   const { context, isFarcasterEnvironment } = useSafeFarcaster()
-  // Simple detection - if MiniKitProvider is active, context will exist
-  const isMiniKit = isFarcasterEnvironment
+  
+  // Enhanced detection - check multiple sources
+  const envInfo = typeof window !== 'undefined' ? getEnvironmentInfo() : null
+  const isMiniKit = isFarcasterEnvironment || (envInfo?.isFarcaster ?? false)
+  
+  console.log('🔍 Environment Detection Summary:', {
+    providerDetection: isFarcasterEnvironment,
+    utilsDetection: envInfo?.isFarcaster,
+    finalDecision: isMiniKit,
+    hasContext: !!context,
+    envDetails: envInfo
+  })
   
   // User profile tracking
   const { userProfile, isProfileComplete } = useUserProfile()
@@ -72,6 +83,24 @@ export function ConnectMenu() {
 
   useEffect(() => {
     setMounted(true)
+    
+    // Enhanced environment debugging
+    if (typeof window !== 'undefined') {
+      const envInfo = getEnvironmentInfo()
+      console.log('🌍 ConnectMenu Environment Detection:', {
+        ...envInfo,
+        windowLocation: window.location.href,
+        referrer: document.referrer
+      })
+      
+      // Additional debugging for mobile detection
+      console.log('📱 Mobile Environment Check:', {
+        isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
+        isWarpcast: navigator.userAgent.toLowerCase().includes('warpcast'),
+        isFarcasterUA: navigator.userAgent.toLowerCase().includes('farcaster'),
+        fullUserAgent: navigator.userAgent
+      })
+    }
   }, [])
 
   // Check frameConnector availability without auto-connecting (following Base MiniApp best practices)
