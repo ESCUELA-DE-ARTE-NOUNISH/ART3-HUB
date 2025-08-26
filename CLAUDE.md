@@ -147,6 +147,8 @@ npm run lint
 - **User Analytics**: View user statistics and behavior
 - **Platform Metrics**: Monitor platform performance
 - **Content Moderation**: Manage platform content
+- **Smart Contract Admin Verification**: Hybrid system combining Firebase admin management with on-chain contract ownership verification
+- **Rate-Limited RPC Protection**: Built-in caching system prevents 429 errors from Base RPC endpoints
 
 ## 🤖 AI Agent System
 
@@ -175,6 +177,8 @@ npm run lint
 - **firebase-nft-service.ts**: NFT operations
 - **firebase-chat-memory-service.ts**: AI conversation storage
 - **nft-claim-service.ts**: Claimable NFT management
+- **smart-contract-admin-service.ts**: On-chain admin verification with RPC caching
+- **admin-service.ts**: Firebase-based admin wallet CRUD operations
 
 ## 🔐 Security & Privacy
 
@@ -229,6 +233,7 @@ The application supports **3 distinct runtime environments** with intelligent de
 8. **Enhanced Marketplace Compatibility**: Individual collections enable future marketplace features
 9. **Build System Fixes** (August 2025): Fixed SSR compatibility issues with Web3 providers
 10. **Multi-Environment Support**: Comprehensive support for browser, Farcaster browser, and Farcaster mobile environments
+11. **Admin RPC Caching System** (August 2025): Implemented singleton pattern with module-level caching to resolve 429 rate limiting errors on admin page
 
 ## 🎯 Development Guidelines
 
@@ -275,6 +280,15 @@ The application supports **3 distinct runtime environments** with intelligent de
 - **IndexedDB SSR Warnings**: Non-blocking warnings during build process (expected behavior)
 - **Provider Initialization**: Web3 providers initialize client-side only to prevent SSR conflicts
 - **Environment Detection**: Fallback providers ensure graceful degradation across environments
+- **RPC Rate Limiting (429 Errors)**: Fixed with singleton pattern and module-level caching in `smart-contract-admin-service.ts`
+
+### Smart Contract Admin Service Architecture
+- **Caching System**: Module-level cache with 5-minute TTL to prevent RPC rate limiting
+- **Singleton Pattern**: Proper singleton implementation ensures cache persistence across imports
+- **Request Deduplication**: Prevents concurrent calls for the same contract data
+- **Debug Logging**: Comprehensive logging system for troubleshooting cache performance
+- **Service Location**: `lib/services/smart-contract-admin-service.ts`
+- **Key Functions**: `isAdmin()`, `verifyAdminPermissions()`, `getAdminInfo()` with cached contract reads
 
 ## 📞 Support Resources
 
