@@ -1,12 +1,19 @@
 "use client"
 
 import { useEffect, useState } from 'react'
+import { useAccount } from 'wagmi'
 import { getEnvironmentInfo } from '@/lib/utils/environment'
 import { useSafeFarcaster } from '@/providers/FarcasterProvider'
+import { useSafePrivy, useSafeWallets } from '@/hooks/useSafePrivy'
+import { useUserProfile } from '@/hooks/useUserProfile'
 
 export default function DebugEnvironment() {
   const [envInfo, setEnvInfo] = useState<any>(null)
   const { context, isFarcasterEnvironment } = useSafeFarcaster()
+  const { isConnected, address } = useAccount()
+  const { authenticated } = useSafePrivy()
+  const { wallets } = useSafeWallets()
+  const { userProfile, isConnected: profileConnected, walletAddress } = useUserProfile()
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -28,6 +35,19 @@ export default function DebugEnvironment() {
           <ul className="space-y-1">
             <li>Provider isFarcasterEnvironment: <span className={isFarcasterEnvironment ? 'text-green-600' : 'text-red-600'}>{String(isFarcasterEnvironment)}</span></li>
             <li>Has Context: <span className={context ? 'text-green-600' : 'text-red-600'}>{String(!!context)}</span></li>
+          </ul>
+        </div>
+
+        <div className="bg-blue-100 p-4 rounded">
+          <h2 className="text-lg font-semibold mb-2">🔐 Authentication State</h2>
+          <ul className="space-y-1">
+            <li>Wagmi isConnected: <span className={isConnected ? 'text-green-600 font-bold' : 'text-red-600'}>{String(isConnected)}</span></li>
+            <li>Wagmi address: <span className="font-mono text-sm">{address || 'none'}</span></li>
+            <li>Privy authenticated: <span className={authenticated ? 'text-green-600' : 'text-red-600'}>{String(authenticated)}</span></li>
+            <li>Privy wallets count: <span className="font-bold">{wallets.length}</span></li>
+            <li>Profile connected: <span className={profileConnected ? 'text-green-600 font-bold' : 'text-red-600'}>{String(profileConnected)}</span></li>
+            <li>Profile wallet: <span className="font-mono text-sm">{walletAddress || 'none'}</span></li>
+            <li>Has User Profile: <span className={userProfile ? 'text-green-600' : 'text-red-600'}>{String(!!userProfile)}</span></li>
           </ul>
         </div>
 
@@ -58,6 +78,34 @@ export default function DebugEnvironment() {
             <li>URL Params: <span className="font-mono text-sm">{envInfo.urlParams || 'none'}</span></li>
             <li>Referrer: <span className="font-mono text-sm break-all">{typeof document !== 'undefined' ? document.referrer || 'none' : 'N/A'}</span></li>
             <li>User Agent: <span className="font-mono text-xs break-all">{envInfo.userAgent}</span></li>
+          </ul>
+        </div>
+
+        <div className="bg-green-100 p-4 rounded">
+          <h2 className="text-lg font-semibold mb-2">🎯 Authentication Logic</h2>
+          <ul className="space-y-2">
+            <li className="font-bold">
+              Current Environment: 
+              <span className="ml-2 px-2 py-1 rounded bg-white">
+                {envInfo?.isFarcaster ? 'Farcaster (MiniKit)' : 'Browser'}
+              </span>
+            </li>
+            <li>
+              Should Use: 
+              <span className="ml-2 font-mono text-sm">
+                {envInfo?.isFarcaster ? 'isConnected (Wagmi)' : 'authenticated (Privy)'}
+              </span>
+            </li>
+            <li className="text-lg">
+              Buttons Should Be: 
+              <span className={
+                (envInfo?.isFarcaster ? isConnected : authenticated) 
+                  ? 'text-green-600 font-bold' 
+                  : 'text-red-600 font-bold'
+              }>
+                {(envInfo?.isFarcaster ? isConnected : authenticated) ? 'ACTIVE ✅' : 'INACTIVE ❌'}
+              </span>
+            </li>
           </ul>
         </div>
 
