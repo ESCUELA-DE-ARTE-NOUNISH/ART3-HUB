@@ -1,5 +1,8 @@
 "use client"
 
+// Prevent static generation for pages using Web3 hooks
+export const dynamic = 'force-dynamic'
+
 import type React from "react"
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"

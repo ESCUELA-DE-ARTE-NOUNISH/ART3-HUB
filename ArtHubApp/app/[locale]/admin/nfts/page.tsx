@@ -1,5 +1,8 @@
 "use client"
 
+// Prevent static generation for pages using Web3 hooks
+export const dynamic = 'force-dynamic'
+
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ClaimableNFTList } from '@/components/admin/ClaimableNFTList'

@@ -1,5 +1,8 @@
 "use client"
 
+// Prevent static generation for pages using Web3 hooks
+export const dynamic = 'force-dynamic'
+
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"

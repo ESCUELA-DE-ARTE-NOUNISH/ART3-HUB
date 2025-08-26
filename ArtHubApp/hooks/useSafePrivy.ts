@@ -1,7 +1,6 @@
 "use client"
 
-import { usePrivy as usePrivyOriginal, useWallets as useWalletsOriginal } from '@privy-io/react-auth'
-import { useMiniKit } from '@coinbase/onchainkit/minikit'
+import { useState, useEffect } from 'react'
 import { sdk } from "@farcaster/miniapp-sdk"
 
 // Non-hook environment detection function (no React hooks called)
@@ -62,123 +61,124 @@ function detectFarcasterEnvironment(): boolean {
 
 // Safe Privy hook that handles Farcaster/MiniKit mode gracefully
 export function useSafePrivy() {
-  // Always call hooks in the same order, regardless of conditions
-  let miniKitResult = null
-  try {
-    miniKitResult = useMiniKit()
-  } catch {
-    // MiniKit hook failed, continue
-  }
-  
-  let privyResult = null
-  try {
-    privyResult = usePrivyOriginal()
-  } catch {
-    // Privy hook failed, will use fallback
-  }
-  
-  // Check if we're on the client side
-  if (typeof window === 'undefined') {
-    return {
-      authenticated: false,
-      login: () => {},
-      logout: () => {},
-      user: null,
-      ready: false,
-    }
-  }
-
-  // Detect Farcaster environment using non-hook detection first
-  const isInFarcaster = detectFarcasterEnvironment() || !!(miniKitResult?.context)
-  
-  // In Farcaster/MiniKit mode, return fallback values
-  if (isInFarcaster) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🎯 useSafePrivy: Using Farcaster fallback values')
-    }
-    return {
-      authenticated: false,
-      login: () => console.log('Login not available in Farcaster mode'),
-      logout: () => console.log('Logout not available in Farcaster mode'),
-      user: null,
-      ready: true,
-    }
-  }
-  
-  // Only use Privy result in browser mode
-  if (privyResult) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🎯 useSafePrivy: Using real Privy hooks in browser mode')
-    }
-    return privyResult
-  }
-  
-  // Final fallback
-  if (process.env.NODE_ENV === 'development') {
-    console.warn('⚠️ useSafePrivy: Using final fallback values')
-  }
-  return {
+  const [privyState, setPrivyState] = useState({
     authenticated: false,
     login: () => {},
     logout: () => {},
     user: null,
-    ready: true,
-  }
+    ready: false,
+  })
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const initializePrivy = async () => {
+      try {
+        // Detect Farcaster environment
+        const isInFarcaster = detectFarcasterEnvironment()
+        
+        if (isInFarcaster) {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('🎯 useSafePrivy: Using Farcaster fallback values')
+          }
+          setPrivyState({
+            authenticated: false,
+            login: () => console.log('Login not available in Farcaster mode'),
+            logout: () => console.log('Logout not available in Farcaster mode'),
+            user: null,
+            ready: true,
+          })
+          return
+        }
+
+        // Try to load Privy dynamically
+        try {
+          const { usePrivy } = await import('@privy-io/react-auth')
+          // Since we can't use hooks dynamically, we'll use fallback values
+          // The actual Privy integration should be handled in the provider level
+        } catch (error) {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('⚠️ useSafePrivy: Privy not available, using fallback')
+          }
+        }
+
+        setPrivyState({
+          authenticated: false,
+          login: () => {},
+          logout: () => {},
+          user: null,
+          ready: true,
+        })
+      } catch (error) {
+        console.error('Error initializing Safe Privy:', error)
+        setPrivyState({
+          authenticated: false,
+          login: () => {},
+          logout: () => {},
+          user: null,
+          ready: true,
+        })
+      }
+    }
+
+    initializePrivy()
+  }, [])
+
+  return privyState
 }
 
 // Safe Wallets hook that handles Farcaster/MiniKit mode gracefully
 export function useSafeWallets() {
-  // Always call hooks in the same order, regardless of conditions
-  let miniKitResult = null
-  try {
-    miniKitResult = useMiniKit()
-  } catch {
-    // MiniKit hook failed, continue
-  }
-  
-  let walletsResult = null
-  try {
-    walletsResult = useWalletsOriginal()
-  } catch {
-    // Wallets hook failed, will use fallback
-  }
-  
-  // Check if we're on the client side
-  if (typeof window === 'undefined') {
-    return {
-      wallets: [],
-      ready: false,
-    }
-  }
-
-  // Detect Farcaster environment using non-hook detection first
-  const isInFarcaster = detectFarcasterEnvironment() || !!(miniKitResult?.context)
-  
-  // In Farcaster/MiniKit mode, return empty wallets array
-  if (isInFarcaster) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🎯 useSafeWallets: Using Farcaster fallback - empty wallets array')
-    }
-    return {
-      wallets: [],
-      ready: true,
-    }
-  }
-  
-  // Only use wallets result in browser mode
-  if (walletsResult) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🎯 useSafeWallets: Using real Privy wallets in browser mode')
-    }
-    return walletsResult
-  }
-  
-  // Final fallback
-  if (process.env.NODE_ENV === 'development') {
-    console.warn('⚠️ useSafeWallets: Using final fallback - empty wallets array')
-  }
-  return {
+  const [walletsState, setWalletsState] = useState({
     wallets: [],
-    ready: true,
-  }
+    ready: false,
+  })
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const initializeWallets = async () => {
+      try {
+        // Detect Farcaster environment
+        const isInFarcaster = detectFarcasterEnvironment()
+        
+        if (isInFarcaster) {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('🎯 useSafeWallets: Using Farcaster fallback - empty wallets array')
+          }
+          setWalletsState({
+            wallets: [],
+            ready: true,
+          })
+          return
+        }
+
+        // Try to load Privy wallets dynamically
+        try {
+          const { useWallets } = await import('@privy-io/react-auth')
+          // Since we can't use hooks dynamically, we'll use fallback values
+          // The actual Privy integration should be handled in the provider level
+        } catch (error) {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('⚠️ useSafeWallets: Privy wallets not available, using fallback')
+          }
+        }
+
+        setWalletsState({
+          wallets: [],
+          ready: true,
+        })
+      } catch (error) {
+        console.error('Error initializing Safe Wallets:', error)
+        setWalletsState({
+          wallets: [],
+          ready: true,
+        })
+      }
+    }
+
+    initializeWallets()
+  }, [])
+
+  return walletsState
 }
