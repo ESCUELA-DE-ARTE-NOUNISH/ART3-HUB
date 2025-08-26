@@ -1419,32 +1419,31 @@ export async function POST(request: NextRequest) {
 
         console.log('🎯 Collection deployed at:', collectionAddress)
 
-        // Verify collection authorization before minting
+        // Add a small delay to ensure collection is fully initialized
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        // Verify the collection was properly registered in the factory
         try {
-          const collectionArtist = await publicClient.readContract({
-            address: collectionAddress as `0x${string}`,
-            abi: [{"inputs":[],"name":"artist","outputs":[{"name":"","type":"address"}],"stateMutability":"view","type":"function"}],
-            functionName: 'artist'
+          const isRegistered = await publicClient.readContract({
+            address: factoryAddress as `0x${string}`,
+            abi: [{"inputs":[{"name":"","type":"address"}],"name":"isCollection","outputs":[{"name":"","type":"bool"}],"stateMutability":"view","type":"function"}],
+            functionName: 'isCollection',
+            args: [collectionAddress as `0x${string}`]
           })
           
-          const collectionOwner = await publicClient.readContract({
-            address: collectionAddress as `0x${string}`,
-            abi: [{"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"stateMutability":"view","type":"function"}],
-            functionName: 'owner'
-          })
-          
-          console.log('🔍 Collection authorization check:', {
+          console.log('🔍 Collection registration check:', {
             collectionAddress,
-            collectionArtist,
-            collectionOwner,
-            relayerAccount: relayerAccount.address,
-            factoryAddress,
-            artistMatch: collectionArtist === relayerAccount.address,
-            ownerMatch: collectionOwner === relayerAccount.address,
-            factoryMatch: factoryAddress === relayerAccount.address
+            isRegistered,
+            factoryAddress
           })
-        } catch (authError) {
-          console.warn('⚠️ Could not verify collection authorization:', authError)
+          
+          if (!isRegistered) {
+            console.error('❌ Collection not registered in factory mapping!')
+            throw new Error(`Collection ${collectionAddress} not registered in factory`)
+          }
+        } catch (regError) {
+          console.warn('⚠️ Could not verify collection registration:', regError)
+          // Continue anyway, let the mint attempt reveal the real issue
         }
 
         // Mint NFT via factory's V6 gasless minting function

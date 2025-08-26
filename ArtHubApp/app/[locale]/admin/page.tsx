@@ -9,280 +9,161 @@ import { useParams, useRouter } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import Header from "@/components/header"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Plus, Edit, Trash2, Shield, AlertCircle, CheckCircle, Copy, Download, Upload, Eye, EyeOff, BarChart3 } from "lucide-react"
+import { Shield, AlertCircle, CheckCircle, Copy, BarChart3, ExternalLink, Info } from "lucide-react"
 import { useAccount } from "wagmi"
 import { useToast } from "@/hooks/use-toast"
-import { useAdminService, type AdminWallet } from "@/lib/services/admin-service"
+import { useSmartContractAdminService, type AdminPermissions, type AdminInfo } from "@/lib/services/smart-contract-admin-service"
 import { UserAnalyticsDashboard } from "@/components/admin/UserAnalyticsDashboard"
 import { UsersList } from "@/components/admin/UsersList"
 
 interface AdminTranslations {
   title: string
   description: string
-  adminWallets: string
-  addAdmin: string
-  walletAddress: string
-  label: string
-  labelPlaceholder: string
-  addWallet: string
-  address: string
-  addedBy: string
-  addedAt: string
-  status: string
-  actions: string
-  active: string
-  inactive: string
-  edit: string
-  deactivate: string
-  activate: string
-  remove: string
-  adminCount: string
-  enterAddress: string
-  enterLabel: string
-  invalidAddress: string
-  cannotRemoveDefault: string
-  confirmRemove: string
-  confirmRemoveDesc: string
-  cancel: string
-  confirm: string
-  exportData: string
-  importData: string
-  backupRestore: string
-  exportDesc: string
-  importDesc: string
-  export: string
-  import: string
-  selectFile: string
-  noFileSelected: string
+  adminSystem: string
+  smartContractAdmin: string
+  contractInfo: string
+  adminStatus: string
+  userManagement: string
+  claimableNfts: string
   accessDenied: string
   accessDeniedDesc: string
-  defaultAdmin: string
-  editAdmin: string
-  updateAdmin: string
-  saveChanges: string
-  close: string
+  adminWallet: string
+  factoryOwner: string
+  subscriptionOwner: string
+  network: string
+  contractAddresses: string
+  isAdmin: string
+  isFactoryOwner: string
+  isSubscriptionOwner: string
+  isAdminWallet: string
+  yes: string
+  no: string
+  viewContract: string
+  refreshStatus: string
+  loading: string
+  error: string
   userAnalytics: string
-  adminManagement: string
 }
 
 const translations: Record<string, AdminTranslations> = {
   en: {
     title: "Admin Panel",
-    description: "Manage administrator wallets and platform controls.",
-    adminWallets: "Administrator Wallets",
-    addAdmin: "Add Administrator",
-    walletAddress: "Wallet Address",
-    label: "Label (Optional)",
-    labelPlaceholder: "e.g., Main Admin, Developer, etc.",
-    addWallet: "Add Wallet",
-    address: "Address",
-    addedBy: "Added By",
-    addedAt: "Added At",
-    status: "Status",
-    actions: "Actions",
-    active: "Active",
-    inactive: "Inactive",
-    edit: "Edit",
-    deactivate: "Deactivate",
-    activate: "Activate",
-    remove: "Remove",
-    adminCount: "Total Administrators",
-    enterAddress: "Enter wallet address (0x...)",
-    enterLabel: "Enter optional label",
-    invalidAddress: "Invalid wallet address format",
-    cannotRemoveDefault: "Cannot remove default administrator",
-    confirmRemove: "Confirm Removal",
-    confirmRemoveDesc: "Are you sure you want to remove this administrator? This action cannot be undone.",
-    cancel: "Cancel",
-    confirm: "Confirm",
-    exportData: "Export Data",
-    importData: "Import Data",
-    backupRestore: "Backup & Restore",
-    exportDesc: "Download administrator wallets as JSON backup",
-    importDesc: "Upload JSON backup to restore administrator wallets",
-    export: "Export",
-    import: "Import",
-    selectFile: "Select File",
-    noFileSelected: "No file selected",
+    description: "Smart contract-based administrator controls and platform management.",
+    adminSystem: "Smart Contract Admin System",
+    smartContractAdmin: "Production Admin Validation",
+    contractInfo: "Contract Information",
+    adminStatus: "Admin Status",
+    userManagement: "User Management",
+    claimableNfts: "Claimable NFTs",
     accessDenied: "Access Denied",
-    accessDeniedDesc: "You need administrator privileges to access this page.",
-    defaultAdmin: "Default Admin",
-    editAdmin: "Edit Administrator",
-    updateAdmin: "Update Administrator",
-    saveChanges: "Save Changes",
-    close: "Close",
-    userAnalytics: "User Analytics",
-    adminManagement: "Admin Management"
+    accessDeniedDesc: "You need administrator privileges to access this page. Admin status is verified on-chain.",
+    adminWallet: "Admin Wallet",
+    factoryOwner: "Factory Owner",
+    subscriptionOwner: "Subscription Owner", 
+    network: "Network",
+    contractAddresses: "Contract Addresses",
+    isAdmin: "Is Admin",
+    isFactoryOwner: "Is Factory Owner",
+    isSubscriptionOwner: "Is Subscription Owner",
+    isAdminWallet: "Is Admin Wallet",
+    yes: "Yes",
+    no: "No",
+    viewContract: "View Contract",
+    refreshStatus: "Refresh Status",
+    loading: "Loading...",
+    error: "Error loading admin status",
+    userAnalytics: "User Analytics"
   },
   es: {
     title: "Panel de Administración",
-    description: "Gestionar billeteras de administrador y controles de plataforma.",
-    adminWallets: "Billeteras de Administrador",
-    addAdmin: "Agregar Administrador",
-    walletAddress: "Dirección de Billetera",
-    label: "Etiqueta (Opcional)",
-    labelPlaceholder: "ej., Admin Principal, Desarrollador, etc.",
-    addWallet: "Agregar Billetera",
-    address: "Dirección",
-    addedBy: "Agregado Por",
-    addedAt: "Agregado El",
-    status: "Estado",
-    actions: "Acciones",
-    active: "Activo",
-    inactive: "Inactivo",
-    edit: "Editar",
-    deactivate: "Desactivar",
-    activate: "Activar",
-    remove: "Eliminar",
-    adminCount: "Total de Administradores",
-    enterAddress: "Ingrese dirección de billetera (0x...)",
-    enterLabel: "Ingrese etiqueta opcional",
-    invalidAddress: "Formato de dirección de billetera inválido",
-    cannotRemoveDefault: "No se puede eliminar administrador predeterminado",
-    confirmRemove: "Confirmar Eliminación",
-    confirmRemoveDesc: "¿Está seguro de que desea eliminar este administrador? Esta acción no se puede deshacer.",
-    cancel: "Cancelar",
-    confirm: "Confirmar",
-    exportData: "Exportar Datos",
-    importData: "Importar Datos",
-    backupRestore: "Respaldo y Restauración",
-    exportDesc: "Descargar billeteras de administrador como respaldo JSON",
-    importDesc: "Subir respaldo JSON para restaurar billeteras de administrador",
-    export: "Exportar",
-    import: "Importar",
-    selectFile: "Seleccionar Archivo",
-    noFileSelected: "Ningún archivo seleccionado",
+    description: "Controles de administrador basados en contratos inteligentes y gestión de plataforma.",
+    adminSystem: "Sistema de Admin de Contratos Inteligentes",
+    smartContractAdmin: "Validación de Admin de Producción",
+    contractInfo: "Información del Contrato",
+    adminStatus: "Estado de Admin",
+    userManagement: "Gestión de Usuarios",
+    claimableNfts: "NFTs Reclamables",
     accessDenied: "Acceso Denegado",
-    accessDeniedDesc: "Necesita privilegios de administrador para acceder a esta página.",
-    defaultAdmin: "Admin Predeterminado",
-    editAdmin: "Editar Administrador",
-    updateAdmin: "Actualizar Administrador",
-    saveChanges: "Guardar Cambios",
-    close: "Cerrar",
-    userAnalytics: "Analíticas de Usuario",
-    adminManagement: "Gestión de Administradores"
+    accessDeniedDesc: "Necesita privilegios de administrador para acceder a esta página. El estado de admin se verifica en cadena.",
+    adminWallet: "Billetera Admin",
+    factoryOwner: "Propietario de Factory",
+    subscriptionOwner: "Propietario de Subscription",
+    network: "Red",
+    contractAddresses: "Direcciones de Contrato",
+    isAdmin: "Es Admin",
+    isFactoryOwner: "Es Propietario de Factory",
+    isSubscriptionOwner: "Es Propietario de Subscription",
+    isAdminWallet: "Es Billetera Admin",
+    yes: "Sí",
+    no: "No",
+    viewContract: "Ver Contrato",
+    refreshStatus: "Actualizar Estado",
+    loading: "Cargando...",
+    error: "Error al cargar estado de admin",
+    userAnalytics: "Analíticas de Usuario"
   },
   pt: {
     title: "Painel de Administração",
-    description: "Gerenciar carteiras de administrador e controles da plataforma.",
-    adminWallets: "Carteiras de Administrador",
-    addAdmin: "Adicionar Administrador",
-    walletAddress: "Endereço da Carteira",
-    label: "Rótulo (Opcional)",
-    labelPlaceholder: "ex., Admin Principal, Desenvolvedor, etc.",
-    addWallet: "Adicionar Carteira",
-    address: "Endereço",
-    addedBy: "Adicionado Por",
-    addedAt: "Adicionado Em",
-    status: "Status",
-    actions: "Ações",
-    active: "Ativo",
-    inactive: "Inativo",
-    edit: "Editar",
-    deactivate: "Desativar",
-    activate: "Ativar",
-    remove: "Remover",
-    adminCount: "Total de Administradores",
-    enterAddress: "Digite endereço da carteira (0x...)",
-    enterLabel: "Digite rótulo opcional",
-    invalidAddress: "Formato de endereço de carteira inválido",
-    cannotRemoveDefault: "Não é possível remover administrador padrão",
-    confirmRemove: "Confirmar Remoção",
-    confirmRemoveDesc: "Tem certeza de que deseja remover este administrador? Esta ação não pode ser desfeita.",
-    cancel: "Cancelar",
-    confirm: "Confirmar",
-    exportData: "Exportar Dados",
-    importData: "Importar Dados",
-    backupRestore: "Backup e Restauração",
-    exportDesc: "Baixar carteiras de administrador como backup JSON",
-    importDesc: "Enviar backup JSON para restaurar carteiras de administrador",
-    export: "Exportar",
-    import: "Importar",
-    selectFile: "Selecionar Arquivo",
-    noFileSelected: "Nenhum arquivo selecionado",
+    description: "Controles de administrador baseados em contratos inteligentes e gestão de plataforma.",
+    adminSystem: "Sistema Admin de Contratos Inteligentes",
+    smartContractAdmin: "Validação Admin de Produção",
+    contractInfo: "Informações do Contrato",
+    adminStatus: "Status Admin",
+    userManagement: "Gestão de Usuários",
+    claimableNfts: "NFTs Reivindicáveis",
     accessDenied: "Acesso Negado",
-    accessDeniedDesc: "Você precisa de privilégios de administrador para acessar esta página.",
-    defaultAdmin: "Admin Padrão",
-    editAdmin: "Editar Administrador",
-    updateAdmin: "Atualizar Administrador",
-    saveChanges: "Salvar Alterações",
-    close: "Fechar",
-    userAnalytics: "Análise de Usuários",
-    adminManagement: "Gerenciamento de Administradores"
+    accessDeniedDesc: "Você precisa de privilégios de administrador para acessar esta página. O status admin é verificado na blockchain.",
+    adminWallet: "Carteira Admin",
+    factoryOwner: "Proprietário da Factory",
+    subscriptionOwner: "Proprietário da Subscription",
+    network: "Rede",
+    contractAddresses: "Endereços de Contrato",
+    isAdmin: "É Admin",
+    isFactoryOwner: "É Proprietário da Factory",
+    isSubscriptionOwner: "É Proprietário da Subscription",
+    isAdminWallet: "É Carteira Admin",
+    yes: "Sim",
+    no: "Não",
+    viewContract: "Ver Contrato",
+    refreshStatus: "Atualizar Status",
+    loading: "Carregando...",
+    error: "Erro ao carregar status admin",
+    userAnalytics: "Análise de Usuários"
   },
   fr: {
     title: "Panneau d'Administration",
-    description: "Gérer les portefeuilles d'administrateur et les contrôles de plateforme.",
-    adminWallets: "Portefeuilles d'Administrateur",
-    addAdmin: "Ajouter un Administrateur",
-    walletAddress: "Adresse du Portefeuille",
-    label: "Étiquette (Optionnel)",
-    labelPlaceholder: "ex., Admin Principal, Développeur, etc.",
-    addWallet: "Ajouter un Portefeuille",
-    address: "Adresse",
-    addedBy: "Ajouté Par",
-    addedAt: "Ajouté Le",
-    status: "Statut",
-    actions: "Actions",
-    active: "Actif",
-    inactive: "Inactif",
-    edit: "Modifier",
-    deactivate: "Désactiver",
-    activate: "Activer",
-    remove: "Supprimer",
-    adminCount: "Total des Administrateurs",
-    enterAddress: "Entrez l'adresse du portefeuille (0x...)",
-    enterLabel: "Entrez une étiquette optionnelle",
-    invalidAddress: "Format d'adresse de portefeuille invalide",
-    cannotRemoveDefault: "Impossible de supprimer l'administrateur par défaut",
-    confirmRemove: "Confirmer la Suppression",
-    confirmRemoveDesc: "Êtes-vous sûr de vouloir supprimer cet administrateur ? Cette action ne peut pas être annulée.",
-    cancel: "Annuler",
-    confirm: "Confirmer",
-    exportData: "Exporter les Données",
-    importData: "Importer les Données",
-    backupRestore: "Sauvegarde et Restauration",
-    exportDesc: "Télécharger les portefeuilles d'administrateur comme sauvegarde JSON",
-    importDesc: "Téléverser une sauvegarde JSON pour restaurer les portefeuilles d'administrateur",
-    export: "Exporter",
-    import: "Importer",
-    selectFile: "Sélectionner un Fichier",
-    noFileSelected: "Aucun fichier sélectionné",
+    description: "Contrôles d'administrateur basés sur des contrats intelligents et gestion de plateforme.",
+    adminSystem: "Système Admin de Contrats Intelligents",
+    smartContractAdmin: "Validation Admin de Production",
+    contractInfo: "Informations du Contrat",
+    adminStatus: "Statut Admin",
+    userManagement: "Gestion des Utilisateurs",
+    claimableNfts: "NFTs Réclamables",
     accessDenied: "Accès Refusé",
-    accessDeniedDesc: "Vous avez besoin de privilèges d'administrateur pour accéder à cette page.",
-    defaultAdmin: "Admin par Défaut",
-    editAdmin: "Modifier l'Administrateur",
-    updateAdmin: "Mettre à Jour l'Administrateur",
-    saveChanges: "Enregistrer les Modifications",
-    close: "Fermer",
-    userAnalytics: "Analyse des Utilisateurs",
-    adminManagement: "Gestion des Administrateurs"
+    accessDeniedDesc: "Vous avez besoin de privilèges d'administrateur pour accéder à cette page. Le statut admin est vérifié sur la blockchain.",
+    adminWallet: "Portefeuille Admin",
+    factoryOwner: "Propriétaire Factory",
+    subscriptionOwner: "Propriétaire Subscription",
+    network: "Réseau",
+    contractAddresses: "Adresses de Contrat",
+    isAdmin: "Est Admin",
+    isFactoryOwner: "Est Propriétaire Factory",
+    isSubscriptionOwner: "Est Propriétaire Subscription",
+    isAdminWallet: "Est Portefeuille Admin",
+    yes: "Oui",
+    no: "Non",
+    viewContract: "Voir Contrat",
+    refreshStatus: "Actualiser Statut",
+    loading: "Chargement...",
+    error: "Erreur lors du chargement du statut admin",
+    userAnalytics: "Analyse des Utilisateurs"
   }
 }
 
-// Helper function to format date in EST timezone
-const formatDateTimeEST = (dateString: string): string => {
-  const date = new Date(dateString)
-  return date.toLocaleString('en-US', {
-    timeZone: 'America/New_York',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-  })
-}
-
-export default function AdminPage() {
+export default function SmartContractAdminPage() {
   const params = useParams()
   const locale = (params?.locale as string) || defaultLocale
   const t = translations[locale] || translations.en
@@ -290,86 +171,103 @@ export default function AdminPage() {
   
   const { address, isConnected } = useAccount()
   const { toast } = useToast()
-  const adminService = useAdminService()
+  const smartContractAdminService = useSmartContractAdminService()
   
   // State management
-  const [admins, setAdmins] = useState<AdminWallet[]>([])
-  const [isCurrentUserAdmin, setIsCurrentUserAdmin] = useState(false)
-  const [newAdminAddress, setNewAdminAddress] = useState("")
-  const [newAdminLabel, setNewAdminLabel] = useState("")
-  const [isAddingAdmin, setIsAddingAdmin] = useState(false)
-  const [showAddDialog, setShowAddDialog] = useState(false)
-  const [showRemoveDialog, setShowRemoveDialog] = useState(false)
-  const [adminToRemove, setAdminToRemove] = useState<AdminWallet | null>(null)
-  const [editingAdmin, setEditingAdmin] = useState<AdminWallet | null>(null)
-  const [showEditDialog, setShowEditDialog] = useState(false)
-  const [editLabel, setEditLabel] = useState("")
-  const [importFile, setImportFile] = useState<File | null>(null)
-  const [hasCheckedAuth, setHasCheckedAuth] = useState(false)
+  const [adminPermissions, setAdminPermissions] = useState<AdminPermissions | null>(null)
+  const [adminInfo, setAdminInfo] = useState<AdminInfo | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [hasError, setHasError] = useState(false)
 
-  // Redirect to landing page only if user explicitly disconnects
+  // Load admin status and contract information
+  const loadAdminData = async () => {
+    if (!address) {
+      setIsLoading(false)
+      return
+    }
+
+    setIsLoading(true)
+    setHasError(false)
+
+    try {
+      const [permissions, info] = await Promise.all([
+        smartContractAdminService.verifyAdminPermissions(address),
+        smartContractAdminService.getAdminInfo()
+      ])
+      
+      setAdminPermissions(permissions)
+      setAdminInfo(info)
+    } catch (error) {
+      console.error('Error loading admin data:', error)
+      setHasError(true)
+      toast({
+        title: t.error,
+        description: "Failed to load admin status from smart contracts",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Redirect to home if not connected
   useEffect(() => {
-    // Only redirect if user is definitely disconnected after initial load
     const checkConnection = setTimeout(() => {
       if (!isConnected) {
         router.push('/')
       }
-      setHasCheckedAuth(true)
-    }, 1000) // Give time for wallet connection to be established
+    }, 1000)
 
     return () => clearTimeout(checkConnection)
   }, [isConnected, router])
 
-  // Load admin data and check permissions
+  // Load admin data on mount and when address changes
   useEffect(() => {
-    const loadAdminData = async () => {
-      try {
-        // Check admin status
-        if (address) {
-          const isAdmin = await adminService.isAdmin(address)
-          setIsCurrentUserAdmin(isAdmin)
-        } else {
-          setIsCurrentUserAdmin(false)
-        }
-        
-        // Load admin wallets
-        const adminWallets = await adminService.getAllAdmins()
-        setAdmins(adminWallets)
-        setHasCheckedAuth(true)
-      } catch (error) {
-        console.error('Error loading admin data:', error)
-        // Fallback to sync methods if Firebase is unavailable
-        if (address) {
-          setIsCurrentUserAdmin(adminService.isAdminSync(address))
-        }
-        setAdmins(adminService.getAllAdminsSync())
-        setHasCheckedAuth(true)
-      }
-    }
-    
     loadAdminData()
-    
-    // Refresh data every 30 seconds (reduced frequency for Firebase)
-    const interval = setInterval(loadAdminData, 30000)
-    return () => clearInterval(interval)
-  }, [address, adminService])
+  }, [address])
 
-  // Show loading state until auth check is complete
-  if (!hasCheckedAuth) {
+  // Handle copy address
+  const handleCopyAddress = async (address: string) => {
+    try {
+      await navigator.clipboard.writeText(address)
+      toast({
+        title: "Copied!",
+        description: "Address copied to clipboard",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to copy address",
+        variant: "destructive",
+      })
+    }
+  }
+
+  // Get explorer URL for contract
+  const getExplorerUrl = (address: string) => {
+    const isTestnet = adminInfo?.network.toLowerCase().includes('sepolia')
+    const baseUrl = isTestnet 
+      ? 'https://sepolia.basescan.org/address/' 
+      : 'https://basescan.org/address/'
+    return baseUrl + address
+  }
+
+  // Show loading state
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
         <main className="container mx-auto px-4 py-8 pt-20">
           <div className="max-w-2xl mx-auto text-center">
-            Loading...
+            <div className="text-lg">{t.loading}</div>
           </div>
         </main>
       </div>
     )
   }
 
-  // Access control - redirect if not admin
-  if (!isCurrentUserAdmin) {
+  // Access control - show error if not admin
+  if (!adminPermissions?.isAdmin && !hasError) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
@@ -389,247 +287,6 @@ export default function AdminPage() {
     )
   }
 
-  // Handle adding new admin
-  const handleAddAdmin = async () => {
-    console.log('🔧 handleAddAdmin called', { newAdminAddress, newAdminLabel, address })
-    console.log('🔍 Admin service available:', !!adminService)
-    console.log('🔍 Admin service type:', typeof adminService)
-    
-    if (!newAdminAddress.trim()) {
-      console.log('❌ Invalid address, showing toast')
-      toast({
-        title: t.invalidAddress,
-        description: t.enterAddress,
-        variant: "destructive",
-      })
-      return
-    }
-
-    console.log('✅ Address validation passed, setting loading state')
-    setIsAddingAdmin(true)
-    
-    try {
-      console.log('🚀 Calling adminService.addAdmin')
-      const result = await adminService.addAdmin(newAdminAddress.trim(), address || "unknown", newAdminLabel.trim() || undefined)
-      console.log('📨 Result received:', result)
-      
-      if (result.success) {
-        console.log('✅ Success, updating UI')
-        toast({
-          title: "Success",
-          description: result.message,
-        })
-        const updatedAdmins = await adminService.getAllAdmins()
-        setAdmins(updatedAdmins)
-        setNewAdminAddress("")
-        setNewAdminLabel("")
-        setShowAddDialog(false)
-      } else {
-        console.log('❌ Error result:', result.message)
-        toast({
-          title: "Error",
-          description: result.message,
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      console.error('💥 Exception caught:', error)
-      toast({
-        title: "Error",
-        description: "Failed to add administrator",
-        variant: "destructive",
-      })
-    } finally {
-      console.log('🏁 Finally block, resetting loading state')
-      setIsAddingAdmin(false)
-    }
-  }
-
-  // Handle editing admin
-  const handleEditAdmin = (admin: AdminWallet) => {
-    setEditingAdmin(admin)
-    setEditLabel(admin.label || "")
-    setShowEditDialog(true)
-  }
-
-  const handleUpdateAdmin = async () => {
-    if (!editingAdmin) return
-
-    try {
-      const result = await adminService.updateAdmin(editingAdmin.id, { label: editLabel.trim() || undefined }, address || "unknown")
-      
-      if (result.success) {
-        toast({
-          title: "Success",
-          description: result.message,
-        })
-        const updatedAdmins = await adminService.getAllAdmins()
-        setAdmins(updatedAdmins)
-        setShowEditDialog(false)
-        setEditingAdmin(null)
-      } else {
-        toast({
-          title: "Error",
-          description: result.message,
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update administrator",
-        variant: "destructive",
-      })
-    }
-  }
-
-  // Handle toggling admin status
-  const handleToggleAdmin = async (admin: AdminWallet) => {
-    try {
-      const result = await adminService.updateAdmin(admin.id, { isActive: !admin.isActive }, address || "unknown")
-      
-      if (result.success) {
-        toast({
-          title: "Success",
-          description: result.message,
-        })
-        const updatedAdmins = await adminService.getAllAdmins()
-        setAdmins(updatedAdmins)
-      } else {
-        toast({
-          title: "Error",
-          description: result.message,
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update administrator",
-        variant: "destructive",
-      })
-    }
-  }
-
-  // Handle removing admin
-  const handleRemoveAdmin = async () => {
-    if (!adminToRemove) return
-
-    try {
-      const result = await adminService.removeAdmin(adminToRemove.id, address || "unknown")
-      
-      if (result.success) {
-        toast({
-          title: "Success",
-          description: result.message,
-        })
-        const updatedAdmins = await adminService.getAllAdmins()
-        setAdmins(updatedAdmins)
-      } else {
-        toast({
-          title: "Error",
-          description: result.message,
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to remove administrator",
-        variant: "destructive",
-      })
-    } finally {
-      setShowRemoveDialog(false)
-      setAdminToRemove(null)
-    }
-  }
-
-  // Handle export
-  const handleExport = async () => {
-    try {
-      const data = await adminService.exportAdmins()
-      const blob = new Blob([data], { type: 'application/json' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `art3hub-admin-wallets-${new Date().toISOString().split('T')[0]}.json`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-      
-      toast({
-        title: "Success",
-        description: "Admin wallets exported successfully",
-      })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to export admin wallets",
-        variant: "destructive",
-      })
-    }
-  }
-
-  // Handle import
-  const handleImport = async () => {
-    if (!importFile) {
-      toast({
-        title: "Error",
-        description: "Please select a file to import",
-        variant: "destructive",
-      })
-      return
-    }
-
-    try {
-      const text = await importFile.text()
-      const result = await adminService.importAdmins(text, address || "unknown")
-      
-      if (result.success) {
-        toast({
-          title: "Success",
-          description: result.message,
-        })
-        const updatedAdmins = await adminService.getAllAdmins()
-        setAdmins(updatedAdmins)
-        setImportFile(null)
-      } else {
-        toast({
-          title: "Error",
-          description: result.message,
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to import admin wallets",
-        variant: "destructive",
-      })
-    }
-  }
-
-  // Handle copy address
-  const handleCopyAddress = async (address: string) => {
-    try {
-      await navigator.clipboard.writeText(address)
-      toast({
-        title: "Copied!",
-        description: "Address copied to clipboard",
-      })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to copy address",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const activeAdminCount = adminService.getAdminCount().active
-  const totalAdminCount = adminService.getAdminCount().total
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -646,167 +303,183 @@ export default function AdminPage() {
                 {t.description}
               </p>
             </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-500">{t.adminCount}</div>
-              <div className="text-2xl font-bold text-gray-900">{activeAdminCount}/{totalAdminCount}</div>
-            </div>
+            <Button onClick={loadAdminData} variant="outline">
+              {t.refreshStatus}
+            </Button>
           </div>
 
-          {/* Admin Wallets Management */}
+          {/* Smart Contract Admin System */}
           <Card className="mb-8">
             <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5" />
-                    {t.adminWallets}
-                  </CardTitle>
-                  <CardDescription>
-                    Manage administrator wallet addresses and permissions
-                  </CardDescription>
-                </div>
-                <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-pink-500 hover:bg-pink-600">
-                      <Plus className="h-4 w-4 mr-2" />
-                      {t.addAdmin}
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>{t.addAdmin}</DialogTitle>
-                      <DialogDescription>
-                        Add a new administrator wallet to the platform
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="walletAddress">{t.walletAddress}</Label>
-                        <Input
-                          id="walletAddress"
-                          placeholder={t.enterAddress}
-                          value={newAdminAddress}
-                          onChange={(e) => setNewAdminAddress(e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="label">{t.label}</Label>
-                        <Input
-                          id="label"
-                          placeholder={t.labelPlaceholder}
-                          value={newAdminLabel}
-                          onChange={(e) => setNewAdminLabel(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-                        {t.cancel}
-                      </Button>
-                      <Button 
-                        onClick={(e) => {
-                          console.log('🖱️ Add Wallet button clicked!')
-                          e.preventDefault()
-                          handleAddAdmin()
-                        }} 
-                        disabled={isAddingAdmin}
-                        className="bg-pink-500 hover:bg-pink-600"
-                        type="button"
-                      >
-                        {isAddingAdmin ? "Adding..." : t.addWallet}
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                {t.smartContractAdmin}
+              </CardTitle>
+              <CardDescription>
+                Admin status is validated directly from smart contracts on the blockchain
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t.address}</TableHead>
-                    <TableHead>{t.label}</TableHead>
-                    <TableHead>{t.addedBy}</TableHead>
-                    <TableHead>{t.addedAt}</TableHead>
-                    <TableHead>{t.status}</TableHead>
-                    <TableHead>{t.actions}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {admins.map((admin) => (
-                    <TableRow key={admin.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <code className="text-sm bg-gray-100 px-2 py-1 rounded">
-                            {admin.address.slice(0, 6)}...{admin.address.slice(-4)}
-                          </code>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleCopyAddress(admin.address)}
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {admin.label || (
-                          admin.address.toLowerCase() === (process.env.NEXT_PUBLIC_ADMIN_WALLET || "").toLowerCase() 
-                            ? t.defaultAdmin 
-                            : "-"
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <code className="text-xs">
-                          {admin.addedBy === "system" ? "System" : `${admin.addedBy.slice(0, 6)}...${admin.addedBy.slice(-4)}`}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Admin Status */}
+                <div>
+                  <h4 className="font-semibold mb-3">{t.adminStatus}</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{t.isAdmin}</span>
+                      <Badge variant={adminPermissions?.isAdmin ? "default" : "secondary"}>
+                        {adminPermissions?.isAdmin ? t.yes : t.no}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{t.isAdminWallet}</span>
+                      <Badge variant={adminPermissions?.isAdminWallet ? "default" : "secondary"}>
+                        {adminPermissions?.isAdminWallet ? t.yes : t.no}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{t.isFactoryOwner}</span>
+                      <Badge variant={adminPermissions?.isFactoryOwner ? "default" : "secondary"}>
+                        {adminPermissions?.isFactoryOwner ? t.yes : t.no}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{t.isSubscriptionOwner}</span>
+                      <Badge variant={adminPermissions?.isSubscriptionOwner ? "default" : "secondary"}>
+                        {adminPermissions?.isSubscriptionOwner ? t.yes : t.no}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contract Information */}
+                <div>
+                  <h4 className="font-semibold mb-3">{t.contractInfo}</h4>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="text-sm font-medium">{t.network}: </span>
+                      <span className="text-sm">{adminInfo?.network}</span>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium">{t.adminWallet}: </span>
+                      <div className="flex items-center gap-2 mt-1">
+                        <code className="text-xs bg-gray-100 px-2 py-1 rounded">
+                          {adminInfo?.adminWallet.slice(0, 6)}...{adminInfo?.adminWallet.slice(-4)}
                         </code>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm">
-                          {formatDateTimeEST(admin.addedAt)}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={admin.isActive ? "default" : "secondary"}>
-                          {admin.isActive ? t.active : t.inactive}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditAdmin(admin)}
-                          >
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                          {admin.address.toLowerCase() !== (process.env.NEXT_PUBLIC_ADMIN_WALLET || "").toLowerCase() && (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleToggleAdmin(admin)}
-                              >
-                                {admin.isActive ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setAdminToRemove(admin)
-                                  setShowRemoveDialog(true)
-                                }}
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => adminInfo && handleCopyAddress(adminInfo.adminWallet)}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => adminInfo && window.open(getExplorerUrl(adminInfo.adminWallet), '_blank')}
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium">{t.factoryOwner}: </span>
+                      <div className="flex items-center gap-2 mt-1">
+                        <code className="text-xs bg-gray-100 px-2 py-1 rounded">
+                          {adminInfo?.factoryOwner.slice(0, 6)}...{adminInfo?.factoryOwner.slice(-4)}
+                        </code>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => adminInfo && handleCopyAddress(adminInfo.factoryOwner)}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => adminInfo && window.open(getExplorerUrl(adminInfo.factoryOwner), '_blank')}
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium">{t.subscriptionOwner}: </span>
+                      <div className="flex items-center gap-2 mt-1">
+                        <code className="text-xs bg-gray-100 px-2 py-1 rounded">
+                          {adminInfo?.subscriptionOwner.slice(0, 6)}...{adminInfo?.subscriptionOwner.slice(-4)}
+                        </code>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => adminInfo && handleCopyAddress(adminInfo.subscriptionOwner)}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => adminInfo && window.open(getExplorerUrl(adminInfo.subscriptionOwner), '_blank')}
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contract Addresses */}
+              <div className="mt-6 pt-6 border-t">
+                <h4 className="font-semibold mb-3">{t.contractAddresses}</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-sm font-medium">Factory V6: </span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <code className="text-xs bg-gray-100 px-2 py-1 rounded">
+                        {adminPermissions?.contractAddresses.factoryV6.slice(0, 6)}...{adminPermissions?.contractAddresses.factoryV6.slice(-4)}
+                      </code>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => adminPermissions && handleCopyAddress(adminPermissions.contractAddresses.factoryV6)}
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => adminPermissions && window.open(getExplorerUrl(adminPermissions.contractAddresses.factoryV6), '_blank')}
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium">Subscription V6: </span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <code className="text-xs bg-gray-100 px-2 py-1 rounded">
+                        {adminPermissions?.contractAddresses.subscriptionV6.slice(0, 6)}...{adminPermissions?.contractAddresses.subscriptionV6.slice(-4)}
+                      </code>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => adminPermissions && handleCopyAddress(adminPermissions.contractAddresses.subscriptionV6)}
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => adminPermissions && window.open(getExplorerUrl(adminPermissions.contractAddresses.subscriptionV6), '_blank')}
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -817,7 +490,7 @@ export default function AdminPage() {
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     <BarChart3 className="h-5 w-5" />
-                    App Users
+                    {t.userManagement}
                   </CardTitle>
                   <CardDescription>
                     View and manage all users of the platform. Access user details, profile status, and more.
@@ -826,19 +499,18 @@ export default function AdminPage() {
               </div>
             </CardHeader>
             <CardContent>
-              {/* Import the UsersList component at the top of the file */}
               <UsersList pageSize={10} />
             </CardContent>
           </Card>
-          
-          {/* NFT Management */}
+
+          {/* Claimable NFTs Management */}
           <Card className="mb-8">
             <CardHeader>
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-square-gem"><path d="M3 7V5a2 2 0 0 1 2-2h2" /><path d="M17 3h2a2 2 0 0 1 2 2v2" /><path d="M21 17v2a2 2 0 0 1-2 2h-2" /><path d="M7 21H5a2 2 0 0 1-2-2v-2" /><path d="M8 10h8" /><path d="M8 14h8" /></svg>
-                    Claimable NFTs
+                    {t.claimableNfts}
                   </CardTitle>
                   <CardDescription>
                     Create and manage NFTs that can be claimed with special codes.
@@ -851,103 +523,19 @@ export default function AdminPage() {
             </CardHeader>
           </Card>
 
-          {/* Backup & Restore */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{t.backupRestore}</CardTitle>
-              <CardDescription>
-                Export and import administrator wallet configurations
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-semibold mb-2">{t.exportData}</h4>
-                  <p className="text-sm text-gray-600 mb-4">{t.exportDesc}</p>
-                  <Button onClick={handleExport} variant="outline">
-                    <Download className="h-4 w-4 mr-2" />
-                    {t.export}
-                  </Button>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-2">{t.importData}</h4>
-                  <p className="text-sm text-gray-600 mb-4">{t.importDesc}</p>
-                  <div className="space-y-2">
-                    <Input
-                      type="file"
-                      accept=".json"
-                      onChange={(e) => setImportFile(e.target.files?.[0] || null)}
-                    />
-                    <Button 
-                      onClick={handleImport} 
-                      variant="outline"
-                      disabled={!importFile}
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      {t.import}
-                    </Button>
-                  </div>
-                </div>
+          {/* Information Note */}
+          <Alert className="border-blue-200 bg-blue-50">
+            <Info className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-700">
+              <div className="font-semibold">Smart Contract Admin System</div>
+              <div className="mt-1">
+                This admin panel uses on-chain verification for administrator privileges. 
+                Admin status is validated directly from the smart contracts, ensuring security and transparency.
               </div>
-            </CardContent>
-          </Card>
+            </AlertDescription>
+          </Alert>
         </div>
       </main>
-
-      {/* Edit Admin Dialog */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t.editAdmin}</DialogTitle>
-            <DialogDescription>
-              Update administrator label and settings
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>{t.walletAddress}</Label>
-              <Input value={editingAdmin?.address || ""} disabled />
-            </div>
-            <div>
-              <Label htmlFor="editLabel">{t.label}</Label>
-              <Input
-                id="editLabel"
-                placeholder={t.labelPlaceholder}
-                value={editLabel}
-                onChange={(e) => setEditLabel(e.target.value)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditDialog(false)}>
-              {t.cancel}
-            </Button>
-            <Button onClick={handleUpdateAdmin} className="bg-pink-500 hover:bg-pink-600">
-              {t.saveChanges}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Remove Admin Dialog */}
-      <Dialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t.confirmRemove}</DialogTitle>
-            <DialogDescription>
-              {t.confirmRemoveDesc}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowRemoveDialog(false)}>
-              {t.cancel}
-            </Button>
-            <Button variant="destructive" onClick={handleRemoveAdmin}>
-              {t.confirm}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

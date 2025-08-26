@@ -20,6 +20,15 @@ import {
 
 import { isFarcasterEnvironment } from '@/lib/utils/environment'
 
+// Extend window interface for Firebase error flags
+declare global {
+  interface Window {
+    __firebaseAdminErrorLogged?: boolean
+    __firebaseAdminReadErrorLogged?: boolean
+    __firebaseAdminQueryErrorLogged?: boolean
+  }
+}
+
 const DEFAULT_ADMIN_WALLET = process.env.NEXT_PUBLIC_ADMIN_WALLET || '0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f'
 
 export class FirebaseAdminService {
@@ -137,9 +146,21 @@ export class FirebaseAdminService {
       await setDoc(adminRef, adminData)
       return adminData
     } catch (error: any) {
-      // Only log permission errors as warnings, not errors (expected in dev without rules)
-      if (error?.code === 'permission-denied' || error?.message?.includes('insufficient permissions')) {
-        console.warn('📝 Firebase admin creation blocked by security rules (expected in development)')
+      // Handle Firebase errors gracefully in development
+      if (process.env.NODE_ENV === 'development') {
+        // Suppress noisy Firebase development warnings
+        if (error?.code === 'permission-denied' || 
+            error?.message?.includes('insufficient permissions') ||
+            error?.message?.includes('PERMISSION_DENIED') ||
+            error?.status === 400) {
+          // Only log once per session to avoid spam
+          if (!window.__firebaseAdminErrorLogged) {
+            console.warn('📝 Firebase admin creation blocked by security rules (expected in development)')
+            window.__firebaseAdminErrorLogged = true
+          }
+        } else {
+          console.error('Error creating admin:', error)
+        }
       } else {
         console.error('Error creating admin:', error)
       }
@@ -173,9 +194,21 @@ export class FirebaseAdminService {
       
       return null
     } catch (error: any) {
-      // Only log permission errors as warnings (expected in dev without rules)
-      if (error?.code === 'permission-denied' || error?.message?.includes('insufficient permissions')) {
-        console.warn('📝 Firebase admin read blocked by security rules (expected in development)')
+      // Handle Firebase errors gracefully in development
+      if (process.env.NODE_ENV === 'development') {
+        // Suppress noisy Firebase development warnings
+        if (error?.code === 'permission-denied' || 
+            error?.message?.includes('insufficient permissions') ||
+            error?.message?.includes('PERMISSION_DENIED') ||
+            error?.status === 400) {
+          // Only log once per session to avoid spam
+          if (!window.__firebaseAdminReadErrorLogged) {
+            console.warn('📝 Firebase admin read blocked by security rules (expected in development)')
+            window.__firebaseAdminReadErrorLogged = true
+          }
+        } else {
+          console.error('Error getting admin by address:', error)
+        }
       } else {
         console.error('Error getting admin by address:', error)
       }
@@ -202,9 +235,21 @@ export class FirebaseAdminService {
       
       return admins
     } catch (error: any) {
-      // Only log permission errors as warnings (expected in dev without rules)
-      if (error?.code === 'permission-denied' || error?.message?.includes('insufficient permissions')) {
-        console.warn('📝 Firebase admin query blocked by security rules (expected in development)')
+      // Handle Firebase errors gracefully in development
+      if (process.env.NODE_ENV === 'development') {
+        // Suppress noisy Firebase development warnings
+        if (error?.code === 'permission-denied' || 
+            error?.message?.includes('insufficient permissions') ||
+            error?.message?.includes('PERMISSION_DENIED') ||
+            error?.status === 400) {
+          // Only log once per session to avoid spam
+          if (!window.__firebaseAdminQueryErrorLogged) {
+            console.warn('📝 Firebase admin query blocked by security rules (expected in development)')
+            window.__firebaseAdminQueryErrorLogged = true
+          }
+        } else {
+          console.error('Error getting all admins:', error)
+        }
       } else {
         console.error('Error getting all admins:', error)
       }

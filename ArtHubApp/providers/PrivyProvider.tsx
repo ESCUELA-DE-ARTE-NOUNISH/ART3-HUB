@@ -106,21 +106,20 @@ function InternalPrivyAppProvider({ children }: PrivyAppProviderProps) {
       return true; // Assume Farcaster on server to use fallback provider
     }
     
-    // Client-side: detect actual environment
-    const isInFarcaster = !!(window as any).webkit?.messageHandlers?.farcaster ||
-      !!(window as any).farcaster ||
-      window !== window.parent || // iframe check
-      window.location.href.includes('farcaster') ||
-      navigator.userAgent.includes('Farcaster');
-      
-    console.log('🎯 PrivyProvider Farcaster Detection (initial):', {
-      isInFarcaster,
-      hasWebkit: !!(window as any).webkit,
-      hasFarcasterHandler: !!(window as any).webkit?.messageHandlers?.farcaster,
-      hasFarcasterGlobal: !!(window as any).farcaster,
-      isIframe: window !== window.parent,
-      hasPrivyAppId: !!appId
-    });
+    // Client-side: detect actual environment - be more specific about Farcaster detection
+    const hasFarcasterHandlers = !!(window as any).webkit?.messageHandlers?.farcaster || !!(window as any).farcaster
+    const isFarcasterUserAgent = navigator.userAgent.includes('Farcaster')
+    const isFarcasterUrl = window.location.href.includes('farcaster')
+    const isIframe = window !== window.parent
+    
+    // Only consider it Farcaster if we have specific Farcaster indicators, not just iframe
+    const isInFarcaster = hasFarcasterHandlers || isFarcasterUserAgent || isFarcasterUrl
+    
+    // Only log environment detection once per session
+    if (process.env.NODE_ENV === 'development' && !window.__privyProviderLogged) {
+      console.log('🎯 PrivyProvider: Environment detected:', { isInFarcaster })
+      window.__privyProviderLogged = true
+    }
     
     return isInFarcaster;
   })
@@ -129,27 +128,18 @@ function InternalPrivyAppProvider({ children }: PrivyAppProviderProps) {
   React.useEffect(() => {
     if (typeof window === 'undefined') return;
     
-    const isInFarcaster = !!(window as any).webkit?.messageHandlers?.farcaster ||
-      !!(window as any).farcaster ||
-      window !== window.parent || // iframe check
-      window.location.href.includes('farcaster') ||
-      navigator.userAgent.includes('Farcaster');
+    const hasFarcasterHandlers = !!(window as any).webkit?.messageHandlers?.farcaster || !!(window as any).farcaster
+    const isFarcasterUserAgent = navigator.userAgent.includes('Farcaster')
+    const isFarcasterUrl = window.location.href.includes('farcaster')
     
-    console.log('🎯 PrivyProvider Farcaster Detection (useEffect):', {
-      isInFarcaster,
-      hasWebkit: !!(window as any).webkit,
-      hasFarcasterHandler: !!(window as any).webkit?.messageHandlers?.farcaster,
-      hasFarcasterGlobal: !!(window as any).farcaster,
-      isIframe: window !== window.parent,
-      hasPrivyAppId: !!appId
-    });
+    // Only consider it Farcaster if we have specific Farcaster indicators, not just iframe
+    const isInFarcaster = hasFarcasterHandlers || isFarcasterUserAgent || isFarcasterUrl
     
     setIsFarcasterEnvironment(isInFarcaster)
   }, [appId])
   
   // If no Privy app ID is provided or we're in Farcaster, use fallback provider
   if (!appId || isFarcasterEnvironment) {
-    console.log('🎯 PrivyProvider: Using fallback provider', { hasAppId: !!appId, isFarcasterEnvironment });
     return <FallbackPrivyProvider>{children}</FallbackPrivyProvider>
   }
 

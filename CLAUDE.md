@@ -4,13 +4,15 @@
 
 **ART3-HUB** is a comprehensive Web3 NFT platform designed for artists (especially in LATAM) to enter the Web3 space with AI-guided onboarding, gasless NFT creation, and subscription-based services.
 
-### Current Version: V6.1 (Active July 2025) - Collection-per-NFT Architecture
+### Current Version: V6.1 (Active August 2025) - Collection-per-NFT Architecture
 - **Database**: Migrated from Supabase to Firebase Firestore
 - **Smart Contracts**: Fresh V6 deployment with gasless relayer as owner
 - **Architecture**: Collection-per-NFT system for enhanced marketplace compatibility
 - **Gasless System**: Simplified direct relayer integration replacing voucher system
 - **Security**: Complete private key audit and environment-only storage, key rotation completed (July 2025)
 - **Quota Tracking**: Smart user-created NFT distinction for accurate subscription limits
+- **Build System**: Fixed SSR compatibility issues with Web3 providers (August 2025)
+- **Multi-Environment Support**: Browser, Farcaster Browser App, Farcaster Mobile App
 
 ## 🏗️ Project Structure
 
@@ -20,8 +22,9 @@
 - **Framework**: Next.js 15 + React 19 + TypeScript
 - **Styling**: Tailwind CSS + shadcn/ui
 - **Database**: Firebase Firestore
-- **Web3**: Privy + Wagmi + Viem
+- **Web3**: Privy + Wagmi + Viem (Multi-environment support)
 - **AI**: OpenAI GPT-4 + LangChain
+- **Deployment**: Vercel (https://art3-hub.vercel.app)
 
 #### 2. **ArtHubContract/** - Smart Contracts
 - **Language**: Solidity 0.8.28
@@ -79,6 +82,8 @@
 - **Base Network**: Optimized for Base blockchain
 - **Security Audited**: All sensitive configuration secured in environment variables only
 - **IPFS Storage**: Pinata integration for decentralized storage
+- **Multi-Environment Architecture**: Supports 3 deployment environments with unified provider system
+- **SSR-Compatible Web3**: Client-side only Web3 provider initialization to prevent build errors
 
 ## 📁 Key Directory Structure
 
@@ -186,6 +191,32 @@ npm run lint
 - Environment-based sensitive configuration
 - Input validation and sanitization
 
+## 🌐 Multi-Environment Architecture
+
+The application supports **3 distinct runtime environments** with intelligent detection and appropriate provider initialization:
+
+### **Environment Types**
+1. **Browser Environment** (Standard Web)
+   - **Authentication**: Privy Provider + Wagmi
+   - **Web3 Integration**: Full Web3 wallet functionality
+   - **Features**: Complete platform access, wallet connection, NFT creation
+
+2. **Farcaster Browser App** (Farcaster Mini App in Browser)
+   - **Authentication**: Farcaster SDK + Base Mini App + Wagmi
+   - **Web3 Integration**: MiniKit Provider for Farcaster-specific features
+   - **Features**: Optimized for Farcaster Frame integration
+
+3. **Farcaster Mobile App** (Native Mobile Farcaster)
+   - **Authentication**: Farcaster SDK + Base Mini App + Wagmi  
+   - **Web3 Integration**: Mobile-optimized MiniKit implementation
+   - **Features**: Touch-friendly interface, mobile wallet integration
+
+### **Provider Architecture**
+- **Intelligent Detection**: Automatic environment detection using user agent, window context, and Farcaster handlers
+- **Fallback System**: Graceful degradation when specific providers are unavailable
+- **Client-Side Only**: All Web3 providers initialize only on client-side to prevent SSR conflicts
+- **Unified API**: Consistent interface across all environments
+
 ## 🚀 Recent Major Changes (V6.1 - Collection-per-NFT Architecture)
 
 1. **Collection-per-NFT System**: Revolutionary architecture where each NFT gets its own collection contract
@@ -196,6 +227,8 @@ npm run lint
 6. **Admin System Improvements**: Fixed redirect issues and enhanced authentication
 7. **Firebase Migration**: Complete transition from Supabase to Firebase
 8. **Enhanced Marketplace Compatibility**: Individual collections enable future marketplace features
+9. **Build System Fixes** (August 2025): Fixed SSR compatibility issues with Web3 providers
+10. **Multi-Environment Support**: Comprehensive support for browser, Farcaster browser, and Farcaster mobile environments
 
 ## 🎯 Development Guidelines
 
@@ -235,6 +268,13 @@ npm run lint
 - Test all language variants
 - Verify admin functionality
 - Check mobile responsiveness
+- **Multi-Environment Testing**: Test in browser, Farcaster browser app, and Farcaster mobile app
+- **Build Testing**: Run `npm run build` to verify SSR compatibility
+
+### Known Issues & Solutions
+- **IndexedDB SSR Warnings**: Non-blocking warnings during build process (expected behavior)
+- **Provider Initialization**: Web3 providers initialize client-side only to prevent SSR conflicts
+- **Environment Detection**: Fallback providers ensure graceful degradation across environments
 
 ## 📞 Support Resources
 
@@ -253,6 +293,7 @@ npm run lint
 
 ---
 
-**Last Updated**: July 19, 2025 (V6.1 Collection-per-NFT Release - Security Update)
-**Branch**: process-update-request-nfts (current)
-**Status**: V6.1 Collection-per-NFT architecture operational, private key security rotation completed, documentation current
+**Last Updated**: August 26, 2025 (V6.1 Build System & Multi-Environment Update)
+**Branch**: app-improvements (current)
+**Status**: V6.1 Collection-per-NFT architecture operational, SSR build issues resolved, multi-environment support active
+**Deployment**: Production live at https://art3-hub.vercel.app

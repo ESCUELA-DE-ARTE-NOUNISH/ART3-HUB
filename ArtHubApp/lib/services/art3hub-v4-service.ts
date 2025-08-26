@@ -203,18 +203,17 @@ const ART3HUB_COLLECTION_V4_ABI = [
   }
 ] as const
 
-// RPC endpoints for Base mainnet (browser-compatible, fast-responding endpoints only)
+// RPC endpoints for Base mainnet (browser-compatible, CORS-friendly endpoints only)
 const BASE_MAINNET_RPC_ENDPOINTS = [
   process.env.NEXT_PUBLIC_BASE_RPC_URL || 'https://mainnet.base.org',
   'https://base-rpc.publicnode.com',
-  'https://base.meowrpc.com'
+  'https://base.llamarpc.com'
 ]
 
 // RPC endpoints for Base Sepolia (fallback options)
 const BASE_SEPOLIA_RPC_ENDPOINTS = [
   process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org',
-  'https://base-sepolia-rpc.publicnode.com',
-  'https://sepolia.base.org'
+  'https://base-sepolia-rpc.publicnode.com'
 ]
 
 // Retry mechanism with exponential backoff and multiple RPC endpoints
@@ -295,32 +294,56 @@ function createPublicClientForEndpoint(chainId: number, endpoint: string): Publi
     case 84532: // Base Sepolia
       return createPublicClient({
         chain: baseSepolia,
-        transport: http(endpoint)
+        transport: http(endpoint, {
+          timeout: 10000, // 10 second timeout
+          retryCount: 2,
+          retryDelay: 1000
+        })
       })
     case 8453: // Base Mainnet
       return createPublicClient({
         chain: base,
-        transport: http(endpoint)
+        transport: http(endpoint, {
+          timeout: 10000, // 10 second timeout
+          retryCount: 2,
+          retryDelay: 1000
+        })
       })
     case 999999999: // Zora Sepolia
       return createPublicClient({
         chain: zoraSepolia,
-        transport: http(endpoint)
+        transport: http(endpoint, {
+          timeout: 10000, // 10 second timeout
+          retryCount: 2,
+          retryDelay: 1000
+        })
       })
     case 7777777: // Zora Mainnet
       return createPublicClient({
         chain: zora,
-        transport: http(endpoint)
+        transport: http(endpoint, {
+          timeout: 10000, // 10 second timeout
+          retryCount: 2,
+          retryDelay: 1000
+        })
       })
     case 44787: // Celo Alfajores
       return createPublicClient({
         chain: celoAlfajores,
-        transport: http(endpoint)
+        transport: http(endpoint, {
+          timeout: 10000, // 10 second timeout
+          retryCount: 2,
+          retryDelay: 1000
+        })
       })
     case 42220: // Celo Mainnet
       return createPublicClient({
         chain: celo,
-        transport: http(endpoint)
+        transport: http(endpoint, {
+          timeout: 10000, // 10 second timeout
+          retryCount: 2,
+          retryDelay: 1000
+        })
       })
     default:
       throw new Error(`Unsupported chain ID: ${chainId}`)

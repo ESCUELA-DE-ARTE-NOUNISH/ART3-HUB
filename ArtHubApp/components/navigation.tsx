@@ -9,7 +9,7 @@ import { useSafePrivy, useSafeWallets } from '@/hooks/useSafePrivy'
 import { useSafeFarcaster } from '@/providers/FarcasterProvider'
 import { useToast } from '@/hooks/use-toast'
 import { useState, useEffect } from 'react'
-import { useAdminService } from '@/lib/services/admin-service'
+import { useSmartContractAdminService } from '@/lib/services/smart-contract-admin-service'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,8 +39,8 @@ export default function Navigation() {
   const { authenticated, login } = useSafePrivy()
   const { wallets } = useSafeWallets()
   
-  // Admin service
-  const adminService = useAdminService()
+  // Smart contract admin service
+  const smartContractAdminService = useSmartContractAdminService()
 
   // Determine if user is actually connected based on environment
   const isActuallyConnected = (() => {
@@ -71,12 +71,12 @@ export default function Navigation() {
       
       if (currentAddress) {
         try {
-          const isAdmin = await adminService.isAdmin(currentAddress)
+          const isAdmin = await smartContractAdminService.isAdmin(currentAddress)
           setIsCurrentUserAdmin(isAdmin)
         } catch (error) {
           console.error('Error checking admin status:', error)
-          // Fallback to sync method if Firebase is unavailable
-          setIsCurrentUserAdmin(adminService.isAdminSync(currentAddress))
+          // Fallback to sync method if contracts are unavailable
+          setIsCurrentUserAdmin(smartContractAdminService.isAdminSync(currentAddress))
         }
       } else {
         setIsCurrentUserAdmin(false)
@@ -84,7 +84,7 @@ export default function Navigation() {
     }
     
     checkAdminStatus()
-  }, [userAddress, wallets, adminService, isActuallyConnected, context])
+  }, [userAddress, wallets, smartContractAdminService, isActuallyConnected, context])
   
   // Simple labels with no translation dependencies
   const labels = {
