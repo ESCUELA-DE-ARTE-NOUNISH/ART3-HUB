@@ -16,6 +16,7 @@ import { Shield, AlertCircle, CheckCircle, Copy, BarChart3, ExternalLink, Info }
 import { useAccount } from "wagmi"
 import { useToast } from "@/hooks/use-toast"
 import { useSmartContractAdminService, type AdminPermissions, type AdminInfo } from "@/lib/services/smart-contract-admin-service"
+import { useAdminService } from "@/lib/services/admin-service"
 import { UserAnalyticsDashboard } from "@/components/admin/UserAnalyticsDashboard"
 import { UsersList } from "@/components/admin/UsersList"
 
@@ -28,6 +29,8 @@ interface AdminTranslations {
   adminStatus: string
   userManagement: string
   claimableNfts: string
+  adminManagement: string
+  manageAdmins: string
   accessDenied: string
   accessDeniedDesc: string
   adminWallet: string
@@ -39,6 +42,7 @@ interface AdminTranslations {
   isFactoryOwner: string
   isSubscriptionOwner: string
   isAdminWallet: string
+  isFirebaseAdmin: string
   yes: string
   no: string
   viewContract: string
@@ -58,6 +62,8 @@ const translations: Record<string, AdminTranslations> = {
     adminStatus: "Admin Status",
     userManagement: "User Management",
     claimableNfts: "Claimable NFTs",
+    adminManagement: "Admin Management",
+    manageAdmins: "Manage Administrators",
     accessDenied: "Access Denied",
     accessDeniedDesc: "You need administrator privileges to access this page. Admin status is verified on-chain.",
     adminWallet: "Admin Wallet",
@@ -69,6 +75,7 @@ const translations: Record<string, AdminTranslations> = {
     isFactoryOwner: "Is Factory Owner",
     isSubscriptionOwner: "Is Subscription Owner",
     isAdminWallet: "Is Admin Wallet",
+    isFirebaseAdmin: "Firebase Admin",
     yes: "Yes",
     no: "No",
     viewContract: "View Contract",
@@ -86,6 +93,8 @@ const translations: Record<string, AdminTranslations> = {
     adminStatus: "Estado de Admin",
     userManagement: "Gestión de Usuarios",
     claimableNfts: "NFTs Reclamables",
+    adminManagement: "Gestión de Administradores",
+    manageAdmins: "Gestionar Administradores",
     accessDenied: "Acceso Denegado",
     accessDeniedDesc: "Necesita privilegios de administrador para acceder a esta página. El estado de admin se verifica en cadena.",
     adminWallet: "Billetera Admin",
@@ -97,6 +106,7 @@ const translations: Record<string, AdminTranslations> = {
     isFactoryOwner: "Es Propietario de Factory",
     isSubscriptionOwner: "Es Propietario de Subscription",
     isAdminWallet: "Es Billetera Admin",
+    isFirebaseAdmin: "Admin Firebase",
     yes: "Sí",
     no: "No",
     viewContract: "Ver Contrato",
@@ -114,6 +124,8 @@ const translations: Record<string, AdminTranslations> = {
     adminStatus: "Status Admin",
     userManagement: "Gestão de Usuários",
     claimableNfts: "NFTs Reivindicáveis",
+    adminManagement: "Gerenciamento de Administradores",
+    manageAdmins: "Gerenciar Administradores",
     accessDenied: "Acesso Negado",
     accessDeniedDesc: "Você precisa de privilégios de administrador para acessar esta página. O status admin é verificado na blockchain.",
     adminWallet: "Carteira Admin",
@@ -125,6 +137,7 @@ const translations: Record<string, AdminTranslations> = {
     isFactoryOwner: "É Proprietário da Factory",
     isSubscriptionOwner: "É Proprietário da Subscription",
     isAdminWallet: "É Carteira Admin",
+    isFirebaseAdmin: "Admin Firebase",
     yes: "Sim",
     no: "Não",
     viewContract: "Ver Contrato",
@@ -142,6 +155,8 @@ const translations: Record<string, AdminTranslations> = {
     adminStatus: "Statut Admin",
     userManagement: "Gestion des Utilisateurs",
     claimableNfts: "NFTs Réclamables",
+    adminManagement: "Gestion des Administrateurs",
+    manageAdmins: "Gérer les Administrateurs",
     accessDenied: "Accès Refusé",
     accessDeniedDesc: "Vous avez besoin de privilèges d'administrateur pour accéder à cette page. Le statut admin est vérifié sur la blockchain.",
     adminWallet: "Portefeuille Admin",
@@ -153,6 +168,7 @@ const translations: Record<string, AdminTranslations> = {
     isFactoryOwner: "Est Propriétaire Factory",
     isSubscriptionOwner: "Est Propriétaire Subscription",
     isAdminWallet: "Est Portefeuille Admin",
+    isFirebaseAdmin: "Admin Firebase",
     yes: "Oui",
     no: "Non",
     viewContract: "Voir Contrat",
@@ -172,10 +188,12 @@ export default function SmartContractAdminPage() {
   const { address, isConnected } = useAccount()
   const { toast } = useToast()
   const smartContractAdminService = useSmartContractAdminService()
+  const firebaseAdminService = useAdminService()
   
   // State management
   const [adminPermissions, setAdminPermissions] = useState<AdminPermissions | null>(null)
   const [adminInfo, setAdminInfo] = useState<AdminInfo | null>(null)
+  const [isFirebaseAdmin, setIsFirebaseAdmin] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
 
@@ -190,16 +208,28 @@ export default function SmartContractAdminPage() {
     setHasError(false)
 
     try {
-      const [permissions, info] = await Promise.all([
+      // Check both smart contract and Firebase admin status
+      const [permissions, info, firebaseAdminStatus] = await Promise.all([
         smartContractAdminService.verifyAdminPermissions(address),
-        smartContractAdminService.getAdminInfo()
+        smartContractAdminService.getAdminInfo(),
+        firebaseAdminService.isAdmin(address)
       ])
       
       setAdminPermissions(permissions)
       setAdminInfo(info)
+      setIsFirebaseAdmin(firebaseAdminStatus)
     } catch (error) {
       console.error('Error loading admin data:', error)
       setHasError(true)
+      
+      // Try fallback for Firebase admin check
+      try {
+        const firebaseAdminStatus = firebaseAdminService.isAdminSync(address)
+        setIsFirebaseAdmin(firebaseAdminStatus)
+      } catch (fbError) {
+        console.error('Fallback Firebase admin check failed:', fbError)
+      }
+      
       toast({
         title: t.error,
         description: "Failed to load admin status from smart contracts",
@@ -266,8 +296,8 @@ export default function SmartContractAdminPage() {
     )
   }
 
-  // Access control - show error if not admin
-  if (!adminPermissions?.isAdmin && !hasError) {
+  // Access control - show error if not admin (either smart contract or Firebase)
+  if (!adminPermissions?.isAdmin && !isFirebaseAdmin && !hasError) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
@@ -335,6 +365,12 @@ export default function SmartContractAdminPage() {
                       <span className="text-sm">{t.isAdminWallet}</span>
                       <Badge variant={adminPermissions?.isAdminWallet ? "default" : "secondary"}>
                         {adminPermissions?.isAdminWallet ? t.yes : t.no}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{t.isFirebaseAdmin}</span>
+                      <Badge variant={isFirebaseAdmin ? "default" : "secondary"}>
+                        {isFirebaseAdmin ? t.yes : t.no}
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
@@ -503,6 +539,26 @@ export default function SmartContractAdminPage() {
             </CardContent>
           </Card>
 
+          {/* Admin Management */}
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5" />
+                    {t.adminManagement}
+                  </CardTitle>
+                  <CardDescription>
+                    Add and manage additional administrator wallet addresses with Firebase-based controls.
+                  </CardDescription>
+                </div>
+                <Button asChild className="w-full md:w-auto mt-2 md:mt-0 bg-pink-500 hover:bg-pink-600">
+                  <a href={`/${locale}/admin/manage-admins`}>{t.manageAdmins}</a>
+                </Button>
+              </div>
+            </CardHeader>
+          </Card>
+
           {/* Claimable NFTs Management */}
           <Card className="mb-8">
             <CardHeader>
@@ -536,6 +592,9 @@ export default function SmartContractAdminPage() {
           </Alert>
         </div>
       </main>
+      <br />
+      <br />
+      <br />
     </div>
   )
 }

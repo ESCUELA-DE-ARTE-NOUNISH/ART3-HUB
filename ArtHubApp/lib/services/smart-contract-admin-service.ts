@@ -6,6 +6,19 @@
 import { createPublicClient, http, Address } from 'viem'
 import { base, baseSepolia } from 'viem/chains'
 
+// Cache configuration
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes in milliseconds
+interface CacheEntry {
+  data: any
+  timestamp: number
+}
+
+// Module-level cache to persist across service instances
+const moduleCache = new Map<string, CacheEntry>()
+
+// Request deduplication to prevent concurrent calls for the same data
+const pendingRequests = new Map<string, Promise<any>>()
+
 // Contract addresses from CLAUDE.md
 const CONTRACT_ADDRESSES = {
   [base.id]: {
@@ -44,8 +57,10 @@ function getNetworkConfig() {
 class SmartContractAdminService {
   private publicClient: any
   private contracts: any
+  private static instance: SmartContractAdminService | null = null
 
-  constructor() {
+  private constructor() {
+    console.log('🔧 Creating SmartContractAdminService instance...')
     const { chain, contracts } = getNetworkConfig()
     
     // Create viem public client for reading contract data with reliable RPC and timeout config
@@ -63,48 +78,163 @@ class SmartContractAdminService {
     })
     
     this.contracts = contracts
+    console.log(`✅ SmartContractAdminService initialized for ${chain.name} (chainId: ${chain.id})`)
+  }
+
+  /**
+   * Get singleton instance
+   */
+  public static getInstance(): SmartContractAdminService {
+    if (!SmartContractAdminService.instance) {
+      SmartContractAdminService.instance = new SmartContractAdminService()
+    }
+    return SmartContractAdminService.instance
+  }
+
+  /**
+   * Cache helper methods
+   */
+  private getCacheKey(contractAddress: string, functionName: string): string {
+    return `${contractAddress}_${functionName}`
+  }
+
+  private isCacheValid(entry: CacheEntry): boolean {
+    return Date.now() - entry.timestamp < CACHE_TTL
+  }
+
+  private getFromCache(key: string): any | null {
+    const entry = moduleCache.get(key)
+    if (entry && this.isCacheValid(entry)) {
+      return entry.data
+    }
+    if (entry) {
+      moduleCache.delete(key) // Remove expired entry
+    }
+    return null
+  }
+
+  private setCache(key: string, data: any): void {
+    moduleCache.set(key, {
+      data,
+      timestamp: Date.now()
+    })
+  }
+
+  /**
+   * Read contract with caching
+   */
+  private async readContractWithCache(address: Address, functionName: string): Promise<any> {
+    const cacheKey = this.getCacheKey(address, functionName)
+    const cachedResult = this.getFromCache(cacheKey)
+    
+    console.log(`🔍 [CACHE DEBUG] Looking for ${cacheKey}`)
+    console.log(`🔍 [CACHE DEBUG] Module cache size: ${moduleCache.size}`)
+    console.log(`🔍 [CACHE DEBUG] All cache keys:`, Array.from(moduleCache.keys()))
+    
+    if (cachedResult !== null) {
+      console.log(`✅ [CACHE HIT] Found cached data for ${cacheKey}:`, cachedResult)
+      console.log(`⏰ [CACHE HIT] Cache age: ${Date.now() - (moduleCache.get(cacheKey)?.timestamp || 0)}ms`)
+      return cachedResult
+    }
+
+    // Check if there's already a pending request for this key
+    const pendingRequest = pendingRequests.get(cacheKey)
+    if (pendingRequest) {
+      console.log(`⏳ [REQUEST DEDUP] Waiting for ongoing request: ${cacheKey}`)
+      console.log(`🔄 [REQUEST DEDUP] Pending requests count: ${pendingRequests.size}`)
+      return await pendingRequest
+    }
+
+    console.log(`❌ [CACHE MISS] No cached data for ${cacheKey}, making RPC call...`)
+    console.log(`📊 [CACHE STATS] Current stats:`, this.getCacheStats())
+    console.log(`🌐 [RPC CALL] About to call contract ${address} function ${functionName}`)
+
+    // Create and store the pending request
+    const requestPromise = this.publicClient.readContract({
+      address,
+      abi: OWNABLE_ABI,
+      functionName,
+    }).then((result) => {
+      // Cache the successful result
+      this.setCache(cacheKey, result)
+      console.log(`✅ [CACHE STORE] Stored result for ${cacheKey}:`, result)
+      console.log(`📦 [CACHE STORE] Cache now has ${moduleCache.size} entries`)
+      return result
+    }).catch((error) => {
+      console.error(`❌ [RPC ERROR] Call failed for ${cacheKey}:`, error.message)
+      console.error(`🚫 [RPC ERROR] Full error:`, error)
+      throw error
+    }).finally(() => {
+      // Remove the pending request regardless of success/failure
+      pendingRequests.delete(cacheKey)
+      console.log(`🧹 [CLEANUP] Removed pending request for ${cacheKey}`)
+    })
+
+    pendingRequests.set(cacheKey, requestPromise)
+    console.log(`⏳ [PENDING] Added request to pending queue: ${cacheKey}`)
+    return await requestPromise
   }
 
   /**
    * Check if an address is an admin by verifying contract ownership
    */
   async isAdmin(address: string | undefined): Promise<boolean> {
-    if (!address) return false
+    console.log(`🔐 [isAdmin] Checking admin status for: ${address}`)
+    
+    if (!address) {
+      console.log(`🔐 [isAdmin] No address provided, returning false`)
+      return false
+    }
 
     try {
       const normalizedAddress = address.toLowerCase() as Address
       const adminAddress = this.contracts.adminWallet.toLowerCase()
+      
+      console.log(`🔐 [isAdmin] Normalized address: ${normalizedAddress}`)
+      console.log(`🔐 [isAdmin] Known admin wallet: ${adminAddress}`)
 
       // Primary check: Direct admin wallet match
       if (normalizedAddress === adminAddress) {
+        console.log(`✅ [isAdmin] Address matches known admin wallet`)
         return true
       }
 
-      // Secondary check: Contract owner verification
-      const factoryOwner = await this.publicClient.readContract({
-        address: this.contracts.factoryV6,
-        abi: OWNABLE_ABI,
-        functionName: 'owner',
-      })
+      console.log(`🔍 [isAdmin] Starting contract owner verification...`)
+      
+      // Secondary check: Contract owner verification (with caching)
+      const factoryOwner = await this.readContractWithCache(
+        this.contracts.factoryV6,
+        'owner'
+      )
 
-      const subscriptionOwner = await this.publicClient.readContract({
-        address: this.contracts.subscriptionV6,
-        abi: OWNABLE_ABI,
-        functionName: 'owner',
-      })
+      const subscriptionOwner = await this.readContractWithCache(
+        this.contracts.subscriptionV6,
+        'owner'
+      )
+
+      console.log(`🏭 [isAdmin] Factory owner: ${factoryOwner}`)
+      console.log(`📋 [isAdmin] Subscription owner: ${subscriptionOwner}`)
 
       // Check if address matches any contract owner
       const isFactoryOwner = normalizedAddress === factoryOwner.toLowerCase()
       const isSubscriptionOwner = normalizedAddress === subscriptionOwner.toLowerCase()
 
-      return isFactoryOwner || isSubscriptionOwner
+      console.log(`🔍 [isAdmin] Is factory owner: ${isFactoryOwner}`)
+      console.log(`🔍 [isAdmin] Is subscription owner: ${isSubscriptionOwner}`)
+
+      const result = isFactoryOwner || isSubscriptionOwner
+      console.log(`🔐 [isAdmin] Final result: ${result}`)
+      
+      return result
 
     } catch (error) {
-      console.error('SmartContractAdminService: Error checking admin status:', error)
+      console.error('❌ [isAdmin] Error checking admin status:', error)
       
       // Fallback to environment admin check if contracts are unavailable
       const envAdmin = process.env.NEXT_PUBLIC_ADMIN_WALLET?.toLowerCase()
-      return envAdmin ? address.toLowerCase() === envAdmin : false
+      const fallbackResult = envAdmin ? address.toLowerCase() === envAdmin : false
+      console.log(`🆘 [isAdmin] Using fallback result: ${fallbackResult}`)
+      return fallbackResult
     }
   }
 
@@ -137,16 +267,8 @@ class SmartContractAdminService {
   }> {
     try {
       const [factoryOwner, subscriptionOwner] = await Promise.all([
-        this.publicClient.readContract({
-          address: this.contracts.factoryV6,
-          abi: OWNABLE_ABI,
-          functionName: 'owner',
-        }),
-        this.publicClient.readContract({
-          address: this.contracts.subscriptionV6,
-          abi: OWNABLE_ABI,
-          functionName: 'owner',
-        }),
+        this.readContractWithCache(this.contracts.factoryV6, 'owner'),
+        this.readContractWithCache(this.contracts.subscriptionV6, 'owner'),
       ])
 
       return {
@@ -171,7 +293,10 @@ class SmartContractAdminService {
     isAdminWallet: boolean
     contractAddresses: typeof this.contracts
   }> {
+    console.log(`🔐 [verifyAdminPermissions] Verifying permissions for: ${address}`)
+    
     if (!address) {
+      console.log(`🔐 [verifyAdminPermissions] No address provided, returning empty permissions`)
       return {
         isAdmin: false,
         isFactoryOwner: false,
@@ -185,33 +310,41 @@ class SmartContractAdminService {
       const normalizedAddress = address.toLowerCase()
       const adminAddress = this.contracts.adminWallet.toLowerCase()
 
+      console.log(`🔐 [verifyAdminPermissions] Normalized address: ${normalizedAddress}`)
+      console.log(`🔐 [verifyAdminPermissions] Known admin wallet: ${adminAddress}`)
+      console.log(`🔍 [verifyAdminPermissions] Making parallel contract calls...`)
+
       const [factoryOwner, subscriptionOwner] = await Promise.all([
-        this.publicClient.readContract({
-          address: this.contracts.factoryV6,
-          abi: OWNABLE_ABI,
-          functionName: 'owner',
-        }),
-        this.publicClient.readContract({
-          address: this.contracts.subscriptionV6,
-          abi: OWNABLE_ABI,
-          functionName: 'owner',
-        }),
+        this.readContractWithCache(this.contracts.factoryV6, 'owner'),
+        this.readContractWithCache(this.contracts.subscriptionV6, 'owner'),
       ])
+
+      console.log(`🏭 [verifyAdminPermissions] Factory owner: ${factoryOwner}`)
+      console.log(`📋 [verifyAdminPermissions] Subscription owner: ${subscriptionOwner}`)
 
       const isAdminWallet = normalizedAddress === adminAddress
       const isFactoryOwner = normalizedAddress === (factoryOwner as string).toLowerCase()
       const isSubscriptionOwner = normalizedAddress === (subscriptionOwner as string).toLowerCase()
       const isAdmin = isAdminWallet || isFactoryOwner || isSubscriptionOwner
 
-      return {
+      console.log(`🔍 [verifyAdminPermissions] Results:`)
+      console.log(`  - Is admin wallet: ${isAdminWallet}`)
+      console.log(`  - Is factory owner: ${isFactoryOwner}`)
+      console.log(`  - Is subscription owner: ${isSubscriptionOwner}`)
+      console.log(`  - Final admin status: ${isAdmin}`)
+
+      const result = {
         isAdmin,
         isFactoryOwner,
         isSubscriptionOwner,
         isAdminWallet,
         contractAddresses: this.contracts,
       }
+
+      console.log(`✅ [verifyAdminPermissions] Returning permissions:`, result)
+      return result
     } catch (error) {
-      console.error('SmartContractAdminService: Error verifying admin permissions:', error)
+      console.error('❌ [verifyAdminPermissions] Error verifying admin permissions:', error)
       throw new Error('Failed to verify admin permissions from smart contracts')
     }
   }
@@ -226,14 +359,31 @@ class SmartContractAdminService {
       chainId: getNetworkConfig().chain.id,
     }
   }
+
+  /**
+   * Clear cache (for administrative purposes or troubleshooting)
+   */
+  clearCache(): void {
+    moduleCache.clear()
+  }
+
+  /**
+   * Get cache statistics (for debugging)
+   */
+  getCacheStats(): { size: number; entries: string[] } {
+    return {
+      size: moduleCache.size,
+      entries: Array.from(moduleCache.keys())
+    }
+  }
 }
 
-// Create singleton instance
-export const smartContractAdminService = new SmartContractAdminService()
+// Export singleton instance
+export const smartContractAdminService = SmartContractAdminService.getInstance()
 
 // Hook for React components
 export function useSmartContractAdminService() {
-  return smartContractAdminService
+  return SmartContractAdminService.getInstance()
 }
 
 // Export types for TypeScript
