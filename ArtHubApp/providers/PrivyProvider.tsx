@@ -15,21 +15,26 @@ try {
 } catch (error) {
   // MiniKit not available
 }
-import React, { createContext, useContext, useMemo } from 'react'
+import React, { createContext, useContext, useMemo, useState, useEffect } from 'react'
+
+// Client-only wrapper component
+function ClientOnlyWrapper({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return <div>Loading Web3...</div>
+  }
+
+  return <>{children}</>
+}
 
 // Get default chain based on testing mode
 const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
 const targetChain = isTestingMode ? baseSepolia : base
-
-// Create a single QueryClient instance to avoid recreation
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
-    },
-  },
-})
 
 // Fallback context for when Privy is not available
 const FallbackPrivyContext = createContext({
@@ -45,6 +50,15 @@ const FallbackWalletsContext = createContext({
 
 // Fallback providers for MiniKit/Farcaster mode
 function FallbackPrivyProvider({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        gcTime: 10 * 60 * 1000, // 10 minutes
+      },
+    },
+  }))
+
   return (
     <FallbackPrivyContext.Provider value={{
       authenticated: false,
@@ -67,8 +81,18 @@ interface PrivyAppProviderProps {
   children: React.ReactNode
 }
 
-export function PrivyAppProvider({ children }: PrivyAppProviderProps) {
+function InternalPrivyAppProvider({ children }: PrivyAppProviderProps) {
   const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID
+  
+  // Create QueryClient once per instance
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        gcTime: 10 * 60 * 1000, // 10 minutes
+      },
+    },
+  }))
   
   // Create wagmi config once to avoid multiple WalletConnect initializations
   const wagmiConfig = useMemo(() => {
@@ -153,5 +177,16 @@ export function PrivyAppProvider({ children }: PrivyAppProviderProps) {
         </PrivyWagmiProvider>
       </QueryClientProvider>
     </PrivyProvider>
+  )
+}
+
+// Export the client-only wrapped version
+export function PrivyAppProvider({ children }: PrivyAppProviderProps) {
+  return (
+    <ClientOnlyWrapper>
+      <InternalPrivyAppProvider>
+        {children}
+      </InternalPrivyAppProvider>
+    </ClientOnlyWrapper>
   )
 }
