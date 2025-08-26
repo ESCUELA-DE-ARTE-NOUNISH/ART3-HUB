@@ -22,6 +22,7 @@ import { base, baseSepolia, celo, celoAlfajores, zora, zoraSepolia } from '@/lib
 
 export function ConnectMenu() {
   const [mounted, setMounted] = useState(false)
+  const [autoConnecting, setAutoConnecting] = useState(false)
   const { isConnected, address } = useAccount()
   const { connect, connectors } = useConnect()
   const { disconnect } = useDisconnect()
@@ -103,21 +104,43 @@ export function ConnectMenu() {
     }
   }, [])
 
-  // Check frameConnector availability without auto-connecting (following Base MiniApp best practices)
+  // Check frameConnector availability and auto-connect in Farcaster mobile app
   useEffect(() => {
-    if (mounted && isMiniKit && connectors.length > 0) {
+    if (mounted && isMiniKit && connectors.length > 0 && !isConnected && !autoConnecting) {
       const farcasterConnector = connectors.find(c => c.id === 'farcaster' || c.type === 'frameConnector')
       console.log('🔍 Available connectors in MiniKit:', connectors.map(c => ({ id: c.id, name: c.name, type: c.type })))
       
       if (farcasterConnector) {
-        console.log('✅ Farcaster frameConnector is ready for on-demand connection')
-        console.log('📚 Following Base MiniApp best practice: "Gate wallet only at the point of onchain action"')
+        console.log('✅ Farcaster frameConnector found - checking for existing connection')
+        
+        // Auto-connect in Farcaster mobile app (wallet is already available)
+        const isMobileFarcaster = envInfo?.isWarpcast || envInfo?.isFarcasterUserAgent
+        if (isMobileFarcaster) {
+          console.log('📱 Mobile Farcaster detected - auto-connecting wallet')
+          setAutoConnecting(true)
+          
+          // Small delay to ensure connector is ready
+          setTimeout(() => {
+            connect({ connector: farcasterConnector })
+              .then(() => {
+                console.log('✅ Auto-connection successful in mobile Farcaster')
+              })
+              .catch((error) => {
+                console.warn('⚠️ Auto-connection failed (may already be connected):', error.message)
+              })
+              .finally(() => {
+                setAutoConnecting(false)
+              })
+          }, 500)
+        } else {
+          console.log('🖥️ Farcaster browser - wallet ready for on-demand connection')
+        }
       } else {
         console.warn('❌ Farcaster frameConnector not found in MiniKit environment')
         console.log('🔍 Available connectors:', connectors.map(c => ({ id: c.id, name: c.name, type: c.type })))
       }
     }
-  }, [mounted, isMiniKit, connectors])
+  }, [mounted, isMiniKit, connectors, isConnected, connect, envInfo, autoConnecting])
 
   // Check if we're on the wrong network
   useEffect(() => {
@@ -360,10 +383,14 @@ export function ConnectMenu() {
             "text-white",
             "flex items-center gap-2"
           )}
-          disabled={isConnected}
+          disabled={isConnected || autoConnecting}
         >
           <User className="h-4 w-4" />
-          {isConnected ? connectionMessages.connected : connectionMessages.connectWallet}
+          {isConnected 
+            ? connectionMessages.connected 
+            : autoConnecting 
+              ? 'Connecting...' 
+              : connectionMessages.connectWallet}
         </Button>
         {error && (
           <p className="text-sm text-red-500 animate-fade-in">
