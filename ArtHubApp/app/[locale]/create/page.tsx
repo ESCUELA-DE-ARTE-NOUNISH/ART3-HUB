@@ -4,7 +4,7 @@
 export const dynamic = 'force-dynamic'
 
 import type React from "react"
-import dynamic from "next/dynamic"
+import dynamicImport from "next/dynamic"
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -16,7 +16,7 @@ import { ImagePlus, Loader2, ExternalLink } from "lucide-react"
 import { useAccount, usePublicClient, useWalletClient, useBalance } from "wagmi"
 import { useNetworkClients } from "@/hooks/useNetworkClients"
 import { IPFSService, type NFTMetadata } from "@/lib/services/ipfs-service"
-import { createArt3HubV4ServiceWithUtils } from "@/lib/services/art3hub-v4-service"
+import { FirebaseSubscriptionService, type V6SubscriptionInfo } from "@/lib/services/firebase-subscription-service"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -310,14 +310,8 @@ function CreateNFT() {
   const [ipfsMetadataHash, setIpfsMetadataHash] = useState<string>('')
   const [mintResult, setMintResult] = useState<{ transactionHash: string; contractAddress?: string; nftData?: { collectionAddress?: string }; tokenId?: string } | null>(null)
   
-  // Subscription state - using V4 approach with Elite plan
-  const [subscriptionData, setSubscriptionData] = useState<{
-    plan: 'FREE' | 'MASTER' | 'ELITE'
-    isActive: boolean
-    nftQuota: number
-    nftsMinted: number
-    canMint: boolean
-  } | null>(null)
+  // Subscription state - using Firebase V6 approach
+  const [subscriptionData, setSubscriptionData] = useState<V6SubscriptionInfo | null>(null)
   const [subscriptionLoading, setSubscriptionLoading] = useState(true)
   
   // Wagmi hooks
@@ -355,13 +349,13 @@ function CreateNFT() {
   //   })
   // }, [isConnected, address, connector, status, walletClient, publicClient, selectedNetwork, currentChainId])
   
-  // Load subscription data
+  // Load Firebase subscription data (no RPC calls!)
   useEffect(() => {
     let isMounted = true
-    let timeoutId: NodeJS.Timeout
     
-    const loadSubscription = async () => {
-      if (!address || !publicClient || !isConnected) {
+    const loadFirebaseSubscription = async () => {
+      if (!address || !isConnected) {
+        console.log('❌ Cannot load Firebase subscription - user not connected')
         if (isMounted) {
           setSubscriptionLoading(false)
         }
@@ -373,73 +367,40 @@ function CreateNFT() {
           setSubscriptionLoading(true)
         }
         
-        // Add delay to prevent rate limiting
-        await new Promise(resolve => {
-          timeoutId = setTimeout(resolve, 100)
+        console.log('🔥 Loading V6 subscription from Firebase for:', address)
+        
+        // Get subscription from Firebase (fast, no RPC calls)
+        const subscription = await FirebaseSubscriptionService.getUserSubscription(address)
+        
+        console.log('📊 Firebase subscription loaded for create page:', { 
+          plan: subscription.plan,
+          planName: subscription.planName,
+          nftsMinted: subscription.nftsMinted,
+          nftLimit: subscription.nftLimit,
+          remainingNFTs: subscription.remainingNFTs,
+          isActive: subscription.isActive,
+          hasGaslessMinting: subscription.hasGaslessMinting
         })
         
-        if (!isMounted) return
-        
-        const { art3hubV4Service } = createArt3HubV4ServiceWithUtils(publicClient, null, selectedNetwork, true)
-        
-        // Get V4 blockchain subscription data
-        const subscription = await art3hubV4Service.getUserSubscription(address)
-        const canMintData = await art3hubV4Service.canUserMint(address)
-        
-        // Check database for actual user-created NFT count (excluding claimable NFTs)
-        let dbUserCreatedNftCount = 0
-        try {
-          const nftResponse = await fetch(`/api/nfts/user-created?wallet_address=${address}`)
-          if (nftResponse.ok) {
-            const nftData = await nftResponse.json()
-            dbUserCreatedNftCount = nftData.count || 0
-            
-            // console.log('📊 NFT Count Analysis:', {
-            //   userCreatedNfts: dbUserCreatedNftCount
-            // })
-          }
-        } catch (error) {
-          console.warn('Could not fetch user-created NFT count from database:', error)
-        }
-        
-        // console.log('🔍 V4 Subscription comparison:', {
-        //   blockchain: {
-        //     planName: subscription.planName,
-        //     plan: subscription.plan,
-        //     nftsMinted: subscription.nftsMinted,
-        //     nftLimit: subscription.nftLimit,
-        //     isActive: subscription.isActive,
-        //     canMint: canMintData.canMint,
-        //     remainingNFTs: canMintData.remainingNFTs
-        //   },
-        //   database: {
-        //     userCreatedNftCount: dbUserCreatedNftCount
-        //   }
-        // })
-        
-        // Use database count for user-created NFTs only (excludes claimable NFTs)
-        const actualUserCreatedNfts = Math.max(subscription.nftsMinted, dbUserCreatedNftCount)
-        const actualCanMint = actualUserCreatedNfts < subscription.nftLimit
-        
         if (isMounted) {
-          setSubscriptionData({
-            plan: subscription.plan, // Use plan directly instead of planName (like profile page)
-            isActive: subscription.isActive,
-            nftQuota: subscription.nftLimit,
-            nftsMinted: actualUserCreatedNfts, // Only count user-created NFTs, not claimable ones
-            canMint: actualCanMint
-          })
+          setSubscriptionData(subscription)
         }
+        
       } catch (error) {
-        console.error('Failed to load subscription:', error)
-        // Set default active free plan on error
+        console.error('❌ Error loading Firebase subscription:', error)
+        
+        // Fallback to default free plan on error
         if (isMounted) {
           setSubscriptionData({
-            plan: 'FREE' as const,
+            plan: 'FREE',
+            planName: 'Free Plan (Error)',
             isActive: true,
-            nftQuota: 1, // V4 Free Plan: 1 NFT/month
+            expiresAt: null,
             nftsMinted: 0,
-            canMint: true
+            nftLimit: 1,
+            remainingNFTs: 1,
+            autoRenew: false,
+            hasGaslessMinting: true
           })
         }
       } finally {
@@ -449,28 +410,29 @@ function CreateNFT() {
       }
     }
 
-    // Only load if we have required data and haven't loaded yet
-    if (address && isConnected && !subscriptionData) {
-      loadSubscription()
+    // Load subscription data when wallet connects
+    if (address && isConnected) {
+      loadFirebaseSubscription()
     }
     
     return () => {
       isMounted = false
-      if (timeoutId) {
-        clearTimeout(timeoutId)
-      }
     }
-  }, [address, isConnected, publicClient, selectedNetwork])
+  }, [address, isConnected])
   
-  // Listen for global subscription refresh events (updated for V4)
+  // Listen for global Firebase subscription refresh events
   useEffect(() => {
-    const handleRefreshV4Subscription = () => {
-      // console.log('🔄 Global V4 subscription refresh event received')
+    const handleRefreshV6Subscription = () => {
+      console.log('🔄 Global V6 Firebase subscription refresh event received')
       setSubscriptionData(null) // Clear data to trigger reload
     }
     
-    window.addEventListener('refreshV4Subscription', handleRefreshV4Subscription)
-    return () => window.removeEventListener('refreshV4Subscription', handleRefreshV4Subscription)
+    window.addEventListener('refreshV6Subscription', handleRefreshV6Subscription)
+    window.addEventListener('refreshV4Subscription', handleRefreshV6Subscription) // Also listen to V4 events for compatibility
+    return () => {
+      window.removeEventListener('refreshV6Subscription', handleRefreshV6Subscription)
+      window.removeEventListener('refreshV4Subscription', handleRefreshV6Subscription)
+    }
   }, [])
   
   const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
@@ -907,11 +869,11 @@ function CreateNFT() {
       // 5. Check subscription and mint NFT with V5
       setMintStatus('Checking V5 subscription status...')
       
-      // Verify subscription allows minting
-      if (!subscriptionData?.canMint) {
+      // Verify Firebase subscription allows minting
+      if (!subscriptionData?.isActive) {
         toast({
           title: "Cannot Mint NFT",
-          description: "Your subscription does not allow minting. Please upgrade your plan.",
+          description: "Your subscription is not active. Please upgrade your plan.",
           variant: "destructive",
         })
         setIsLoading(false)
@@ -919,10 +881,10 @@ function CreateNFT() {
         return
       }
 
-      if (subscriptionData.nftsMinted >= subscriptionData.nftQuota) {
+      if (subscriptionData.remainingNFTs <= 0) {
         toast({
           title: "NFT Creation Quota Exceeded",
-          description: `You have used all ${subscriptionData.nftQuota} created NFTs in your ${
+          description: `You have used all ${subscriptionData.nftLimit} created NFTs in your ${
             subscriptionData.plan === 'FREE' ? 'Free' : 
             subscriptionData.plan === 'MASTER' ? 'Master' : 'Elite Creator'
           } plan. Note: Claimable NFTs don't count toward this quota.`,
@@ -962,63 +924,34 @@ function CreateNFT() {
       })
       setMintStatus('') // Clear the loading status when successful
       
-      // Refresh subscription data to show updated quota
+      // Update Firebase subscription data after successful NFT mint
       try {
-        // console.log('🔄 Refreshing V4 subscription data after NFT mint...')
+        console.log('🔥 Updating Firebase subscription after NFT creation...')
         
-        // Wait a moment for blockchain to process
-        await new Promise(resolve => setTimeout(resolve, 2000))
+        // Increment user-created NFT count in Firebase
+        await FirebaseSubscriptionService.incrementUserCreatedNFTCount(address)
         
-        const { art3hubV4Service: refreshService } = createArt3HubV4ServiceWithUtils(publicClient, null, selectedNetwork, isTestingMode)
+        // Refresh local subscription data from Firebase
+        const refreshedSubscription = await FirebaseSubscriptionService.getUserSubscription(address)
         
-        const updatedSubscription = await refreshService.getUserSubscription(address)
-        const updatedCanMint = await refreshService.canUserMint(address)
-        
-        // Check database for user-created NFT count only (excluding claimable NFTs)
-        let dbUserCreatedNftCount = 0
-        try {
-          const userCreatedResponse = await fetch(`/api/nfts/user-created?wallet_address=${address}`)
-          if (userCreatedResponse.ok) {
-            const userCreatedData = await userCreatedResponse.json()
-            dbUserCreatedNftCount = userCreatedData.count || 0
-          }
-        } catch (error) {
-          console.warn('Could not fetch updated user-created NFT count from database:', error)
-        }
-        
-        // Use database user-created count if it's higher (more accurate)
-        const actualNftsMinted = Math.max(updatedSubscription.nftsMinted, dbUserCreatedNftCount)
-        const actualCanMint = actualNftsMinted < updatedSubscription.nftLimit
-        
-        // console.log('📊 Updated V4 subscription data comparison (user-created only):', {
-        //   blockchain: {
-        //     nftsMinted: updatedSubscription.nftsMinted,
-        //     nftLimit: updatedSubscription.nftLimit,
-        //     canMint: updatedCanMint.canMint
-        //   },
-        //   database: {
-        //     userCreatedNftCount: dbUserCreatedNftCount
-        //   },
-        //   final: {
-        //     nftsMinted: actualNftsMinted,
-        //     canMint: actualCanMint
-        //   }
-        // })
-        
-        setSubscriptionData({
-          plan: updatedSubscription.plan, // Use plan directly like profile page
-          isActive: updatedSubscription.isActive,
-          nftQuota: updatedSubscription.nftLimit,
-          nftsMinted: actualNftsMinted,
-          canMint: actualCanMint
+        console.log('📊 Firebase subscription refreshed after mint:', { 
+          plan: refreshedSubscription.plan,
+          nftsMinted: refreshedSubscription.nftsMinted,
+          nftLimit: refreshedSubscription.nftLimit,
+          remainingNFTs: refreshedSubscription.remainingNFTs
         })
         
-        // console.log('✅ V4 Subscription data refreshed successfully')
+        setSubscriptionData(refreshedSubscription)
         
-        // Trigger global subscription refresh event for other components (updated for V4)
-        window.dispatchEvent(new CustomEvent('refreshV4Subscription'))
+        // Trigger global subscription refresh events
+        window.dispatchEvent(new CustomEvent('refreshV6Subscription'))
+        window.dispatchEvent(new CustomEvent('refreshV4Subscription')) // For compatibility
+        
+        console.log('✅ Firebase subscription data refreshed successfully')
+        
       } catch (error) {
-        console.warn('Could not refresh subscription data:', error)
+        console.warn('Could not refresh Firebase subscription data:', error)
+        // Non-critical error - don't fail the main process
       }
 
       // Store NFT data in database for gallery display (after collection address extraction)
@@ -1177,7 +1110,7 @@ function CreateNFT() {
                               </p>
                               <p className="text-sm text-gray-600">
                                 {subscriptionData ? (
-                                  `${subscriptionData.nftsMinted}/${subscriptionData.nftQuota} created NFTs used`
+                                  `${subscriptionData.nftsMinted}/${subscriptionData.nftLimit} created NFTs used`
                                 ) : (
                                   "0/1 created NFTs used"
                                 )}
@@ -1198,11 +1131,11 @@ function CreateNFT() {
                       </div>
                       
                       {/* Subscription Quota Warning & Upgrade Options */}
-                      {subscriptionData && !subscriptionData.canMint && (
+                      {subscriptionData && subscriptionData.remainingNFTs <= 0 && (
                         <Alert className="border-orange-200 bg-orange-50">
                           <AlertTitle className="text-orange-800">{t.quotaExceeded || 'NFT Quota Exceeded'}</AlertTitle>
                           <AlertDescription className="text-orange-700 space-y-3">
-                            <p>{t.quotaExceededDesc || `You have used all ${subscriptionData.nftQuota} created NFTs in your ${
+                            <p>{t.quotaExceededDesc || `You have used all ${subscriptionData.nftLimit} created NFTs in your ${
                               subscriptionData.plan === 'FREE' ? 'Free' : 
                               subscriptionData.plan === 'MASTER' ? 'Master' : 'Elite Creator'
                             } plan. Note: Claimable NFTs don't count toward this quota. Upgrade to create more NFTs.`}</p>
@@ -1265,7 +1198,7 @@ function CreateNFT() {
                       )}
                       
                       {/* Subscription Upgrade Options for Free Plan users (even when not at quota) */}
-                      {subscriptionData && subscriptionData.plan === 'FREE' && subscriptionData.canMint && (
+                      {subscriptionData && subscriptionData.plan === 'FREE' && subscriptionData.remainingNFTs > 0 && (
                         <div className="border rounded-lg p-3 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
                           <p className="text-sm font-medium text-blue-900 mb-2">💡 Want to create more NFTs?</p>
                           <div className="flex flex-col gap-2 max-w-sm mx-auto min-h-36">
@@ -1630,7 +1563,7 @@ function CreateNFT() {
                 <Button
                   type="submit"
                   className="w-full bg-[#FF69B4] hover:bg-[#FF1493] h-12 text-base font-medium"
-                  disabled={!image || !title || !description || !artistName || isLoading || !isConnected || (subscriptionData && !subscriptionData.canMint)}
+                  disabled={!image || !title || !description || !artistName || isLoading || !isConnected || (subscriptionData && subscriptionData.remainingNFTs <= 0)}
                 >
                   {isLoading ? (
                     <>
@@ -1651,7 +1584,7 @@ function CreateNFT() {
 }
 
 // Export as dynamic component to avoid SSR issues with wagmi hooks
-export default dynamic(() => Promise.resolve(CreateNFT), {
+export default dynamicImport(() => Promise.resolve(CreateNFT), {
   ssr: false,
   loading: () => (
     <div className="pb-16">

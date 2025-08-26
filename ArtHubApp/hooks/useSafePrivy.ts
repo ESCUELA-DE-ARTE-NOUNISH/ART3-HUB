@@ -2,57 +2,36 @@
 
 import { useState, useEffect } from 'react'
 import { sdk } from "@farcaster/miniapp-sdk"
+import { usePrivy, useWallets } from '@privy-io/react-auth'
+
+// Extend window interface for debug flags
+declare global {
+  interface Window {
+    __privyEnvLogged?: boolean
+    __privyProviderLogged?: boolean
+  }
+}
 
 // Non-hook environment detection function (no React hooks called)
 function detectFarcasterEnvironment(): boolean {
   if (typeof window === 'undefined') return false
   
   try {
-    // Primary: Check for MiniKit-specific window properties (Base documentation method)
-    if ((window as any).webkit?.messageHandlers?.miniKit || (window as any).ethereum?.__base) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🎯 useSafePrivy: Farcaster detected via MiniKit window properties')
-      }
-      return true
+    // Check for specific Farcaster indicators only - don't use iframe as a general indicator
+    const hasFarcasterHandlers = !!(window as any).webkit?.messageHandlers?.farcaster || !!(window as any).farcaster
+    const isFarcasterUserAgent = navigator.userAgent.includes('Farcaster')
+    const isFarcasterUrl = window.location.href.includes('farcaster')
+    const hasMiniKitHandlers = !!(window as any).webkit?.messageHandlers?.miniKit || !!(window as any).ethereum?.__base
+    
+    const isInFarcaster = hasFarcasterHandlers || isFarcasterUserAgent || isFarcasterUrl || hasMiniKitHandlers
+    
+    // Only log once on initial detection for debugging
+    if (process.env.NODE_ENV === 'development' && !window.__privyEnvLogged) {
+      console.log('🎯 useSafePrivy: Environment detected:', { isInFarcaster })
+      window.__privyEnvLogged = true
     }
     
-    // Secondary: Check for Farcaster user agent patterns
-    const userAgent = navigator.userAgent
-    const isFarcasterUA = userAgent.includes('farcaster') || userAgent.includes('Farcaster')
-    
-    if (isFarcasterUA) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🎯 useSafePrivy: Farcaster detected via user agent')
-      }
-      return true
-    }
-    
-    // Tertiary: Check for iframe context (less reliable but still useful)
-    const isIframe = window !== window.parent
-    if (isIframe) {
-      // In iframe, be more conservative - only detect if we have clear Farcaster indicators
-      const hasFarcasterSDK = !!(window as any).webkit?.messageHandlers?.farcaster || !!(window as any).farcaster
-      
-      if (hasFarcasterSDK) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('🎯 useSafePrivy: Farcaster detected via iframe + Farcaster SDK handlers')
-        }
-        return true
-      }
-    }
-    
-    // Quaternary: Check if Farcaster SDK is available and functional (most permissive check)
-    if (sdk && typeof sdk.actions?.ready === 'function' && isIframe) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🎯 useSafePrivy: Farcaster detected via functional SDK in iframe context')
-      }
-      return true
-    }
-    
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🎯 useSafePrivy: No Farcaster environment detected - using browser mode')
-    }
-    return false
+    return isInFarcaster
   } catch (error) {
     console.log('⚠️ useSafePrivy: Error in environment detection, defaulting to browser mode:', error)
     return false
@@ -61,124 +40,107 @@ function detectFarcasterEnvironment(): boolean {
 
 // Safe Privy hook that handles Farcaster/MiniKit mode gracefully
 export function useSafePrivy() {
-  const [privyState, setPrivyState] = useState({
-    authenticated: false,
-    login: () => {},
-    logout: () => {},
-    user: null,
-    ready: false,
+  const [isInFarcaster, setIsInFarcaster] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return detectFarcasterEnvironment()
   })
 
+  // Always call Privy hooks (React rules requirement)
+  let privyResult
+  try {
+    privyResult = usePrivy()
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('⚠️ useSafePrivy: Privy hook failed, likely in fallback provider context')
+    }
+    privyResult = null
+  }
+
+  // Update Farcaster detection on mount
   useEffect(() => {
     if (typeof window === 'undefined') return
-
-    const initializePrivy = async () => {
-      try {
-        // Detect Farcaster environment
-        const isInFarcaster = detectFarcasterEnvironment()
-        
-        if (isInFarcaster) {
-          if (process.env.NODE_ENV === 'development') {
-            console.log('🎯 useSafePrivy: Using Farcaster fallback values')
-          }
-          setPrivyState({
-            authenticated: false,
-            login: () => console.log('Login not available in Farcaster mode'),
-            logout: () => console.log('Logout not available in Farcaster mode'),
-            user: null,
-            ready: true,
-          })
-          return
-        }
-
-        // Try to load Privy dynamically
-        try {
-          const { usePrivy } = await import('@privy-io/react-auth')
-          // Since we can't use hooks dynamically, we'll use fallback values
-          // The actual Privy integration should be handled in the provider level
-        } catch (error) {
-          if (process.env.NODE_ENV === 'development') {
-            console.warn('⚠️ useSafePrivy: Privy not available, using fallback')
-          }
-        }
-
-        setPrivyState({
-          authenticated: false,
-          login: () => {},
-          logout: () => {},
-          user: null,
-          ready: true,
-        })
-      } catch (error) {
-        console.error('Error initializing Safe Privy:', error)
-        setPrivyState({
-          authenticated: false,
-          login: () => {},
-          logout: () => {},
-          user: null,
-          ready: true,
-        })
-      }
-    }
-
-    initializePrivy()
+    const detected = detectFarcasterEnvironment()
+    setIsInFarcaster(detected)
   }, [])
 
-  return privyState
+  // In Farcaster environment, return fallback values
+  if (isInFarcaster) {
+    return {
+      authenticated: false,
+      login: () => console.log('Login not available in Farcaster mode'),
+      logout: () => console.log('Logout not available in Farcaster mode'),
+      user: null,
+      ready: true,
+    }
+  }
+
+  // In browser environment, use real Privy if available
+  if (privyResult && process.env.NEXT_PUBLIC_PRIVY_APP_ID) {
+    return privyResult
+  }
+
+  // Fallback for cases where Privy is not available
+  return {
+    authenticated: false,
+    login: () => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⚠️ Privy not available - login disabled')
+      }
+    },
+    logout: () => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⚠️ Privy not available - logout disabled')
+      }
+    },
+    user: null,
+    ready: true,
+  }
 }
 
 // Safe Wallets hook that handles Farcaster/MiniKit mode gracefully
 export function useSafeWallets() {
-  const [walletsState, setWalletsState] = useState({
-    wallets: [],
-    ready: false,
+  const [isInFarcaster, setIsInFarcaster] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return detectFarcasterEnvironment()
   })
 
+  // Always call Wallets hooks (React rules requirement)
+  let walletsResult
+  try {
+    walletsResult = useWallets()
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('⚠️ useSafeWallets: Wallets hook failed, likely in fallback provider context')
+    }
+    walletsResult = null
+  }
+
+  // Update Farcaster detection on mount
   useEffect(() => {
     if (typeof window === 'undefined') return
-
-    const initializeWallets = async () => {
-      try {
-        // Detect Farcaster environment
-        const isInFarcaster = detectFarcasterEnvironment()
-        
-        if (isInFarcaster) {
-          if (process.env.NODE_ENV === 'development') {
-            console.log('🎯 useSafeWallets: Using Farcaster fallback - empty wallets array')
-          }
-          setWalletsState({
-            wallets: [],
-            ready: true,
-          })
-          return
-        }
-
-        // Try to load Privy wallets dynamically
-        try {
-          const { useWallets } = await import('@privy-io/react-auth')
-          // Since we can't use hooks dynamically, we'll use fallback values
-          // The actual Privy integration should be handled in the provider level
-        } catch (error) {
-          if (process.env.NODE_ENV === 'development') {
-            console.warn('⚠️ useSafeWallets: Privy wallets not available, using fallback')
-          }
-        }
-
-        setWalletsState({
-          wallets: [],
-          ready: true,
-        })
-      } catch (error) {
-        console.error('Error initializing Safe Wallets:', error)
-        setWalletsState({
-          wallets: [],
-          ready: true,
-        })
-      }
-    }
-
-    initializeWallets()
+    const detected = detectFarcasterEnvironment()
+    setIsInFarcaster(detected)
   }, [])
 
-  return walletsState
+  // In Farcaster environment, return fallback values
+  if (isInFarcaster) {
+    return {
+      wallets: [],
+      ready: true,
+    }
+  }
+
+  // In browser environment, use real Wallets if available
+  if (walletsResult && process.env.NEXT_PUBLIC_PRIVY_APP_ID) {
+    return {
+      wallets: walletsResult,
+      ready: true,
+    }
+  }
+
+  // Fallback for cases where Privy is not available
+  return {
+    wallets: [],
+    ready: true,
+  }
 }

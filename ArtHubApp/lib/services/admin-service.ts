@@ -12,9 +12,25 @@ const DEFAULT_ADMIN_WALLET = process.env.NEXT_PUBLIC_ADMIN_WALLET || '0xc2564e41
 class AdminService {
   private adminWallets: AdminWallet[] = []
   private isLoaded = false
+  private initializationPromise: Promise<void> | null = null
 
   constructor() {
-    this.loadAdminWallets()
+    // Don't initialize immediately - wait for first use
+  }
+
+  /**
+   * Ensure admin service is initialized (lazy loading)
+   */
+  private async ensureInitialized(): Promise<void> {
+    if (this.isLoaded) return
+    
+    if (this.initializationPromise) {
+      await this.initializationPromise
+      return
+    }
+    
+    this.initializationPromise = this.loadAdminWallets()
+    await this.initializationPromise
   }
 
   /**
@@ -101,6 +117,8 @@ class AdminService {
   async isAdmin(address: string | undefined): Promise<boolean> {
     if (!address) return false
     
+    await this.ensureInitialized()
+    
     try {
       return await FirebaseAdminService.isAdmin(address)
     } catch (error) {
@@ -127,6 +145,8 @@ class AdminService {
    * Get all admin wallets
    */
   async getAllAdmins(): Promise<AdminWallet[]> {
+    await this.ensureInitialized()
+    
     try {
       this.adminWallets = await FirebaseAdminService.getAllAdmins()
       return [...this.adminWallets]
@@ -147,6 +167,8 @@ class AdminService {
    * Get active admin wallets only
    */
   async getActiveAdmins(): Promise<AdminWallet[]> {
+    await this.ensureInitialized()
+    
     try {
       return await FirebaseAdminService.getActiveAdmins()
     } catch (error) {
@@ -159,6 +181,8 @@ class AdminService {
    * Add a new admin wallet
    */
   async addAdmin(address: string, addedBy: string, label?: string): Promise<{ success: boolean; message: string; admin?: AdminWallet }> {
+    await this.ensureInitialized()
+    
     try {
       const result = await FirebaseAdminService.addAdmin(address, addedBy, label)
       
