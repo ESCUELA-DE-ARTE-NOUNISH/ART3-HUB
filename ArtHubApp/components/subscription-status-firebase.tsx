@@ -170,9 +170,9 @@ export function SubscriptionStatusFirebase({ translations: t, onRefresh }: Subsc
       // Update Firebase with the upgrade immediately after contract transaction
       console.log('🔥 Updating Firebase subscription after successful contract upgrade...')
       if (planType === 'master') {
-        await FirebaseSubscriptionService.upgradeToMasterPlan(address, result.hash || result)
+        await FirebaseSubscriptionService.upgradeToMasterPlan(address, result.subscriptionHash)
       } else {
-        await FirebaseSubscriptionService.upgradeToElitePlan(address, result.hash || result)
+        await FirebaseSubscriptionService.upgradeToElitePlan(address, result.subscriptionHash)
       }
       
       toast({
