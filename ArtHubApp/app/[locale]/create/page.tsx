@@ -744,7 +744,34 @@ function CreateNFT() {
       return
     }
 
-    // Validate artist name - prevent generic names
+    // Comprehensive form validation
+    if (!imageFile) {
+      toast({
+        title: t.noImage,
+        description: t.noImage,
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!title.trim()) {
+      toast({
+        title: "Title Required",
+        description: "Please enter a title for your NFT",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!description.trim()) {
+      toast({
+        title: "Description Required", 
+        description: "Please enter a description for your NFT",
+        variant: "destructive",
+      })
+      return
+    }
+
     if (!artistName.trim()) {
       toast({
         title: t.artistNameRequired || "Artist name required",
@@ -762,11 +789,21 @@ function CreateNFT() {
       })
       return
     }
-    
-    if (!imageFile) {
+
+    if (!category || category.trim() === '') {
       toast({
-        title: t.noImage,
-        description: t.noImage,
+        title: "Category Required",
+        description: "Please select a category for your NFT",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const royaltyNum = parseFloat(royaltyPercentage)
+    if (isNaN(royaltyNum) || royaltyNum < 0 || royaltyNum > 10) {
+      toast({
+        title: "Invalid Royalty Percentage",
+        description: "Royalty percentage must be between 0 and 10",
         variant: "destructive",
       })
       return
@@ -1595,7 +1632,20 @@ function CreateNFT() {
                 <Button
                   type="submit"
                   className="w-full bg-[#FF69B4] hover:bg-[#FF1493] h-12 text-base font-medium"
-                  disabled={!image || !title || !description || !artistName || isLoading || !isConnected || (subscriptionData && subscriptionData.remainingNFTs <= 0)}
+                  disabled={
+                    !image || 
+                    !title.trim() || 
+                    !description.trim() || 
+                    !artistName.trim() || 
+                    !category || 
+                    !royaltyPercentage || 
+                    isNaN(parseFloat(royaltyPercentage)) ||
+                    parseFloat(royaltyPercentage) < 0 || 
+                    parseFloat(royaltyPercentage) > 10 ||
+                    isLoading || 
+                    !isConnected || 
+                    (subscriptionData && subscriptionData.remainingNFTs <= 0)
+                  }
                 >
                   {isLoading ? (
                     <>
