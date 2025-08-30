@@ -68,8 +68,12 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    console.log('Firebase config check:', getFirebaseConfig())
+    
     const body = await request.json()
     const { wallet_address, profile_complete, ...profileData } = body
+
+    console.log('API: Updating user profile for:', wallet_address, profileData)
 
     if (!wallet_address) {
       return NextResponse.json(
@@ -78,24 +82,54 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    let success = false
+    let result = false
+    let errorMessage = ''
 
-    // If only updating profile_complete status
-    if (typeof profile_complete === 'boolean' && Object.keys(profileData).length === 0) {
-      success = await FirebaseUserService.updateProfileCompletion(wallet_address, profile_complete)
-    } else {
-      // Updating full profile data
-      const updatedProfile = await FirebaseUserService.updateUserProfile(wallet_address, profileData)
-      success = !!updatedProfile
+    try {
+      // If only updating profile_complete status
+      if (typeof profile_complete === 'boolean' && Object.keys(profileData).length === 0) {
+        result = await FirebaseUserService.updateProfileCompletion(wallet_address, profile_complete)
+        console.log('Profile completion update result:', result)
+      } else {
+        // First validate the data before attempting update
+        if (profileData.username || profileData.email) {
+          console.log('Validating profile data...')
+          const validation = await FirebaseUserService.validateProfileData(
+            { username: profileData.username, email: profileData.email },
+            wallet_address
+          )
+          
+          console.log('Validation result:', validation)
+          
+          if (!validation.isValid) {
+            return NextResponse.json(
+              { error: validation.error || 'Validation failed' },
+              { status: 400 }
+            )
+          }
+        }
+
+        // Updating full profile data
+        console.log('Updating full profile data...')
+        const updatedProfile = await FirebaseUserService.updateUserProfile(wallet_address, profileData)
+        console.log('Update profile result:', updatedProfile)
+        result = !!updatedProfile
+      }
+    } catch (serviceError) {
+      console.error('Service error during profile update:', serviceError)
+      errorMessage = serviceError instanceof Error ? serviceError.message : 'Service error'
+      result = false
     }
     
-    if (!success) {
+    if (!result) {
+      console.error('Profile update failed:', errorMessage)
       return NextResponse.json(
-        { error: 'Failed to update profile' },
+        { error: errorMessage || 'Failed to update profile' },
         { status: 500 }
       )
     }
 
+    console.log('Profile update successful')
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error in PUT /api/user-profile:', error)
