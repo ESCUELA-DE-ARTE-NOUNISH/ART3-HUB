@@ -1410,8 +1410,9 @@ export async function POST(request: NextRequest) {
 
         console.log('🎯 Collection deployed at:', collectionAddress)
 
-        // Add a small delay to ensure collection is fully initialized
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        // Add longer delay to ensure collection is fully initialized and registered
+        console.log('⏳ Waiting 5 seconds for collection registration...')
+        await new Promise(resolve => setTimeout(resolve, 5000))
         
         // Verify the collection was properly registered in the factory
         try {
@@ -1437,7 +1438,29 @@ export async function POST(request: NextRequest) {
           // Continue anyway, let the mint attempt reveal the real issue
         }
 
-        // Mint NFT via factory's V6 gasless minting function
+        // Final verification before minting
+        console.log('🎨 About to mint NFT via factory V6 gasless function')
+        console.log('📋 Mint parameters:', {
+          factoryAddress,
+          collectionAddress, 
+          recipient: body.nftData.recipient,
+          tokenURI: body.nftData.imageURI
+        })
+        
+        // Double-check collection exists
+        try {
+          const collectionCode = await publicClient.getBytecode({
+            address: collectionAddress as `0x${string}`
+          })
+          console.log('🔍 Collection bytecode check:', collectionCode ? 'EXISTS' : 'NOT_FOUND')
+          if (!collectionCode || collectionCode === '0x') {
+            throw new Error('Collection contract not found at expected address')
+          }
+        } catch (bytecodeError) {
+          console.error('❌ Collection bytecode verification failed:', bytecodeError)
+          throw new Error(`Collection verification failed: ${bytecodeError.message}`)
+        }
+        
         console.log('🎨 Minting NFT via factory V6 gasless function to user:', body.nftData.recipient)
         
         const mintTx = await walletClient.writeContract({
