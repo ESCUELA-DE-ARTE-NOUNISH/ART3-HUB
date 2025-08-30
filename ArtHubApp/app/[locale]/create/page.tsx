@@ -21,7 +21,8 @@ import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { CheckCircle2, Copy } from "lucide-react"
+import { Progress } from "@/components/ui/progress"
+import { CheckCircle2, Copy, Clock } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import { NetworkSelector } from "@/components/network-selector"
@@ -53,6 +54,12 @@ const translations = {
     royaltyHelp: "Royalty you'll receive on secondary sales (0-10%)",
     mint: "Create NFT",
     creating: "Creating NFT...",
+    uploadingImage: "Uploading image to IPFS...",
+    uploadingMetadata: "Uploading metadata to IPFS...",
+    creatingCollection: "Creating collection...",
+    waitingRegistration: "Waiting for collection registration...",
+    mintingNFT: "Minting your NFT...",
+    confirmingTransaction: "Confirming transaction...",
     success: "NFT Created Successfully!",
     change: "Change",
     network: "Network",
@@ -117,6 +124,12 @@ const translations = {
     royaltyHelp: "Regalías que recibirás en ventas secundarias (0-10%)",
     mint: "Crear NFT",
     creating: "Creando NFT...",
+    uploadingImage: "Subiendo imagen a IPFS...",
+    uploadingMetadata: "Subiendo metadatos a IPFS...",
+    creatingCollection: "Creando colección...",
+    waitingRegistration: "Esperando registro de colección...",
+    mintingNFT: "Acuñando tu NFT...",
+    confirmingTransaction: "Confirmando transacción...",
     success: "¡NFT Creado con Éxito!",
     change: "Cambiar",
     network: "Red",
@@ -181,6 +194,12 @@ const translations = {
     royaltyHelp: "Royalties que vous recevrez sur les ventes secondaires (0-10%)",
     mint: "Créer NFT",
     creating: "Création NFT...",
+    uploadingImage: "Téléchargement d'image vers IPFS...",
+    uploadingMetadata: "Téléchargement de métadonnées vers IPFS...",
+    creatingCollection: "Création de collection...",
+    waitingRegistration: "Attente d'enregistrement de collection...",
+    mintingNFT: "Frappe de votre NFT...",
+    confirmingTransaction: "Confirmation de transaction...",
     success: "NFT Créé avec Succès !",
     change: "Changer",
     network: "Réseau",
@@ -244,6 +263,12 @@ const translations = {
     royaltyHelp: "Royalty que você receberá nas vendas secundárias (0-10%)",
     mint: "Criar NFT",
     creating: "Criando NFT...",
+    uploadingImage: "Enviando imagem para IPFS...",
+    uploadingMetadata: "Enviando metadados para IPFS...",
+    creatingCollection: "Criando coleção...",
+    waitingRegistration: "Aguardando registro da coleção...",
+    mintingNFT: "Cunhando seu NFT...",
+    confirmingTransaction: "Confirmando transação...",
     success: "NFT Criado com Sucesso!",
     change: "Alterar",
     network: "Rede",
@@ -325,6 +350,10 @@ function CreateNFT() {
   const [ipfsImageHash, setIpfsImageHash] = useState<string>('')
   const [ipfsMetadataHash, setIpfsMetadataHash] = useState<string>('')
   const [mintResult, setMintResult] = useState<{ transactionHash: string; contractAddress?: string; nftData?: { collectionAddress?: string }; tokenId?: string } | null>(null)
+  
+  // Progress state management
+  const [currentStep, setCurrentStep] = useState<number>(0)
+  const [progressPercentage, setProgressPercentage] = useState<number>(0)
   
   // Subscription state - using Firebase V6 approach
   const [subscriptionData, setSubscriptionData] = useState<V6SubscriptionInfo | null>(null)
@@ -591,6 +620,24 @@ function CreateNFT() {
     }
   }
 
+  // Progress steps configuration
+  const progressSteps = [
+    { key: 'uploadingImage', percentage: 15 },
+    { key: 'uploadingMetadata', percentage: 30 },
+    { key: 'creatingCollection', percentage: 50 },
+    { key: 'waitingRegistration', percentage: 75 },
+    { key: 'mintingNFT', percentage: 90 },
+    { key: 'confirmingTransaction', percentage: 100 }
+  ] as const
+
+  // Helper function to update progress
+  const updateProgress = (stepIndex: number) => {
+    setCurrentStep(stepIndex)
+    setProgressPercentage(progressSteps[stepIndex].percentage)
+    const stepKey = progressSteps[stepIndex].key
+    setMintStatus(t[stepKey] || 'Processing...')
+  }
+
   // Function to manually reset the form
   const resetForm = () => {
     setImage(null)
@@ -605,6 +652,8 @@ function CreateNFT() {
     setIpfsImageHash('')
     setIpfsMetadataHash('')
     setMintResult(null)
+    setCurrentStep(0)
+    setProgressPercentage(0)
   }
 
   // Function to get Blockscout collection link for different networks
@@ -810,14 +859,14 @@ function CreateNFT() {
     }
     
     setIsLoading(true)
-    setMintStatus('Uploading image to IPFS...')
+    updateProgress(0) // Step 1: Uploading image
     
     try {
       // 1. Upload image to IPFS
       const imageUpload = await IPFSService.uploadFile(imageFile)
       const imageHash = imageUpload.ipfsHash // Store in variable first
       setIpfsImageHash(imageHash) // Store for links
-      setMintStatus('Uploading metadata to IPFS...')
+      updateProgress(1) // Step 2: Uploading metadata
       
       // 2. Create metadata
       const metadata: NFTMetadata = {
@@ -835,10 +884,9 @@ function CreateNFT() {
       const metadataUpload = await IPFSService.uploadMetadata(metadata)
       const metadataHash = metadataUpload.ipfsHash // Store in variable first
       setIpfsMetadataHash(metadataHash) // Store for links
-      setMintStatus('Creating collection on blockchain...')
+      updateProgress(2) // Step 3: Creating collection
       
       // 4. Check if wallet is on the correct network
-      setMintStatus('Verifying network...')
       const { getActiveNetwork } = await import('@/lib/networks')
       const targetNetwork = getActiveNetwork(selectedNetwork, isTestingMode)
       
@@ -932,12 +980,12 @@ function CreateNFT() {
         
         setIsLoading(false)
         setMintStatus('')
+        setCurrentStep(0)
+        setProgressPercentage(0)
         return
       }
       
-      // 5. Check subscription and mint NFT with V5
-      setMintStatus('Checking V5 subscription status...')
-      
+      // 5. Check subscription and mint NFT with V6
       // Verify Firebase subscription allows minting
       if (!subscriptionData?.isActive) {
         toast({
@@ -947,6 +995,8 @@ function CreateNFT() {
         })
         setIsLoading(false)
         setMintStatus('')
+        setCurrentStep(0)
+        setProgressPercentage(0)
         return
       }
 
@@ -961,15 +1011,18 @@ function CreateNFT() {
         })
         setIsLoading(false)
         setMintStatus('')
+        setCurrentStep(0)
+        setProgressPercentage(0)
         return
       }
       
-      // Use new simplified NFT creation architecture
-      setMintStatus('Creating NFT with collection-per-NFT architecture...')
+      updateProgress(3) // Step 4: Waiting for registration
       
       // Import the new simple service
       const { createSimpleNFTService } = await import('@/lib/services/simple-nft-service')
       const simpleNFTService = createSimpleNFTService(publicClient, walletClient, targetNetwork.id)
+      
+      updateProgress(4) // Step 5: Minting NFT
       
       const nftResult = await simpleNFTService.createNFT({
         name: title,
@@ -982,6 +1035,8 @@ function CreateNFT() {
         recipient: address // The connected user will receive the NFT
       })
       
+      updateProgress(5) // Step 6: Confirming transaction
+      
       // console.log('🎨 Simple NFT created successfully:', nftResult)
       
       setTransactionHash(nftResult.transactionHash)
@@ -991,7 +1046,11 @@ function CreateNFT() {
         tokenId: nftResult.tokenId,
         gasless: nftResult.gasless
       })
-      setMintStatus('') // Clear the loading status when successful
+      
+      // Complete the progress
+      setTimeout(() => {
+        setMintStatus('') // Clear the loading status when successful
+      }, 500) // Small delay to show 100% completion
       
       // Update Firebase subscription data after successful NFT mint
       try {
@@ -1098,6 +1157,8 @@ function CreateNFT() {
     } catch (error) {
       console.error('Error creating NFT:', error)
       setMintStatus('')
+      setCurrentStep(0)
+      setProgressPercentage(0)
       toast({
         title: t.errorTitle,
         description: error instanceof Error ? error.message : "An unknown error occurred",
@@ -1426,12 +1487,57 @@ function CreateNFT() {
                   </p>
                 </div>
 
-                {/* Mint Status - Only show during loading */}
-                {mintStatus && isLoading && (
-                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                      <span className="text-blue-800">{mintStatus}</span>
+                {/* Enhanced Progress Indicator - Only show during loading */}
+                {isLoading && (
+                  <div className="p-6 bg-blue-50 border border-blue-200 rounded-lg space-y-4">
+                    {/* Progress Header */}
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <Clock className="h-5 w-5 text-blue-600" />
+                        <div className="absolute inset-0 animate-ping">
+                          <Clock className="h-5 w-5 text-blue-400 opacity-75" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-blue-900">Creating Your NFT</h4>
+                        <p className="text-sm text-blue-700">{mintStatus}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-blue-800">
+                          {progressPercentage}%
+                        </div>
+                        <div className="text-xs text-blue-600">
+                          Step {currentStep + 1} of {progressSteps.length}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="space-y-2">
+                      <Progress value={progressPercentage} className="h-2" />
+                      
+                      {/* Step Indicators */}
+                      <div className="flex justify-between text-xs text-gray-600">
+                        {progressSteps.map((step, index) => (
+                          <div key={step.key} className={`flex flex-col items-center gap-1 ${
+                            index <= currentStep ? 'text-blue-600' : 'text-gray-400'
+                          }`}>
+                            <div className={`w-2 h-2 rounded-full transition-colors ${
+                              index < currentStep ? 'bg-green-500' :
+                              index === currentStep ? 'bg-blue-500 animate-pulse' : 'bg-gray-300'
+                            }`} />
+                            <span className="hidden sm:inline text-center leading-tight max-w-16">
+                              {t[step.key]?.split('...')[0] || step.key}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Time Estimate */}
+                    <div className="flex items-center justify-center gap-2 text-sm text-blue-600">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <span>Estimated time: 5-10 seconds</span>
                     </div>
                   </div>
                 )}
