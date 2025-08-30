@@ -155,7 +155,7 @@ function InternalPrivyAppProvider({ children }: PrivyAppProviderProps) {
         },
         loginMethods: ['email', 'google', 'instagram', 'twitter', 'wallet'],
         defaultChain: targetChain,
-        supportedChains: [base, baseSepolia],
+        supportedChains: [targetChain], // Only show current network chain
         embeddedWallets: {
           createOnLogin: 'users-without-wallets',
         },

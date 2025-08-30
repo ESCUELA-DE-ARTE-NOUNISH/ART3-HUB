@@ -38,8 +38,16 @@ const zoraSepolia = defineChain({
   testnet: true,
 })
 
-// All supported chains
-const allChains = [base, baseSepolia, celo, celoAlfajores, zora, zoraSepolia] as const
+// Get current network chain based on testing mode
+const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
+
+// All supported chains (for reference)
+const allChainsRef = [base, baseSepolia, celo, celoAlfajores, zora, zoraSepolia] as const
+
+// Active chains - only current network to prevent wrong chain connections
+const activeChains = isTestingMode 
+  ? [baseSepolia] as const
+  : [base] as const
 
 // Create transports object for all chains using custom RPC URLs
 const transports = {
@@ -59,7 +67,7 @@ if (!projectId) {
 }
 
 export const config = createConfig({
-  chains: allChains,
+  chains: activeChains,
   transports,
   connectors: [
     // Prioritize frameConnector for Farcaster environments
@@ -80,4 +88,4 @@ export const config = createConfig({
 })
 
 // Export chain definitions for use in other components
-export { base, baseSepolia, celo, celoAlfajores, zora, zoraSepolia, allChains } 
+export { base, baseSepolia, celo, celoAlfajores, zora, zoraSepolia, allChainsRef as allChains, activeChains } 
