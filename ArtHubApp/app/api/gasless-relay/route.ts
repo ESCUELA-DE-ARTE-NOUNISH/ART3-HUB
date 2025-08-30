@@ -1276,22 +1276,13 @@ export async function POST(request: NextRequest) {
       })
 
       try {
-        // Import ethers for contract deployment
-        const { ethers } = await import('ethers')
-        
         // Get the contract owner private key (using gasless relayer key)
         const ownerPrivateKey = process.env.GASLESS_RELAYER_PRIVATE_KEY
         if (!ownerPrivateKey) {
           throw new Error('GASLESS_RELAYER_PRIVATE_KEY not found in environment variables')
         }
 
-        // Create provider and signer for contract deployment
-        const provider = new ethers.JsonRpcProvider(
-          body.chainId === 84532 ? 'https://sepolia.base.org' : 'https://mainnet.base.org'
-        )
-        const ownerSigner = new ethers.Wallet(ownerPrivateKey, provider)
-
-        console.log('🔍 Contract owner address:', ownerSigner.address)
+        console.log('🔍 Contract owner address:', relayerAccount.address)
 
         // Simple ERC721 contract bytecode (OpenZeppelin-based)
         // This would normally be imported from compiled contracts
