@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { FirebaseNFTService } from '@/lib/services/firebase-nft-service'
+import { FirebaseNFTService, getCurrentNetworkInfo } from '@/lib/services/firebase-nft-service'
 import { isFirebaseConfigured } from '@/lib/firebase'
 
 export async function POST(request: NextRequest) {
@@ -84,8 +84,10 @@ export async function GET(request: NextRequest) {
       // Get NFTs by network
       nfts = await FirebaseNFTService.getNFTsByNetwork(network)
     } else {
-      // Get all NFTs
-      nfts = await FirebaseNFTService.getAllNFTs()
+      // Get all NFTs for current network (prevent cross-network display)
+      const networkInfo = getCurrentNetworkInfo()
+      console.log('🌐 Getting all NFTs for current network:', networkInfo.network)
+      nfts = await FirebaseNFTService.getNFTsByNetwork(networkInfo.network)
     }
 
     return NextResponse.json({ 

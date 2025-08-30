@@ -20,7 +20,7 @@ import {
 } from '@/lib/firebase'
 
 // Utility function to get current network configuration
-const getCurrentNetworkInfo = () => {
+export const getCurrentNetworkInfo = () => {
   const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
   
   if (isTestingMode) {
