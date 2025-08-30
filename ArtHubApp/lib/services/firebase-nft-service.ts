@@ -19,6 +19,25 @@ import {
   getCurrentTimestamp 
 } from '@/lib/firebase'
 
+// Utility function to get current network configuration
+const getCurrentNetworkInfo = () => {
+  const isTestingMode = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
+  
+  if (isTestingMode) {
+    return {
+      network: 'base-sepolia',
+      contractAddress: process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V6_84532,
+      chainId: 84532
+    }
+  } else {
+    return {
+      network: 'base',
+      contractAddress: process.env.NEXT_PUBLIC_ART3HUB_FACTORY_V6_8453,
+      chainId: 8453
+    }
+  }
+}
+
 export class FirebaseNFTService {
   /**
    * Create a new NFT record
@@ -77,7 +96,8 @@ export class FirebaseNFTService {
   }
 
   /**
-   * Get all NFTs for a wallet address
+   * Get all NFTs for a wallet address (legacy method - no filtering)
+   * @deprecated Use getNFTsByWalletAndNetwork for better network isolation
    */
   static async getNFTsByWallet(walletAddress: string): Promise<NFT[]> {
     if (!isFirebaseConfigured()) {
@@ -119,6 +139,96 @@ export class FirebaseNFTService {
       console.error('Error fetching NFTs by wallet:', error)
       return []
     }
+  }
+
+  /**
+   * Get NFTs for a wallet address with network and contract filtering
+   * This prevents cross-network NFT display issues
+   */
+  static async getNFTsByWalletAndNetwork(
+    walletAddress: string, 
+    network?: string,
+    contractAddress?: string
+  ): Promise<NFT[]> {
+    if (!isFirebaseConfigured()) {
+      console.warn('Firebase not configured, skipping NFT fetch')
+      return []
+    }
+
+    try {
+      // Build query filters
+      const filters = [where('wallet_address', '==', walletAddress.toLowerCase())]
+      
+      if (network) {
+        filters.push(where('network', '==', network))
+      }
+      
+      if (contractAddress) {
+        filters.push(where('contract_address', '==', contractAddress))
+      }
+
+      // First try with composite index query
+      try {
+        const q = query(
+          collection(db, COLLECTIONS.NFTS),
+          ...filters,
+          orderBy('created_at', 'desc')
+        )
+        
+        const querySnapshot = await getDocs(q)
+        const nfts = querySnapshot.docs.map(doc => doc.data() as NFT)
+        
+        console.log('📊 NFTs fetched with filters:', {
+          wallet: walletAddress.substring(0, 10) + '...',
+          network,
+          contractAddress: contractAddress?.substring(0, 10) + '...',
+          count: nfts.length
+        })
+        
+        return nfts
+      } catch (indexError) {
+        console.log('🔄 Composite index not available, falling back to client-side sorting...')
+        
+        // Fallback: Get NFTs without orderBy and sort client-side
+        const q = query(
+          collection(db, COLLECTIONS.NFTS),
+          ...filters
+        )
+        
+        const querySnapshot = await getDocs(q)
+        const nfts = querySnapshot.docs.map(doc => doc.data() as NFT)
+        
+        // Sort client-side by created_at descending
+        return nfts.sort((a, b) => {
+          const dateA = new Date(a.created_at).getTime()
+          const dateB = new Date(b.created_at).getTime()
+          return dateB - dateA // Newest first
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching NFTs by wallet and network:', error)
+      return []
+    }
+  }
+
+  /**
+   * Get NFTs for current network only (recommended method)
+   * Uses environment configuration to filter by current network and contract
+   */
+  static async getNFTsByWalletCurrentNetwork(walletAddress: string): Promise<NFT[]> {
+    const networkInfo = getCurrentNetworkInfo()
+    
+    console.log('🌐 Using current network configuration:', {
+      network: networkInfo.network,
+      contractAddress: networkInfo.contractAddress?.substring(0, 10) + '...',
+      chainId: networkInfo.chainId
+    })
+    
+    return this.getNFTsByWalletAndNetwork(
+      walletAddress,
+      networkInfo.network,
+      networkInfo.contractAddress
+    )
   }
 
   /**
@@ -304,6 +414,7 @@ export class FirebaseNFTService {
 
   /**
    * Get NFTs by wallet address (only user-created NFTs for membership quota)
+   * Now includes network filtering to prevent cross-network quota calculation
    */
   static async getUserCreatedNFTsByWallet(walletAddress: string): Promise<NFT[]> {
     if (!isFirebaseConfigured()) {
@@ -312,14 +423,24 @@ export class FirebaseNFTService {
     }
 
     try {
+      const networkInfo = getCurrentNetworkInfo()
+      
       const q = query(
         collection(db, COLLECTIONS.NFTS),
         where('wallet_address', '==', walletAddress.toLowerCase()),
-        where('source', '==', 'user_created')
+        where('source', '==', 'user_created'),
+        where('network', '==', networkInfo.network)
       )
       
       const querySnapshot = await getDocs(q)
       const nfts = querySnapshot.docs.map(doc => doc.data() as NFT)
+      
+      console.log('📊 User-created NFTs fetched for quota (network-filtered):', {
+        wallet: walletAddress.substring(0, 10) + '...',
+        network: networkInfo.network,
+        userCreatedCount: nfts.length,
+        projectId: 'art3-hub-78ef8'
+      })
       
       // Sort client-side by created_at descending
       return nfts.sort((a, b) => {
