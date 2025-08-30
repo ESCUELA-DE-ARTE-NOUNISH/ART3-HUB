@@ -756,6 +756,10 @@ export class Art3HubV4Service {
       
       console.log('✅ USDC approval confirmed')
       
+      // Add small delay to ensure blockchain state is fully updated
+      console.log('⏳ Waiting for blockchain state update...')
+      await new Promise(resolve => setTimeout(resolve, 2000)) // 2 second delay
+      
       // Double-check allowance after approval to ensure it's properly set
       const newAllowance = await retryWithFallback(
         async (client: PublicClient) => {
