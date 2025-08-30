@@ -691,7 +691,42 @@ export class Art3HubV4Service {
       
       console.log('⚠️  Insufficient USDC allowance, requesting approval...')
       
-      // Request approval from user wallet
+      // USDC contracts often require reset-to-zero before setting new allowance
+      // Step 1: First reset existing allowance to 0 (if any exists)
+      if (allowance > BigInt(0)) {
+        console.log('🔄 Resetting existing USDC allowance to zero first...')
+        const resetHash = await this.walletClient.writeContract({
+          address: usdcAddress,
+          abi: [
+            {
+              "inputs": [{"name": "spender", "type": "address"}, {"name": "amount", "type": "uint256"}],
+              "name": "approve",
+              "outputs": [{"name": "", "type": "bool"}],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ],
+          functionName: 'approve',
+          args: [this.subscriptionAddress, BigInt(0)]
+        })
+        
+        console.log(`🔄 USDC reset approval transaction: ${resetHash}`)
+        
+        // Wait for reset confirmation
+        await retryWithFallback(
+          async (client: PublicClient) => {
+            return await client.waitForTransactionReceipt({ hash: resetHash })
+          },
+          this.chainId,
+          3, // maxRetries
+          2000 // initialDelayMs
+        )
+        
+        console.log('✅ USDC allowance reset to zero confirmed')
+      }
+      
+      // Step 2: Set the new allowance amount
+      console.log(`💰 Setting new USDC allowance to ${amount.toString()} tokens...`)
       const approvalHash = await this.walletClient.writeContract({
         address: usdcAddress,
         abi: [
