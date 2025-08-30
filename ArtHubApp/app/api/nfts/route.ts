@@ -74,9 +74,10 @@ export async function GET(request: NextRequest) {
     let nfts = []
 
     if (wallet_address) {
-      // Get NFTs for specific wallet - Use network-filtered method to prevent cross-network display
-      console.log('🔍 Fetching NFTs for wallet with network filtering:', wallet_address)
-      nfts = await FirebaseNFTService.getNFTsByWalletCurrentNetwork(wallet_address)
+      // Get NFTs for specific wallet with current network filtering
+      const networkInfo = getCurrentNetworkInfo()
+      console.log(`🔍 Fetching NFTs for wallet ${wallet_address} on network:`, networkInfo.network)
+      nfts = await FirebaseNFTService.getNFTsByWalletAndNetwork(wallet_address, networkInfo.network)
     } else if (search) {
       // Search NFTs by name
       nfts = await FirebaseNFTService.searchNFTsByName(search)

@@ -119,21 +119,45 @@ export class FirebaseNFTService {
       } catch (indexError) {
         console.log('🔄 Composite index not available, falling back to client-side sorting...')
         
-        // Fallback: Get NFTs without orderBy and sort client-side
-        const q = query(
-          collection(db, COLLECTIONS.NFTS),
-          where('wallet_address', '==', walletAddress.toLowerCase())
-        )
-        
-        const querySnapshot = await getDocs(q)
-        const nfts = querySnapshot.docs.map(doc => doc.data() as NFT)
-        
-        // Sort client-side by created_at descending
-        return nfts.sort((a, b) => {
-          const dateA = new Date(a.created_at).getTime()
-          const dateB = new Date(b.created_at).getTime()
-          return dateB - dateA // Newest first
-        })
+        // Try simple wallet query without orderBy (should work even if indexes are building)
+        try {
+          const q = query(
+            collection(db, COLLECTIONS.NFTS),
+            where('wallet_address', '==', walletAddress.toLowerCase())
+          )
+          
+          const querySnapshot = await getDocs(q)
+          const nfts = querySnapshot.docs.map(doc => doc.data() as NFT)
+          
+          console.log(`📊 Simple wallet query found ${nfts.length} NFTs`)
+          
+          // Sort client-side by created_at descending
+          return nfts.sort((a, b) => {
+            const dateA = new Date(a.created_at).getTime()
+            const dateB = new Date(b.created_at).getTime()
+            return dateB - dateA // Newest first
+          })
+          
+        } catch (simpleQueryError) {
+          console.error('🚨 Even simple wallet query failed:', simpleQueryError)
+          
+          // Last resort: Get ALL NFTs and filter client-side
+          console.log('🆘 LAST RESORT: Getting all NFTs and filtering client-side...')
+          const allQ = query(collection(db, COLLECTIONS.NFTS))
+          const allSnapshot = await getDocs(allQ)
+          const allNfts = allSnapshot.docs.map(doc => doc.data() as NFT)
+          
+          const filteredNfts = allNfts
+            .filter(nft => nft.wallet_address?.toLowerCase() === walletAddress.toLowerCase())
+            .sort((a, b) => {
+              const dateA = new Date(a.created_at).getTime()
+              const dateB = new Date(b.created_at).getTime()
+              return dateB - dateA // Newest first
+            })
+            
+          console.log(`📊 Last resort filter: ${filteredNfts.length} of ${allNfts.length} NFTs belong to wallet`)
+          return filteredNfts
+        }
       }
     } catch (error) {
       console.error('Error fetching NFTs by wallet:', error)
@@ -158,6 +182,12 @@ export class FirebaseNFTService {
     try {
       // Build query filters
       const filters = [where('wallet_address', '==', walletAddress.toLowerCase())]
+      
+      console.log('🔍 Query filters being built:', {
+        wallet: walletAddress.toLowerCase(),
+        network,
+        contractAddress: contractAddress?.substring(0, 10) + '...'
+      })
       
       if (network) {
         filters.push(where('network', '==', network))
@@ -188,6 +218,19 @@ export class FirebaseNFTService {
         return nfts
       } catch (indexError) {
         console.log('🔄 Composite index not available, falling back to client-side sorting...')
+        
+        // Generate specific Firebase composite index creation link
+        const indexFields = ['wallet_address', 'network', 'created_at']
+        const projectId = 'art3-hub-78ef8' // Firebase project ID
+        const indexUrl = `https://console.firebase.google.com/u/0/project/${projectId}/firestore/indexes?create_composite=Cl4KDgoIcHJvamVjdHMSAmFydDMtaHViLTc4ZWY4L2RhdGFiYXNlcy8oZGVmYXVsdCkvcmVmZXJlbmNlcy9uZnRzEAESEAoOd2FsbGV0X2FkZHJlc3MQARILCgduZXR3b3JrEAESDAoKY3JlYXRlZF9hdBAC`
+        
+        console.error(`🚨 FIREBASE INDEX REQUIRED for /my-nfts functionality`)
+        console.error(`📊 Query fields: wallet_address == "${walletAddress}" + network == "${network}" + orderBy(created_at, desc)`)
+        console.error(`🔗 Create composite index: ${indexUrl}`)
+        console.error(`📝 Index fields needed: ${indexFields.join(' + ')}`)
+        console.error(`⚡ Alternative: Visit Firebase Console > Firestore > Indexes > Add composite index`)
+        console.error(`   Collection: nfts`)
+        console.error(`   Fields: wallet_address (Ascending), network (Ascending), created_at (Descending)`)
         
         // Fallback: Get NFTs without orderBy and sort client-side
         const q = query(
@@ -224,11 +267,37 @@ export class FirebaseNFTService {
       chainId: networkInfo.chainId
     })
     
-    return this.getNFTsByWalletAndNetwork(
-      walletAddress,
-      networkInfo.network,
-      networkInfo.contractAddress
-    )
+    // TEMPORARY FIX: Skip complex queries and go straight to simple fallback until indexes are built
+    console.log('🔧 TEMPORARY: Using simple fallback while Firebase indexes build...')
+    
+    try {
+      const allQ = query(collection(db, COLLECTIONS.NFTS))
+      const allSnapshot = await getDocs(allQ)
+      const allNfts = allSnapshot.docs.map(doc => doc.data() as NFT)
+      
+      console.log(`📊 Retrieved ${allNfts.length} total NFTs from database`)
+      
+      const filteredNFTs = allNfts
+        .filter(nft => {
+          const walletMatch = nft.wallet_address?.toLowerCase() === walletAddress.toLowerCase()
+          const networkMatch = nft.network === networkInfo.network
+          const contractMatch = !networkInfo.contractAddress || nft.contract_address === networkInfo.contractAddress
+          return walletMatch && networkMatch && contractMatch
+        })
+        .sort((a, b) => {
+          const dateA = new Date(a.created_at).getTime()
+          const dateB = new Date(b.created_at).getTime()
+          return dateB - dateA // Newest first
+        })
+      
+      console.log(`📊 Client-side filtering result: ${filteredNFTs.length} NFTs match wallet + network`)
+      
+      return filteredNFTs
+      
+    } catch (fallbackError) {
+      console.error('🚨 Even fallback query failed:', fallbackError)
+      return []
+    }
   }
 
   /**
