@@ -84,31 +84,29 @@ export class FirebaseUserService {
     profileData: Partial<Omit<UserProfile, 'id' | 'wallet_address' | 'created_at' | 'updated_at'>>
   ): Promise<UserProfile | null> {
     if (!isFirebaseConfigured()) {
-      console.warn('Firebase not configured, skipping profile update')
-      return null
+      console.error('Firebase not configured, cannot update profile')
+      throw new Error('Firebase not configured')
     }
 
     try {
-      // Validate uniqueness constraints
-      const validation = await this.validateProfileData(
-        { username: profileData.username, email: profileData.email },
-        walletAddress
-      )
-      
-      if (!validation.isValid) {
-        throw new Error(validation.error || 'Validation failed')
-      }
+      console.log('FirebaseUserService: Starting profile update for', walletAddress)
+      console.log('FirebaseUserService: Profile data to update:', profileData)
 
       // Get current profile to merge with new data
       const currentProfile = await this.getUserProfile(walletAddress)
       if (!currentProfile) {
+        console.error('FirebaseUserService: User profile not found for', walletAddress)
         throw new Error('User profile not found')
       }
 
+      console.log('FirebaseUserService: Current profile found:', currentProfile)
+
       const mergedData = { ...currentProfile, ...profileData }
+      console.log('FirebaseUserService: Merged data:', mergedData)
       
       // Check if profile is complete based on required fields after merge
       const isComplete = this.checkProfileCompletion(mergedData)
+      console.log('FirebaseUserService: Profile completeness check:', isComplete)
       
       const updateData = {
         ...profileData,
@@ -116,15 +114,24 @@ export class FirebaseUserService {
         updated_at: getCurrentTimestamp()
       }
 
+      console.log('FirebaseUserService: Final update data:', updateData)
+
       const userRef = doc(db, COLLECTIONS.USER_PROFILES, walletAddress.toLowerCase())
+      console.log('FirebaseUserService: Updating document at:', userRef.path)
+      
       await updateDoc(userRef, updateData)
+      console.log('FirebaseUserService: Update completed successfully')
 
       // Return updated profile
       const updatedProfile = { ...currentProfile, ...updateData }
+      console.log('FirebaseUserService: Returning updated profile:', updatedProfile)
       return updatedProfile
     } catch (error) {
-      console.error('Error updating user profile:', error)
-      return null
+      console.error('FirebaseUserService: Error updating user profile:', error)
+      if (error instanceof Error) {
+        throw error // Re-throw with original message
+      }
+      throw new Error('Failed to update profile')
     }
   }
 
@@ -201,24 +208,31 @@ export class FirebaseUserService {
     }
 
     try {
+      console.log('FirebaseUserService: Checking username availability for:', username)
+      
       const q = query(
         collection(db, COLLECTIONS.USER_PROFILES),
         where('username', '==', username.toLowerCase())
       )
       const querySnapshot = await getDocs(q)
 
+      console.log('FirebaseUserService: Username query results:', querySnapshot.size, 'documents found')
+
       // If updating existing profile, exclude current user
       if (currentWalletAddress) {
         const results = querySnapshot.docs.filter(
           doc => doc.id !== currentWalletAddress.toLowerCase()
         )
+        console.log('FirebaseUserService: After filtering current user:', results.length, 'conflicting documents')
         return results.length === 0
       }
 
-      return querySnapshot.empty
+      const isAvailable = querySnapshot.empty
+      console.log('FirebaseUserService: Username available:', isAvailable)
+      return isAvailable
     } catch (error) {
-      console.error('Error checking username availability:', error)
-      return false
+      console.error('FirebaseUserService: Error checking username availability:', error)
+      throw new Error(`Failed to check username availability: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
@@ -232,24 +246,31 @@ export class FirebaseUserService {
     }
 
     try {
+      console.log('FirebaseUserService: Checking email availability for:', email)
+      
       const q = query(
         collection(db, COLLECTIONS.USER_PROFILES),
         where('email', '==', email.toLowerCase())
       )
       const querySnapshot = await getDocs(q)
 
+      console.log('FirebaseUserService: Email query results:', querySnapshot.size, 'documents found')
+
       // If updating existing profile, exclude current user
       if (currentWalletAddress) {
         const results = querySnapshot.docs.filter(
           doc => doc.id !== currentWalletAddress.toLowerCase()
         )
+        console.log('FirebaseUserService: After filtering current user:', results.length, 'conflicting documents')
         return results.length === 0
       }
 
-      return querySnapshot.empty
+      const isAvailable = querySnapshot.empty
+      console.log('FirebaseUserService: Email available:', isAvailable)
+      return isAvailable
     } catch (error) {
-      console.error('Error checking email availability:', error)
-      return false
+      console.error('FirebaseUserService: Error checking email availability:', error)
+      throw new Error(`Failed to check email availability: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
@@ -261,26 +282,46 @@ export class FirebaseUserService {
     currentWalletAddress?: string
   ): Promise<{ isValid: boolean; error?: string }> {
     try {
+      console.log('FirebaseUserService: Starting validation for profile data:', profileData)
+      console.log('FirebaseUserService: Current wallet address:', currentWalletAddress)
+
       // Check username availability
       if (profileData.username) {
-        const usernameAvailable = await this.isUsernameAvailable(profileData.username, currentWalletAddress)
-        if (!usernameAvailable) {
-          return { isValid: false, error: 'Username is already taken' }
+        console.log('FirebaseUserService: Validating username...')
+        try {
+          const usernameAvailable = await this.isUsernameAvailable(profileData.username, currentWalletAddress)
+          if (!usernameAvailable) {
+            console.log('FirebaseUserService: Username not available')
+            return { isValid: false, error: 'Username is already taken' }
+          }
+          console.log('FirebaseUserService: Username validation passed')
+        } catch (error) {
+          console.error('FirebaseUserService: Username validation failed:', error)
+          return { isValid: false, error: `Username validation failed: ${error instanceof Error ? error.message : 'Unknown error'}` }
         }
       }
 
       // Check email availability
       if (profileData.email) {
-        const emailAvailable = await this.isEmailAvailable(profileData.email, currentWalletAddress)
-        if (!emailAvailable) {
-          return { isValid: false, error: 'Email is already registered' }
+        console.log('FirebaseUserService: Validating email...')
+        try {
+          const emailAvailable = await this.isEmailAvailable(profileData.email, currentWalletAddress)
+          if (!emailAvailable) {
+            console.log('FirebaseUserService: Email not available')
+            return { isValid: false, error: 'Email is already registered' }
+          }
+          console.log('FirebaseUserService: Email validation passed')
+        } catch (error) {
+          console.error('FirebaseUserService: Email validation failed:', error)
+          return { isValid: false, error: `Email validation failed: ${error instanceof Error ? error.message : 'Unknown error'}` }
         }
       }
 
+      console.log('FirebaseUserService: All validations passed')
       return { isValid: true }
     } catch (error) {
-      console.error('Error in validateProfileData:', error)
-      return { isValid: false, error: 'Validation failed' }
+      console.error('FirebaseUserService: Error in validateProfileData:', error)
+      return { isValid: false, error: `Validation error: ${error instanceof Error ? error.message : 'Unknown error'}` }
     }
   }
 
