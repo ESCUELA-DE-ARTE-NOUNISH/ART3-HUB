@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { FirebaseNFTService } from '@/lib/services/firebase-nft-service'
+import { FirebaseNFTService, getCurrentNetworkInfo } from '@/lib/services/firebase-nft-service'
 import { isFirebaseConfigured } from '@/lib/firebase'
 
 export async function POST(request: NextRequest) {
@@ -74,9 +74,10 @@ export async function GET(request: NextRequest) {
     let nfts = []
 
     if (wallet_address) {
-      // Get NFTs for specific wallet - Use network-filtered method to prevent cross-network display
-      console.log('🔍 Fetching NFTs for wallet with network filtering:', wallet_address)
-      nfts = await FirebaseNFTService.getNFTsByWalletCurrentNetwork(wallet_address)
+      // Get NFTs for specific wallet with current network filtering
+      const networkInfo = getCurrentNetworkInfo()
+      console.log(`🔍 Fetching NFTs for wallet ${wallet_address} on network:`, networkInfo.network)
+      nfts = await FirebaseNFTService.getNFTsByWalletAndNetwork(wallet_address, networkInfo.network)
     } else if (search) {
       // Search NFTs by name
       nfts = await FirebaseNFTService.searchNFTsByName(search)
@@ -84,8 +85,10 @@ export async function GET(request: NextRequest) {
       // Get NFTs by network
       nfts = await FirebaseNFTService.getNFTsByNetwork(network)
     } else {
-      // Get all NFTs
-      nfts = await FirebaseNFTService.getAllNFTs()
+      // Get all NFTs for current network (prevent cross-network display)
+      const networkInfo = getCurrentNetworkInfo()
+      console.log('🌐 Getting all NFTs for current network:', networkInfo.network)
+      nfts = await FirebaseNFTService.getNFTsByNetwork(networkInfo.network)
     }
 
     return NextResponse.json({ 

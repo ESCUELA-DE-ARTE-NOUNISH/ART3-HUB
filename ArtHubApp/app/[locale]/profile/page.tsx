@@ -6,12 +6,13 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import Image from "next/image"
-import { Edit, Users, Grid, Trophy, Twitter, Instagram, ExternalLink, Star, Check } from "lucide-react"
+import { Edit, Users, Grid, Trophy, Twitter, Instagram, ExternalLink, Star, Check, Copy, CheckCheck } from "lucide-react"
 import { useParams } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import { useUserProfile } from "@/hooks/useUserProfile"
 import { ProfileEditForm } from "@/components/profile-edit-form"
 import { SubscriptionStatusFirebase } from "@/components/subscription-status-firebase"
+import { Input } from "@/components/ui/input"
 
 // Custom Verified Star Component
 function VerifiedStar() {
@@ -58,7 +59,10 @@ const translations = {
     subscribeMaster: "Subscribe to Master",
     subscribeElite: "Subscribe to Elite Creator",
     loading: "Loading",
-    month: "month"
+    month: "month",
+    walletAddress: "Wallet Address",
+    copyAddress: "Copy Address",
+    addressCopied: "Address Copied!"
   },
   es: {
     title: "Perfil",
@@ -93,7 +97,10 @@ const translations = {
     subscribeMaster: "Suscribirse a Master",
     subscribeElite: "Suscribirse a Creador Elite",
     loading: "Cargando",
-    month: "mes"
+    month: "mes",
+    walletAddress: "Dirección de Wallet",
+    copyAddress: "Copiar Dirección",
+    addressCopied: "¡Dirección Copiada!"
   },
   fr: {
     title: "Profil",
@@ -128,7 +135,10 @@ const translations = {
     subscribeMaster: "S'abonner à Master",
     subscribeElite: "S'abonner à Créateur Elite",
     loading: "Chargement",
-    month: "mois"
+    month: "mois",
+    walletAddress: "Adresse de Portefeuille",
+    copyAddress: "Copier l'Adresse",
+    addressCopied: "Adresse Copiée!"
   },
   pt: {
     title: "Perfil",
@@ -163,7 +173,10 @@ const translations = {
     subscribeMaster: "Assinar Master",
     subscribeElite: "Assinar Criador Elite",
     loading: "Carregando",
-    month: "mês"
+    month: "mês",
+    walletAddress: "Endereço da Carteira",
+    copyAddress: "Copiar Endereço",
+    addressCopied: "Endereço Copiado!"
   }
 }
 
@@ -233,6 +246,7 @@ export default function ProfilePage() {
   const [locale, setLocale] = useState<string>(defaultLocale)
   const [t, setT] = useState(translations.en)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [addressCopied, setAddressCopied] = useState(false)
   
   // Get user profile data
   const { userProfile, loading, isConnected, walletAddress, isProfileComplete, refreshProfile } = useUserProfile()
@@ -243,6 +257,19 @@ export default function ProfilePage() {
     setLocale(currentLocale)
     setT(translations[currentLocale as keyof typeof translations] || translations.en)
   }, [params])
+
+  // Copy wallet address to clipboard
+  const copyWalletAddress = async () => {
+    if (!walletAddress) return
+    
+    try {
+      await navigator.clipboard.writeText(walletAddress)
+      setAddressCopied(true)
+      setTimeout(() => setAddressCopied(false), 2000)
+    } catch (error) {
+      console.error('Failed to copy address:', error)
+    }
+  }
 
   // Show connection prompt if not connected
   if (!isConnected) {
@@ -301,7 +328,37 @@ export default function ProfilePage() {
               {userProfile?.username ? `@${userProfile.username}` : walletAddress?.slice(0, 8) + "..."}
             </p>
             
-            <div className="mt-4 flex space-x-6 text-center">
+            {/* Wallet Address Section */}
+            {walletAddress && (
+              <div className="mt-4 w-full max-w-md">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t.walletAddress}
+                </label>
+                <div className="flex space-x-2">
+                  <Input
+                    type="text"
+                    value={walletAddress}
+                    readOnly
+                    className="flex-1 bg-gray-50 border-gray-200 text-sm font-mono"
+                  />
+                  <Button
+                    onClick={copyWalletAddress}
+                    variant="outline"
+                    size="sm"
+                    className="px-3 flex-shrink-0"
+                    title={addressCopied ? t.addressCopied : t.copyAddress}
+                  >
+                    {addressCopied ? (
+                      <CheckCheck className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+            
+            <div className="mt-6 flex space-x-6 text-center">
               <div>
                 <p className="font-semibold">0</p>
                 <p className="text-sm text-gray-500">{t.followers}</p>

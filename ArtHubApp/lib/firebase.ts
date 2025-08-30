@@ -69,6 +69,10 @@ export interface NFT {
   contract_address?: string
   token_id?: number
   source: 'user_created' | 'claimable'
+  artist_name?: string
+  category?: string
+  view_count?: number
+  likes_count?: number
   created_at: string
   updated_at: string
 }

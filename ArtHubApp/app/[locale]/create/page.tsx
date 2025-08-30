@@ -42,6 +42,10 @@ const translations = {
     descriptionPlaceholder: "Tell the story behind your creation",
     artistName: "Artist Name",
     artistPlaceholder: "Your artist name or pseudonym",
+    artistNameRequired: "Artist name required",
+    artistNameRequiredDesc: "Please enter your artist name or pseudonym",
+    personalArtistNameRequired: "Personal artist name required", 
+    personalArtistNameRequiredDesc: "Please enter your real artist name or creative pseudonym instead of a generic name",
     category: "Category",
     selectCategory: "Select a category",
     royalty: "Royalty Percentage",
@@ -102,6 +106,10 @@ const translations = {
     descriptionPlaceholder: "Cuenta la historia detrás de tu creación",
     artistName: "Nombre del Artista",
     artistPlaceholder: "Tu nombre artístico o seudónimo",
+    artistNameRequired: "Nombre del artista requerido",
+    artistNameRequiredDesc: "Por favor ingresa tu nombre artístico o seudónimo",
+    personalArtistNameRequired: "Nombre artístico personal requerido",
+    personalArtistNameRequiredDesc: "Por favor ingresa tu nombre artístico real o seudónimo creativo en lugar de un nombre genérico",
     category: "Categoría",
     selectCategory: "Selecciona una categoría",
     royalty: "Porcentaje de Regalías",
@@ -162,6 +170,10 @@ const translations = {
     descriptionPlaceholder: "Racontez l'histoire derrière votre création",
     artistName: "Nom de l'Artiste",
     artistPlaceholder: "Votre nom d'artiste ou pseudonyme",
+    artistNameRequired: "Nom d'artiste requis",
+    artistNameRequiredDesc: "Veuillez entrer votre nom d'artiste ou pseudonyme",
+    personalArtistNameRequired: "Nom d'artiste personnel requis",
+    personalArtistNameRequiredDesc: "Veuillez entrer votre vrai nom d'artiste ou pseudonyme créatif au lieu d'un nom générique",
     category: "Catégorie",
     selectCategory: "Sélectionnez une catégorie",
     royalty: "Pourcentage de Royalties",
@@ -219,8 +231,12 @@ const translations = {
     titlePlaceholder: "Dê um nome ao seu NFT",
     description: "Descrição",
     descriptionPlaceholder: "Conte a história por trás da sua criação",
-    artistName: "Nome do Artista",
+    artistName: "Nome do Artista", 
     artistPlaceholder: "Seu nome artístico ou pseudônimo",
+    artistNameRequired: "Nome do artista obrigatório",
+    artistNameRequiredDesc: "Por favor, insira seu nome artístico ou pseudônimo",
+    personalArtistNameRequired: "Nome artístico pessoal obrigatório",
+    personalArtistNameRequiredDesc: "Por favor, insira seu nome artístico real ou pseudônimo criativo em vez de um nome genérico",
     category: "Categoria",
     selectCategory: "Selecione uma categoria",
     royalty: "Porcentagem de Royalty",
@@ -659,16 +675,13 @@ function CreateNFT() {
               // Set artist name from profile if available
               if (userData.profile.name) {
                 setArtistName(userData.profile.name)
-              } else {
-                // Fallback to abbreviated wallet address
-                setArtistName(`Artist ${address.slice(0, 6)}`)
               }
+              // Don't auto-populate with generic name - let user decide
             }
           }
         } catch (error) {
           console.error('Failed to load user profile:', error)
-          // Fallback to abbreviated wallet address
-          setArtistName(`Artist ${address.slice(0, 6)}`)
+          // Don't auto-populate with generic name - let user decide
         }
       }
     }
@@ -730,11 +743,67 @@ function CreateNFT() {
       })
       return
     }
-    
+
+    // Comprehensive form validation
     if (!imageFile) {
       toast({
         title: t.noImage,
         description: t.noImage,
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!title.trim()) {
+      toast({
+        title: "Title Required",
+        description: "Please enter a title for your NFT",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!description.trim()) {
+      toast({
+        title: "Description Required", 
+        description: "Please enter a description for your NFT",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!artistName.trim()) {
+      toast({
+        title: t.artistNameRequired || "Artist name required",
+        description: t.artistNameRequiredDesc || "Please enter your artist name or pseudonym",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (artistName.startsWith('Artist 0x') || artistName.trim().toLowerCase() === 'artist') {
+      toast({
+        title: t.personalArtistNameRequired || "Personal artist name required",
+        description: t.personalArtistNameRequiredDesc || "Please enter your real artist name or creative pseudonym instead of a generic name",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!category || category.trim() === '') {
+      toast({
+        title: "Category Required",
+        description: "Please select a category for your NFT",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const royaltyNum = parseFloat(royaltyPercentage)
+    if (isNaN(royaltyNum) || royaltyNum < 0 || royaltyNum > 10) {
+      toast({
+        title: "Invalid Royalty Percentage",
+        description: "Royalty percentage must be between 0 and 10",
         variant: "destructive",
       })
       return
@@ -1563,7 +1632,20 @@ function CreateNFT() {
                 <Button
                   type="submit"
                   className="w-full bg-[#FF69B4] hover:bg-[#FF1493] h-12 text-base font-medium"
-                  disabled={!image || !title || !description || !artistName || isLoading || !isConnected || (subscriptionData && subscriptionData.remainingNFTs <= 0)}
+                  disabled={
+                    !image || 
+                    !title.trim() || 
+                    !description.trim() || 
+                    !artistName.trim() || 
+                    !category || 
+                    !royaltyPercentage || 
+                    isNaN(parseFloat(royaltyPercentage)) ||
+                    parseFloat(royaltyPercentage) < 0 || 
+                    parseFloat(royaltyPercentage) > 10 ||
+                    isLoading || 
+                    !isConnected || 
+                    (subscriptionData && subscriptionData.remainingNFTs <= 0)
+                  }
                 >
                   {isLoading ? (
                     <>

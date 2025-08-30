@@ -177,6 +177,20 @@ const categories = [
   "Video"
 ]
 
+// Helper function to get display artist name
+const getDisplayArtistName = (nft: NFT) => {
+  // If we have a meaningful artist name, use it
+  if (nft.artist_name && 
+      nft.artist_name.trim() && 
+      !nft.artist_name.startsWith('Artist 0x') && 
+      nft.artist_name.toLowerCase() !== 'artist') {
+    return nft.artist_name
+  }
+  
+  // For older NFTs without artist names, show clean wallet address
+  return `${nft.wallet_address.substring(0, 6)}...${nft.wallet_address.substring(-4)}`
+}
+
 export default function ExplorePage() {
   const params = useParams()
   const [locale, setLocale] = useState<string>(defaultLocale)
@@ -249,9 +263,8 @@ export default function ExplorePage() {
         const artistMap = new Map<string, number>()
         
         data.nfts.forEach((nft: NFT) => {
-          if (nft.artist_name) {
-            artistMap.set(nft.artist_name, (artistMap.get(nft.artist_name) || 0) + 1)
-          }
+          const artistKey = getDisplayArtistName(nft)
+          artistMap.set(artistKey, (artistMap.get(artistKey) || 0) + 1)
         })
         
         const sortedArtists = Array.from(artistMap.entries())
@@ -275,9 +288,8 @@ export default function ExplorePage() {
         const categoryMap = new Map<string, number>()
         
         data.nfts.forEach((nft: NFT) => {
-          if (nft.category) {
-            categoryMap.set(nft.category, (categoryMap.get(nft.category) || 0) + 1)
-          }
+          const categoryKey = nft.category || 'Uncategorized'
+          categoryMap.set(categoryKey, (categoryMap.get(categoryKey) || 0) + 1)
         })
         
         const sortedCategories = Array.from(categoryMap.entries())
@@ -325,6 +337,7 @@ export default function ExplorePage() {
   const getImageUrl = (ipfsHash: string) => {
     return `https://gateway.pinata.cloud/ipfs/${ipfsHash}`
   }
+
 
   return (
     <div className="pb-16">
@@ -423,8 +436,10 @@ export default function ExplorePage() {
                         <div className="flex justify-between items-start mb-3">
                           <div className="min-w-0 flex-1">
                             <h3 className="font-semibold text-sm md:text-base truncate">{nft.name}</h3>
-                            <p className="text-xs md:text-sm text-gray-500 truncate">{t.by} {nft.artist_name}</p>
-                            <p className="text-xs text-gray-400">{nft.category}</p>
+                            <p className="text-xs md:text-sm text-gray-500 truncate">
+                              {t.by} {getDisplayArtistName(nft)}
+                            </p>
+                            <p className="text-xs text-gray-400">{nft.category || 'Uncategorized'}</p>
                             {nft.view_count > 0 && (
                               <p className="text-xs text-blue-500">{nft.view_count} views</p>
                             )}
@@ -529,7 +544,7 @@ export default function ExplorePage() {
               <DialogHeader>
                 <DialogTitle className="text-lg md:text-xl">{selectedNFT.name}</DialogTitle>
                 <DialogDescription className="text-sm md:text-base">
-                  {t.by} {selectedNFT.artist_name} • {selectedNFT.category}
+                  {t.by} {getDisplayArtistName(selectedNFT)} • {selectedNFT.category || 'Uncategorized'}
                 </DialogDescription>
               </DialogHeader>
               <div className="py-4 md:py-6">
@@ -547,8 +562,10 @@ export default function ExplorePage() {
                   </div>
                   <div className="text-center w-full">
                     <h3 className="font-semibold text-lg md:text-xl">{selectedNFT.name}</h3>
-                    <p className="text-sm md:text-base text-gray-500">{t.by} {selectedNFT.artist_name}</p>
-                    <p className="text-xs md:text-sm text-gray-400 mt-1">{selectedNFT.category}</p>
+                    <p className="text-sm md:text-base text-gray-500">
+                      {t.by} {getDisplayArtistName(selectedNFT)}
+                    </p>
+                    <p className="text-xs md:text-sm text-gray-400 mt-1">{selectedNFT.category || 'Uncategorized'}</p>
                     {selectedNFT.description && (
                       <p className="text-sm md:text-base text-gray-600 mt-2 px-2">{selectedNFT.description}</p>
                     )}
