@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get request body
-    const { wallet_address, admin_key } = await request.json()
+    const { wallet_address, admin_key, force_artist_name, target_nft_id } = await request.json()
 
     // Simple admin check - you should replace this with proper admin authentication
     if (admin_key !== process.env.MIGRATION_ADMIN_KEY) {
@@ -41,8 +41,23 @@ export async function POST(request: NextRequest) {
       let needsUpdate = false
       const updates: any = {}
 
-      // Check if artist_name is missing or generic
-      if (!nft.artist_name || 
+      // If target_nft_id is specified, only update that specific NFT
+      if (target_nft_id && nft.id !== target_nft_id) {
+        results.push({
+          nft_id: nft.id,
+          nft_name: nft.name,
+          status: 'skipped - not target'
+        })
+        continue
+      }
+
+      // If force_artist_name is provided, use it directly
+      if (force_artist_name) {
+        updates.artist_name = force_artist_name
+        needsUpdate = true
+      } 
+      // Otherwise, check if artist_name is missing or generic
+      else if (!nft.artist_name || 
           nft.artist_name.startsWith('Artist 0x') || 
           nft.artist_name.toLowerCase() === 'artist') {
         
