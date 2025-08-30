@@ -721,6 +721,35 @@ export class Art3HubV4Service {
       
       console.log('✅ USDC approval confirmed')
       
+      // Double-check allowance after approval to ensure it's properly set
+      const newAllowance = await retryWithFallback(
+        async (client: PublicClient) => {
+          return await client.readContract({
+            address: usdcAddress,
+            abi: [
+              {
+                "inputs": [{"name": "owner", "type": "address"}, {"name": "spender", "type": "address"}],
+                "name": "allowance",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "stateMutability": "view",
+                "type": "function"
+              }
+            ],
+            functionName: 'allowance',
+            args: [userAddress, this.subscriptionAddress]
+          })
+        },
+        this.chainId,
+        3, // maxRetries
+        1000 // initialDelayMs
+      )
+      
+      console.log(`💰 Final allowance confirmation: ${newAllowance.toString()} USDC tokens`)
+      
+      if (newAllowance < amount) {
+        throw new Error(`Approval verification failed. Expected ${amount.toString()}, got ${newAllowance.toString()}`)
+      }
+      
       return {
         needsApproval: true,
         approvalHash
@@ -749,9 +778,11 @@ export class Art3HubV4Service {
       
       // Step 1: Check and approve USDC (Master Plan: $4.99 = 4.99 * 10^6 USDC tokens)
       const masterPlanPrice = BigInt(4990000) // $4.99 in USDC (6 decimals: 4.99 * 10^6)
+      const approvalAmount = masterPlanPrice + BigInt(1000000) // Add $1 USDC buffer for timing safety
       console.log(`💰 Master Plan price: ${masterPlanPrice.toString()} USDC tokens (4.99 USDC)`)
+      console.log(`💰 Approval amount: ${approvalAmount.toString()} USDC tokens (5.99 USDC with $1 buffer)`)
       
-      const approvalResult = await this.checkAndApproveUSDC(masterPlanPrice)
+      const approvalResult = await this.checkAndApproveUSDC(approvalAmount)
       
       // Step 2: Call gasless subscription upgrade via relayer
       console.log('💎 Submitting gasless Master Plan upgrade to relayer...')
@@ -806,9 +837,11 @@ export class Art3HubV4Service {
       
       // Step 1: Check and approve USDC (Elite Plan: $9.99 = 9.99 * 10^6 USDC tokens)
       const elitePlanPrice = BigInt(9990000) // $9.99 in USDC (6 decimals: 9.99 * 10^6)
+      const approvalAmount = elitePlanPrice + BigInt(1000000) // Add $1 USDC buffer for timing safety
       console.log(`👑 Elite Plan price: ${elitePlanPrice.toString()} USDC tokens (9.99 USDC)`)
+      console.log(`👑 Approval amount: ${approvalAmount.toString()} USDC tokens (10.99 USDC with $1 buffer)`)
       
-      const approvalResult = await this.checkAndApproveUSDC(elitePlanPrice)
+      const approvalResult = await this.checkAndApproveUSDC(approvalAmount)
       
       // Step 2: Call gasless subscription upgrade via relayer
       console.log('👑 Submitting gasless Elite Creator Plan upgrade to relayer...')
