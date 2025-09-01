@@ -133,11 +133,17 @@ export function isFarcasterFrame(): boolean {
     // Fallback detection methods
     const inFrame = window !== window.parent || window !== window.top
     const url = window.location.href
-    const urlIndicators = url.includes('ngrok.io') || url.includes('farcaster') || url.includes('miniapp') || url.includes('art3hub.xyz')
+    const hostname = window.location.hostname
+    
+    // Your specific deployment environments
+    const urlIndicators = url.includes('farcaster') || url.includes('miniapp') || 
+                         hostname.includes('art3hub.xyz') || hostname.includes('codalabs.ngrok.io') ||
+                         hostname.includes('ngrok.io') || (hostname === 'localhost' && inFrame)
+    
     const referrer = document.referrer
     const referrerIndicators = referrer.includes('farcaster') || referrer.includes('warpcast')
     
-    return inFrame || urlIndicators || referrerIndicators
+    return inFrame && (urlIndicators || referrerIndicators)
   }
 }
 

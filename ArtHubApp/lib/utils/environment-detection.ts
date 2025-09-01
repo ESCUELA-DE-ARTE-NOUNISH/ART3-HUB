@@ -66,10 +66,42 @@ export function detectEnvironment(): AppEnvironment {
     const hostname = window.location?.hostname || ''
     
     if (referrer.includes('farcaster') || referrer.includes('warpcast') || 
-        hostname.includes('art3hub.xyz') || hostname.includes('ngrok.io') || hostname.includes('vercel.app')) {
+        hostname.includes('art3hub.xyz') || hostname.includes('codalabs.ngrok.io') || 
+        hostname.includes('ngrok.io') || hostname.includes('vercel.app') ||
+        hostname === 'localhost') {
       console.log(`🎯 iframe + domain/referrer detected: ${hostname} - Farcaster environment`)
       const isMobile = window.innerWidth < 768 || /Android|iPhone|iPad/i.test(navigator.userAgent)
       return isMobile ? 'farcaster-mobile' : 'farcaster-web'
+    }
+  }
+
+  // PRIORITY 5: Check for your specific deployment domains (dev and prod)
+  if (typeof window !== 'undefined') {
+    const hostname = window.location?.hostname || ''
+    const href = window.location?.href || ''
+    
+    // Your development environments (localhost and ngrok)
+    if (hostname === 'localhost' || hostname.includes('codalabs.ngrok.io') || hostname.includes('ngrok.io')) {
+      console.log(`🔧 Development domain detected: ${hostname} - checking for Farcaster indicators`)
+      
+      // In dev, be more liberal with Farcaster detection
+      if (inFrame || href.includes('miniapp') || href.includes('farcaster')) {
+        console.log(`🎯 Dev environment Farcaster context detected`)
+        const isMobile = window.innerWidth < 768
+        return isMobile ? 'farcaster-mobile' : 'farcaster-web'
+      }
+    }
+    
+    // Your production environment
+    if (hostname.includes('art3hub.xyz')) {
+      console.log(`🚀 Production domain detected: ${hostname}`)
+      
+      // In production, if in iframe, likely Farcaster
+      if (inFrame) {
+        console.log(`🎯 Production iframe detected - Farcaster environment`)
+        const isMobile = window.innerWidth < 768 || /Android|iPhone|iPad/i.test(navigator.userAgent)
+        return isMobile ? 'farcaster-mobile' : 'farcaster-web'
+      }
     }
   }
 
@@ -144,9 +176,15 @@ export function logEnvironmentInfo() {
   console.log('⚙️ Configuration:', config)
   console.log('🔗 User Agent:', navigator?.userAgent || 'N/A')
   console.log('📏 Viewport:', `${window?.innerWidth || 0}x${window?.innerHeight || 0}`)
+  console.log('🌐 Domain:', window?.location?.hostname || 'N/A')
   console.log('🪟 Window objects:', {
     farcaster: !!(window as any)?.farcaster,
     minikit: !!(window as any)?.minikit,
+    sdk: !!(window as any)?.sdk,
     ethereum: !!(window as any)?.ethereum
+  })
+  console.log('🖼️ Frame context:', {
+    inFrame: window !== window.parent || window !== window.top,
+    referrer: document?.referrer || 'N/A'
   })
 }
