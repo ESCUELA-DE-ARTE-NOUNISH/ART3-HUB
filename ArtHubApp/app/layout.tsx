@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const URL = process.env.NEXT_PUBLIC_URL;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || URL || 'https://app.art3hub.xyz';
   const logoUrl = `${siteUrl}/logoSEO.png`;
-  const farcasterLogoUrl = `${siteUrl}/logo.png`;
+  const farcasterLogoUrl = `${siteUrl}/icon.png`;
   
   return {
     title: "Art3 Hub Agent - AI-Powered Web3 Art Guide",
