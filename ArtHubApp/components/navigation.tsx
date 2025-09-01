@@ -281,13 +281,15 @@ export default function Navigation() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 border-t bg-white">
-      <div className="flex justify-around py-2">
+      <div className="flex justify-around py-2 mb-4">
+
         <Link href={getLocalizedPath("/")} className="flex flex-col items-center px-1 py-1">
           <Home className={`h-5 w-5 ${isActive("/") ? "text-[#FF69B4]" : "text-gray-500"}`} />
           <span className={`text-xs mt-1 ${isActive("/") ? "text-[#FF69B4] font-medium" : "text-gray-500"}`}>
             {labels.home}
           </span>
         </Link>
+
         <Link href={getLocalizedPath("/explore")} className="flex flex-col items-center px-1 py-1">
           <Search className={`h-5 w-5 ${isActive("/explore") ? "text-[#FF69B4]" : "text-gray-500"}`} />
           <span className={`text-xs mt-1 ${isActive("/explore") ? "text-[#FF69B4] font-medium" : "text-gray-500"}`}>
@@ -309,12 +311,6 @@ export default function Navigation() {
             {labels.mint}
           </span>
         </button>
-        {/* <Link href={getLocalizedPath("/ai-agent")} className="flex flex-col items-center px-1 py-1">
-          <Bot className={`h-5 w-5 ${isActive("/ai-agent") ? "text-[#FF69B4]" : "text-gray-500"}`} />
-          <span className={`text-xs mt-1 ${isActive("/ai-agent") ? "text-[#FF69B4] font-medium" : "text-gray-500"}`}>
-            {labels.aiAgent}
-          </span>
-        </Link> */}
 
         <button 
           onClick={() => {
