@@ -175,7 +175,7 @@ function InternalPrivyAppProvider({ children }: PrivyAppProviderProps) {
           accentColor: '#ec4899', // Pink color to match your theme
           logo: process.env.NEXT_PUBLIC_IMAGE_URL || '',
         },
-        loginMethods: ['email', 'google', 'instagram', 'twitter', 'wallet'],
+        loginMethods: ['email', 'google', 'twitter', 'wallet'],
         defaultChain: targetChain,
         supportedChains: [targetChain], // Only show current network chain
         embeddedWallets: {
