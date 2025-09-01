@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useParams, useSearchParams, useRouter } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import { useSafePrivy } from "@/hooks/useSafePrivy"
+import { useAccount } from 'wagmi'
 
 type Message = {
   role: "user" | "assistant"
@@ -208,7 +209,10 @@ function IntelligentAIAgentContent() {
   const router = useRouter()
   const locale = (params?.locale as string) || defaultLocale
   const { authenticated, user } = useSafePrivy()
-  const walletAddress = user?.wallet?.address
+  const { isConnected, address } = useAccount()
+  
+  // Use wagmi's connection status for wallet detection (works across all environments)
+  const walletAddress = address
 
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState("")
@@ -250,7 +254,7 @@ function IntelligentAIAgentContent() {
   // Load user profile and handle initial setup
   useEffect(() => {
     const loadUserProfile = async () => {
-      if (walletAddress) {
+      if (isConnected && walletAddress) {
         try {
           const response = await fetch('/api/chat/analytics', {
             method: 'POST',
@@ -272,13 +276,13 @@ function IntelligentAIAgentContent() {
     }
     
     loadUserProfile()
-  }, [walletAddress])
+  }, [isConnected, walletAddress])
 
   // Handle initial query parameter and welcome message
   useEffect(() => {
     const query = searchParams?.get('q')
     
-    if (walletAddress && messages.length === 0 && !initializationRef.current) {
+    if (isConnected && walletAddress && messages.length === 0 && !initializationRef.current) {
       initializationRef.current = true
       setHasInitialized(true)
       
@@ -295,7 +299,7 @@ function IntelligentAIAgentContent() {
         }])
       }
     }
-  }, [searchParams, walletAddress, messages.length])
+  }, [searchParams, isConnected, walletAddress, messages.length])
 
   const generateSuggestedQuestions = (profile: UserProfile) => {
     const suggestions = []
@@ -426,7 +430,7 @@ function IntelligentAIAgentContent() {
     const textToSend = messageText || inputMessage.trim()
     if (!textToSend || isLoading) return
 
-    if (!walletAddress) {
+    if (!isConnected || !walletAddress) {
       setError(errorMessages[locale]?.walletRequired || errorMessages.en.walletRequired)
       return
     }
@@ -557,13 +561,13 @@ function IntelligentAIAgentContent() {
               <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                 🎨 Art Chat
               </h1>
-              {walletAddress && (
+              {isConnected && walletAddress && (
                 <span className="text-sm text-gray-600">{currentStageDescription}</span>
               )}
             </div>
             
             {/* Enhanced Progress Indicator */}
-            {walletAddress && conversationStage !== 'initial' && (
+            {isConnected && walletAddress && conversationStage !== 'initial' && (
               <div className="mb-3">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs font-medium text-gray-600 flex items-center gap-1">
@@ -615,7 +619,7 @@ function IntelligentAIAgentContent() {
             )}
 
             {/* Wallet Connection Requirement */}
-            {!walletAddress && (
+            {!isConnected && (
               <div className="mt-3 p-3 text-center border border-purple-300 rounded-lg bg-purple-50">
                 <Lightbulb className="h-6 w-6 text-purple-500 mx-auto mb-1" />
                 <h3 className="text-sm font-semibold mb-1">Connect Your Wallet</h3>
@@ -853,12 +857,12 @@ function IntelligentAIAgentContent() {
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder={placeholderMessages[locale] || placeholderMessages.en}
-                disabled={isLoading || !walletAddress}
+                disabled={isLoading || !isConnected}
                 className="flex-1 border-gray-300 focus:border-purple-500 focus:ring-purple-500 py-3 text-base"
               />
               <Button
                 onClick={() => handleSendMessage()}
-                disabled={isLoading || !inputMessage.trim() || !walletAddress}
+                disabled={isLoading || !inputMessage.trim() || !isConnected}
                 className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3"
               >
                 <Send className="h-5 w-5" />
