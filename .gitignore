@@ -14,3 +14,5 @@ ArtHubAgent/.env.local
 .env.production
 .env.staging
 ArtHubApp/.env.vercel
+
+exampleApp
