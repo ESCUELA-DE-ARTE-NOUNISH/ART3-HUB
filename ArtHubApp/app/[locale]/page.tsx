@@ -26,7 +26,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-
+import { FarcasterReadySignal } from '@/components/farcaster-ready'
 import { useSafeFarcaster } from "@/providers/FarcasterProvider";
 import {
   Name,
@@ -494,6 +494,9 @@ export default function Home() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      {/* Farcaster Ready Signal for proper SDK initialization */}
+      <FarcasterReadySignal />
     </div>
   )
 } 

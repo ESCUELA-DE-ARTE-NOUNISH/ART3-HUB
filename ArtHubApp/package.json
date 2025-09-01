@@ -17,7 +17,7 @@
   "dependencies": {
     "@coinbase/onchainkit": "^0.38.13",
     "@farcaster/frame-sdk": "^0.0.45",
-    "@farcaster/miniapp-sdk": "^0.1.7",
+    "@farcaster/miniapp-sdk": "^0.1.9",
     "@farcaster/miniapp-wagmi-connector": "^1.0.0",
     "@hookform/resolvers": "^3.9.1",
     "@langchain/community": "^0.3.43",

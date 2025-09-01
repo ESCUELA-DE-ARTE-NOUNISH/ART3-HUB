@@ -15,7 +15,22 @@ export function detectEnvironment(): AppEnvironment {
     return 'browser'
   }
 
-  // Check for Farcaster SDK availability (indicates Farcaster environment)
+  // PRIORITY 1: Use official Farcaster SDK context (most reliable)
+  try {
+    // Try to import SDK dynamically to check availability
+    const { sdk } = require('@farcaster/miniapp-sdk')
+    if (sdk && sdk.context && sdk.context.client && sdk.context.client.name === 'farcaster') {
+      console.log('🎯 Official Farcaster SDK context detected')
+      const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                       window.innerWidth < 768
+      return isMobile ? 'farcaster-mobile' : 'farcaster-web'
+    }
+  } catch (error) {
+    // SDK not available or context not ready, continue to other checks
+    console.log('🔍 Farcaster SDK not available yet, checking other indicators')
+  }
+
+  // PRIORITY 2: Check for Farcaster SDK availability (indicates Farcaster environment)
   const hasFarcasterSDK = !!(window as any).farcaster || !!(window as any).sdk || !!(window as any).minikit
   const hasReadyFunction = typeof (window as any).ready === 'function'
   
@@ -34,22 +49,26 @@ export function detectEnvironment(): AppEnvironment {
     return isMobile ? 'farcaster-mobile' : 'farcaster-web'
   }
 
-  // Check user agent for Farcaster-specific strings
+  // PRIORITY 3: Check user agent for Farcaster-specific strings
   if (typeof navigator !== 'undefined') {
     const userAgent = navigator.userAgent.toLowerCase()
-    if (userAgent.includes('farcaster') || userAgent.includes('miniapp')) {
+    if (userAgent.includes('farcaster') || userAgent.includes('miniapp') || userAgent.includes('warpcast')) {
       console.log('🎯 Farcaster user agent detected')
       const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent)
       return isMobile ? 'farcaster-mobile' : 'farcaster-web'
     }
   }
 
-  // Check for development/production domains (ngrok or vercel)
-  if (typeof window !== 'undefined') {
+  // PRIORITY 4: Check if running in iframe (strong Farcaster indicator)
+  const inFrame = window !== window.parent || window !== window.top
+  if (inFrame) {
+    const referrer = document.referrer
     const hostname = window.location?.hostname || ''
-    if (hostname.includes('ngrok.io') || hostname.includes('vercel.app')) {
-      console.log(`🔧 Domain detected: ${hostname} - assuming Farcaster environment`)
-      const isMobile = window.innerWidth < 768
+    
+    if (referrer.includes('farcaster') || referrer.includes('warpcast') || 
+        hostname.includes('art3hub.xyz') || hostname.includes('ngrok.io') || hostname.includes('vercel.app')) {
+      console.log(`🎯 iframe + domain/referrer detected: ${hostname} - Farcaster environment`)
+      const isMobile = window.innerWidth < 768 || /Android|iPhone|iPad/i.test(navigator.userAgent)
       return isMobile ? 'farcaster-mobile' : 'farcaster-web'
     }
   }
