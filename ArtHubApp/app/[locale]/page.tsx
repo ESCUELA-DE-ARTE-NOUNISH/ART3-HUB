@@ -441,7 +441,7 @@ export default function Home() {
 
       {/* Floating Create NFT Button - Only show when wallet is connected */}
       {isActuallyConnected && (
-        <div className="fixed bottom-[72px] right-2 z-50">
+        <div className="fixed bottom-[92px] right-2 z-50">
           <Button
             onClick={handleCreateNftClick}
             className="w-16 h-16 rounded-full bg-gradient-to-r from-pink-500 to-lime-500 hover:from-pink-600 hover:to-lime-600 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 flex flex-col items-center justify-center gap-1 group"
