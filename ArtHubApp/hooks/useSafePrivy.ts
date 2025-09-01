@@ -9,6 +9,7 @@ declare global {
   interface Window {
     __privyEnvLogged?: boolean
     __privyProviderLogged?: boolean
+    __privyProviderInit?: boolean
   }
 }
 
@@ -76,6 +77,32 @@ export function useSafePrivy() {
 
   // In browser environment, use real Privy if available
   if (privyResult && process.env.NEXT_PUBLIC_PRIVY_APP_ID) {
+    // Enhanced debugging for production authentication issues
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname
+      const isProd = hostname.includes('art3hub.xyz')
+      
+      if (isProd && !window.__privyProviderLogged) {
+        console.log('🏢 PRODUCTION: Privy authentication state:', {
+          domain: hostname,
+          authenticated: privyResult.authenticated,
+          ready: privyResult.ready,
+          hasUser: !!privyResult.user,
+          userId: privyResult.user?.id || 'none',
+          localStorage: {
+            keys: Object.keys(localStorage).filter(k => k.includes('privy')),
+            privySession: localStorage.getItem('privy:session'),
+            privyRefresh: localStorage.getItem('privy:refresh_token')
+          },
+          sessionStorage: {
+            keys: Object.keys(sessionStorage).filter(k => k.includes('privy')),
+          },
+          cookies: document.cookie.split(';').filter(c => c.includes('privy'))
+        })
+        window.__privyProviderLogged = true
+      }
+    }
+    
     return privyResult
   }
 
