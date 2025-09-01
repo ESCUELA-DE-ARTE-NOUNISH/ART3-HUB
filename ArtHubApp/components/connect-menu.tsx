@@ -144,20 +144,8 @@ export function ConnectMenu() {
 
   // Check if we're on the wrong network
   useEffect(() => {
-    const hasPrivy = !!process.env.NEXT_PUBLIC_PRIVY_APP_ID
-    let connected = false
-    
-    if (isMiniKit) {
-      // In MiniKit, use wagmi's isConnected
-      connected = isConnected
-    } else if (hasPrivy) {
-      // In browser with Privy, check Privy authentication
-      // Fix: Check if user is authenticated, even without wallets (social login)
-      connected = authenticated
-    } else {
-      // Fallback to wagmi
-      connected = isConnected
-    }
+    // Use wagmi's isConnected as primary detection for all environments
+    const connected = isConnected
     
     if (connected) {
       const wrongNetwork = !isOnSupportedChain
@@ -222,24 +210,10 @@ export function ConnectMenu() {
     )
   }
 
+  // Use wagmi's isConnected as primary detection for all environments
   const hasPrivy = !!process.env.NEXT_PUBLIC_PRIVY_APP_ID
-  let connected = false
-  let userAddress = ""
-  
-  if (isMiniKit) {
-    // In MiniKit, use wagmi's connection state
-    connected = isConnected
-    userAddress = address || ""
-  } else if (hasPrivy) {
-    // In browser with Privy, use Privy's state
-    // Fix: Check if user is authenticated, even without wallets (social login)
-    connected = authenticated
-    userAddress = wallets.length > 0 ? wallets[0]?.address || "" : ""
-  } else {
-    // Fallback to wagmi
-    connected = isConnected
-    userAddress = address || ""
-  }
+  const connected = isConnected
+  const userAddress = address || ""
 
   if (connected) {
     return (
