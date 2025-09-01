@@ -43,20 +43,8 @@ export default function Navigation() {
   const smartContractAdminService = useSmartContractAdminService()
 
   // Determine if user is actually connected based on environment
-  const isActuallyConnected = (() => {
-    const hasPrivy = !!process.env.NEXT_PUBLIC_PRIVY_APP_ID
-    
-    if (context) {
-      // In MiniKit, use wagmi's connection state
-      return wagmiConnected
-    } else if (hasPrivy) {
-      // In browser with Privy, check Privy authentication
-      return authenticated
-    } else {
-      // Fallback to wagmi
-      return wagmiConnected
-    }
-  })()
+  // Per Base docs: use wagmi's isConnected for all wallet detection
+  const isActuallyConnected = wagmiConnected
   
   // Check if current user is admin
   useEffect(() => {
