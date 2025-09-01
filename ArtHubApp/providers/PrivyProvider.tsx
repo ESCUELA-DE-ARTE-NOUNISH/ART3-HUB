@@ -143,6 +143,28 @@ function InternalPrivyAppProvider({ children }: PrivyAppProviderProps) {
     return <FallbackPrivyProvider>{children}</FallbackPrivyProvider>
   }
 
+  // Enhanced domain-specific logging for production debugging
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname
+      const isProd = hostname.includes('art3hub.xyz')
+      
+      if (isProd && !window.__privyProviderInit) {
+        console.log('🏢 PRODUCTION: Privy Provider Initializing:', {
+          domain: hostname,
+          appId: appId ? 'configured' : 'missing',
+          isFarcasterEnv: isFarcasterEnvironment,
+          privyStorageOnInit: {
+            localStorage: Object.keys(localStorage).filter(k => k.includes('privy')),
+            sessionStorage: Object.keys(sessionStorage).filter(k => k.includes('privy')),
+            cookieCount: document.cookie.split(';').filter(c => c.includes('privy')).length
+          }
+        })
+        window.__privyProviderInit = true
+      }
+    }
+  }, [appId, isFarcasterEnvironment])
+
   // For browser mode with Privy
   return (
     <PrivyProvider

@@ -12,6 +12,7 @@ import { useSafeFarcaster } from '@/providers/FarcasterProvider'
 import { useSafePrivy, useSafeWallets } from '@/hooks/useSafePrivy'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { getEnvironmentInfo, logEnvironmentInfo } from '@/lib/utils/environment'
+import { enableConsoleDebugging, logStorageComparison } from '@/lib/utils/privy-debug'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -101,6 +102,13 @@ export function ConnectMenu() {
         isFarcasterUA: navigator.userAgent.toLowerCase().includes('farcaster'),
         fullUserAgent: navigator.userAgent
       })
+      
+      // Enable console debugging for production issues
+      if (window.location.hostname.includes('art3hub.xyz')) {
+        enableConsoleDebugging()
+        logStorageComparison()
+        console.log('🔧 Production debugging enabled. Type debugPrivy.help() in console for tools.')
+      }
     }
   }, [])
 
@@ -177,21 +185,68 @@ export function ConnectMenu() {
   // Handle wallet disconnect with redirect
   const handleDisconnect = () => {
     try {
+      console.log('🎯 CONNECT MENU: handleDisconnect called')
+      console.log('🔍 Auth State Before Disconnect:', {
+        authenticated,
+        isConnected,
+        isMiniKit,
+        walletsLength: wallets?.length || 0,
+        userAddress: address || 'none',
+        domain: window.location.hostname,
+        hasPrivy: !!process.env.NEXT_PUBLIC_PRIVY_APP_ID
+      })
+      
       const hasPrivy = !!process.env.NEXT_PUBLIC_PRIVY_APP_ID
       
       if (isMiniKit) {
         // In MiniKit, use wagmi disconnect
+        console.log('🔄 MiniKit disconnect using wagmi')
         disconnect()
       } else if (hasPrivy && authenticated) {
-        logout()
+        console.log('🔄 Browser disconnect using Privy logout')
+        
+        // Enhanced logging for production logout issues
+        if (window.location.hostname.includes('art3hub.xyz')) {
+          console.log('🏢 PRODUCTION: Pre-logout storage state:', {
+            privyLocalStorage: Object.keys(localStorage).filter(k => k.includes('privy')),
+            privySessionStorage: Object.keys(sessionStorage).filter(k => k.includes('privy')),
+            privyCookies: document.cookie.split(';').filter(c => c.includes('privy')).length,
+            authState: authenticated,
+            userExists: !!wallets?.length
+          })
+          
+          // Call logout and then check storage cleanup
+          logout()
+          
+          // Check storage cleanup after logout (with small delay)
+          setTimeout(() => {
+            console.log('🏢 PRODUCTION: Post-logout storage state:', {
+              privyLocalStorage: Object.keys(localStorage).filter(k => k.includes('privy')),
+              privySessionStorage: Object.keys(sessionStorage).filter(k => k.includes('privy')),
+              privyCookies: document.cookie.split(';').filter(c => c.includes('privy')).length,
+              authState: authenticated,
+              userExists: !!wallets?.length
+            })
+          }, 1000)
+        } else {
+          logout()
+        }
       } else {
+        console.log('🔄 Fallback disconnect using wagmi')
         disconnect()
       }
+      
+      console.log('✅ Disconnect method called, redirecting to /')
       
       // Redirect to root page after disconnect
       router.push('/')
     } catch (error) {
-      console.error('Failed to disconnect:', error)
+      console.error('❌ Failed to disconnect:', error)
+      console.error('❌ Disconnect error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      })
       // Still try to redirect even if disconnect fails
       router.push('/')
     }
@@ -279,24 +334,63 @@ export function ConnectMenu() {
 
   const handleSocialConnect = async () => {
     try {
+      console.log('🎯 CONNECT MENU: handleSocialConnect called')
+      console.log('🔍 Auth State Before Login:', {
+        authenticated,
+        isConnected,
+        hasPrivy: !!process.env.NEXT_PUBLIC_PRIVY_APP_ID,
+        walletsLength: wallets?.length || 0,
+        userAddress: address || 'none',
+        domain: window.location.hostname,
+        environment: envInfo?.environment || 'unknown'
+      })
+      
       setError(null)
       const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID
       
       if (!appId) {
+        console.error('❌ Privy App ID not configured')
         setError('Privy is not configured.')
         return
       }
       
       // Check if user is already authenticated to prevent "already logged in" error
       if (authenticated) {
-        console.warn('User is already authenticated')
+        console.warn('⚠️ User is already authenticated, skipping login')
+        console.log('🔍 Already authenticated state:', {
+          authenticated,
+          wallets: wallets?.map(w => ({ address: w.address, connectorType: w.connectorType })),
+          userProfile: !!userProfile,
+          domain: window.location.hostname,
+          // Additional storage debugging for production domain
+          privyStorage: window.location.hostname.includes('art3hub.xyz') ? {
+            localStorage: Object.keys(localStorage).filter(k => k.includes('privy')).reduce((acc, key) => {
+              acc[key] = localStorage.getItem(key)?.substring(0, 100) + '...' // Truncate for safety
+              return acc
+            }, {}),
+            sessionStorage: Object.keys(sessionStorage).filter(k => k.includes('privy')).reduce((acc, key) => {
+              acc[key] = sessionStorage.getItem(key)?.substring(0, 100) + '...'
+              return acc
+            }, {}),
+            cookieCount: document.cookie.split(';').filter(c => c.includes('privy')).length
+          } : 'localhost'
+        })
         return
       }
       
+      console.log('✅ Proceeding with Privy login...')
+      
       // Privy login will handle both social and wallet options
       login()
+      
+      console.log('🔄 Privy login() called successfully')
     } catch (error) {
-      console.error('Failed to connect with Privy:', error)
+      console.error('❌ Failed to connect with Privy:', error)
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      })
       setError('Failed to connect. Please try again.')
     }
   }
