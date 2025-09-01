@@ -11,23 +11,55 @@ const inter = Inter({
 
 export async function generateMetadata(): Promise<Metadata> {
   const URL = process.env.NEXT_PUBLIC_URL;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || URL || 'https://app.art3hub.xyz';
+  const logoUrl = `${siteUrl}/logoSEO.png`;
+  const farcasterLogoUrl = `${siteUrl}/logo.png`;
+  
   return {
-    title: process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME,
-    description:
-      "AI-powered onboarding experience for visual artists entering Web3",
+    title: "Art3 Hub Agent - AI-Powered Web3 Art Guide",
+    description: "Meet your personal AI assistant for Web3 art creation. Get personalized guidance, learn about NFTs, and discover your perfect path in the decentralized creative economy.",
+    keywords: ["Web3", "NFT", "AI Assistant", "Digital Art", "Blockchain", "Art Creation", "Crypto Art", "DeFi"],
+    authors: [{ name: "Art3 Hub", url: siteUrl }],
+    creator: "Art3 Hub",
+    publisher: "Art3 Hub",
+    metadataBase: siteUrl ? (() => { try { return new URL(siteUrl) } catch { return undefined } })() : undefined,
+    openGraph: {
+      title: "Art3 Hub Agent - AI-Powered Web3 Art Guide",
+      description: "Meet your personal AI assistant for Web3 art creation. Get personalized guidance, learn about NFTs, and discover your perfect path in the decentralized creative economy.",
+      url: siteUrl,
+      siteName: "Art3 Hub Agent",
+      images: [logoUrl],
+      locale: "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Art3 Hub Agent - AI-Powered Web3 Art Guide",
+      description: "Meet your personal AI assistant for Web3 art creation. Get personalized guidance, learn about NFTs, and discover your perfect path in the decentralized creative economy.",
+      images: [logoUrl],
+      creator: "@art3hub",
+      site: "@art3hub",
+    },
+    category: "technology",
+    applicationName: "Art3 Hub Agent",
+    referrer: "origin-when-cross-origin",
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: false,
+    },
     other: {
       "fc:frame": JSON.stringify({
         version: "next",
-        imageUrl: process.env.NEXT_PUBLIC_APP_HERO_IMAGE,
+        imageUrl: farcasterLogoUrl,
         button: {
-          title: `Launch ${process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME}`,
+          title: "Launch Art3 Hub Agent",
           action: {
             type: "launch_frame",
-            name: process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME,
-            url: URL,
-            splashImageUrl: process.env.NEXT_PUBLIC_SPLASH_IMAGE,
-            splashBackgroundColor:
-              process.env.NEXT_PUBLIC_SPLASH_BACKGROUND_COLOR,
+            name: "Art3 Hub Agent",
+            url: siteUrl,
+            splashImageUrl: farcasterLogoUrl,
+            splashBackgroundColor: "#ec4899",
           },
         },
       }),
