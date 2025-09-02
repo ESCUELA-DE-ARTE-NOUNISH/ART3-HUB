@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSafeFarcaster } from "@/providers/FarcasterProvider"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -147,6 +148,9 @@ export default function OpportunitiesPage() {
   const [locale, setLocale] = useState<string>(defaultLocale)
   const [t, setT] = useState(translations.en)
   
+  // Use Farcaster context to determine environment (for future MiniKit integration)
+  const { isFarcasterEnvironment } = useSafeFarcaster()
+  
   // Opportunities state
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
   const [featuredOpportunities, setFeaturedOpportunities] = useState<Opportunity[]>([])
@@ -253,6 +257,14 @@ export default function OpportunitiesPage() {
       any: 'bg-gray-100 text-gray-700'
     }
     return colors[level as keyof typeof colors] || 'bg-gray-100 text-gray-700'
+  }
+
+  // Handle external link opening - for now using standard method
+  // TODO: Implement proper MiniKit integration when provider is available
+  const handleExternalLink = (url: string) => {
+    // Use window.open for all environments for now
+    // This ensures compatibility across browser and Farcaster environments
+    window.open(url, '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -416,18 +428,16 @@ export default function OpportunitiesPage() {
                             {community.links.length > 0 && (
                               <div className="space-y-1 mb-3">
                                 {community.links.slice(0, 3).map((link, linkIndex) => (
-                                  <a
+                                  <button
                                     key={linkIndex}
-                                    href={link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                    onClick={() => handleExternalLink(link)}
                                     className="text-[#9ACD32] hover:text-[#8BBB11] text-xs flex items-center gap-1 group-hover:underline"
                                   >
                                     <ExternalLink className="h-3 w-3" />
                                     <span className="truncate">
                                       {link.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0]}
                                     </span>
-                                  </a>
+                                  </button>
                                 ))}
                                 {community.links.length > 3 && (
                                   <p className="text-xs text-gray-500">
@@ -489,7 +499,7 @@ export default function OpportunitiesPage() {
                           <Button 
                             size="sm" 
                             className="w-full bg-[#FF69B4] hover:bg-[#FF1493]"
-                            onClick={() => window.open(opp.url, '_blank')}
+                            onClick={() => handleExternalLink(opp.url)}
                           >
                             View Details
                             <ExternalLink className="ml-2 h-3 w-3" />
@@ -604,7 +614,7 @@ export default function OpportunitiesPage() {
                               <div className="flex-shrink-0">
                                 <Button 
                                   className="bg-[#FF69B4] hover:bg-[#FF1493] w-full md:w-auto"
-                                  onClick={() => window.open(opp.url, '_blank')}
+                                  onClick={() => handleExternalLink(opp.url)}
                                 >
                                   Apply Now
                                   <ExternalLink className="ml-2 h-4 w-4" />
@@ -652,18 +662,16 @@ export default function OpportunitiesPage() {
                   <h4 className="font-semibold text-sm mb-3">Connect with {selectedCommunity.title}</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {selectedCommunity.links.map((link, linkIndex) => (
-                      <a
+                      <button
                         key={linkIndex}
-                        href={link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:border-[#9ACD32] hover:bg-[#9ACD32]/5 transition-colors group"
+                        onClick={() => handleExternalLink(link)}
+                        className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:border-[#9ACD32] hover:bg-[#9ACD32]/5 transition-colors group w-full text-left"
                       >
                         <ExternalLink className="h-4 w-4 text-[#9ACD32] group-hover:text-[#8BBB11]" />
                         <span className="text-sm font-medium truncate">
                           {link.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0]}
                         </span>
-                      </a>
+                      </button>
                     ))}
                   </div>
                 </div>
