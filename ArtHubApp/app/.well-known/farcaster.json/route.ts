@@ -27,6 +27,7 @@ export async function GET() {
       description: process.env.NEXT_PUBLIC_APP_DESCRIPTION,
       screenshotUrls: [],
       iconUrl: process.env.NEXT_PUBLIC_APP_ICON,
+      imageUrl: process.env.NEXT_PUBLIC_APP_IMAGE,
       splashImageUrl: process.env.NEXT_PUBLIC_APP_SPLASH_IMAGE,
       splashBackgroundColor: process.env.NEXT_PUBLIC_SPLASH_BACKGROUND_COLOR,
       homeUrl: URL,
