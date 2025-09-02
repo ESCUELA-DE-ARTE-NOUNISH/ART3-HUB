@@ -40,7 +40,7 @@ export async function generateMetadata(): Promise<Metadata> {
       creator: "@art3hub",
       site: "@art3hub",
     },
-    category: "technology",
+    category: "art-creativity",
     applicationName: "Art3 Hub Agent",
     referrer: "origin-when-cross-origin",
     formatDetection: {
