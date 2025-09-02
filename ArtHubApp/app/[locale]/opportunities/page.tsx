@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSafeFarcaster } from "@/providers/FarcasterProvider"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -148,8 +147,6 @@ export default function OpportunitiesPage() {
   const [locale, setLocale] = useState<string>(defaultLocale)
   const [t, setT] = useState(translations.en)
   
-  // Use Farcaster context to determine environment (for future MiniKit integration)
-  const { isFarcasterEnvironment } = useSafeFarcaster()
   
   // Opportunities state
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
