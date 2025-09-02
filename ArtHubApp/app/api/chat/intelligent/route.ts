@@ -597,7 +597,7 @@ export async function POST(request: NextRequest) {
         
         ${languageInstruction}
         
-        I can see you want to ${outcome.type === 'create' ? 'upload and create your NFT' : outcome.type}! 
+        I can see you want to ${outcome.type === 'create' ? 'upload and create your NFT on Base blockchain' : outcome.type}! 
         
         Say: "${outcomeMessage.message}"
         
@@ -617,11 +617,11 @@ export async function POST(request: NextRequest) {
         // Standard initial flow
         systemPrompt = `CRITICAL CONSTRAINT: Your response MUST be under 50 words. Count every word. If you exceed 50 words, you have failed completely.
         
-        You are a friendly Art3Hub helper. ${languageInstruction}
+        You are a friendly Art3Hub helper on the Base blockchain. ${languageInstruction}
         
         The user said: "${message}"
         
-        Respond with just 1 short sentence, then ask 1 simple question about their art. Be super friendly and simple. No technical words. Keep it very conversational.`
+        Respond with just 1 short sentence, then ask 1 simple question about their art on Base. Be super friendly and simple. No technical words. Keep it very conversational.`
         
         newStage = 'assessing'
         
@@ -706,7 +706,7 @@ export async function POST(request: NextRequest) {
         
         ${languageInstruction}
         
-        Perfect! I understand what you're looking for. Here are your options:
+        Perfect! I understand what you're looking for on Base blockchain. Here are your options:
         
         Say: "Choose what you want to do:"
         
@@ -734,7 +734,7 @@ export async function POST(request: NextRequest) {
         
         Say "Cool!" or "Nice!" then ask: "${nextQuestion}"
         
-        Be super simple and friendly. Keep it conversational.`
+        Be super simple and friendly about Base blockchain art. Keep it conversational.`
         
         // Analyze the user's previous response for assessment scoring
         if (assistantResponseCount > 0) {
@@ -756,11 +756,11 @@ export async function POST(request: NextRequest) {
       
       ${languageInstruction}
       
-      The user has received their recommendation. Answer any follow-up questions they have and help them proceed.
+      The user has received their Base blockchain recommendation. Answer any follow-up questions they have and help them proceed.
       If they're ready to move forward, guide them to the recommended path.
       If they want to change paths, be supportive and help them choose differently.
       
-      Be friendly and simple.`
+      Be friendly and simple about Base.`
     }
     
     // Get response from AI model
