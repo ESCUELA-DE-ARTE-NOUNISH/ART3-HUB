@@ -130,6 +130,45 @@ export interface AssessmentResponse {
   created_at: string
 }
 
+export interface Opportunity {
+  id: string
+  title: string
+  organization: string
+  description: string
+  url: string
+  amount?: string
+  amount_min?: number
+  amount_max?: number
+  currency?: string
+  deadline: string
+  deadline_date: string // ISO date string for sorting
+  category: 'grant' | 'residency' | 'commission' | 'competition' | 'partnership' | 'scholarship'
+  location?: string
+  eligibility?: string[]
+  tags?: string[]
+  status: 'draft' | 'published' | 'expired'
+  featured: boolean
+  difficulty_level: 'beginner' | 'intermediate' | 'advanced' | 'any'
+  application_requirements?: string[]
+  contact_email?: string
+  notes?: string
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export interface Community {
+  id: string
+  title: string
+  description: string
+  links: string[]
+  status: 'draft' | 'published' | 'archived'
+  featured: boolean
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
 export interface AdminWallet {
   id: string
   address: string
@@ -207,7 +246,9 @@ export const COLLECTIONS = {
   CONVERSATION_SESSIONS: 'conversation_sessions',
   CONVERSATION_MESSAGES: 'conversation_messages',
   ASSESSMENT_RESPONSES: 'assessment_responses',
-  ADMIN_WALLETS: 'admin_wallets'
+  ADMIN_WALLETS: 'admin_wallets',
+  OPPORTUNITIES: 'opportunities',
+  COMMUNITIES: 'communities'
 } as const
 
 // Helper function to generate document ID

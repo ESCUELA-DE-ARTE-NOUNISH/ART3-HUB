@@ -31,6 +31,10 @@ interface AdminTranslations {
   claimableNfts: string
   adminManagement: string
   manageAdmins: string
+  opportunitiesManagement: string
+  manageOpportunities: string
+  communitiesManagement: string
+  manageCommunities: string
   accessDenied: string
   accessDeniedDesc: string
   adminWallet: string
@@ -64,6 +68,10 @@ const translations: Record<string, AdminTranslations> = {
     claimableNfts: "Claimable NFTs",
     adminManagement: "Admin Management",
     manageAdmins: "Manage Administrators",
+    opportunitiesManagement: "Opportunities Management",
+    manageOpportunities: "Manage Opportunities",
+    communitiesManagement: "Communities Management",
+    manageCommunities: "Manage Communities",
     accessDenied: "Access Denied",
     accessDeniedDesc: "You need administrator privileges to access this page. Admin status is verified on-chain.",
     adminWallet: "Admin Wallet",
@@ -95,6 +103,10 @@ const translations: Record<string, AdminTranslations> = {
     claimableNfts: "NFTs Reclamables",
     adminManagement: "Gestión de Administradores",
     manageAdmins: "Gestionar Administradores",
+    opportunitiesManagement: "Gestión de Oportunidades",
+    manageOpportunities: "Gestionar Oportunidades",
+    communitiesManagement: "Gestión de Comunidades",
+    manageCommunities: "Gestionar Comunidades",
     accessDenied: "Acceso Denegado",
     accessDeniedDesc: "Necesita privilegios de administrador para acceder a esta página. El estado de admin se verifica en cadena.",
     adminWallet: "Billetera Admin",
@@ -126,6 +138,10 @@ const translations: Record<string, AdminTranslations> = {
     claimableNfts: "NFTs Reivindicáveis",
     adminManagement: "Gerenciamento de Administradores",
     manageAdmins: "Gerenciar Administradores",
+    opportunitiesManagement: "Gerenciamento de Oportunidades",
+    manageOpportunities: "Gerenciar Oportunidades",
+    communitiesManagement: "Gerenciamento de Comunidades",
+    manageCommunities: "Gerenciar Comunidades",
     accessDenied: "Acesso Negado",
     accessDeniedDesc: "Você precisa de privilégios de administrador para acessar esta página. O status admin é verificado na blockchain.",
     adminWallet: "Carteira Admin",
@@ -157,6 +173,10 @@ const translations: Record<string, AdminTranslations> = {
     claimableNfts: "NFTs Réclamables",
     adminManagement: "Gestion des Administrateurs",
     manageAdmins: "Gérer les Administrateurs",
+    opportunitiesManagement: "Gestion des Opportunités",
+    manageOpportunities: "Gérer les Opportunités",
+    communitiesManagement: "Gestion des Communautés",
+    manageCommunities: "Gérer les Communautés",
     accessDenied: "Accès Refusé",
     accessDeniedDesc: "Vous avez besoin de privilèges d'administrateur pour accéder à cette page. Le statut admin est vérifié sur la blockchain.",
     adminWallet: "Portefeuille Admin",
@@ -574,6 +594,46 @@ export default function SmartContractAdminPage() {
                 </div>
                 <Button asChild className="w-full md:w-auto mt-2 md:mt-0">
                   <a href="/admin/nfts">Manage NFTs</a>
+                </Button>
+              </div>
+            </CardHeader>
+          </Card>
+
+          {/* Opportunities Management */}
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-star"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
+                    {t.opportunitiesManagement}
+                  </CardTitle>
+                  <CardDescription>
+                    Create and manage grant opportunities, residencies, and funding programs for artists.
+                  </CardDescription>
+                </div>
+                <Button asChild className="w-full md:w-auto mt-2 md:mt-0 bg-[#FF69B4] hover:bg-[#FF1493]">
+                  <a href={`/${locale}/admin/opportunities`}>{t.manageOpportunities}</a>
+                </Button>
+              </div>
+            </CardHeader>
+          </Card>
+
+          {/* Communities Management */}
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="m22 21-3-3a4.5 4.5 0 0 0-6-3" /></svg>
+                    {t.communitiesManagement}
+                  </CardTitle>
+                  <CardDescription>
+                    Create and manage art communities, showcasing organizations that support artists.
+                  </CardDescription>
+                </div>
+                <Button asChild className="w-full md:w-auto mt-2 md:mt-0 bg-[#8B5CF6] hover:bg-[#7C3AED]">
+                  <a href={`/${locale}/admin/communities`}>{t.manageCommunities}</a>
                 </Button>
               </div>
             </CardHeader>

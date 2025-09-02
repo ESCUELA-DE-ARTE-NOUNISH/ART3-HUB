@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { defaultLocale } from '@/config/i18n'
 import Link from 'next/link'
-import { ArrowRight, Sparkles, Crown, Globe, Camera, Upload, Send } from 'lucide-react'
+import { ArrowRight, Sparkles, Crown, Globe, Camera, Upload, Send, Briefcase } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -417,20 +417,35 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="w-full space-y-6">
-
-        {/* Manage Wallet */}
-        {/* <div className="border border-pink-300 rounded-lg p-6 bg-white shadow-sm">
-          <h2 className="text-xl font-semibold text-pink-500">{messages.wallet.title}</h2>
-          <p className="mt-2 text-gray-600">{messages.wallet.description}</p>
-          <Link href={`/${locale}/wallet`}>
-            <Button className="mt-4 w-full bg-pink-500 hover:bg-pink-600 text-white">
-              {messages.wallet.button}
-            </Button>
-          </Link>
-        </div> */}
-        
-      </div>
+      {/* Opportunities Section - Only show when authenticated */}
+      {isActuallyConnected && (
+        <div className="w-full mt-8">
+          <div className="bg-gradient-to-br from-green-50 via-white to-lime-50 rounded-2xl p-6 shadow-lg border border-green-100">
+            <div className="flex flex-col items-center text-center space-y-4">
+              {/* Title */}
+              <div className="flex items-center justify-center mb-2">
+                <Briefcase className="text-green-500 mr-2" size={28} />
+                <h3 className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-green-500 to-lime-500 bg-clip-text text-transparent">
+                  {messages.unlock.opportunities}
+                </h3>
+              </div>
+              
+              {/* Description */}
+              <p className="text-sm lg:text-base text-gray-700 leading-relaxed max-w-lg">
+                Discover art contests, collaborations, communities, and earning opportunities specially curated for artists like you.
+              </p>
+              
+              {/* CTA Button */}
+              <Link href={`/${locale}/opportunities`}>
+                <Button className="bg-gradient-to-r from-green-500 to-lime-500 hover:from-green-600 hover:to-lime-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
+                  {messages.unlock.explore}
+                  <ArrowRight size={16} />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
 
       {/* Footer */}

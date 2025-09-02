@@ -308,17 +308,19 @@ function IntelligentAIAgentContent() {
       suggestions.push(...[
         locale === 'es' ? "¿Cómo empiezo con NFTs?" : "How do I get started with NFTs?",
         locale === 'es' ? "¿Qué herramientas necesito?" : "What tools do I need?",
-        locale === 'es' ? "¿Es gratis crear arte aquí?" : "Is it free to create art here?"
+        locale === 'es' ? "¿Es gratis crear arte aquí?" : "Is it free to create art here?",
+        locale === 'es' ? "¿Qué oportunidades hay para artistas?" : "What opportunities are available for artists?"
       ])
     } else {
       suggestions.push(...[
         locale === 'es' ? "¿Cómo mejoro mi arte?" : "How can I improve my art?",
         locale === 'es' ? "¿Dónde vendo mis NFTs?" : "Where can I sell my NFTs?",
-        locale === 'es' ? "¿Hay colaboraciones disponibles?" : "Are there collaborations available?"
+        locale === 'es' ? "¿Hay colaboraciones disponibles?" : "Are there collaborations available?",
+        locale === 'es' ? "Muéstrame las oportunidades actuales" : "Show me current opportunities"
       ])
     }
     
-    setSuggestedQuestions(suggestions.slice(0, 3))
+    setSuggestedQuestions(suggestions.slice(0, 4))
   }
   
   const getPersonalizedWelcome = () => {
@@ -810,6 +812,26 @@ function IntelligentAIAgentContent() {
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Quick Actions */}
+            {!isLoading && messages.length <= 2 && (
+              <div className="mt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="h-4 w-4 text-green-500" />
+                  <span className="text-sm font-medium text-gray-600">
+                    {locale === 'es' ? 'Acciones rápidas:' : 'Quick actions:'}
+                  </span>
+                </div>
+                <Button 
+                  onClick={() => router.push(`/${locale}/opportunities`)}
+                  className="w-full bg-gradient-to-r from-green-500 to-lime-500 hover:from-green-600 hover:to-lime-600 text-white text-sm py-2 px-4 rounded-lg flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all"
+                >
+                  <Briefcase className="h-4 w-4" />
+                  {locale === 'es' ? 'Ver Oportunidades para Artistas' : 'View Opportunities for Artists'}
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </div>
             )}
             
