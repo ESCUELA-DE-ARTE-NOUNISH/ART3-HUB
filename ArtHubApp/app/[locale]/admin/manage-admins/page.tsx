@@ -16,7 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Plus, Edit, Trash2, Shield, AlertCircle, CheckCircle, Copy, Download, Upload, Eye, EyeOff, ArrowLeft, Info } from "lucide-react"
+import { Plus, Edit, Trash2, X, Shield, AlertCircle, CheckCircle, Copy, Download, Upload, Eye, EyeOff, ArrowLeft, Info } from "lucide-react"
 import { useAccount } from "wagmi"
 import { useToast } from "@/hooks/use-toast"
 import { useAdminService, type AdminWallet } from "@/lib/services/admin-service"
@@ -44,6 +44,7 @@ interface AdminTranslations {
   deactivate: string
   activate: string
   remove: string
+  delete: string
   adminCount: string
   enterAddress: string
   enterLabel: string
@@ -51,6 +52,8 @@ interface AdminTranslations {
   cannotRemoveDefault: string
   confirmRemove: string
   confirmRemoveDesc: string
+  confirmDelete: string
+  confirmDeleteDesc: string
   cancel: string
   confirm: string
   exportData: string
@@ -100,13 +103,16 @@ const translations: Record<string, AdminTranslations> = {
     deactivate: "Deactivate",
     activate: "Activate",
     remove: "Remove",
+    delete: "Delete Permanently",
     adminCount: "Firebase Administrators",
     enterAddress: "Enter wallet address (0x...)",
     enterLabel: "Enter optional label",
     invalidAddress: "Invalid wallet address format",
     cannotRemoveDefault: "Cannot remove default administrator",
     confirmRemove: "Confirm Removal",
-    confirmRemoveDesc: "Are you sure you want to remove this administrator? This action cannot be undone.",
+    confirmRemoveDesc: "Are you sure you want to deactivate this administrator? They will be marked as inactive but not deleted.",
+    confirmDelete: "Confirm Permanent Deletion",
+    confirmDeleteDesc: "Are you sure you want to permanently delete this administrator? This action cannot be undone and will completely remove them from the system.",
     cancel: "Cancel",
     confirm: "Confirm",
     exportData: "Export Data",
@@ -154,13 +160,16 @@ const translations: Record<string, AdminTranslations> = {
     deactivate: "Desactivar",
     activate: "Activar",
     remove: "Eliminar",
+    delete: "Eliminar Permanentemente",
     adminCount: "Administradores de Firebase",
     enterAddress: "Ingrese dirección de billetera (0x...)",
     enterLabel: "Ingrese etiqueta opcional",
     invalidAddress: "Formato de dirección de billetera inválido",
     cannotRemoveDefault: "No se puede eliminar administrador predeterminado",
     confirmRemove: "Confirmar Eliminación",
-    confirmRemoveDesc: "¿Está seguro de que desea eliminar este administrador? Esta acción no se puede deshacer.",
+    confirmRemoveDesc: "¿Está seguro de que desea desactivar este administrador? Será marcado como inactivo pero no eliminado.",
+    confirmDelete: "Confirmar Eliminación Permanente",
+    confirmDeleteDesc: "¿Está seguro de que desea eliminar permanentemente este administrador? Esta acción no se puede deshacer y lo eliminará completamente del sistema.",
     cancel: "Cancelar",
     confirm: "Confirmar",
     exportData: "Exportar Datos",
@@ -223,7 +232,9 @@ export default function AdminManagementPage() {
   const [isAddingAdmin, setIsAddingAdmin] = useState(false)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showRemoveDialog, setShowRemoveDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [adminToRemove, setAdminToRemove] = useState<AdminWallet | null>(null)
+  const [adminToDelete, setAdminToDelete] = useState<AdminWallet | null>(null)
   const [editingAdmin, setEditingAdmin] = useState<AdminWallet | null>(null)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [editLabel, setEditLabel] = useState("")
@@ -467,6 +478,39 @@ export default function AdminManagementPage() {
     } finally {
       setShowRemoveDialog(false)
       setAdminToRemove(null)
+    }
+  }
+
+  // Handle deleting Firebase admin (hard delete)
+  const handleDeleteAdmin = async () => {
+    if (!adminToDelete) return
+
+    try {
+      const result = await adminService.deleteAdmin(adminToDelete.id)
+      
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: result.message,
+        })
+        const updatedAdmins = await adminService.getAllAdmins()
+        setFirebaseAdmins(updatedAdmins)
+      } else {
+        toast({
+          title: "Error",
+          description: result.message,
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete administrator",
+        variant: "destructive",
+      })
+    } finally {
+      setShowDeleteDialog(false)
+      setAdminToDelete(null)
     }
   }
 
@@ -779,6 +823,7 @@ export default function AdminManagementPage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleToggleAdmin(admin)}
+                                title={admin.isActive ? t.deactivate : t.activate}
                               >
                                 {admin.isActive ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
                               </Button>
@@ -789,8 +834,22 @@ export default function AdminManagementPage() {
                                   setAdminToRemove(admin)
                                   setShowRemoveDialog(true)
                                 }}
+                                title={t.remove}
+                                className="text-orange-600 hover:text-orange-800"
                               >
                                 <Trash2 className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setAdminToDelete(admin)
+                                  setShowDeleteDialog(true)
+                                }}
+                                title={t.delete}
+                                className="text-red-600 hover:text-red-800"
+                              >
+                                <X className="h-3 w-3" />
                               </Button>
                             </>
                           )}
@@ -881,11 +940,14 @@ export default function AdminManagementPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Remove Admin Dialog */}
+      {/* Remove Admin Dialog (Soft Delete) */}
       <Dialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t.confirmRemove}</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Trash2 className="h-5 w-5 text-orange-600" />
+              {t.confirmRemove}
+            </DialogTitle>
             <DialogDescription>
               {t.confirmRemoveDesc}
             </DialogDescription>
@@ -894,8 +956,40 @@ export default function AdminManagementPage() {
             <Button variant="outline" onClick={() => setShowRemoveDialog(false)}>
               {t.cancel}
             </Button>
-            <Button variant="destructive" onClick={handleRemoveAdmin}>
+            <Button 
+              variant="destructive" 
+              onClick={handleRemoveAdmin}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
               {t.confirm}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Admin Dialog (Hard Delete) */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <X className="h-5 w-5 text-red-600" />
+              {t.confirmDelete}
+            </DialogTitle>
+            <DialogDescription className="text-red-700">
+              <div className="font-semibold mb-2">⚠️ WARNING: This is permanent!</div>
+              <div>{t.confirmDeleteDesc}</div>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+              {t.cancel}
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteAdmin}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {t.delete}
             </Button>
           </DialogFooter>
         </DialogContent>

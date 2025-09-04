@@ -10,6 +10,7 @@ import { useSafeFarcaster } from '@/providers/FarcasterProvider'
 import { useToast } from '@/hooks/use-toast'
 import { useState, useEffect } from 'react'
 import { useSmartContractAdminService } from '@/lib/services/smart-contract-admin-service'
+import { useAdminService } from '@/lib/services/admin-service'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,8 +40,9 @@ export default function Navigation() {
   const { authenticated, login } = useSafePrivy()
   const { wallets } = useSafeWallets()
   
-  // Smart contract admin service
+  // Admin services
   const smartContractAdminService = useSmartContractAdminService()
+  const firebaseAdminService = useAdminService()
 
   // Determine if user is actually connected based on environment
   // Use wagmi's isConnected as primary detection for all environments
@@ -59,12 +61,28 @@ export default function Navigation() {
       
       if (currentAddress) {
         try {
-          const isAdmin = await smartContractAdminService.isAdmin(currentAddress)
+          // Check both smart contract and Firebase admin status
+          const [isSmartContractAdmin, isFirebaseAdmin] = await Promise.all([
+            smartContractAdminService.isAdmin(currentAddress),
+            firebaseAdminService.isAdmin(currentAddress)
+          ])
+          
+          // User is admin if they have either smart contract or Firebase admin privileges
+          const isAdmin = isSmartContractAdmin || isFirebaseAdmin
           setIsCurrentUserAdmin(isAdmin)
+          
+          console.log('🔐 Navigation Admin Check:', {
+            address: currentAddress,
+            smartContractAdmin: isSmartContractAdmin,
+            firebaseAdmin: isFirebaseAdmin,
+            finalResult: isAdmin
+          })
         } catch (error) {
           console.error('Error checking admin status:', error)
-          // Fallback to sync method if contracts are unavailable
-          setIsCurrentUserAdmin(smartContractAdminService.isAdminSync(currentAddress))
+          // Fallback to sync methods if services are unavailable
+          const smartContractFallback = smartContractAdminService.isAdminSync(currentAddress)
+          const firebaseFallback = firebaseAdminService.isAdminSync(currentAddress)
+          setIsCurrentUserAdmin(smartContractFallback || firebaseFallback)
         }
       } else {
         setIsCurrentUserAdmin(false)
@@ -72,7 +90,7 @@ export default function Navigation() {
     }
     
     checkAdminStatus()
-  }, [userAddress, wallets, smartContractAdminService, isActuallyConnected, context])
+  }, [userAddress, wallets, smartContractAdminService, firebaseAdminService, isActuallyConnected, context])
   
   // Simple labels with no translation dependencies
   const labels = {
