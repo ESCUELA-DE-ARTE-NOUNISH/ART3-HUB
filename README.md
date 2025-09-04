@@ -1,6 +1,46 @@
 # ART3-HUB
 
-> **🚀 Latest Update (January 2025): ART3-HUB V6 with Firebase Integration & Fresh Smart Contracts**
+
+**🏆 #2 Ranked Educational Mini App on Base** - Our innovative mini app acts as an educational and transactional bridge for artists entering Web3. It combines a custom AI agent that offers step-by-step guidance—from what a wallet is to how to mint an NFT—with integrated tools that allow users to mint their creations directly, without technical knowledge. 
+Mini app: https://farcaster.xyz/miniapps/HiSz_AYGZ62l/art3-hub
+Team: 
+- Julio M Cruz https://github.com/JulioMCruz
+Dynamic and innovative Onchain developer with a robust ability to analyze and implement decentralized solutions. I have profound expertise in cloud integrations, demonstrate top-tier problem-solving aptitude, and excel in collaborative settings, driving projects to fruition.
+
+- Ivanna León – Project Manager & Community Lead: Founder of Nounish IRL, she bridges educational vision with Web3 development, leading teams and initiatives to scale impact from LATAM.
+  
+- Claudio CMO - Visual artist & creative director with 10+ years in the arts field
+	•	Built a personal brand with 30K+ followers across platforms (Instagram, TikTok, X)
+	•	Leads communities with 12K+ members, focused on creators and web3 onboarding
+	•	Has organically reached over 3 million views with art and web3-related content
+
+Question from Demo Day: 
+How will reach collectors?
+We have collectors on our IRL community and also we'll taking advantage from web 3 people who spend their money on farcaster
+
+# 🎨 AI Art Hub — An Onboarding Agent for Creatives in Web3
+
+AI-powered onboarding experience that helps visual artists (especially in LATAM) easily enter Web3—mint NFTs, set up wallets, understand royalties, and deploy collections, all without writing a single line of code.
+
+## 🚀 Built for the Base Hackathon
+
+This Mini App combines AI Agents + Base onchain tools to make onboarding frictionless and creative-first.
+
+---
+
+> **🏆 BREAKING NEWS (September 4, 2025): ART3-HUB reaches #2 in Base Educational Mini Apps Ranking!**
+
+<div align="center">
+  <img src="./Assets/base-ranking.jpeg" alt="Art3 Hub #2 Ranking in Base Educational Mini Apps" width="400"/>
+  
+  **🎉 Art3 Hub is now ranked #2 in Base's Educational Mini Apps category!**
+  
+  *Competing with top Web3 educational platforms, Art3 Hub stands out as the premier AI-driven NFT creation and Web3 onboarding platform for artists.*
+</div>
+
+---
+
+> **🚀 Latest Update (August 2025): ART3-HUB V6 with Firebase Integration & Fresh Smart Contracts**
 
 ## 🔥 V6 Major Updates
 
@@ -33,36 +73,9 @@
 
 ---
 
-Mini app built on Base that acts as an educational and transactional bridge for artists entering Web3. It combines a custom AI agent that offers step-by-step guidance—from what a wallet is to how to mint an NFT—with integrated tools that allow users to mint their creations directly, without technical knowledge. 
-Mini app: https://farcaster.xyz/miniapps/HiSz_AYGZ62l/art3-hub
-Team: 
-- Julio M Cruz https://github.com/JulioMCruz
-Dynamic and innovative Onchain developer with a robust ability to analyze and implement decentralized solutions. I have profound expertise in cloud integrations, demonstrate top-tier problem-solving aptitude, and excel in collaborative settings, driving projects to fruition.
-
-- Ivanna León – Project Manager & Community Lead: Founder of Nounish IRL, she bridges educational vision with Web3 development, leading teams and initiatives to scale impact from LATAM.
-  
-- Claudio CMO - Visual artist & creative director with 10+ years in the arts field
-	•	Built a personal brand with 30K+ followers across platforms (Instagram, TikTok, X)
-	•	Leads communities with 12K+ members, focused on creators and web3 onboarding
-	•	Has organically reached over 3 million views with art and web3-related content
-
-  
-
-Question from Demo Day: 
-How will reach collectors?
-We have collectors on our IRL community and also we'll taking advantage from web 3 people who spend their money on farcaster
-
-# 🎨 AI Art Hub — An Onboarding Agent for Creatives in Web3
-
-AI-powered onboarding experience that helps visual artists (especially in LATAM) easily enter Web3—mint NFTs, set up wallets, understand royalties, and deploy collections, all without writing a single line of code.
-
-## 🚀 Built for the Base Hackathon
-
-This Mini App combines AI Agents + Base onchain tools to make onboarding frictionless and creative-first.
-
 ## ✨ Features
 
-- Zora NFT minting via Agent
+- Base NFT minting via Agent
 - Smart Wallet creation + gasless interactions
 - Personalized artist guidance (AI chat-based)
 - Basename support for easier login
