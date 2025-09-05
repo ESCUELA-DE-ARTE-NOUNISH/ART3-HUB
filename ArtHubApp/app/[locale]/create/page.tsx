@@ -1037,8 +1037,6 @@ function CreateNFT() {
       
       updateProgress(5) // Step 6: Confirming transaction
       
-      // console.log('🎨 Simple NFT created successfully:', nftResult)
-      
       setTransactionHash(nftResult.transactionHash)
       setMintResult({
         transactionHash: nftResult.transactionHash,
@@ -1270,59 +1268,19 @@ function CreateNFT() {
                               subscriptionData.plan === 'MASTER' ? 'Master' : 'Elite Creator'
                             } plan. Note: Claimable NFTs don't count toward this quota. Upgrade to create more NFTs.`}</p>
                             
-                            {/* Upgrade Options */}
-                            {subscriptionData.plan === 'FREE' && (
-                              <div className="flex flex-col gap-2 pt-2 max-w-sm mx-auto min-h-36">
-                                <Button 
-                                  type="button"
-                                  size="sm" 
-                                  className="flex-1 bg-purple-600 hover:bg-purple-700"
-                                  onClick={() => {
-                                    // Scroll to subscription section or show upgrade modal
-                                    window.scrollTo({ top: 0, behavior: 'smooth' })
-                                    toast({
-                                      title: "Upgrade Available",
-                                      description: "Visit your Profile page to upgrade to Master ($4.99) or Elite Creator ($9.99) plans",
-                                    })
-                                  }}
-                                >
-                                  🔥 Upgrade to Master Plan ($4.99) - 10 NFTs/month
-                                </Button>
-                                <Button 
-                                  type="button"
-                                  size="sm" 
-                                  className="flex-1 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
-                                  onClick={() => {
-                                    window.scrollTo({ top: 0, behavior: 'smooth' })
-                                    toast({
-                                      title: "Elite Creator Plan",
-                                      description: "Visit your Profile page to upgrade to Elite Creator ($9.99) - 25 NFTs/month + priority support",
-                                    })
-                                  }}
-                                >
-                                  ⭐ Elite Creator ($9.99) - 25 NFTs/month
-                                </Button>
-                              </div>
-                            )}
-                            
-                            {subscriptionData.plan === 'MASTER' && (
-                              <div className="pt-2">
-                                <Button 
-                                  type="button"
-                                  size="sm" 
-                                  className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
-                                  onClick={() => {
-                                    window.scrollTo({ top: 0, behavior: 'smooth' })
-                                    toast({
-                                      title: "Elite Creator Plan",
-                                      description: "Visit your Profile page to upgrade to Elite Creator ($9.99) - 25 NFTs/month + priority support",
-                                    })
-                                  }}
-                                >
-                                  ⭐ Upgrade to Elite Creator ($9.99) - 25 NFTs/month
-                                </Button>
-                              </div>
-                            )}
+                            {/* Simple upgrade button that redirects to profile */}
+                            <div className="pt-3">
+                              <Button 
+                                type="button"
+                                size="sm" 
+                                className="w-full bg-blue-600 hover:bg-blue-700"
+                                onClick={() => {
+                                  router.push(`/${locale}/profile`)
+                                }}
+                              >
+                                🚀 View Upgrade Options in Profile
+                              </Button>
+                            </div>
                           </AlertDescription>
                         </Alert>
                       )}
@@ -1331,28 +1289,17 @@ function CreateNFT() {
                       {subscriptionData && subscriptionData.plan === 'FREE' && subscriptionData.remainingNFTs > 0 && (
                         <div className="border rounded-lg p-3 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
                           <p className="text-sm font-medium text-blue-900 mb-2">💡 Want to create more NFTs?</p>
-                          <div className="flex flex-col gap-2 max-w-sm mx-auto min-h-36">
+                          <div className="text-center">
                             <Button 
                               type="button"
                               size="sm" 
                               variant="outline"
-                              className="flex-1 border-purple-300 text-purple-700 hover:bg-purple-50"
+                              className="border-blue-300 text-blue-700 hover:bg-blue-50"
                               onClick={() => {
                                 router.push(`/${locale}/profile`)
                               }}
                             >
-                              Master Plan: $4.99 → 10 NFTs/month
-                            </Button>
-                            <Button 
-                              type="button"
-                              size="sm" 
-                              variant="outline"
-                              className="flex-1 border-orange-300 text-orange-700 hover:bg-orange-50"
-                              onClick={() => {
-                                router.push(`/${locale}/profile`)
-                              }}
-                            >
-                              Elite Creator: $9.99 → 25 NFTs/month
+                              🚀 View Upgrade Options
                             </Button>
                           </div>
                         </div>
