@@ -11,7 +11,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
-import { type Opportunity, type Community } from "@/lib/firebase"
+import { type Opportunity, type Community, type BlogPost } from "@/lib/firebase"
 import {
   ArrowRight,
   ExternalLink,
@@ -24,6 +24,8 @@ import {
   Search,
   MapPin,
   Star,
+  BookOpen,
+  Clock,
 } from "lucide-react"
 
 // Translation content
@@ -36,8 +38,9 @@ const translations = {
     heroDescription: "Web3 is revolutionizing how artists create, sell, and connect with audiences worldwide.",
     getStarted: "Get Started Today",
     tabNfts: "NFTs",
-    tabCommunities: "Communities",
+    tabCommunities: "Communities", 
     tabOpportunities: "Opportunities",
+    tabBlog: "Blog",
     nftsTitle: "NFT Creation & Sales",
     nftsDescription: "Non-Fungible Tokens (NFTs) allow artists to tokenize their work, creating verifiable digital scarcity and ownership. This opens new revenue streams and ways to connect with collectors.",
     benefitsTitle: "Benefits for Artists",
@@ -54,7 +57,13 @@ const translations = {
     ],
     startCreating: "Start Creating NFTs",
     readMore: "Read More",
-    close: "Close"
+    close: "Close",
+    blogTitle: "Guides & Resources",
+    blogDescription: "Learn Web3 and digital art through our comprehensive guides and tutorials.",
+    blogEmptyTitle: "Guides Coming Soon",
+    blogEmptyDescription: "We're preparing comprehensive guides to help you navigate Web3 and digital art.",
+    readGuide: "Read Guide",
+    estimatedTime: "Est. time"
   },
   es: {
     title: "Oportunidades",
@@ -66,6 +75,7 @@ const translations = {
     tabNfts: "NFTs",
     tabCommunities: "Comunidades",
     tabOpportunities: "Oportunidades",
+    tabBlog: "Blog",
     nftsTitle: "Creación y Venta de NFTs",
     nftsDescription: "Los Tokens No Fungibles (NFTs) permiten a los artistas tokenizar su trabajo, creando escasez digital verificable y propiedad. Esto abre nuevos flujos de ingresos y formas de conectarse con coleccionistas.",
     benefitsTitle: "Beneficios para Artistas",
@@ -82,7 +92,13 @@ const translations = {
     ],
     startCreating: "Comienza a Crear NFTs",
     readMore: "Leer Más",
-    close: "Cerrar"
+    close: "Cerrar",
+    blogTitle: "Guías y Recursos",
+    blogDescription: "Aprende Web3 y arte digital a través de nuestras guías y tutoriales completos.",
+    blogEmptyTitle: "Guías Próximamente",
+    blogEmptyDescription: "Estamos preparando guías completas para ayudarte a navegar Web3 y arte digital.",
+    readGuide: "Leer Guía",
+    estimatedTime: "Tiempo est."
   },
   fr: {
     title: "Opportunités",
@@ -94,6 +110,7 @@ const translations = {
     tabNfts: "NFTs",
     tabCommunities: "Communautés",
     tabOpportunities: "Opportunités",
+    tabBlog: "Blog",
     nftsTitle: "Création et Vente de NFTs",
     nftsDescription: "Les Tokens Non Fongibles (NFTs) permettent aux artistes de tokeniser leur travail, créant une rareté numérique vérifiable et une propriété. Cela ouvre de nouveaux flux de revenus et des façons de se connecter avec les collectionneurs.",
     benefitsTitle: "Avantages pour les Artistes",
@@ -110,7 +127,13 @@ const translations = {
     ],
     startCreating: "Commencez à Créer des NFTs",
     readMore: "Lire Plus",
-    close: "Fermer"
+    close: "Fermer",
+    blogTitle: "Guides et Ressources",
+    blogDescription: "Apprenez le Web3 et l'art numérique grâce à nos guides et tutoriels complets.",
+    blogEmptyTitle: "Guides Bientôt Disponibles",
+    blogEmptyDescription: "Nous préparons des guides complets pour vous aider à naviguer dans le Web3 et l'art numérique.",
+    readGuide: "Lire le Guide",
+    estimatedTime: "Temps est."
   },
   pt: {
     title: "Oportunidades",
@@ -122,6 +145,7 @@ const translations = {
     tabNfts: "NFTs",
     tabCommunities: "Comunidades",
     tabOpportunities: "Oportunidades",
+    tabBlog: "Blog",
     nftsTitle: "Criação e Venda de NFTs",
     nftsDescription: "Tokens Não Fungíveis (NFTs) permitem que artistas tokenizem seu trabalho, criando escassez digital verificável e propriedade. Isso abre novos fluxos de receita e formas de se conectar com colecionadores.",
     benefitsTitle: "Benefícios para Artistas",
@@ -138,7 +162,13 @@ const translations = {
     ],
     startCreating: "Comece a Criar NFTs",
     readMore: "Ler Mais",
-    close: "Fechar"
+    close: "Fechar",
+    blogTitle: "Guias e Recursos",
+    blogDescription: "Aprenda Web3 e arte digital através de nossos guias e tutoriais abrangentes.",
+    blogEmptyTitle: "Guias em Breve",
+    blogEmptyDescription: "Estamos preparando guias abrangentes para ajudá-lo a navegar no Web3 e arte digital.",
+    readGuide: "Ler Guia",
+    estimatedTime: "Tempo est."
   }
 }
 
@@ -161,6 +191,11 @@ export default function OpportunitiesPage() {
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null)
   const [isCommunityModalOpen, setIsCommunityModalOpen] = useState(false)
 
+  // Blog state
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([])
+  const [featuredBlogPosts, setFeaturedBlogPosts] = useState<BlogPost[]>([])
+  const [blogLoading, setBlogLoading] = useState(true)
+
   // Update locale when params change
   useEffect(() => {
     const currentLocale = (params?.locale as string) || defaultLocale
@@ -174,6 +209,7 @@ export default function OpportunitiesPage() {
       try {
         setLoading(true)
         setCommunitiesLoading(true)
+        setBlogLoading(true)
         
         // Fetch all active opportunities with locale
         const allResponse = await fetch(`/api/opportunities?locale=${locale}`)
@@ -198,12 +234,29 @@ export default function OpportunitiesPage() {
         if (communitiesResult.success) {
           setCommunities(communitiesResult.data)
         }
+
+        // Fetch published blog posts with locale
+        const blogResponse = await fetch(`/api/blog?locale=${locale}`)
+        const blogResult = await blogResponse.json()
+        
+        if (blogResult.success) {
+          setBlogPosts(blogResult.data)
+        }
+
+        // Fetch featured blog posts with locale
+        const featuredBlogResponse = await fetch(`/api/blog?featured=true&limit=3&locale=${locale}`)
+        const featuredBlogResult = await featuredBlogResponse.json()
+        
+        if (featuredBlogResult.success) {
+          setFeaturedBlogPosts(featuredBlogResult.data)
+        }
         
       } catch (error) {
         console.error('Error fetching data:', error)
       } finally {
         setLoading(false)
         setCommunitiesLoading(false)
+        setBlogLoading(false)
       }
     }
 
@@ -304,7 +357,7 @@ export default function OpportunitiesPage() {
         </div>
 
         <Tabs defaultValue="opportunities" className="mb-8 md:mb-10">
-          <TabsList className="grid w-full grid-cols-3 h-auto p-1">
+          <TabsList className="grid w-full grid-cols-4 h-auto p-1">
             <TabsTrigger value="opportunities" className="text-xs md:text-sm px-2 py-2 md:px-3 md:py-2.5">
               <span className="truncate">{t.tabOpportunities}</span>
             </TabsTrigger>
@@ -313,6 +366,9 @@ export default function OpportunitiesPage() {
             </TabsTrigger>
             <TabsTrigger value="communities" className="text-xs md:text-sm px-2 py-2 md:px-3 md:py-2.5">
               <span className="truncate">{t.tabCommunities}</span>
+            </TabsTrigger>
+            <TabsTrigger value="blog" className="text-xs md:text-sm px-2 py-2 md:px-3 md:py-2.5">
+              <span className="truncate">{t.tabBlog}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -449,6 +505,175 @@ export default function OpportunitiesPage() {
                     </Card>
                   ))}
                 </div>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="blog" className="mt-4 md:mt-6">
+            <div className="space-y-6">
+              {blogLoading ? (
+                <Card>
+                  <CardContent className="p-4 md:p-6">
+                    <div className="text-center py-6 md:py-8">
+                      <p className="text-gray-500">Loading blog posts...</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : blogPosts.length === 0 ? (
+                <Card>
+                  <CardContent className="p-4 md:p-6">
+                    <div className="text-center py-6 md:py-8">
+                      <div className="bg-[#FF69B4]/20 p-3 rounded-full w-fit mx-auto mb-4">
+                        <BookOpen className="h-6 w-6 md:h-8 md:w-8 text-[#FF69B4]" />
+                      </div>
+                      <h3 className="text-lg md:text-xl font-semibold mb-2">{t.blogEmptyTitle}</h3>
+                      <p className="text-sm md:text-base text-gray-600 mb-4 max-w-2xl mx-auto">
+                        {t.blogEmptyDescription}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <>
+                  {/* Featured Blog Posts Section */}
+                  {featuredBlogPosts.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <Star className="h-5 w-5 text-[#FF69B4]" />
+                        <h3 className="text-lg font-semibold">Featured Guides</h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                        {featuredBlogPosts.map((post) => (
+                          <Card key={post.id} className="border-2 border-[#FF69B4]/20 bg-gradient-to-br from-[#FF69B4]/5 to-white">
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between mb-3">
+                                <Badge className="bg-purple-100 text-purple-800 border-purple-200" variant="outline">
+                                  {post.category}
+                                </Badge>
+                                <Badge className="bg-gray-100 text-gray-700" variant="secondary">
+                                  {post.difficulty_level}
+                                </Badge>
+                              </div>
+                              <h4 className="font-semibold mb-2 line-clamp-2">{post.title}</h4>
+                              {post.author && <p className="text-sm text-gray-600 mb-2">{post.author}</p>}
+                              <p className="text-sm text-gray-700 mb-3 line-clamp-2">{post.description}</p>
+                              <div className="space-y-2 text-xs text-gray-600 mb-3">
+                                {post.estimated_time && (
+                                  <div className="flex items-center gap-2">
+                                    <Clock className="h-3 w-3" />
+                                    <span>{t.estimatedTime}: {post.estimated_time}</span>
+                                  </div>
+                                )}
+                                {post.view_count && (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-gray-500">{post.view_count} views</span>
+                                  </div>
+                                )}
+                              </div>
+                              <Button 
+                                size="sm" 
+                                className="w-full bg-[#FF69B4] hover:bg-[#FF1493]"
+                                onClick={() => handleExternalLink(post.url)}
+                              >
+                                {t.readGuide}
+                                <ExternalLink className="ml-2 h-3 w-3" />
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* All Blog Posts */}
+                  <Card>
+                    <CardContent className="p-4 md:p-6">
+                      <div className="flex items-center gap-2 mb-4">
+                        <BookOpen className="h-5 w-5 text-[#FF69B4]" />
+                        <h3 className="text-lg font-semibold">{t.blogTitle}</h3>
+                      </div>
+                      <p className="text-sm md:text-base text-gray-600 mb-6">
+                        {t.blogDescription}
+                      </p>
+
+                      <div className="grid gap-4">
+                        {blogPosts.map((post) => (
+                          <Card key={post.id} className="hover:shadow-md transition-shadow">
+                            <CardContent className="p-4">
+                              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                                <div className="flex-1">
+                                  <div className="flex items-start justify-between mb-3">
+                                    <div className="flex flex-wrap gap-2">
+                                      <Badge className="bg-purple-100 text-purple-800 border-purple-200" variant="outline">
+                                        {post.category}
+                                      </Badge>
+                                      <Badge className="bg-gray-100 text-gray-700" variant="secondary">
+                                        {post.difficulty_level}
+                                      </Badge>
+                                      {post.featured && (
+                                        <Badge className="bg-[#FF69B4] text-white">
+                                          <Star className="h-3 w-3 mr-1" />
+                                          Featured
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                  
+                                  <h4 className="text-lg font-semibold mb-2">{post.title}</h4>
+                                  {post.author && <p className="text-sm text-gray-600 mb-2 font-medium">{post.author}</p>}
+                                  <p className="text-sm text-gray-700 mb-4 line-clamp-3">{post.description}</p>
+                                  
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-gray-600 mb-4">
+                                    {post.estimated_time && (
+                                      <div className="flex items-center gap-2">
+                                        <Clock className="h-4 w-4 text-[#9ACD32]" />
+                                        <span>{post.estimated_time}</span>
+                                      </div>
+                                    )}
+                                    {post.view_count && (
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-gray-500">{post.view_count} views</span>
+                                      </div>
+                                    )}
+                                    <div className="flex items-center gap-2">
+                                      <Calendar className="h-4 w-4 text-[#FF69B4]" />
+                                      <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                                    </div>
+                                  </div>
+                                  
+                                  {post.tags && post.tags.length > 0 && (
+                                    <div className="flex flex-wrap gap-1 mb-4">
+                                      {post.tags.slice(0, 4).map((tag, index) => (
+                                        <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                                          {tag}
+                                        </span>
+                                      ))}
+                                      {post.tags.length > 4 && (
+                                        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                                          +{post.tags.length - 4} more
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                <div className="flex-shrink-0">
+                                  <Button 
+                                    className="bg-[#FF69B4] hover:bg-[#FF1493] w-full md:w-auto"
+                                    onClick={() => handleExternalLink(post.url)}
+                                  >
+                                    {t.readGuide}
+                                    <ExternalLink className="ml-2 h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
               )}
             </div>
           </TabsContent>

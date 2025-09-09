@@ -193,6 +193,35 @@ export interface AdminWallet {
   label?: string
 }
 
+export interface BlogPost {
+  id: string
+  title: string
+  description: string
+  url: string
+  author?: string
+  category: 'tutorial' | 'guide' | 'documentation' | 'tips' | 'how-to' | 'resources' | 'news' | 'announcement'
+  difficulty_level: 'beginner' | 'intermediate' | 'advanced' | 'any'
+  tags?: string[]
+  language?: string
+  estimated_time?: string
+  status: 'draft' | 'published' | 'archived'
+  featured: boolean
+  view_count?: number
+  likes_count?: number
+  order_priority?: number
+  created_by: string
+  created_at: string
+  updated_at: string
+  // Translation support
+  translations?: {
+    [locale: string]: {
+      title?: string
+      description?: string
+      author?: string
+    }
+  }
+}
+
 // Firebase configuration
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -264,6 +293,7 @@ export const COLLECTIONS = {
   ADMIN_WALLETS: 'admin_wallets',
   OPPORTUNITIES: 'opportunities',
   COMMUNITIES: 'communities',
+  BLOG_POSTS: 'blog_posts',
   TRANSLATION_CACHE: 'translation_cache'
 } as const
 

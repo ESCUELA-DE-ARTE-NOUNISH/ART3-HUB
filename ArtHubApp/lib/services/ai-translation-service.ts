@@ -7,11 +7,12 @@ export interface TranslatedContent {
   title: string
   description: string
   organization?: string // Only for opportunities
+  author?: string // Only for blog posts
 }
 
 export interface TranslationCache {
   id: string
-  content_type: 'opportunity' | 'community'
+  content_type: 'opportunity' | 'community' | 'blog'
   content_id: string
   source_locale: string
   target_locale: string
@@ -59,7 +60,8 @@ export class AITranslationService {
    */
   private static getTranslationPrompt(
     targetLocale: string,
-    contentType: 'opportunity' | 'community'
+    contentType: 'opportunity' | 'community' | 'blog',
+    sourceLocale: string = 'en'
   ): string {
     const languageNames = {
       'es': 'Spanish',
@@ -70,13 +72,17 @@ export class AITranslationService {
 
     const contextualPrompts = {
       opportunity: `You are translating art and Web3 opportunities for artists. Maintain professional tone and preserve technical terms like "NFT", "blockchain", "Web3", "smart contracts". Focus on clarity for artists seeking funding or collaboration opportunities.`,
-      community: `You are translating Web3 community descriptions for artists. Keep the welcoming, inclusive tone while preserving technical Web3 terminology. Focus on community building and artistic collaboration aspects.`
+      community: `You are translating Web3 community descriptions for artists. Keep the welcoming, inclusive tone while preserving technical Web3 terminology. Focus on community building and artistic collaboration aspects.`,
+      blog: `You are translating blog posts and guides about Web3 and digital art for artists. Maintain the educational and informative tone while preserving technical terminology like "NFT", "blockchain", "Web3", "USDC", "smart contracts". Focus on clarity and accessibility for artists learning about Web3 technology.`
     }
+
+    const sourceLanguageName = languageNames[sourceLocale as keyof typeof languageNames] || sourceLocale
+    const targetLanguageName = languageNames[targetLocale as keyof typeof languageNames] || targetLocale
 
     return `${contextualPrompts[contentType]}
 
-Translate the following content to ${languageNames[targetLocale as keyof typeof languageNames]} while:
-1. Preserving Web3/crypto terminology (NFT, blockchain, DeFi, etc.)
+Translate the following content from ${sourceLanguageName} to ${targetLanguageName} while:
+1. Preserving Web3/crypto terminology (NFT, blockchain, DeFi, USDC, etc.)
 2. Maintaining the original tone and meaning
 3. Using natural, fluent language for the target audience
 4. Keeping currency symbols and amounts unchanged
@@ -93,12 +99,14 @@ Return only the translated JSON with the same structure as the input.`
       title: string
       description: string
       organization?: string
+      author?: string
     },
     targetLocale: string,
-    contentType: 'opportunity' | 'community'
+    contentType: 'opportunity' | 'community' | 'blog',
+    sourceLocale: string = 'en'
   ): Promise<TranslatedContent> {
-    if (targetLocale === 'en') {
-      // No translation needed for English
+    // No translation needed if source and target are the same
+    if (targetLocale === sourceLocale) {
       return content as TranslatedContent
     }
 
@@ -108,7 +116,7 @@ Return only the translated JSON with the same structure as the input.`
 
     try {
       const openai = this.getOpenAI()
-      const prompt = this.getTranslationPrompt(targetLocale, contentType)
+      const prompt = this.getTranslationPrompt(targetLocale, contentType, sourceLocale)
 
       console.log(`🔄 Starting OpenRouter translation for ${contentType} to ${targetLocale}`)
       console.log('📝 Content to translate:', {
@@ -182,11 +190,14 @@ Return only the translated JSON with the same structure as the input.`
       title: string
       description: string
       organization?: string
+      author?: string
     },
     targetLocale: string,
-    contentType: 'opportunity' | 'community'
+    contentType: 'opportunity' | 'community' | 'blog',
+    sourceLocale: string = 'en'
   ): Promise<TranslatedContent> {
-    if (targetLocale === 'en') {
+    // No translation needed if source and target are the same
+    if (targetLocale === sourceLocale) {
       return content as TranslatedContent
     }
 
@@ -205,8 +216,8 @@ Return only the translated JSON with the same structure as the input.`
       }
 
       // Create new translation
-      console.log(`🔄 Creating new translation for ${contentId} (${targetLocale})`)
-      const translation = await this.translateContent(content, targetLocale, contentType)
+      console.log(`🔄 Creating new translation for ${contentId} (${sourceLocale} → ${targetLocale})`)
+      const translation = await this.translateContent(content, targetLocale, contentType, sourceLocale)
 
       // Cache the translation
       await this.cacheTranslation(contentId, content, targetLocale, contentType, translation)
@@ -224,7 +235,7 @@ Return only the translated JSON with the same structure as the input.`
   private static async getCachedTranslation(
     contentId: string,
     targetLocale: string,
-    contentType: 'opportunity' | 'community',
+    contentType: 'opportunity' | 'community' | 'blog',
     currentContent: any
   ): Promise<TranslationCache | null> {
     const contentHash = this.generateContentHash(currentContent)
@@ -243,7 +254,7 @@ Return only the translated JSON with the same structure as the input.`
     contentId: string,
     originalContent: any,
     targetLocale: string,
-    contentType: 'opportunity' | 'community',
+    contentType: 'opportunity' | 'community' | 'blog',
     translation: TranslatedContent
   ): Promise<void> {
     try {
@@ -273,8 +284,9 @@ Return only the translated JSON with the same structure as the input.`
         title: string
         description: string
         organization?: string
+        author?: string
       }
-      type: 'opportunity' | 'community'
+      type: 'opportunity' | 'community' | 'blog'
     }>,
     targetLocales: string[] = ['es', 'pt', 'fr']
   ): Promise<void> {
