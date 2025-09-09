@@ -101,7 +101,7 @@ export default function LanguageSelector() {
     <div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="flex items-center gap-1 h-8 px-2 rounded-full min-w-[80px]">
+          <Button variant="outline" size="sm" className="flex items-center gap-1 h-10 px-2 rounded-full min-w-[80px]">
             <Globe className="h-4 w-4 text-[#FF69B4]" />
             <div className="flex items-center gap-1">
               <Image

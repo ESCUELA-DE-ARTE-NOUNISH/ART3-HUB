@@ -35,6 +35,8 @@ interface AdminTranslations {
   manageOpportunities: string
   communitiesManagement: string
   manageCommunities: string
+  blogManagement: string
+  manageBlog: string
   accessDenied: string
   accessDeniedDesc: string
   adminWallet: string
@@ -72,6 +74,8 @@ const translations: Record<string, AdminTranslations> = {
     manageOpportunities: "Manage Opportunities",
     communitiesManagement: "Communities Management",
     manageCommunities: "Manage Communities",
+    blogManagement: "Blog Management",
+    manageBlog: "Manage Blog",
     accessDenied: "Access Denied",
     accessDeniedDesc: "You need administrator privileges to access this page. Admin status is verified on-chain.",
     adminWallet: "Admin Wallet",
@@ -107,6 +111,8 @@ const translations: Record<string, AdminTranslations> = {
     manageOpportunities: "Gestionar Oportunidades",
     communitiesManagement: "Gestión de Comunidades",
     manageCommunities: "Gestionar Comunidades",
+    blogManagement: "Gestión de Blog",
+    manageBlog: "Gestionar Blog",
     accessDenied: "Acceso Denegado",
     accessDeniedDesc: "Necesita privilegios de administrador para acceder a esta página. El estado de admin se verifica en cadena.",
     adminWallet: "Billetera Admin",
@@ -142,6 +148,8 @@ const translations: Record<string, AdminTranslations> = {
     manageOpportunities: "Gerenciar Oportunidades",
     communitiesManagement: "Gerenciamento de Comunidades",
     manageCommunities: "Gerenciar Comunidades",
+    blogManagement: "Gerenciamento de Blog",
+    manageBlog: "Gerenciar Blog",
     accessDenied: "Acesso Negado",
     accessDeniedDesc: "Você precisa de privilégios de administrador para acessar esta página. O status admin é verificado na blockchain.",
     adminWallet: "Carteira Admin",
@@ -177,6 +185,8 @@ const translations: Record<string, AdminTranslations> = {
     manageOpportunities: "Gérer les Opportunités",
     communitiesManagement: "Gestion des Communautés",
     manageCommunities: "Gérer les Communautés",
+    blogManagement: "Gestion du Blog",
+    manageBlog: "Gérer le Blog",
     accessDenied: "Accès Refusé",
     accessDeniedDesc: "Vous avez besoin de privilèges d'administrateur pour accéder à cette page. Le statut admin est vérifié sur la blockchain.",
     adminWallet: "Portefeuille Admin",
@@ -634,6 +644,26 @@ export default function SmartContractAdminPage() {
                 </div>
                 <Button asChild className="w-full md:w-auto mt-2 md:mt-0 bg-[#8B5CF6] hover:bg-[#7C3AED]">
                   <a href={`/${locale}/admin/communities`}>{t.manageCommunities}</a>
+                </Button>
+              </div>
+            </CardHeader>
+          </Card>
+
+          {/* Blog Management */}
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    {t.blogManagement}
+                  </CardTitle>
+                  <CardDescription>
+                    Create and manage blog posts, guides, and educational content for artists learning Web3.
+                  </CardDescription>
+                </div>
+                <Button asChild className="w-full md:w-auto mt-2 md:mt-0 bg-[#06B6D4] hover:bg-[#0891B2]">
+                  <a href={`/${locale}/admin/blog`}>{t.manageBlog}</a>
                 </Button>
               </div>
             </CardHeader>
