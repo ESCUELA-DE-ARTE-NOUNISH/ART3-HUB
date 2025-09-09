@@ -89,23 +89,49 @@ export default function AdminOpportunitiesPage() {
   // Helper function to convert date string to YYYY-MM-DD format for date input
   const formatDateForInput = (dateString: string): string => {
     try {
-      // Try to parse the date string
+      if (!dateString) return ""
+      
+      // If already in YYYY-MM-DD format, return as-is
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+        return dateString
+      }
+      
+      // Try to parse the date string (handles human-readable dates)
       const date = new Date(dateString)
       if (isNaN(date.getTime())) {
-        // If it's not a valid date, return empty string
         return ""
       }
-      // Return YYYY-MM-DD format
-      return date.toISOString().split('T')[0]
+      
+      // Use local date methods to avoid timezone shifts
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
     } catch (error) {
       return ""
     }
   }
 
-  // Helper function to convert YYYY-MM-DD format to human readable date
+  // Helper function to convert YYYY-MM-DD format to human readable date  
   const formatDateForDisplay = (dateString: string): string => {
     try {
-      const date = new Date(dateString)
+      if (!dateString) return ""
+      
+      let date: Date
+      
+      // If in YYYY-MM-DD format, parse carefully to avoid timezone issues
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+        const [year, month, day] = dateString.split('-').map(Number)
+        date = new Date(year, month - 1, day) // month is 0-based in Date constructor
+      } else {
+        // For other formats, parse normally
+        date = new Date(dateString)
+      }
+      
+      if (isNaN(date.getTime())) {
+        return dateString
+      }
+      
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
