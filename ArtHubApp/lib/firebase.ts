@@ -155,6 +155,14 @@ export interface Opportunity {
   created_by: string
   created_at: string
   updated_at: string
+  // Translation support
+  translations?: {
+    [locale: string]: {
+      title?: string
+      description?: string
+      organization?: string
+    }
+  }
 }
 
 export interface Community {
@@ -167,6 +175,13 @@ export interface Community {
   created_by: string
   created_at: string
   updated_at: string
+  // Translation support
+  translations?: {
+    [locale: string]: {
+      title?: string
+      description?: string
+    }
+  }
 }
 
 export interface AdminWallet {
@@ -248,7 +263,8 @@ export const COLLECTIONS = {
   ASSESSMENT_RESPONSES: 'assessment_responses',
   ADMIN_WALLETS: 'admin_wallets',
   OPPORTUNITIES: 'opportunities',
-  COMMUNITIES: 'communities'
+  COMMUNITIES: 'communities',
+  TRANSLATION_CACHE: 'translation_cache'
 } as const
 
 // Helper function to generate document ID

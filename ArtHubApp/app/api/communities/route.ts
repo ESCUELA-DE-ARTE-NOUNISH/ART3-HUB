@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { FirebaseCommunitiesService } from '@/lib/services/firebase-communities-service'
+import { AITranslationService } from '@/lib/services/ai-translation-service'
 import { type Community } from '@/lib/firebase'
 
 export async function GET(request: NextRequest) {
@@ -10,13 +11,15 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search')
     const status = searchParams.get('status')
     const admin = searchParams.get('admin') === 'true'
+    const locale = searchParams.get('locale') || 'en'
 
     console.log('🔍 GET /api/communities', {
       featured,
       limit,
       search,
       status,
-      admin
+      admin,
+      locale
     })
 
     let communities: Community[] = []
@@ -35,12 +38,45 @@ export async function GET(request: NextRequest) {
       communities = await FirebaseCommunitiesService.getPublishedCommunities(limit)
     }
 
-    console.log(`✅ Returning ${communities.length} communities`)
+    // Apply translations if locale is not English
+    if (locale !== 'en' && communities.length > 0) {
+      console.log(`🌍 Applying translations for locale: ${locale}`)
+      
+      const translatedCommunities = await Promise.all(
+        communities.map(async (community) => {
+          try {
+            const translatedContent = await AITranslationService.getOrCreateTranslation(
+              community.id,
+              {
+                title: community.title,
+                description: community.description
+              },
+              locale,
+              'community'
+            )
+
+            return {
+              ...community,
+              title: translatedContent.title,
+              description: translatedContent.description
+            }
+          } catch (error) {
+            console.error(`❌ Translation failed for community ${community.id}:`, error)
+            return community // Return original if translation fails
+          }
+        })
+      )
+
+      communities = translatedCommunities
+    }
+
+    console.log(`✅ Returning ${communities.length} communities (locale: ${locale})`)
 
     return NextResponse.json({
       success: true,
       data: communities,
-      count: communities.length
+      count: communities.length,
+      locale
     })
 
   } catch (error) {
