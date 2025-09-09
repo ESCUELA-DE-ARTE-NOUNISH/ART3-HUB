@@ -175,24 +175,24 @@ export default function OpportunitiesPage() {
         setLoading(true)
         setCommunitiesLoading(true)
         
-        // Fetch all active opportunities
-        const allResponse = await fetch('/api/opportunities')
+        // Fetch all active opportunities with locale
+        const allResponse = await fetch(`/api/opportunities?locale=${locale}`)
         const allResult = await allResponse.json()
         
         if (allResult.success) {
           setOpportunities(allResult.data)
         }
         
-        // Fetch featured opportunities
-        const featuredResponse = await fetch('/api/opportunities?featured=true&limit=3')
+        // Fetch featured opportunities with locale
+        const featuredResponse = await fetch(`/api/opportunities?featured=true&limit=3&locale=${locale}`)
         const featuredResult = await featuredResponse.json()
         
         if (featuredResult.success) {
           setFeaturedOpportunities(featuredResult.data)
         }
 
-        // Fetch published communities
-        const communitiesResponse = await fetch('/api/communities')
+        // Fetch published communities with locale
+        const communitiesResponse = await fetch(`/api/communities?locale=${locale}`)
         const communitiesResult = await communitiesResponse.json()
         
         if (communitiesResult.success) {
@@ -208,7 +208,7 @@ export default function OpportunitiesPage() {
     }
 
     fetchData()
-  }, [])
+  }, [locale])
 
   // Filter opportunities based on search and category
   const filteredOpportunities = opportunities.filter(opp => {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { FirebaseOpportunitiesService } from '@/lib/services/firebase-opportunities-service'
+import { AITranslationService } from '@/lib/services/ai-translation-service'
 import { type Opportunity } from '@/lib/firebase'
 
 export async function GET(request: NextRequest) {
@@ -11,6 +12,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search')
     const status = searchParams.get('status')
     const admin = searchParams.get('admin') === 'true'
+    const locale = searchParams.get('locale') || 'en'
 
     console.log('🔍 GET /api/opportunities', {
       category,
@@ -18,7 +20,8 @@ export async function GET(request: NextRequest) {
       limit,
       search,
       status,
-      admin
+      admin,
+      locale
     })
 
     let opportunities: Opportunity[] = []
@@ -40,12 +43,47 @@ export async function GET(request: NextRequest) {
       opportunities = await FirebaseOpportunitiesService.getPublishedOpportunities(undefined, limit)
     }
 
-    console.log(`✅ Returning ${opportunities.length} opportunities`)
+    // Apply translations if locale is not English
+    if (locale !== 'en' && opportunities.length > 0) {
+      console.log(`🌍 Applying translations for locale: ${locale}`)
+      
+      const translatedOpportunities = await Promise.all(
+        opportunities.map(async (opportunity) => {
+          try {
+            const translatedContent = await AITranslationService.getOrCreateTranslation(
+              opportunity.id,
+              {
+                title: opportunity.title,
+                description: opportunity.description,
+                organization: opportunity.organization
+              },
+              locale,
+              'opportunity'
+            )
+
+            return {
+              ...opportunity,
+              title: translatedContent.title,
+              description: translatedContent.description,
+              organization: translatedContent.organization || opportunity.organization
+            }
+          } catch (error) {
+            console.error(`❌ Translation failed for opportunity ${opportunity.id}:`, error)
+            return opportunity // Return original if translation fails
+          }
+        })
+      )
+
+      opportunities = translatedOpportunities
+    }
+
+    console.log(`✅ Returning ${opportunities.length} opportunities (locale: ${locale})`)
 
     return NextResponse.json({
       success: true,
       data: opportunities,
-      count: opportunities.length
+      count: opportunities.length,
+      locale
     })
 
   } catch (error) {
