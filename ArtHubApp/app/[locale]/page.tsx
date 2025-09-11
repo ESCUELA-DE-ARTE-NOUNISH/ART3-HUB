@@ -13,6 +13,8 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import Image from 'next/image'
 import { useUserProfile } from '@/hooks/useUserProfile'
+import { FirebaseUserService } from '@/lib/services/firebase-user-service'
+import { isFarcasterEnvironment } from '@/lib/utils/environment'
 import { useToast } from '@/hooks/use-toast'
 import { useAccount, useConnect } from 'wagmi'
 import { useSafePrivy, useSafeWallets } from '@/hooks/useSafePrivy'
@@ -139,6 +141,33 @@ export default function Home() {
       connectorsCount: connectors.length
     })
   }, [showWalletAlert, isActuallyConnected, wagmiConnected, authenticated, context, isFarcasterEnvironment, wallets, connectors])
+
+  // Environment detection and user profile update on login/connection
+  useEffect(() => {
+    async function updateUserEnvironment() {
+      if (!isActuallyConnected) return
+      
+      const userAddress = wagmiAddress || wallets[0]?.address
+      if (!userAddress) return
+
+      try {
+        console.log('🌍 ENVIRONMENT DETECTION ON LOGIN:', {
+          userAddress: userAddress.substring(0, 6) + '...',
+          isFarcasterEnv: isFarcasterEnvironment(),
+          detectedAuthSource: isFarcasterEnvironment() ? 'mini_app' : 'privy'
+        })
+
+        // Update user profile with current environment
+        await FirebaseUserService.upsertUserProfile(userAddress)
+        
+        console.log('✅ User environment updated successfully')
+      } catch (error) {
+        console.error('❌ Error updating user environment:', error)
+      }
+    }
+
+    updateUserEnvironment()
+  }, [isActuallyConnected, wagmiAddress, wallets])
 
   // Update locale when params change
   useEffect(() => {

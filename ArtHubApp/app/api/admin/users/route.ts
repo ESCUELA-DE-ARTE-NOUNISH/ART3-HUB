@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
     const pageSize = parseInt(searchParams.get('pageSize') || '10', 10)
     const authSourceFilter = searchParams.get('authSource')
     const profileStatusFilter = searchParams.get('profileStatus')
+    const searchQuery = searchParams.get('search')?.toLowerCase().trim()
     
     // Query the user_profiles collection
     const profilesRef = collection(db, COLLECTIONS.USER_PROFILES)
@@ -31,12 +32,24 @@ export async function GET(req: NextRequest) {
         userId: doc.id,
         walletAddress: data.wallet_address,
         email: data.email || null,
+        username: data.username || null,
         authSource: data.auth_source || 'unknown',
         createdAt: data.created_at,
         lastLogin: data.updated_at,
         isProfileComplete: Boolean(data.profile_complete)
       }
     })
+
+    // Apply search filter
+    if (searchQuery) {
+      allUsers = allUsers.filter(user => {
+        const walletMatch = user.walletAddress.toLowerCase().includes(searchQuery)
+        const emailMatch = user.email?.toLowerCase().includes(searchQuery) || false
+        const usernameMatch = user.username?.toLowerCase().includes(searchQuery) || false
+        
+        return walletMatch || emailMatch || usernameMatch
+      })
+    }
     
     // Apply profile status filter (client-side)
     if (profileStatusFilter === 'connected') {

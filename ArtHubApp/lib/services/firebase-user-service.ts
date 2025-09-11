@@ -39,21 +39,17 @@ export class FirebaseUserService {
       if (userDoc.exists()) {
         const existingProfile = userDoc.data() as UserProfile
         
-        // Update auth_source if it's not set or if it's different
-        if (!existingProfile.auth_source || existingProfile.auth_source !== authSource) {
-          await updateDoc(userRef, {
-            auth_source: authSource,
-            updated_at: getCurrentTimestamp()
-          })
-          
-          return {
-            ...existingProfile,
-            auth_source: authSource,
-            updated_at: getCurrentTimestamp()
-          }
-        }
+        // Always update auth_source on each login to reflect current environment
+        await updateDoc(userRef, {
+          auth_source: authSource,
+          updated_at: getCurrentTimestamp()
+        })
         
-        return existingProfile
+        return {
+          ...existingProfile,
+          auth_source: authSource,
+          updated_at: getCurrentTimestamp()
+        }
       }
 
       const newProfile: UserProfile = {
