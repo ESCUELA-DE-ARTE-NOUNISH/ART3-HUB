@@ -26,26 +26,31 @@ interface AuthSourceStats {
   mini_app: number
   farcaster: number
   unknown: number
+  connected: number
+  incomplete: number
 }
 
 interface UsersListProps {
-  pageSize?: number
+  initialPageSize?: number
 }
 
-export function UsersList({ pageSize = 10 }: UsersListProps) {
+export function UsersList({ initialPageSize = 10 }: UsersListProps) {
   const [users, setUsers] = useState<User[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(initialPageSize)
   const [isLoading, setIsLoading] = useState(true)
   const [authSourceFilter, setAuthSourceFilter] = useState<string>('all')
+  const [profileStatusFilter, setProfileStatusFilter] = useState<string>('all')
   const [authSourceStats, setAuthSourceStats] = useState<AuthSourceStats | null>(null)
 
   useEffect(() => {
     async function fetchUsers() {
       setIsLoading(true)
       try {
-        const filterParam = authSourceFilter !== 'all' ? `&authSource=${authSourceFilter}` : ''
-        const res = await fetch(`/api/admin/users?page=${page}&pageSize=${pageSize}${filterParam}`)
+        const authParam = authSourceFilter !== 'all' ? `&authSource=${authSourceFilter}` : ''
+        const statusParam = profileStatusFilter !== 'all' ? `&profileStatus=${profileStatusFilter}` : ''
+        const res = await fetch(`/api/admin/users?page=${page}&pageSize=${pageSize}${authParam}${statusParam}`)
         const data = await res.json()
         setUsers(data.users)
         setTotal(data.total)
@@ -58,12 +63,12 @@ export function UsersList({ pageSize = 10 }: UsersListProps) {
     }
 
     fetchUsers()
-  }, [page, pageSize, authSourceFilter])
+  }, [page, pageSize, authSourceFilter, profileStatusFilter])
 
   // Reset page when filter changes
   useEffect(() => {
     setPage(1)
-  }, [authSourceFilter])
+  }, [authSourceFilter, profileStatusFilter])
 
   // Format date and time in EST timezone
   const formatDateTimeEST = (dateString: string) => {
@@ -102,8 +107,8 @@ export function UsersList({ pageSize = 10 }: UsersListProps) {
     <div className="w-full space-y-6">
       {/* Platform Statistics */}
       {authSourceStats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+          <Card className="cursor-pointer hover:bg-accent" onClick={() => { setAuthSourceFilter('all'); setProfileStatusFilter('all'); }}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Users</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
@@ -113,7 +118,7 @@ export function UsersList({ pageSize = 10 }: UsersListProps) {
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="cursor-pointer hover:bg-accent" onClick={() => setAuthSourceFilter('privy')}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Privy Users</CardTitle>
               <Globe className="h-4 w-4 text-blue-600" />
@@ -126,7 +131,7 @@ export function UsersList({ pageSize = 10 }: UsersListProps) {
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="cursor-pointer hover:bg-accent" onClick={() => setAuthSourceFilter('mini_app')}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Mini App Users</CardTitle>
               <Smartphone className="h-4 w-4 text-purple-600" />
@@ -135,6 +140,45 @@ export function UsersList({ pageSize = 10 }: UsersListProps) {
               <div className="text-2xl font-bold">{authSourceStats.mini_app + authSourceStats.farcaster}</div>
               <p className="text-xs text-muted-foreground">
                 {authSourceStats.total > 0 ? (((authSourceStats.mini_app + authSourceStats.farcaster) / authSourceStats.total) * 100).toFixed(1) : 0}% of total
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Base Mini App</CardTitle>
+              <Smartphone className="h-4 w-4 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{authSourceStats.farcaster}</div>
+              <p className="text-xs text-muted-foreground">
+                {authSourceStats.total > 0 ? ((authSourceStats.farcaster / authSourceStats.total) * 100).toFixed(1) : 0}% of total
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card className="cursor-pointer hover:bg-accent" onClick={() => setProfileStatusFilter('connected')}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Connected Users</CardTitle>
+              <Eye className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{authSourceStats.connected}</div>
+              <p className="text-xs text-muted-foreground">
+                {authSourceStats.total > 0 ? ((authSourceStats.connected / authSourceStats.total) * 100).toFixed(1) : 0}% of total
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card className="cursor-pointer hover:bg-accent" onClick={() => setProfileStatusFilter('incomplete')}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Incomplete Profiles</CardTitle>
+              <Users className="h-4 w-4 text-red-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{authSourceStats.incomplete}</div>
+              <p className="text-xs text-muted-foreground">
+                {authSourceStats.total > 0 ? ((authSourceStats.incomplete / authSourceStats.total) * 100).toFixed(1) : 0}% of total
               </p>
             </CardContent>
           </Card>
@@ -172,6 +216,39 @@ export function UsersList({ pageSize = 10 }: UsersListProps) {
             </SelectContent>
           </Select>
         </div>
+        
+        <div className="flex items-center space-x-2">
+          <label htmlFor="profile-status-filter" className="text-sm font-medium">
+            Profile Status:
+          </label>
+          <Select value={profileStatusFilter} onValueChange={setProfileStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="All profiles" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Profiles</SelectItem>
+              <SelectItem value="connected">Connected Users</SelectItem>
+              <SelectItem value="incomplete">Incomplete Profiles</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <label htmlFor="page-size" className="text-sm font-medium">
+            Show:
+          </label>
+          <Select value={pageSize.toString()} onValueChange={(value) => setPageSize(parseInt(value))}>
+            <SelectTrigger className="w-[100px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="25">25</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="100">100</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -203,6 +280,20 @@ export function UsersList({ pageSize = 10 }: UsersListProps) {
                   <TableRow key={user.userId}>
                     <TableCell className="truncate max-w-[120px]" title={user.walletAddress}>
                       {user.walletAddress.substring(0, 6)}...{user.walletAddress.substring(user.walletAddress.length - 4)}
+                    </TableCell>
+                    <TableCell>
+                      {(() => {
+                        const authInfo = getAuthSourceInfo(user.authSource)
+                        const IconComponent = authInfo.icon
+                        return (
+                          <div className="flex items-center gap-2">
+                            <IconComponent className="h-4 w-4" />
+                            <Badge className={authInfo.color}>
+                              {authInfo.label}
+                            </Badge>
+                          </div>
+                        )
+                      })()}
                     </TableCell>
                     <TableCell className="truncate max-w-[120px]">
                       {user.email || <span className="text-muted-foreground">—</span>}

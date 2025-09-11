@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1', 10)
     const pageSize = parseInt(searchParams.get('pageSize') || '10', 10)
     const authSourceFilter = searchParams.get('authSource')
+    const profileStatusFilter = searchParams.get('profileStatus')
     
     // Query the user_profiles collection
     const profilesRef = collection(db, COLLECTIONS.USER_PROFILES)
@@ -24,30 +25,30 @@ export async function GET(req: NextRequest) {
     }
     
     const snapshot = await getDocs(q)
-    const allUsers: any[] = snapshot.docs.map(doc => {
-      // Get the data with correct typing
+    let allUsers = snapshot.docs.map(doc => {
       const data = doc.data() as UserProfile
-      // Return the document data with the document ID
       return {
-        ...data,
-        docId: doc.id // Use docId instead of id to avoid conflict
+        userId: doc.id,
+        walletAddress: data.wallet_address,
+        email: data.email || null,
+        authSource: data.auth_source || 'unknown',
+        createdAt: data.created_at,
+        lastLogin: data.updated_at,
+        isProfileComplete: Boolean(data.profile_complete)
       }
     })
+    
+    // Apply profile status filter (client-side)
+    if (profileStatusFilter === 'connected') {
+      allUsers = allUsers.filter(user => user.isProfileComplete)
+    } else if (profileStatusFilter === 'incomplete') {
+      allUsers = allUsers.filter(user => !user.isProfileComplete)
+    }
     
     const total = allUsers.length
     
     // Paginate results
-    const users = allUsers
-      .slice((page - 1) * pageSize, page * pageSize)
-      .map(user => ({
-        userId: user.docId, // Use the document ID as userId
-        walletAddress: user.wallet_address,
-        email: user.email || null,
-        authSource: user.auth_source || 'unknown', // Include auth source
-        createdAt: user.created_at,
-        lastLogin: user.updated_at, // Use updated_at since user_profiles doesn't have last_login
-        isProfileComplete: Boolean(user.profile_complete)
-      }))
+    const users = allUsers.slice((page - 1) * pageSize, page * pageSize)
     
     // Get auth source statistics for filtering UI
     const authSourceStats = {
@@ -55,7 +56,9 @@ export async function GET(req: NextRequest) {
       privy: snapshot.docs.filter(doc => (doc.data() as UserProfile).auth_source === 'privy').length,
       mini_app: snapshot.docs.filter(doc => (doc.data() as UserProfile).auth_source === 'mini_app').length,
       farcaster: snapshot.docs.filter(doc => (doc.data() as UserProfile).auth_source === 'farcaster').length,
-      unknown: snapshot.docs.filter(doc => !(doc.data() as UserProfile).auth_source).length
+      unknown: snapshot.docs.filter(doc => !(doc.data() as UserProfile).auth_source).length,
+      connected: snapshot.docs.filter(doc => Boolean((doc.data() as UserProfile).profile_complete)).length,
+      incomplete: snapshot.docs.filter(doc => !Boolean((doc.data() as UserProfile).profile_complete)).length
     }
     
     return NextResponse.json({ 
