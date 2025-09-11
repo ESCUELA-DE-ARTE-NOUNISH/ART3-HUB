@@ -17,6 +17,7 @@ import {
   generateId, 
   getCurrentTimestamp 
 } from '@/lib/firebase'
+import { isFarcasterEnvironment } from '@/lib/utils/environment'
 
 export class FirebaseUserService {
   /**
@@ -32,14 +33,34 @@ export class FirebaseUserService {
       const userRef = doc(db, COLLECTIONS.USER_PROFILES, walletAddress.toLowerCase())
       const userDoc = await getDoc(userRef)
 
+      // Detect authentication source
+      const authSource = isFarcasterEnvironment() ? 'mini_app' : 'privy'
+
       if (userDoc.exists()) {
-        return userDoc.data() as UserProfile
+        const existingProfile = userDoc.data() as UserProfile
+        
+        // Update auth_source if it's not set or if it's different
+        if (!existingProfile.auth_source || existingProfile.auth_source !== authSource) {
+          await updateDoc(userRef, {
+            auth_source: authSource,
+            updated_at: getCurrentTimestamp()
+          })
+          
+          return {
+            ...existingProfile,
+            auth_source: authSource,
+            updated_at: getCurrentTimestamp()
+          }
+        }
+        
+        return existingProfile
       }
 
       const newProfile: UserProfile = {
         id: walletAddress.toLowerCase(),
         wallet_address: walletAddress.toLowerCase(),
         profile_complete: false,
+        auth_source: authSource,
         created_at: getCurrentTimestamp(),
         updated_at: getCurrentTimestamp()
       }
