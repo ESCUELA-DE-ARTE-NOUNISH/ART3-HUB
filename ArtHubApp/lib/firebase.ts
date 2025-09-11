@@ -7,6 +7,7 @@ export interface UserProfile {
   id: string
   wallet_address: string
   profile_complete: boolean
+  auth_source?: 'privy' | 'mini_app' | 'farcaster' // Track authentication source
   name?: string
   username?: string
   email?: string
