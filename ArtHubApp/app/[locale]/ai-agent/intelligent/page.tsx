@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useRef, useEffect, useMemo, Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Send, AlertCircle, Lightbulb, Briefcase, Palette, Video, ArrowRight, X, MessageCircle, Brain, Sparkles, Clock, User, RotateCcw, Zap } from "lucide-react"
+import { Send, AlertCircle, Lightbulb, Briefcase, Palette, Video, ArrowRight, X, MessageCircle, Brain, Sparkles, Clock, User, RotateCcw, Zap, BookOpen } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -726,7 +726,7 @@ function IntelligentAIAgentContent() {
                         )}
                         {(!outcomeRecommendation?.recommendations || outcomeRecommendation.recommendations.includes('opportunities')) && (
                           <Button 
-                            onClick={() => router.push(`/${locale}/opportunities`)}
+                            onClick={() => router.push(`/${locale}/opportunities?tab=opportunities`)}
                             className={`w-full text-white text-base py-3 px-4 rounded-lg flex items-center justify-center gap-3 shadow-md hover:shadow-lg transition-all ${
                               outcomeRecommendation?.type === 'opportunities' 
                                 ? 'bg-green-600 hover:bg-green-700 ring-2 ring-green-300' 
@@ -824,14 +824,24 @@ function IntelligentAIAgentContent() {
                     {locale === 'es' ? 'Acciones rápidas:' : 'Quick actions:'}
                   </span>
                 </div>
-                <Button 
-                  onClick={() => router.push(`/${locale}/opportunities`)}
-                  className="w-full bg-gradient-to-r from-green-500 to-lime-500 hover:from-green-600 hover:to-lime-600 text-white text-sm py-2 px-4 rounded-lg flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all"
-                >
-                  <Briefcase className="h-4 w-4" />
-                  {locale === 'es' ? 'Ver Oportunidades para Artistas' : 'View Opportunities for Artists'}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
+                <div className="space-y-2">
+                  <Button 
+                    onClick={() => router.push(`/${locale}/opportunities?tab=opportunities`)}
+                    className="w-full bg-gradient-to-r from-green-500 to-lime-500 hover:from-green-600 hover:to-lime-600 text-white text-sm py-2 px-4 rounded-lg flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all"
+                  >
+                    <Briefcase className="h-4 w-4" />
+                    {locale === 'es' ? 'Ver Oportunidades para Artistas' : 'View Opportunities for Artists'}
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    onClick={() => router.push(`/${locale}/opportunities?tab=blog`)}
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-sm py-2 px-4 rounded-lg flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                    {locale === 'es' ? 'Leer Guías y Recursos' : 'Read Guides & Resources'}
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             )}
             
