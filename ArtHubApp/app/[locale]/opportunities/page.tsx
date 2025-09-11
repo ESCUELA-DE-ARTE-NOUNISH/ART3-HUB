@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import Image from "next/image"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import { type Opportunity, type Community, type BlogPost } from "@/lib/firebase"
 import {
@@ -174,8 +174,10 @@ const translations = {
 
 export default function OpportunitiesPage() {
   const params = useParams()
+  const searchParams = useSearchParams()
   const [locale, setLocale] = useState<string>(defaultLocale)
   const [t, setT] = useState(translations.en)
+  const [activeTab, setActiveTab] = useState<string>('opportunities')
   
   
   // Opportunities state
@@ -202,6 +204,16 @@ export default function OpportunitiesPage() {
     setLocale(currentLocale)
     setT(translations[currentLocale as keyof typeof translations] || translations.en)
   }, [params])
+
+  // Handle tab selection from URL parameters
+  useEffect(() => {
+    const tab = searchParams?.get('tab')
+    if (tab && ['opportunities', 'nfts', 'communities', 'blog'].includes(tab)) {
+      setActiveTab(tab)
+    } else {
+      setActiveTab('opportunities')
+    }
+  }, [searchParams])
 
   // Fetch opportunities and communities
   useEffect(() => {
@@ -356,7 +368,7 @@ export default function OpportunitiesPage() {
           </div>
         </div>
 
-        <Tabs defaultValue="opportunities" className="mb-8 md:mb-10">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8 md:mb-10">
           <TabsList className="grid w-full grid-cols-4 h-auto p-1">
             <TabsTrigger value="opportunities" className="text-xs md:text-sm px-2 py-2 md:px-3 md:py-2.5">
               <span className="truncate">{t.tabOpportunities}</span>
