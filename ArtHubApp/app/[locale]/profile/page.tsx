@@ -6,10 +6,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import Image from "next/image"
-import { Edit, Users, Grid, Trophy, Twitter, Instagram, ExternalLink, Star, Check, Copy, CheckCheck } from "lucide-react"
-import { useParams } from "next/navigation"
+import { Edit, Users, Grid, Trophy, Twitter, Instagram, ExternalLink, Star, Check, Copy, CheckCheck, Heart } from "lucide-react"
+import { useParams, useRouter } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import { useUserProfile } from "@/hooks/useUserProfile"
+import { useFavorites } from "@/hooks/useFavorites"
 import { ProfileEditForm } from "@/components/profile-edit-form"
 import { SubscriptionStatusFirebase } from "@/components/subscription-status-firebase"
 import { Input } from "@/components/ui/input"
@@ -62,7 +63,10 @@ const translations = {
     month: "month",
     walletAddress: "Wallet Address",
     copyAddress: "Copy Address",
-    addressCopied: "Address Copied!"
+    addressCopied: "Address Copied!",
+    favorites: "Favorites",
+    noFavorites: "No favorite NFTs yet",
+    exploreFavorites: "Explore and favorite NFTs to see them here"
   },
   es: {
     title: "Perfil",
@@ -100,7 +104,10 @@ const translations = {
     month: "mes",
     walletAddress: "Dirección de Wallet",
     copyAddress: "Copiar Dirección",
-    addressCopied: "¡Dirección Copiada!"
+    addressCopied: "¡Dirección Copiada!",
+    favorites: "Favoritos",
+    noFavorites: "No tienes NFTs favoritos aún",
+    exploreFavorites: "Explora y marca NFTs como favoritos para verlos aquí"
   },
   fr: {
     title: "Profil",
@@ -138,7 +145,10 @@ const translations = {
     month: "mois",
     walletAddress: "Adresse de Portefeuille",
     copyAddress: "Copier l'Adresse",
-    addressCopied: "Adresse Copiée!"
+    addressCopied: "Adresse Copiée!",
+    favorites: "Favoris",
+    noFavorites: "Aucun NFT favori pour le moment",
+    exploreFavorites: "Explorez et marquez des NFTs comme favoris pour les voir ici"
   },
   pt: {
     title: "Perfil",
@@ -176,7 +186,10 @@ const translations = {
     month: "mês",
     walletAddress: "Endereço da Carteira",
     copyAddress: "Copiar Endereço",
-    addressCopied: "Endereço Copiado!"
+    addressCopied: "Endereço Copiado!",
+    favorites: "Favoritos",
+    noFavorites: "Nenhum NFT favorito ainda",
+    exploreFavorites: "Explore e marque NFTs como favoritos para vê-los aqui"
   }
 }
 
@@ -243,6 +256,7 @@ const achievements = [
 
 export default function ProfilePage() {
   const params = useParams()
+  const router = useRouter()
   const [locale, setLocale] = useState<string>(defaultLocale)
   const [t, setT] = useState(translations.en)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -250,6 +264,9 @@ export default function ProfilePage() {
   
   // Get user profile data
   const { userProfile, loading, isConnected, walletAddress, isProfileComplete, refreshProfile } = useUserProfile()
+  
+  // Get favorites data
+  const { userFavorites, loading: favoritesLoading } = useFavorites()
 
   // Update locale when params change
   useEffect(() => {
@@ -269,6 +286,11 @@ export default function ProfilePage() {
     } catch (error) {
       console.error('Failed to copy address:', error)
     }
+  }
+
+  // Helper function to get IPFS image URL
+  const getImageUrl = (ipfsHash: string) => {
+    return `https://gateway.pinata.cloud/ipfs/${ipfsHash}`
   }
 
   // Show connection prompt if not connected
@@ -442,47 +464,73 @@ export default function ProfilePage() {
         </div>
       </div>
       
-      {/* Subscription Status Section */}
-      <div className="container mx-auto px-4 mt-8 mb-12">
-        <SubscriptionStatusFirebase 
-          translations={t} 
-          onRefresh={() => {
-            // Refresh profile data as well
-            refreshProfile()
-          }}
-        />
-      </div>
-      
-      {/* Tabs for NFTs and Achievements */}
-      {/* <div className="container mx-auto px-4 mt-8">
-        <Tabs defaultValue="created">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="created" className="flex items-center gap-1">
-              <Grid className="h-4 w-4" />
-              <span>{t.created}</span>
+      {/* Tabs for Subscription and Favorites */}
+      <div className="container mx-auto px-4 mt-8">
+        <Tabs defaultValue="subscription">
+          <TabsList className="grid w-full grid-cols-2 mb-6 max-w-md mx-auto">
+            <TabsTrigger value="subscription" className="flex items-center gap-2">
+              <Star className="h-4 w-4" />
+              <span>{t.subscription}</span>
             </TabsTrigger>
-            <TabsTrigger value="collected" className="flex items-center gap-1">
-              <Grid className="h-4 w-4" />
-              <span>{t.collected}</span>
-            </TabsTrigger>
-            <TabsTrigger value="achievements" className="flex items-center gap-1">
-              <Trophy className="h-4 w-4" />
-              <span>{t.achievements}</span>
+            <TabsTrigger value="favorites" className="flex items-center gap-2">
+              <Heart className="h-4 w-4" />
+              <span>{t.favorites}</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="created" className="space-y-4">
-            {createdNFTs.length > 0 ? (
-              <div className="grid grid-cols-2 gap-4">
-                {createdNFTs.map((nft) => (
-                  <Card key={nft.id} className="overflow-hidden">
+          <TabsContent value="subscription" className="space-y-4">
+            <SubscriptionStatusFirebase 
+              translations={t} 
+              onRefresh={() => {
+                // Refresh profile data as well
+                refreshProfile()
+              }}
+            />
+          </TabsContent>
+
+          <TabsContent value="favorites" className="space-y-4">
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-semibold mb-2">{t.favorites}</h2>
+              <p className="text-gray-500 text-sm">
+                {userFavorites.length} NFT{userFavorites.length !== 1 ? 's' : ''} favorited
+              </p>
+            </div>
+            
+            {favoritesLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF69B4]"></div>
+                <span className="ml-2 text-gray-500">{t.loading}...</span>
+              </div>
+            ) : userFavorites.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {userFavorites.map((favorite) => (
+                  <Card key={favorite.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push(`/${locale}/explore`)}>
                     <div className="aspect-square relative">
-                      <Image src={nft.image} alt={nft.title} fill className="object-cover" />
+                      <Image 
+                        src={getImageUrl(favorite.nft_image_ipfs_hash)} 
+                        alt={favorite.nft_name} 
+                        fill 
+                        className="object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/placeholder.svg"
+                        }}
+                      />
+                      <div className="absolute top-2 right-2 p-2 rounded-full bg-black/20 backdrop-blur-sm">
+                        <Heart className="h-4 w-4 fill-red-500 text-red-500" />
+                      </div>
                     </div>
-                    <CardContent className="p-3">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-medium text-sm truncate">{nft.title}</h3>
-                        <span className="text-xs font-medium text-[#FF69B4]">{nft.price}</span>
+                    <CardContent className="p-3 md:p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-semibold text-sm md:text-base truncate">{favorite.nft_name}</h3>
+                          <p className="text-xs md:text-sm text-gray-500 truncate">
+                            by {favorite.nft_artist_name || 'Unknown Artist'}
+                          </p>
+                          <p className="text-xs text-gray-400">{favorite.nft_category || 'Uncategorized'}</p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            Favorited on {new Date(favorite.favorited_at).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -490,72 +538,20 @@ export default function ProfilePage() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-500 mb-4">{t.noCreations}</p>
-                <Button className="bg-[#9ACD32] hover:bg-[#7CFC00]">
-                  {t.startCreating}
+                <Heart className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+                <p className="text-gray-500 mb-2">{t.noFavorites}</p>
+                <p className="text-sm text-gray-400 mb-6">{t.exploreFavorites}</p>
+                <Button 
+                  className="bg-[#FF69B4] hover:bg-[#FF1493]"
+                  onClick={() => router.push(`/${locale}/explore`)}
+                >
+                  Explore NFTs
                 </Button>
               </div>
             )}
           </TabsContent>
-
-          <TabsContent value="collected" className="space-y-4">
-            {collectedNFTs.length > 0 ? (
-              <div className="grid grid-cols-2 gap-4">
-                {collectedNFTs.map((nft) => (
-                  <Card key={nft.id} className="overflow-hidden">
-                    <div className="aspect-square relative">
-                      <Image src={nft.image} alt={nft.title} fill className="object-cover" />
-                    </div>
-                    <CardContent className="p-3">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-medium text-sm truncate">{nft.title}</h3>
-                        <span className="text-xs font-medium text-[#FF69B4]">{nft.price}</span>
-                      </div>
-                      {nft.artist && (
-                        <p className="text-xs text-gray-500">by {nft.artist}</p>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-500 mb-4">{t.noCollections}</p>
-                <Button className="bg-[#9ACD32] hover:bg-[#7CFC00]">
-                  {t.exploreMarketplace}
-                </Button>
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="achievements" className="space-y-4">
-            {achievements.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4">
-                {achievements.map((achievement) => (
-                  <Card key={achievement.id}>
-                    <CardContent className="p-4 flex items-center gap-4">
-                      <div className="flex-shrink-0 h-12 w-12 rounded-full bg-[#f0f0f0] flex items-center justify-center text-2xl">
-                        {achievement.icon}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">{achievement.title}</h3>
-                        <p className="text-sm text-gray-500">{achievement.description}</p>
-                        <p className="text-xs text-gray-400 mt-1">{achievement.date}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-500 mb-4">{t.noAchievements}</p>
-                <p className="text-sm text-gray-400">{t.keepExploring}</p>
-              </div>
-            )}
-          </TabsContent>
-
         </Tabs>
-      </div> */}
+      </div>
 
     </div>
   )

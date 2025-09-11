@@ -8,11 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Image from "next/image"
-import { Search, TrendingUp, Users, Tag, Loader2 } from "lucide-react"
+import { Search, TrendingUp, Users, Tag, Loader2, Heart, Maximize2, Minimize2 } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import Confetti from "@/components/confetti"
 import { useRouter, useParams } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
+import { useFavorites } from "@/hooks/useFavorites"
+import { FirebaseFavoritesService } from "@/lib/services/firebase-favorites-service"
+import { toast } from "sonner"
 
 // Types for NFT data
 type NFT = {
@@ -210,10 +213,15 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [offset, setOffset] = useState(0)
+  const [nftLikesCount, setNftLikesCount] = useState<Record<string, number>>({})
   
   // Modal state for NFT viewing (replacing minting simulation)
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null)
   const [showConfetti, setShowConfetti] = useState(false)
+  const [isMaximized, setIsMaximized] = useState(false)
+  
+  // Favorites functionality
+  const { toggleFavorite, isFavorited, isConnected } = useFavorites()
 
   // Update locale when params change
   useEffect(() => {
@@ -221,6 +229,17 @@ export default function ExplorePage() {
     setLocale(currentLocale)
     setT(translations[currentLocale as keyof typeof translations] || translations.en)
   }, [params])
+
+  // Load likes count for NFTs
+  const loadNFTLikesCount = async (nftList: NFT[]) => {
+    try {
+      const nftIds = nftList.map(nft => nft.id)
+      const likesCount = await FirebaseFavoritesService.getBatchNFTLikesCount(nftIds)
+      setNftLikesCount(prev => ({ ...prev, ...likesCount }))
+    } catch (error) {
+      console.error('Failed to load NFT likes count:', error)
+    }
+  }
 
   // Fetch NFTs from API
   const fetchNFTs = async (reset = false) => {
@@ -238,14 +257,22 @@ export default function ExplorePage() {
       const response = await fetch(`/api/nfts?${params}`)
       if (response.ok) {
         const data = await response.json()
+        let updatedNfts: NFT[]
+        
         if (reset) {
           setNfts(data.nfts)
           setOffset(20)
+          updatedNfts = data.nfts
         } else {
-          setNfts(prev => [...prev, ...data.nfts])
+          updatedNfts = [...nfts, ...data.nfts]
+          setNfts(updatedNfts)
           setOffset(prev => prev + 20)
         }
+        
         setHasMore(data.hasMore)
+        
+        // Load likes count for the fetched NFTs
+        await loadNFTLikesCount(data.nfts)
       }
     } catch (error) {
       console.error('Failed to fetch NFTs:', error)
@@ -331,6 +358,37 @@ export default function ExplorePage() {
 
   const closeNFTDialog = () => {
     setSelectedNFT(null)
+    setIsMaximized(false)
+  }
+
+  const toggleMaximize = () => {
+    setIsMaximized(!isMaximized)
+  }
+
+  const handleFavoriteToggle = async (nft: NFT, e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent triggering viewNFT
+    
+    if (!isConnected) {
+      toast.error('Please connect your wallet to add favorites')
+      return
+    }
+
+    try {
+      const newStatus = await toggleFavorite(nft)
+      
+      // Update the likes count in local state (optimistic update)
+      setNftLikesCount(prev => ({
+        ...prev,
+        [nft.id]: newStatus 
+          ? (prev[nft.id] || 0) + 1 
+          : Math.max(0, (prev[nft.id] || 0) - 1)
+      }))
+      
+      toast.success(newStatus ? 'Added to favorites!' : 'Removed from favorites')
+    } catch (error) {
+      console.error('Error toggling favorite:', error)
+      toast.error('Failed to update favorites')
+    }
   }
 
   // Helper function to get IPFS image URL
@@ -420,7 +478,7 @@ export default function ExplorePage() {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                   {nfts.map((nft) => (
-                    <Card key={nft.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                    <Card key={nft.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => viewNFT(nft)}>
                       <div className="aspect-square md:aspect-[4/3] relative">
                         <Image 
                           src={getImageUrl(nft.image_ipfs_hash)} 
@@ -431,24 +489,51 @@ export default function ExplorePage() {
                             (e.target as HTMLImageElement).src = "/placeholder.svg"
                           }}
                         />
+                        {/* Heart Icon for Favorites */}
+                        <button
+                          onClick={(e) => handleFavoriteToggle(nft, e)}
+                          className="absolute top-2 right-2 p-2 rounded-full bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors z-[1]"
+                          title={isFavorited(nft.id) ? "Remove from favorites" : "Add to favorites"}
+                        >
+                          <Heart 
+                            className={`h-4 w-4 ${
+                              isFavorited(nft.id) 
+                                ? 'fill-red-500 text-red-500' 
+                                : 'text-white hover:text-red-500'
+                            } transition-colors`}
+                          />
+                        </button>
                       </div>
                       <CardContent className="p-3 md:p-4">
                         <div className="flex justify-between items-start mb-3">
                           <div className="min-w-0 flex-1">
-                            <h3 className="font-semibold text-sm md:text-base truncate">{nft.name}</h3>
+                            <div className="flex justify-between items-center mb-1">
+                              <h3 className="font-semibold text-sm md:text-base truncate">{nft.name}</h3>
+                              {(nftLikesCount[nft.id] || 0) > 0 && (
+                                <div className="flex items-center gap-1 ml-2 flex-shrink-0">
+                                  <Heart className="h-3 w-3 text-red-500 fill-current" />
+                                  <p className="text-xs text-red-500">{nftLikesCount[nft.id]}</p>
+                                </div>
+                              )}
+                            </div>
                             <p className="text-xs md:text-sm text-gray-500 truncate">
                               {t.by} {getDisplayArtistName(nft)}
                             </p>
-                            <p className="text-xs text-gray-400">{nft.category || 'Uncategorized'}</p>
-                            {nft.view_count > 0 && (
-                              <p className="text-xs text-blue-500">{nft.view_count} views</p>
-                            )}
+                            <div className="flex items-center gap-3 mt-1">
+                              <p className="text-xs text-gray-400">{nft.category || 'Uncategorized'}</p>
+                              {nft.view_count > 0 && (
+                                <p className="text-xs text-blue-500">{nft.view_count} views</p>
+                              )}
+                            </div>
                           </div>
                         </div>
                         <Button 
                           className="w-full bg-[#9ACD32] hover:bg-[#7CFC00] text-sm md:text-base" 
                           size="sm"
-                          onClick={() => viewNFT(nft)}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            viewNFT(nft)
+                          }}
                         >
                           View NFT
                         </Button>
@@ -538,68 +623,102 @@ export default function ExplorePage() {
 
       {/* NFT Detail Dialog */}
       <Dialog open={selectedNFT !== null} onOpenChange={closeNFTDialog}>
-        <DialogContent className="sm:max-w-md md:max-w-lg lg:max-w-xl">
+        <DialogContent className={`${isMaximized ? 'max-w-[95vw] max-h-[95vh] w-[95vw] h-[95vh]' : 'sm:max-w-md md:max-w-lg lg:max-w-xl'}`}>
           {selectedNFT && (
             <>
-              <DialogHeader>
-                <DialogTitle className="text-lg md:text-xl">{selectedNFT.name}</DialogTitle>
-                <DialogDescription className="text-sm md:text-base">
-                  {t.by} {getDisplayArtistName(selectedNFT)} • {selectedNFT.category || 'Uncategorized'}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="py-4 md:py-6">
-                <div className="flex flex-col items-center gap-4 mb-6">
-                  <div className="relative w-full max-w-sm md:max-w-md aspect-square rounded-lg overflow-hidden">
+              {!isMaximized && (
+                <DialogHeader>
+                  <DialogTitle className="text-lg md:text-xl">{selectedNFT.name}</DialogTitle>
+                  <DialogDescription className="text-sm md:text-base">
+                    {t.by} {getDisplayArtistName(selectedNFT)} • {selectedNFT.category || 'Uncategorized'}
+                  </DialogDescription>
+                </DialogHeader>
+              )}
+              
+              {isMaximized ? (
+                // Maximized view - image only with minimize button
+                <div className="relative w-full h-full flex items-center justify-center bg-black">
+                  <button
+                    onClick={toggleMaximize}
+                    className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+                    title="Minimize"
+                  >
+                    <Minimize2 className="h-5 w-5 text-white" />
+                  </button>
+                  <div className="relative w-full h-full">
                     <Image
                       src={getImageUrl(selectedNFT.image_ipfs_hash)}
                       alt={selectedNFT.name}
                       fill
-                      className="object-cover"
+                      className="object-contain"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = "/placeholder.svg"
                       }}
                     />
                   </div>
-                  <div className="text-center w-full">
-                    <h3 className="font-semibold text-lg md:text-xl">{selectedNFT.name}</h3>
-                    <p className="text-sm md:text-base text-gray-500">
-                      {t.by} {getDisplayArtistName(selectedNFT)}
-                    </p>
-                    <p className="text-xs md:text-sm text-gray-400 mt-1">{selectedNFT.category || 'Uncategorized'}</p>
-                    {selectedNFT.description && (
-                      <p className="text-sm md:text-base text-gray-600 mt-2 px-2">{selectedNFT.description}</p>
-                    )}
-                    <div className="flex justify-center gap-4 mt-4 text-xs md:text-sm text-gray-500">
-                      {selectedNFT.view_count > 0 && (
-                        <span>{selectedNFT.view_count} views</span>
-                      )}
-                      {selectedNFT.likes_count > 0 && (
-                        <span>{selectedNFT.likes_count} likes</span>
-                      )}
+                </div>
+              ) : (
+                // Normal view
+                <div className="py-4 md:py-6">
+                  <div className="flex flex-col items-center gap-4 mb-6">
+                    <div className="relative w-full max-w-sm md:max-w-md aspect-square rounded-lg overflow-hidden">
+                      <Image
+                        src={getImageUrl(selectedNFT.image_ipfs_hash)}
+                        alt={selectedNFT.name}
+                        fill
+                        className="object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/placeholder.svg"
+                        }}
+                      />
+                      {/* Maximize button overlay */}
+                      <button
+                        onClick={toggleMaximize}
+                        className="absolute top-2 right-2 p-2 rounded-full bg-black/20 backdrop-blur-sm hover:bg-black/40 transition-colors"
+                        title="Maximize"
+                      >
+                        <Maximize2 className="h-4 w-4 text-white" />
+                      </button>
                     </div>
-                    <p className="text-xs md:text-sm text-gray-400 mt-2">
-                      Created on {new Date(selectedNFT.created_at).toLocaleDateString()}
-                    </p>
+                    <div className="text-center w-full">
+                      <h3 className="font-semibold text-lg md:text-xl">{selectedNFT.name}</h3>
+                      <p className="text-sm md:text-base text-gray-500">
+                        {t.by} {getDisplayArtistName(selectedNFT)}
+                      </p>
+                      <p className="text-xs md:text-sm text-gray-400 mt-1">{selectedNFT.category || 'Uncategorized'}</p>
+                      {selectedNFT.description && (
+                        <p className="text-sm md:text-base text-gray-600 mt-2 px-2">{selectedNFT.description}</p>
+                      )}
+                      <div className="flex justify-center gap-4 mt-4 text-xs md:text-sm text-gray-500">
+                        {selectedNFT.view_count > 0 && (
+                          <span>{selectedNFT.view_count} views</span>
+                        )}
+                        {(nftLikesCount[selectedNFT.id] || 0) > 0 && (
+                          <span>{nftLikesCount[selectedNFT.id]} likes</span>
+                        )}
+                      </div>
+                      <p className="text-xs md:text-sm text-gray-400 mt-2">
+                        Created on {new Date(selectedNFT.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={toggleMaximize}
+                    >
+                      Maximize View
+                    </Button>
+                    <Button 
+                      className="flex-1 bg-[#9ACD32] hover:bg-[#7CFC00]" 
+                      onClick={closeNFTDialog}
+                    >
+                      Close
+                    </Button>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    className="flex-1"
-                    onClick={() => {
-                      window.open(getImageUrl(selectedNFT.image_ipfs_hash), '_blank')
-                    }}
-                  >
-                    View Full Size
-                  </Button>
-                  <Button 
-                    className="flex-1 bg-[#9ACD32] hover:bg-[#7CFC00]" 
-                    onClick={closeNFTDialog}
-                  >
-                    Close
-                  </Button>
-                </div>
-              </div>
+              )}
             </>
           )}
         </DialogContent>

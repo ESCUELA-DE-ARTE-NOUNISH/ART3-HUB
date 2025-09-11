@@ -223,6 +223,18 @@ export interface BlogPost {
   }
 }
 
+export interface UserFavorite {
+  id: string
+  user_wallet_address: string
+  nft_id: string
+  nft_name: string
+  nft_artist_name: string
+  nft_image_ipfs_hash: string
+  nft_category?: string
+  nft_created_at: string
+  favorited_at: string
+}
+
 // Firebase configuration
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -295,7 +307,8 @@ export const COLLECTIONS = {
   OPPORTUNITIES: 'opportunities',
   COMMUNITIES: 'communities',
   BLOG_POSTS: 'blog_posts',
-  TRANSLATION_CACHE: 'translation_cache'
+  TRANSLATION_CACHE: 'translation_cache',
+  USER_FAVORITES: 'user_favorites'
 } as const
 
 // Helper function to generate document ID
