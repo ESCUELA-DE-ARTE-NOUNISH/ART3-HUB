@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Upload, X, User, Camera, Link, Instagram, Twitter, Users, Mail } from "lucide-react"
 import { ApiService } from "@/lib/services/api-service"
+import { ProfileImageSelector, type ImageSource } from "@/components/profile-image-selector"
 import type { UserProfile } from "@/lib/firebase"
 import Image from "next/image"
 
@@ -205,58 +206,39 @@ export function ProfileEditForm({ userProfile, onSuccess }: ProfileEditFormProps
         </CardContent>
       </Card>
 
-      {/* Profile Images */}
+      {/* Profile Picture */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Camera className="h-5 w-5" />
-            Profile Images
+            Profile Picture
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="profile_picture">Profile Picture URL</Label>
-            <Input
-              id="profile_picture"
-              value={formData.profile_picture}
-              onChange={(e) => handleInputChange("profile_picture", e.target.value)}
-              placeholder="https://example.com/profile.jpg"
-              type="url"
-            />
-            <div className="mt-2">
-              <div className="relative w-16 h-16 rounded-full overflow-hidden border">
-                <Image
-                  src={formData.profile_picture || "/assets/blank-profile.png"}
-                  alt="Profile preview"
-                  fill
-                  className="object-cover"
-                  onError={() => handleInputChange("profile_picture", "")}
-                />
-              </div>
-            </div>
-          </div>
-          
-          <div>
-            <Label htmlFor="banner_image">Banner Image URL</Label>
-            <Input
-              id="banner_image"
-              value={formData.banner_image}
-              onChange={(e) => handleInputChange("banner_image", e.target.value)}
-              placeholder="https://example.com/banner.jpg"
-              type="url"
-            />
-            <div className="mt-2">
-              <div className="relative w-full h-20 rounded overflow-hidden border">
-                <Image
-                  src={formData.banner_image || "/profile-cover.png"}
-                  alt="Banner preview"
-                  fill
-                  className="object-cover"
-                  onError={() => handleInputChange("banner_image", "")}
-                />
-              </div>
-            </div>
-          </div>
+        <CardContent>
+          <ProfileImageSelector
+            currentImage={formData.profile_picture}
+            onImageChange={(imageUrl, source) => handleInputChange("profile_picture", imageUrl)}
+            walletAddress={userProfile?.wallet_address}
+            isProfilePicture={true}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Banner Image */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Camera className="h-5 w-5" />
+            Banner Image
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ProfileImageSelector
+            currentImage={formData.banner_image}
+            onImageChange={(imageUrl, source) => handleInputChange("banner_image", imageUrl)}
+            walletAddress={userProfile?.wallet_address}
+            isProfilePicture={false}
+          />
         </CardContent>
       </Card>
 

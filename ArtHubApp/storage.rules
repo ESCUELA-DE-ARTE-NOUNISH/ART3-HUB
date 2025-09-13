@@ -1,0 +1,29 @@
+rules_version = '2';
+
+// Firebase Storage Security Rules for ART3-HUB
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow public access to profile images
+    match /profile-images/{walletAddress}/{fileName} {
+      allow read: if true; // Public read access for profile images
+      allow write: if true; // Allow write for server-side uploads via Admin SDK
+    }
+    
+    // Allow public access to NFT images
+    match /admin-nft-images/{path=**} {
+      allow read: if true; // Public read for NFT images
+      allow write: if true; // Allow write for server-side uploads via Admin SDK
+    }
+    
+    // Allow public access to general NFT images
+    match /nft-images/{path=**} {
+      allow read: if true; // Public read for NFT images  
+      allow write: if true; // Allow write for server-side uploads via Admin SDK
+    }
+    
+    // Default: deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
