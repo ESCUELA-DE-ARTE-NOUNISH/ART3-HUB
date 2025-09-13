@@ -23,9 +23,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid file type. Supported: JPG, PNG, GIF, WebP' }, { status: 400 })
     }
 
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File too large. Maximum size is 5MB' }, { status: 400 })
+    // Validate file size (20MB max)
+    if (file.size > 20 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File too large. Maximum size is 20MB' }, { status: 400 })
     }
 
     // Upload to IPFS (reliable and working)

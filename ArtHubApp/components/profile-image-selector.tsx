@@ -174,9 +174,9 @@ export function ProfileImageSelector({
       return
     }
 
-    // Validate file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadState(prev => ({ ...prev, error: 'File size must be less than 5MB' }))
+    // Validate file size (20MB limit)
+    if (file.size > 20 * 1024 * 1024) {
+      setUploadState(prev => ({ ...prev, error: 'File size must be less than 20MB' }))
       return
     }
 
@@ -331,7 +331,7 @@ export function ProfileImageSelector({
                 <CloudUpload className="h-12 w-12 mx-auto text-gray-400" />
                 <div>
                   <p className="text-sm font-medium">Drop an image here or click to browse</p>
-                  <p className="text-xs text-gray-500">Supports JPG, PNG, GIF, WebP (max 5MB)</p>
+                  <p className="text-xs text-gray-500">Supports JPG, PNG, GIF, WebP (max 20MB)</p>
                 </div>
                 <Button 
                   onClick={() => document.getElementById('file-input')?.click()}
