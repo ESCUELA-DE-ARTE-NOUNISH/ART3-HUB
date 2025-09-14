@@ -1,7 +1,7 @@
 # ART3-HUB
 
 
-**🏆 #2 Ranked Educational Mini App on Base** - Our innovative mini app acts as an educational and transactional bridge for artists entering Web3. It combines a custom AI agent that offers step-by-step guidance—from what a wallet is to how to mint an NFT—with integrated tools that allow users to mint their creations directly, without technical knowledge. 
+**🏆 #1 Ranked Educational Mini App on Base** - Our innovative mini app acts as an educational and transactional bridge for artists entering Web3. It combines a custom AI agent that offers step-by-step guidance—from what a wallet is to how to mint an NFT—with integrated tools that allow users to mint their creations directly, without technical knowledge. 
 Mini app: https://farcaster.xyz/miniapps/HiSz_AYGZ62l/art3-hub
 Team: 
 - Julio M Cruz https://github.com/JulioMCruz
@@ -28,12 +28,12 @@ This Mini App combines AI Agents + Base onchain tools to make onboarding frictio
 
 ---
 
-> **🏆 BREAKING NEWS (September 4, 2025): ART3-HUB reaches #2 in Base Educational Mini Apps Ranking!**
+> **🏆 BREAKING NEWS (September 4, 2025): ART3-HUB reaches #1 in Base Educational Mini Apps Ranking!**
 
 <div align="center">
-  <img src="./Assets/base-ranking.jpeg" alt="Art3 Hub #2 Ranking in Base Educational Mini Apps" width="400"/>
-  
-  **🎉 Art3 Hub is now ranked #2 in Base's Educational Mini Apps category!**
+  <img width="230" height="460" alt="image" src="https://github.com/user-attachments/assets/84506604-c0fd-4533-9aae-20d0956adaee" />
+
+  **🎉 Art3 Hub is now ranked #1 in Base's Educational Mini Apps category!**
   
   *Competing with top Web3 educational platforms, Art3 Hub stands out as the premier AI-driven NFT creation and Web3 onboarding platform for artists.*
 </div>
