@@ -7,7 +7,7 @@ Team:
 - Julio M Cruz https://github.com/JulioMCruz
 Dynamic and innovative Onchain developer with a robust ability to analyze and implement decentralized solutions. I have profound expertise in cloud integrations, demonstrate top-tier problem-solving aptitude, and excel in collaborative settings, driving projects to fruition.
 
-- Ivanna León – Project Manager & Community Lead: Founder of Nounish IRL, she bridges educational vision with Web3 development, leading teams and initiatives to scale impact from LATAM.
+- Ivanna León – Project Manager & Community Lead: Founder of Nounish IRL, she bridges educational vision with Web3 development, leading teams and initiatives to scale impact from LATAM. Prev COO at  [dened.org](https://dened.org/), a profitable edtech winner of Startup Peru.
   
 - Claudio CMO - Visual artist & creative director with 10+ years in the arts field
 	•	Built a personal brand with 30K+ followers across platforms (Instagram, TikTok, X)
