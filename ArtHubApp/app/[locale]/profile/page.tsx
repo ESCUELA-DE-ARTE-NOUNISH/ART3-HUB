@@ -6,13 +6,14 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import Image from "next/image"
-import { Edit, Users, Grid, Trophy, Twitter, Instagram, ExternalLink, Star, Check, Copy, CheckCheck, Heart } from "lucide-react"
+import { Edit, Users, Grid, Trophy, Twitter, Instagram, ExternalLink, Star, Check, Copy, CheckCheck, Heart, Shield } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { defaultLocale } from "@/config/i18n"
 import { useUserProfile } from "@/hooks/useUserProfile"
 import { useFavorites } from "@/hooks/useFavorites"
 import { ProfileEditForm } from "@/components/profile-edit-form"
 import { SubscriptionStatusFirebase } from "@/components/subscription-status-firebase"
+import { PrivateKeyExport, getPrivateKeyExportTranslations } from "@/components/private-key-export"
 import { Input } from "@/components/ui/input"
 
 // Custom Verified Star Component
@@ -64,9 +65,10 @@ const translations = {
     walletAddress: "Wallet Address",
     copyAddress: "Copy Address",
     addressCopied: "Address Copied!",
-    favorites: "Favorites",
+    favorites: "Favorites", 
     noFavorites: "No favorite NFTs yet",
-    exploreFavorites: "Explore and favorite NFTs to see them here"
+    exploreFavorites: "Explore and favorite NFTs to see them here",
+    walletSecurity: "Wallet Security"
   },
   es: {
     title: "Perfil",
@@ -107,7 +109,8 @@ const translations = {
     addressCopied: "¡Dirección Copiada!",
     favorites: "Favoritos",
     noFavorites: "No tienes NFTs favoritos aún",
-    exploreFavorites: "Explora y marca NFTs como favoritos para verlos aquí"
+    exploreFavorites: "Explora y marca NFTs como favoritos para verlos aquí",
+    walletSecurity: "Seguridad de Wallet"
   },
   fr: {
     title: "Profil",
@@ -148,7 +151,8 @@ const translations = {
     addressCopied: "Adresse Copiée!",
     favorites: "Favoris",
     noFavorites: "Aucun NFT favori pour le moment",
-    exploreFavorites: "Explorez et marquez des NFTs comme favoris pour les voir ici"
+    exploreFavorites: "Explorez et marquez des NFTs comme favoris pour les voir ici",
+    walletSecurity: "Sécurité du Portefeuille"
   },
   pt: {
     title: "Perfil",
@@ -189,7 +193,8 @@ const translations = {
     addressCopied: "Endereço Copiado!",
     favorites: "Favoritos",
     noFavorites: "Nenhum NFT favorito ainda",
-    exploreFavorites: "Explore e marque NFTs como favoritos para vê-los aqui"
+    exploreFavorites: "Explore e marque NFTs como favoritos para vê-los aqui",
+    walletSecurity: "Segurança da Carteira"
   }
 }
 
@@ -274,6 +279,9 @@ export default function ProfilePage() {
     setLocale(currentLocale)
     setT(translations[currentLocale as keyof typeof translations] || translations.en)
   }, [params])
+
+  // Get private key export translations
+  const privateKeyTranslations = getPrivateKeyExportTranslations(locale)
 
   // Copy wallet address to clipboard
   const copyWalletAddress = async () => {
@@ -486,6 +494,15 @@ export default function ProfilePage() {
                 refreshProfile()
               }}
             />
+            
+            {/* Wallet Security Section */}
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                {t.walletSecurity}
+              </h3>
+              <PrivateKeyExport translations={privateKeyTranslations} />
+            </div>
           </TabsContent>
 
           <TabsContent value="favorites" className="space-y-4">

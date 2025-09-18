@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { sdk } from "@farcaster/miniapp-sdk"
-import { usePrivy, useWallets } from '@privy-io/react-auth'
+import { usePrivy, useWallets, useExportWallet } from '@privy-io/react-auth'
 
 // Extend window interface for debug flags
 declare global {
@@ -48,13 +48,16 @@ export function useSafePrivy() {
 
   // Always call Privy hooks (React rules requirement)
   let privyResult
+  let exportWalletResult
   try {
     privyResult = usePrivy()
+    exportWalletResult = useExportWallet()
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
       console.warn('⚠️ useSafePrivy: Privy hook failed, likely in fallback provider context')
     }
     privyResult = null
+    exportWalletResult = null
   }
 
   // Update Farcaster detection on mount
@@ -72,6 +75,7 @@ export function useSafePrivy() {
       logout: () => console.log('Logout not available in Farcaster mode'),
       user: null,
       ready: true,
+      exportWallet: () => Promise.reject(new Error('Export wallet not available in Farcaster mode')),
     }
   }
 
@@ -103,7 +107,10 @@ export function useSafePrivy() {
       }
     }
     
-    return privyResult
+    return {
+      ...privyResult,
+      exportWallet: exportWalletResult?.exportWallet || (() => Promise.reject(new Error('Export wallet not available')))
+    }
   }
 
   // Fallback for cases where Privy is not available
@@ -121,6 +128,7 @@ export function useSafePrivy() {
     },
     user: null,
     ready: true,
+    exportWallet: () => Promise.reject(new Error('Privy not available')),
   }
 }
 
