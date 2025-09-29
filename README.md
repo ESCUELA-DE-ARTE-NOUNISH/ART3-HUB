@@ -13,10 +13,7 @@ Dynamic and innovative Onchain developer with a robust ability to analyze and im
 	•	Built a personal brand with 30K+ followers across platforms (Instagram, TikTok, X)
 	•	Leads communities with 12K+ members, focused on creators and web3 onboarding
 	•	Has organically reached over 3 million views with art and web3-related content
-
-Question from Demo Day: 
-How will reach collectors?
-We have collectors on our IRL community and also we'll taking advantage from web 3 people who spend their money on farcaster
+  Nounish Art School metrics: 110 K reached people across last month 
 
 # 🎨 AI Art Hub — An Onboarding Agent for Creatives in Web3
 
