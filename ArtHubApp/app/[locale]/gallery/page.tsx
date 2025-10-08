@@ -297,27 +297,13 @@ export default function GalleryPage() {
           </Button>
         </div>
 
-        {/* Top Bar - Title and Info */}
-        <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 to-transparent p-4 md:p-6">
-          <div className="flex items-center justify-between max-w-7xl mx-auto">
-            <div className="flex-1">
-              <h1 className="text-white text-xl md:text-2xl font-bold truncate max-w-md">
-                {currentNft.name || 'Untitled'}
-              </h1>
-              <p className="text-white/70 text-sm md:text-base">
-                by {getDisplayArtistName(currentNft)}
-              </p>
-            </div>
-
-            {/* Counter */}
-            <div className="text-white/70 text-sm md:text-base font-mono">
-              {currentIndex + 1} / {nfts.length}
-            </div>
-          </div>
+        {/* Counter - Top Right */}
+        <div className="absolute top-4 md:top-6 right-4 md:right-6 text-white/70 text-sm md:text-base font-mono bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
+          {currentIndex + 1} / {nfts.length}
         </div>
 
         {/* Control Icons */}
-        <div className="absolute top-20 md:top-24 right-4 md:right-6 flex flex-col gap-3 z-10">
+        <div className="absolute top-16 md:top-20 right-4 md:right-6 flex flex-col gap-3 z-10">
           {/* Autoplay Toggle */}
           <Button
             onClick={toggleAutoplay}
@@ -339,22 +325,36 @@ export default function GalleryPage() {
           </Button>
         </div>
 
-        {/* Bottom Bar - Info only (no details panel in fullscreen) */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 md:p-6">
-          <div className="max-w-7xl mx-auto">
-            {/* Progress Indicator */}
-            <div className="w-full bg-white/20 rounded-full h-1">
-              <div
-                className="bg-gradient-to-r from-purple-500 to-pink-500 h-1 rounded-full transition-all duration-300"
-                style={{ width: `${((currentIndex + 1) / nfts.length) * 100}%` }}
-              />
-            </div>
+        {/* NFT Info Card - Bottom left, semi-transparent */}
+        <div className="absolute bottom-4 md:bottom-6 left-4 md:left-6 right-4 md:right-24 z-10">
+          <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-5 border border-white/20 max-w-lg">
+            <h1 className="text-white text-lg md:text-xl font-bold mb-2 drop-shadow-lg">
+              {currentNft.name || 'Untitled'}
+            </h1>
+            <p className="text-white/90 text-sm md:text-base mb-2 drop-shadow-lg">
+              by {getDisplayArtistName(currentNft)}
+            </p>
+            {currentNft.description && (
+              <p className="text-white/80 text-sm line-clamp-2 drop-shadow-md">
+                {currentNft.description}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Progress Indicator - Bottom center */}
+        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-64 md:w-96">
+          <div className="w-full bg-white/20 rounded-full h-1">
+            <div
+              className="bg-gradient-to-r from-purple-500 to-pink-500 h-1 rounded-full transition-all duration-300"
+              style={{ width: `${((currentIndex + 1) / nfts.length) * 100}%` }}
+            />
           </div>
         </div>
 
         {/* Keyboard Hints */}
-        <div className="hidden md:block absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/40 text-sm">
-          Use ← → keys or swipe to navigate • Press ESC to exit
+        <div className="hidden md:block absolute bottom-6 right-6 text-white/40 text-xs text-right">
+          ← → to navigate<br/>ESC to exit
         </div>
       </div>
     </div>
