@@ -74,6 +74,10 @@ export interface NFT {
   category?: string
   view_count?: number
   likes_count?: number
+  // Gallery management fields
+  in_gallery?: boolean  // Whether NFT is featured in the main gallery
+  gallery_added_at?: string  // Timestamp when added to gallery
+  gallery_added_by?: string  // Admin wallet address who added it
   created_at: string
   updated_at: string
 }
