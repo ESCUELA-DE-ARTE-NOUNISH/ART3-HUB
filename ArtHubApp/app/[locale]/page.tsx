@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { defaultLocale } from '@/config/i18n'
 import Link from 'next/link'
-import { ArrowRight, Sparkles, Crown, Globe, Camera, Upload, Send, Briefcase } from 'lucide-react'
+import { ArrowRight, Sparkles, Crown, Globe, Camera, Upload, Send, Briefcase, ImageIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -112,6 +112,11 @@ export default function Home() {
       chatPlaceholderDisconnected: "Join Art3 Hub to discover opportunities for your art and unlock creative possibilities...",
       chatSubmitted: "Question submitted!",
       redirectingToAgent: "Redirecting to Art3 Hub assistant..."
+    },
+    gallery: {
+      title: "Art Gallery",
+      description: "Explore unique NFT artwork created by talented artists from around the world.",
+      viewGallery: "View Gallery"
     },
     footer: {
       created: "Created by Escuela de Arte Nounish",
@@ -446,6 +451,34 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Gallery Section - Available for all users */}
+      <div className="w-full mt-8">
+        <div className="bg-gradient-to-br from-purple-50 via-white to-pink-50 rounded-2xl p-6 shadow-lg border border-purple-100">
+          <div className="flex flex-col items-center text-center space-y-4">
+            {/* Title */}
+            <div className="flex items-center justify-center mb-2">
+              <ImageIcon className="text-purple-500 mr-2" size={28} />
+              <h3 className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+                {messages.gallery.title}
+              </h3>
+            </div>
+
+            {/* Description */}
+            <p className="text-sm lg:text-base text-gray-700 leading-relaxed max-w-lg">
+              {messages.gallery.description}
+            </p>
+
+            {/* CTA Button */}
+            <Link href={`/${locale}/gallery`}>
+              <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
+                {messages.gallery.viewGallery}
+                <ArrowRight size={16} />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* Opportunities Section - Only show when authenticated */}
       {isActuallyConnected && (
         <div className="w-full mt-8">
@@ -458,12 +491,12 @@ export default function Home() {
                   {messages.unlock.opportunities}
                 </h3>
               </div>
-              
+
               {/* Description */}
               <p className="text-sm lg:text-base text-gray-700 leading-relaxed max-w-lg">
                 Discover art contests, collaborations, communities, and earning opportunities specially curated for artists like you.
               </p>
-              
+
               {/* CTA Button */}
               <Link href={`/${locale}/opportunities`}>
                 <Button className="bg-gradient-to-r from-green-500 to-lime-500 hover:from-green-600 hover:to-lime-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-2">

@@ -51,6 +51,20 @@
       "chatSubmitted": "Question submitted!",
       "redirectingToAgent": "Redirecting to Art3 Hub assistant..."
     },
+    "gallery": {
+      "title": "Art Gallery",
+      "description": "Explore unique NFT artwork created by talented artists from around the world.",
+      "viewGallery": "View Gallery",
+      "subtitle": "Explore unique NFT artwork from talented artists worldwide",
+      "search": "Search NFTs...",
+      "noNfts": "No NFTs found",
+      "loading": "Loading gallery...",
+      "viewDetails": "View Details",
+      "owner": "Owner",
+      "creator": "Creator",
+      "collection": "Collection",
+      "blockchain": "Blockchain"
+    },
     "footer": {
       "created": "Created by Escuela de Arte Nounish",
       "built": "Built with ❤️ from LATAM"

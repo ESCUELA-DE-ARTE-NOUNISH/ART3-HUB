@@ -51,6 +51,20 @@
       "chatSubmitted": "¡Pregunta enviada!",
       "redirectingToAgent": "Redirigiendo al asistente de Art3 Hub..."
     },
+    "gallery": {
+      "title": "Galería de Arte",
+      "description": "Explora obras de arte NFT únicas creadas por talentosos artistas de todo el mundo.",
+      "viewGallery": "Ver Galería",
+      "subtitle": "Explora obras de arte NFT únicas de artistas talentosos de todo el mundo",
+      "search": "Buscar NFTs...",
+      "noNfts": "No se encontraron NFTs",
+      "loading": "Cargando galería...",
+      "viewDetails": "Ver Detalles",
+      "owner": "Propietario",
+      "creator": "Creador",
+      "collection": "Colección",
+      "blockchain": "Blockchain"
+    },
     "footer": {
       "created": "Creado por Escuela de Arte Nounish",
       "built": "Construido con ❤️ desde LATAM"
