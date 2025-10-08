@@ -409,17 +409,17 @@ export default function GalleryPage() {
           {currentIndex + 1} / {nfts.length}
         </div>
 
-        {/* NFT Info Card - Below header, semi-transparent */}
-        <div className="absolute top-20 md:top-24 left-4 md:left-6 right-4 md:right-24 z-10">
-          <div className="bg-black/60 backdrop-blur-md rounded-lg p-4 md:p-5 border border-white/10 max-w-lg">
-            <h1 className="text-white text-lg md:text-xl font-bold mb-2">
+        {/* NFT Info Card - Bottom left, more transparent */}
+        <div className="absolute bottom-24 md:bottom-28 left-4 md:left-6 right-4 md:right-24 z-10">
+          <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 md:p-5 border border-white/20 max-w-lg">
+            <h1 className="text-white text-lg md:text-xl font-bold mb-2 drop-shadow-lg">
               {currentNft.name || 'Untitled'}
             </h1>
-            <p className="text-white/80 text-sm md:text-base mb-2">
+            <p className="text-white/90 text-sm md:text-base mb-2 drop-shadow-lg">
               by {getDisplayArtistName(currentNft)}
             </p>
             {currentNft.description && (
-              <p className="text-white/70 text-sm line-clamp-3">
+              <p className="text-white/80 text-sm line-clamp-2 drop-shadow-md">
                 {currentNft.description}
               </p>
             )}
