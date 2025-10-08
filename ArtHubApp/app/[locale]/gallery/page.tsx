@@ -3,21 +3,12 @@
 // Prevent static generation for pages using Web3 hooks
 export const dynamic = 'force-dynamic'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, Fragment } from 'react'
 import { useParams } from 'next/navigation'
 import { defaultLocale } from '@/config/i18n'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Search, ImageIcon, Heart } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Heart, Info, X, Maximize2, Minimize2, Play, Pause } from 'lucide-react'
 import Image from 'next/image'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import { FirebaseNFTService } from '@/lib/services/firebase-nft-service'
 import type { NFT } from '@/lib/firebase'
 import { useToast } from '@/hooks/use-toast'
@@ -26,27 +17,30 @@ export default function GalleryPage() {
   const params = useParams()
   const { toast } = useToast()
   const [locale, setLocale] = useState<string>(defaultLocale)
-  const [searchQuery, setSearchQuery] = useState('')
   const [nfts, setNfts] = useState<NFT[]>([])
-  const [filteredNfts, setFilteredNfts] = useState<NFT[]>([])
+  const [currentIndex, setCurrentIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
-  const [selectedNft, setSelectedNft] = useState<NFT | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [showDetails, setShowDetails] = useState(false)
+  const [preloadedImages, setPreloadedImages] = useState<Set<number>>(new Set([0]))
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [isAutoplay, setIsAutoplay] = useState(false)
 
   const [messages, setMessages] = useState({
     title: "Art Gallery",
-    subtitle: "Explore unique NFT artwork from talented artists worldwide",
-    search: "Search NFTs...",
-    noNfts: "No NFTs found",
     loading: "Loading gallery...",
-    viewDetails: "View Details",
-    owner: "Owner",
+    noNfts: "No NFTs found",
     creator: "Creator",
     collection: "Collection",
     blockchain: "Blockchain",
-    common: {
-      close: "Close"
-    }
+    viewOnBaseScan: "View on BaseScan",
+    previous: "Previous",
+    next: "Next",
+    hideDetails: "Hide Details",
+    showDetails: "Show Details",
+    fullscreen: "Fullscreen",
+    exitFullscreen: "Exit Fullscreen",
+    autoplay: "Autoplay",
+    stopAutoplay: "Stop Autoplay"
   })
 
   // Update locale when params change
@@ -63,11 +57,7 @@ export default function GalleryPage() {
         if (translations?.default?.gallery) {
           setMessages(prev => ({
             ...prev,
-            ...(translations.default.gallery || {}),
-            common: {
-              ...prev.common,
-              ...(translations.default.common || {})
-            }
+            ...(translations.default.gallery || {})
           }))
         }
       } catch (error) {
@@ -84,8 +74,11 @@ export default function GalleryPage() {
       try {
         setIsLoading(true)
         const allNfts = await FirebaseNFTService.getAllNFTs()
-        setNfts(allNfts)
-        setFilteredNfts(allNfts)
+        if (allNfts.length > 0) {
+          setNfts(allNfts)
+          // Preload first image
+          setPreloadedImages(new Set([0]))
+        }
       } catch (error) {
         console.error('Error loading NFTs:', error)
         toast({
@@ -100,29 +93,6 @@ export default function GalleryPage() {
 
     loadNFTs()
   }, [toast])
-
-  // Filter NFTs based on search query
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredNfts(nfts)
-      return
-    }
-
-    const query = searchQuery.toLowerCase()
-    const filtered = nfts.filter(nft =>
-      nft.name?.toLowerCase().includes(query) ||
-      nft.description?.toLowerCase().includes(query) ||
-      nft.artist_name?.toLowerCase().includes(query) ||
-      nft.wallet_address?.toLowerCase().includes(query)
-    )
-    setFilteredNfts(filtered)
-  }, [searchQuery, nfts])
-
-  // Handle NFT card click
-  const handleNftClick = (nft: NFT) => {
-    setSelectedNft(nft)
-    setIsDialogOpen(true)
-  }
 
   // Helper function to get IPFS image URL
   const getImageUrl = (ipfsHash: string) => {
@@ -147,177 +117,460 @@ export default function GalleryPage() {
     return formatAddress(nft.wallet_address)
   }
 
-  return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center mb-4">
-          <ImageIcon className="text-purple-500 mr-3" size={40} />
-          <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
-            {messages.title}
-          </h1>
-        </div>
-        <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-          {messages.subtitle}
-        </p>
-      </div>
+  // Preload adjacent images
+  const preloadAdjacentImages = useCallback((index: number) => {
+    const indicesToPreload = [
+      index - 1, // Previous
+      index,     // Current
+      index + 1, // Next
+      index + 2  // Next + 1
+    ].filter(i => i >= 0 && i < nfts.length)
 
-      {/* Search Bar */}
-      <div className="mb-8 max-w-2xl mx-auto">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-          <Input
-            type="text"
-            placeholder={messages.search}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-4 py-3 w-full rounded-full border border-gray-200 focus:border-purple-300 focus:ring-2 focus:ring-purple-100"
+    setPreloadedImages(prev => {
+      const newSet = new Set(prev)
+      indicesToPreload.forEach(i => newSet.add(i))
+      return newSet
+    })
+
+    // Preload images in the background
+    indicesToPreload.forEach(i => {
+      if (nfts[i]?.image_ipfs_hash) {
+        const img = new window.Image()
+        img.src = getImageUrl(nfts[i].image_ipfs_hash)
+      }
+    })
+  }, [nfts])
+
+  // Navigate to previous NFT
+  const goToPrevious = useCallback(() => {
+    setCurrentIndex(prev => {
+      const newIndex = prev > 0 ? prev - 1 : nfts.length - 1
+      preloadAdjacentImages(newIndex)
+      return newIndex
+    })
+  }, [nfts.length, preloadAdjacentImages])
+
+  // Navigate to next NFT
+  const goToNext = useCallback(() => {
+    setCurrentIndex(prev => {
+      const newIndex = prev < nfts.length - 1 ? prev + 1 : 0
+      preloadAdjacentImages(newIndex)
+      return newIndex
+    })
+  }, [nfts.length, preloadAdjacentImages])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        goToPrevious()
+      } else if (e.key === 'ArrowRight') {
+        goToNext()
+      } else if (e.key === 'i' || e.key === 'I') {
+        setShowDetails(prev => !prev)
+      } else if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [goToPrevious, goToNext, isFullscreen])
+
+  // Preload adjacent images when index changes
+  useEffect(() => {
+    if (nfts.length > 0) {
+      preloadAdjacentImages(currentIndex)
+    }
+  }, [currentIndex, nfts.length, preloadAdjacentImages])
+
+  // Toggle fullscreen mode
+  const toggleFullscreen = useCallback(() => {
+    setIsFullscreen(prev => !prev)
+  }, [])
+
+  // Toggle autoplay
+  const toggleAutoplay = useCallback(() => {
+    setIsAutoplay(prev => !prev)
+  }, [])
+
+  // Autoplay effect - advance to next image every 10 seconds
+  useEffect(() => {
+    if (!isAutoplay || nfts.length === 0) return
+
+    const autoplayInterval = setInterval(() => {
+      goToNext()
+    }, 10000) // 10 seconds
+
+    return () => clearInterval(autoplayInterval)
+  }, [isAutoplay, nfts.length, goToNext])
+
+  // Touch swipe handling
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+
+  const minSwipeDistance = 50
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > minSwipeDistance
+    const isRightSwipe = distance < -minSwipeDistance
+
+    if (isLeftSwipe) {
+      goToNext()
+    } else if (isRightSwipe) {
+      goToPrevious()
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-white text-lg">{messages.loading}</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (nfts.length === 0) {
+    return (
+      <div className="fixed inset-0 bg-black flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-white text-xl">{messages.noNfts}</p>
+        </div>
+      </div>
+    )
+  }
+
+  const currentNft = nfts[currentIndex]
+
+  // Fullscreen Modal Component
+  const FullscreenModal = () => (
+    <div
+      className="fixed inset-0 bg-black z-[9999] overflow-hidden"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
+      {/* Main Image Container */}
+      <div className="relative w-full h-full flex items-center justify-center">
+        {/* Current NFT Image */}
+        <div className="relative w-full h-full flex items-center justify-center">
+          <Image
+            src={getImageUrl(currentNft.image_ipfs_hash)}
+            alt={currentNft.name || 'NFT'}
+            fill
+            className="object-contain"
+            priority
+            unoptimized
           />
         </div>
+
+        {/* Navigation Buttons */}
+        <div className="absolute inset-0 flex items-center justify-between px-4 pointer-events-none">
+          <Button
+            onClick={goToPrevious}
+            className="pointer-events-auto w-14 h-14 rounded-full bg-black/50 hover:bg-black/70 text-white border-2 border-white/20 backdrop-blur-sm"
+            aria-label={messages.previous}
+          >
+            <ChevronLeft size={28} />
+          </Button>
+          <Button
+            onClick={goToNext}
+            className="pointer-events-auto w-14 h-14 rounded-full bg-black/50 hover:bg-black/70 text-white border-2 border-white/20 backdrop-blur-sm"
+            aria-label={messages.next}
+          >
+            <ChevronRight size={28} />
+          </Button>
+        </div>
+
+        {/* Top Bar - Title and Info */}
+        <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 to-transparent p-4 md:p-6">
+          <div className="flex items-center justify-between max-w-7xl mx-auto">
+            <div className="flex-1">
+              <h1 className="text-white text-xl md:text-2xl font-bold truncate max-w-md">
+                {currentNft.name || 'Untitled'}
+              </h1>
+              <p className="text-white/70 text-sm md:text-base">
+                by {getDisplayArtistName(currentNft)}
+              </p>
+            </div>
+
+            {/* Counter */}
+            <div className="text-white/70 text-sm md:text-base font-mono">
+              {currentIndex + 1} / {nfts.length}
+            </div>
+          </div>
+        </div>
+
+        {/* Control Icons */}
+        <div className="absolute top-20 md:top-24 right-4 md:right-6 flex flex-col gap-3 z-10">
+          {/* Autoplay Toggle */}
+          <Button
+            onClick={toggleAutoplay}
+            className="w-12 h-12 p-0 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm"
+            aria-label={isAutoplay ? messages.stopAutoplay : messages.autoplay}
+            title={isAutoplay ? messages.stopAutoplay : messages.autoplay}
+          >
+            {isAutoplay ? <Pause size={20} /> : <Play size={20} />}
+          </Button>
+
+          {/* Exit Fullscreen */}
+          <Button
+            onClick={toggleFullscreen}
+            className="w-12 h-12 p-0 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm"
+            aria-label={messages.exitFullscreen}
+            title={messages.exitFullscreen}
+          >
+            <Minimize2 size={20} />
+          </Button>
+        </div>
+
+        {/* Bottom Bar - Info only (no details panel in fullscreen) */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 md:p-6">
+          <div className="max-w-7xl mx-auto">
+            {/* Progress Indicator */}
+            <div className="w-full bg-white/20 rounded-full h-1">
+              <div
+                className="bg-gradient-to-r from-purple-500 to-pink-500 h-1 rounded-full transition-all duration-300"
+                style={{ width: `${((currentIndex + 1) / nfts.length) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Keyboard Hints */}
+        <div className="hidden md:block absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/40 text-sm">
+          Use ← → keys or swipe to navigate • Press ESC to exit
+        </div>
       </div>
-
-      {/* NFT Grid */}
-      {isLoading ? (
-        <div className="text-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">{messages.loading}</p>
-        </div>
-      ) : filteredNfts.length === 0 ? (
-        <div className="text-center py-20">
-          <ImageIcon className="mx-auto mb-4 text-gray-300" size={64} />
-          <p className="text-gray-600 text-lg">{messages.noNfts}</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredNfts.map((nft) => (
-            <Card
-              key={nft.id}
-              className="group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden border-2 hover:border-purple-300"
-              onClick={() => handleNftClick(nft)}
-            >
-              <CardContent className="p-0">
-                {/* NFT Image */}
-                <div className="relative aspect-square overflow-hidden bg-gray-100">
-                  <Image
-                    src={getImageUrl(nft.image_ipfs_hash)}
-                    alt={nft.name || 'NFT'}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-300"
-                    unoptimized
-                  />
-                  <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Heart size={16} className="text-pink-500" />
-                  </div>
-                </div>
-
-                {/* NFT Info */}
-                <div className="p-4">
-                  <h3 className="font-semibold text-lg mb-1 truncate">
-                    {nft.name || 'Untitled'}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-2 truncate">
-                    by {getDisplayArtistName(nft)}
-                  </p>
-                  {nft.description && (
-                    <p className="text-xs text-gray-500 line-clamp-2">
-                      {nft.description}
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      {/* NFT Detail Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          {selectedNft && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
-                  {selectedNft.name || 'Untitled'}
-                </DialogTitle>
-                <DialogDescription>
-                  {selectedNft.description || 'No description available'}
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="space-y-6">
-                {/* NFT Image */}
-                <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-gray-100">
-                  <Image
-                    src={getImageUrl(selectedNft.image_ipfs_hash)}
-                    alt={selectedNft.name || 'NFT'}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                </div>
-
-                {/* NFT Details */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-2">
-                    <p className="text-sm text-gray-500 mb-1">{messages.creator}</p>
-                    <p className="font-mono text-sm break-all">
-                      {formatAddress(selectedNft.wallet_address)}
-                    </p>
-                  </div>
-
-                  {selectedNft.artist_name && selectedNft.artist_name.trim() && (
-                    <div className="col-span-2">
-                      <p className="text-sm text-gray-500 mb-1">Artist Name</p>
-                      <p className="font-semibold text-sm">
-                        {selectedNft.artist_name}
-                      </p>
-                    </div>
-                  )}
-
-                  {selectedNft.contract_address && (
-                    <div className="col-span-2">
-                      <p className="text-sm text-gray-500 mb-1">{messages.collection}</p>
-                      <p className="font-mono text-sm break-all">
-                        {formatAddress(selectedNft.contract_address)}
-                      </p>
-                    </div>
-                  )}
-
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">{messages.blockchain}</p>
-                    <p className="font-semibold">
-                      {selectedNft.network === 'base' ? 'Base' : selectedNft.network === 'base-sepolia' ? 'Base Sepolia' : 'Base'}
-                    </p>
-                  </div>
-
-                  {selectedNft.royalty_percentage !== undefined && (
-                    <div>
-                      <p className="text-sm text-gray-500 mb-1">Royalty</p>
-                      <p className="font-semibold">{selectedNft.royalty_percentage}%</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* View on Explorer Button */}
-                {selectedNft.contract_address && (
-                  <Button
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                    onClick={() => {
-                      const isTestnet = selectedNft.network === 'base-sepolia'
-                      const explorerUrl = isTestnet
-                        ? `https://sepolia.basescan.org/address/${selectedNft.contract_address}`
-                        : `https://basescan.org/address/${selectedNft.contract_address}`
-                      window.open(explorerUrl, '_blank')
-                    }}
-                  >
-                    View on BaseScan
-                  </Button>
-                )}
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
+  )
+
+  return (
+    <Fragment>
+      {/* Fullscreen Modal */}
+      {isFullscreen && <FullscreenModal />}
+
+      {/* Regular Gallery View */}
+      <div
+        className="fixed inset-0 bg-black overflow-hidden"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
+      {/* Main Image Container */}
+      <div className="relative w-full h-full flex items-center justify-center">
+        {/* Current NFT Image */}
+        <div className="relative w-full h-full flex items-center justify-center">
+          <Image
+            src={getImageUrl(currentNft.image_ipfs_hash)}
+            alt={currentNft.name || 'NFT'}
+            fill
+            className="object-contain"
+            priority
+            unoptimized
+          />
+        </div>
+
+        {/* Navigation Buttons - Desktop */}
+        <div className="absolute inset-0 flex items-center justify-between px-4 pointer-events-none">
+          <Button
+            onClick={goToPrevious}
+            className="pointer-events-auto w-14 h-14 rounded-full bg-black/50 hover:bg-black/70 text-white border-2 border-white/20 backdrop-blur-sm"
+            aria-label={messages.previous}
+          >
+            <ChevronLeft size={28} />
+          </Button>
+          <Button
+            onClick={goToNext}
+            className="pointer-events-auto w-14 h-14 rounded-full bg-black/50 hover:bg-black/70 text-white border-2 border-white/20 backdrop-blur-sm"
+            aria-label={messages.next}
+          >
+            <ChevronRight size={28} />
+          </Button>
+        </div>
+
+        {/* Counter - Top Right */}
+        <div className="absolute top-4 md:top-6 right-4 md:right-6 text-white/70 text-sm md:text-base font-mono bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
+          {currentIndex + 1} / {nfts.length}
+        </div>
+
+        {/* NFT Info Card - Below header, semi-transparent */}
+        <div className="absolute top-20 md:top-24 left-4 md:left-6 right-4 md:right-24 z-10">
+          <div className="bg-black/60 backdrop-blur-md rounded-lg p-4 md:p-5 border border-white/10 max-w-lg">
+            <h1 className="text-white text-lg md:text-xl font-bold mb-2">
+              {currentNft.name || 'Untitled'}
+            </h1>
+            <p className="text-white/80 text-sm md:text-base mb-2">
+              by {getDisplayArtistName(currentNft)}
+            </p>
+            {currentNft.description && (
+              <p className="text-white/70 text-sm line-clamp-3">
+                {currentNft.description}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Control Icons - Right side below counter */}
+        <div className="absolute top-28 md:top-32 right-4 md:right-6 flex flex-col gap-3 z-10">
+          {/* Autoplay Toggle */}
+          <Button
+            onClick={toggleAutoplay}
+            className="w-12 h-12 p-0 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm"
+            aria-label={isAutoplay ? messages.stopAutoplay : messages.autoplay}
+            title={isAutoplay ? messages.stopAutoplay : messages.autoplay}
+          >
+            {isAutoplay ? <Pause size={20} /> : <Play size={20} />}
+          </Button>
+
+          {/* Enter Fullscreen */}
+          <Button
+            onClick={toggleFullscreen}
+            className="w-12 h-12 p-0 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm"
+            aria-label={messages.fullscreen}
+            title={messages.fullscreen}
+          >
+            <Maximize2 size={20} />
+          </Button>
+        </div>
+
+        {/* Bottom Bar - Details Toggle and Actions */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 md:p-6">
+          <div className="max-w-7xl mx-auto">
+            {/* Action Buttons */}
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <Button
+                onClick={() => setShowDetails(!showDetails)}
+                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm"
+              >
+                {showDetails ? (
+                  <>
+                    <X size={16} className="mr-2" />
+                    {messages.hideDetails}
+                  </>
+                ) : (
+                  <>
+                    <Info size={16} className="mr-2" />
+                    {messages.showDetails}
+                  </>
+                )}
+              </Button>
+              <Button
+                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm"
+              >
+                <Heart size={16} className="mr-2" />
+                Like
+              </Button>
+            </div>
+
+            {/* Details Panel */}
+            {showDetails && (
+              <div className="bg-black/60 backdrop-blur-lg rounded-lg p-4 md:p-6 border border-white/10 animate-in slide-in-from-bottom duration-300">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-white">
+                  {/* Description */}
+                  {currentNft.description && (
+                    <div className="md:col-span-2">
+                      <p className="text-sm text-white/70 mb-1">Description</p>
+                      <p className="text-base">{currentNft.description}</p>
+                    </div>
+                  )}
+
+                  {/* Creator */}
+                  <div>
+                    <p className="text-sm text-white/70 mb-1">{messages.creator}</p>
+                    <p className="font-mono text-sm break-all">
+                      {formatAddress(currentNft.wallet_address)}
+                    </p>
+                  </div>
+
+                  {/* Artist Name */}
+                  {currentNft.artist_name && currentNft.artist_name.trim() && (
+                    <div>
+                      <p className="text-sm text-white/70 mb-1">Artist Name</p>
+                      <p className="text-base font-semibold">{currentNft.artist_name}</p>
+                    </div>
+                  )}
+
+                  {/* Collection */}
+                  {currentNft.contract_address && (
+                    <div>
+                      <p className="text-sm text-white/70 mb-1">{messages.collection}</p>
+                      <p className="font-mono text-sm break-all">
+                        {formatAddress(currentNft.contract_address)}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Blockchain */}
+                  <div>
+                    <p className="text-sm text-white/70 mb-1">{messages.blockchain}</p>
+                    <p className="text-base font-semibold">
+                      {currentNft.network === 'base' ? 'Base' : currentNft.network === 'base-sepolia' ? 'Base Sepolia' : 'Base'}
+                    </p>
+                  </div>
+
+                  {/* Royalty */}
+                  {currentNft.royalty_percentage !== undefined && (
+                    <div>
+                      <p className="text-sm text-white/70 mb-1">Royalty</p>
+                      <p className="text-base font-semibold">{currentNft.royalty_percentage}%</p>
+                    </div>
+                  )}
+
+                  {/* View on BaseScan Button */}
+                  {currentNft.contract_address && (
+                    <div className="md:col-span-2 mt-2">
+                      <Button
+                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                        onClick={() => {
+                          const isTestnet = currentNft.network === 'base-sepolia'
+                          const explorerUrl = isTestnet
+                            ? `https://sepolia.basescan.org/address/${currentNft.contract_address}`
+                            : `https://basescan.org/address/${currentNft.contract_address}`
+                          window.open(explorerUrl, '_blank')
+                        }}
+                      >
+                        {messages.viewOnBaseScan}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Progress Indicator */}
+            <div className="mt-4">
+              <div className="w-full bg-white/20 rounded-full h-1">
+                <div
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 h-1 rounded-full transition-all duration-300"
+                  style={{ width: `${((currentIndex + 1) / nfts.length) * 100}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Keyboard Hints - Desktop Only */}
+        <div className="hidden md:block absolute bottom-20 left-1/2 transform -translate-x-1/2 text-white/40 text-sm">
+          Use ← → keys or swipe to navigate • Press I for info
+        </div>
+      </div>
+    </div>
+    </Fragment>
   )
 }

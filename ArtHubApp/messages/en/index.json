@@ -63,7 +63,16 @@
       "owner": "Owner",
       "creator": "Creator",
       "collection": "Collection",
-      "blockchain": "Blockchain"
+      "blockchain": "Blockchain",
+      "viewOnBaseScan": "View on BaseScan",
+      "previous": "Previous",
+      "next": "Next",
+      "hideDetails": "Hide Details",
+      "showDetails": "Show Details",
+      "fullscreen": "Fullscreen",
+      "exitFullscreen": "Exit Fullscreen",
+      "autoplay": "Autoplay",
+      "stopAutoplay": "Stop Autoplay"
     },
     "footer": {
       "created": "Created by Escuela de Arte Nounish",
