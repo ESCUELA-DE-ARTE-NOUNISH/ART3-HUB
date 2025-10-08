@@ -553,4 +553,149 @@ export class FirebaseNFTService {
       return []
     }
   }
+
+  /**
+   * Get all NFTs that are featured in the gallery
+   */
+  static async getGalleryNFTs(): Promise<NFT[]> {
+    if (!isFirebaseConfigured()) {
+      console.warn('Firebase not configured')
+      return []
+    }
+
+    try {
+      const nftsRef = collection(db, COLLECTIONS.NFTS)
+      const q = query(
+        nftsRef,
+        where('in_gallery', '==', true),
+        orderBy('gallery_added_at', 'desc')
+      )
+
+      const querySnapshot = await getDocs(q)
+      return querySnapshot.docs.map(doc => doc.data() as NFT)
+    } catch (error) {
+      console.error('Error fetching gallery NFTs:', error)
+      return []
+    }
+  }
+
+  /**
+   * Get paginated NFTs for admin gallery management
+   * @param page - Page number (1-indexed)
+   * @param limit - Number of NFTs per page
+   * @param filter - Filter type: 'all', 'gallery', 'not_gallery'
+   */
+  static async getAdminGalleryNFTs(
+    page: number = 1,
+    limit: number = 20,
+    filter: 'all' | 'gallery' | 'not_gallery' = 'all'
+  ): Promise<{ nfts: NFT[], total: number, page: number, totalPages: number }> {
+    if (!isFirebaseConfigured()) {
+      console.warn('Firebase not configured')
+      return { nfts: [], total: 0, page: 1, totalPages: 0 }
+    }
+
+    try {
+      const nftsRef = collection(db, COLLECTIONS.NFTS)
+      let q = query(nftsRef, orderBy('created_at', 'desc'))
+
+      // Apply filter
+      if (filter === 'gallery') {
+        q = query(nftsRef, where('in_gallery', '==', true), orderBy('gallery_added_at', 'desc'))
+      } else if (filter === 'not_gallery') {
+        q = query(nftsRef, where('in_gallery', '!=', true), orderBy('created_at', 'desc'))
+      }
+
+      const querySnapshot = await getDocs(q)
+      const allNfts = querySnapshot.docs.map(doc => doc.data() as NFT)
+
+      // Calculate pagination
+      const total = allNfts.length
+      const totalPages = Math.ceil(total / limit)
+      const startIndex = (page - 1) * limit
+      const endIndex = startIndex + limit
+      const nfts = allNfts.slice(startIndex, endIndex)
+
+      return { nfts, total, page, totalPages }
+    } catch (error) {
+      console.error('Error fetching admin gallery NFTs:', error)
+      return { nfts: [], total: 0, page: 1, totalPages: 0 }
+    }
+  }
+
+  /**
+   * Toggle NFT gallery status
+   * @param nftId - NFT document ID
+   * @param inGallery - Whether to add (true) or remove (false) from gallery
+   * @param adminWallet - Admin wallet address performing the action
+   */
+  static async toggleGalleryStatus(
+    nftId: string,
+    inGallery: boolean,
+    adminWallet: string
+  ): Promise<NFT | null> {
+    if (!isFirebaseConfigured()) {
+      console.warn('Firebase not configured')
+      return null
+    }
+
+    try {
+      const nftRef = doc(db, COLLECTIONS.NFTS, nftId)
+      const nftDoc = await getDoc(nftRef)
+
+      if (!nftDoc.exists()) {
+        console.error('NFT not found:', nftId)
+        return null
+      }
+
+      const updateData: Partial<NFT> = {
+        in_gallery: inGallery,
+        updated_at: getCurrentTimestamp()
+      }
+
+      if (inGallery) {
+        updateData.gallery_added_at = getCurrentTimestamp()
+        updateData.gallery_added_by = adminWallet
+      } else {
+        // Remove gallery metadata when removing from gallery
+        updateData.gallery_added_at = undefined
+        updateData.gallery_added_by = undefined
+      }
+
+      await updateDoc(nftRef, updateData as any)
+
+      // Fetch and return updated NFT
+      const updatedDoc = await getDoc(nftRef)
+      return updatedDoc.data() as NFT
+    } catch (error) {
+      console.error('Error toggling gallery status:', error)
+      return null
+    }
+  }
+
+  /**
+   * Bulk toggle gallery status for multiple NFTs
+   * @param nftIds - Array of NFT document IDs
+   * @param inGallery - Whether to add (true) or remove (false) from gallery
+   * @param adminWallet - Admin wallet address performing the action
+   */
+  static async bulkToggleGalleryStatus(
+    nftIds: string[],
+    inGallery: boolean,
+    adminWallet: string
+  ): Promise<number> {
+    if (!isFirebaseConfigured()) {
+      console.warn('Firebase not configured')
+      return 0
+    }
+
+    let successCount = 0
+
+    for (const nftId of nftIds) {
+      const result = await this.toggleGalleryStatus(nftId, inGallery, adminWallet)
+      if (result) successCount++
+    }
+
+    return successCount
+  }
 }

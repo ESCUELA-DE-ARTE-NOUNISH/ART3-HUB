@@ -68,19 +68,19 @@ export default function GalleryPage() {
     loadMessages()
   }, [locale])
 
-  // Load all NFTs on mount
+  // Load gallery NFTs on mount (only NFTs marked as in_gallery: true)
   useEffect(() => {
     async function loadNFTs() {
       try {
         setIsLoading(true)
-        const allNfts = await FirebaseNFTService.getAllNFTs()
-        if (allNfts.length > 0) {
-          setNfts(allNfts)
+        const galleryNfts = await FirebaseNFTService.getGalleryNFTs()
+        if (galleryNfts.length > 0) {
+          setNfts(galleryNfts)
           // Preload first image
           setPreloadedImages(new Set([0]))
         }
       } catch (error) {
-        console.error('Error loading NFTs:', error)
+        console.error('Error loading gallery NFTs:', error)
         toast({
           title: "Error",
           description: "Failed to load gallery. Please try again.",

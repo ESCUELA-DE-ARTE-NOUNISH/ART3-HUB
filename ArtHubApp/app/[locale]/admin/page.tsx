@@ -12,13 +12,13 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
-import { Shield, AlertCircle, CheckCircle, Copy, BarChart3, ExternalLink, Info } from "lucide-react"
+import { Shield, AlertCircle, Copy, BarChart3, ExternalLink, Info } from "lucide-react"
 import { useAccount } from "wagmi"
 import { useToast } from "@/hooks/use-toast"
 import { useSmartContractAdminService, type AdminPermissions, type AdminInfo } from "@/lib/services/smart-contract-admin-service"
 import { useAdminService } from "@/lib/services/admin-service"
-import { UserAnalyticsDashboard } from "@/components/admin/UserAnalyticsDashboard"
 import { UsersList } from "@/components/admin/UsersList"
+import { GalleryManagement } from "@/components/admin/GalleryManagement"
 
 interface AdminTranslations {
   title: string
@@ -37,6 +37,8 @@ interface AdminTranslations {
   manageCommunities: string
   blogManagement: string
   manageBlog: string
+  galleryManagement: string
+  manageGallery: string
   accessDenied: string
   accessDeniedDesc: string
   adminWallet: string
@@ -56,6 +58,31 @@ interface AdminTranslations {
   loading: string
   error: string
   userAnalytics: string
+  galleryTitle: string
+  galleryDescription: string
+  galleryFilterAll: string
+  galleryFilterInGallery: string
+  galleryFilterNotInGallery: string
+  galleryAddToGallery: string
+  galleryRemoveFromGallery: string
+  galleryBulkAdd: string
+  galleryBulkRemove: string
+  gallerySelectAll: string
+  galleryDeselectAll: string
+  galleryLoading: string
+  galleryNoNfts: string
+  galleryInGallery: string
+  galleryNotInGallery: string
+  galleryPage: string
+  galleryOf: string
+  galleryShowing: string
+  galleryNfts: string
+  gallerySuccess: string
+  galleryError: string
+  galleryAddedToGallery: string
+  galleryRemovedFromGallery: string
+  galleryBulkUpdateSuccess: string
+  galleryLoadError: string
 }
 
 const translations: Record<string, AdminTranslations> = {
@@ -76,6 +103,8 @@ const translations: Record<string, AdminTranslations> = {
     manageCommunities: "Manage Communities",
     blogManagement: "Blog Management",
     manageBlog: "Manage Blog",
+    galleryManagement: "Gallery Management",
+    manageGallery: "Manage Gallery",
     accessDenied: "Access Denied",
     accessDeniedDesc: "You need administrator privileges to access this page. Admin status is verified on-chain.",
     adminWallet: "Admin Wallet",
@@ -94,7 +123,32 @@ const translations: Record<string, AdminTranslations> = {
     refreshStatus: "Refresh Status",
     loading: "Loading...",
     error: "Error loading admin status",
-    userAnalytics: "User Analytics"
+    userAnalytics: "User Analytics",
+    galleryTitle: "Gallery Management",
+    galleryDescription: "Manage which NFTs are featured in the public gallery",
+    galleryFilterAll: "All NFTs",
+    galleryFilterInGallery: "In Gallery",
+    galleryFilterNotInGallery: "Not in Gallery",
+    galleryAddToGallery: "Add to Gallery",
+    galleryRemoveFromGallery: "Remove from Gallery",
+    galleryBulkAdd: "Bulk Add",
+    galleryBulkRemove: "Bulk Remove",
+    gallerySelectAll: "Select All",
+    galleryDeselectAll: "Deselect All",
+    galleryLoading: "Loading NFTs...",
+    galleryNoNfts: "No NFTs found",
+    galleryInGallery: "In Gallery",
+    galleryNotInGallery: "Not in Gallery",
+    galleryPage: "Page",
+    galleryOf: "of",
+    galleryShowing: "Showing",
+    galleryNfts: "NFTs",
+    gallerySuccess: "Success",
+    galleryError: "Error",
+    galleryAddedToGallery: "NFT added to gallery",
+    galleryRemovedFromGallery: "NFT removed from gallery",
+    galleryBulkUpdateSuccess: "Bulk update completed",
+    galleryLoadError: "Failed to load NFTs"
   },
   es: {
     title: "Panel de Administración",
@@ -113,6 +167,8 @@ const translations: Record<string, AdminTranslations> = {
     manageCommunities: "Gestionar Comunidades",
     blogManagement: "Gestión de Blog",
     manageBlog: "Gestionar Blog",
+    galleryManagement: "Gestión de Galería",
+    manageGallery: "Gestionar Galería",
     accessDenied: "Acceso Denegado",
     accessDeniedDesc: "Necesita privilegios de administrador para acceder a esta página. El estado de admin se verifica en cadena.",
     adminWallet: "Billetera Admin",
@@ -131,7 +187,32 @@ const translations: Record<string, AdminTranslations> = {
     refreshStatus: "Actualizar Estado",
     loading: "Cargando...",
     error: "Error al cargar estado de admin",
-    userAnalytics: "Analíticas de Usuario"
+    userAnalytics: "Analíticas de Usuario",
+    galleryTitle: "Gestión de Galería",
+    galleryDescription: "Gestionar qué NFTs se destacan en la galería pública",
+    galleryFilterAll: "Todos los NFTs",
+    galleryFilterInGallery: "En Galería",
+    galleryFilterNotInGallery: "Fuera de Galería",
+    galleryAddToGallery: "Añadir a Galería",
+    galleryRemoveFromGallery: "Quitar de Galería",
+    galleryBulkAdd: "Añadir en Masa",
+    galleryBulkRemove: "Quitar en Masa",
+    gallerySelectAll: "Seleccionar Todos",
+    galleryDeselectAll: "Deseleccionar Todos",
+    galleryLoading: "Cargando NFTs...",
+    galleryNoNfts: "No se encontraron NFTs",
+    galleryInGallery: "En Galería",
+    galleryNotInGallery: "Fuera de Galería",
+    galleryPage: "Página",
+    galleryOf: "de",
+    galleryShowing: "Mostrando",
+    galleryNfts: "NFTs",
+    gallerySuccess: "Éxito",
+    galleryError: "Error",
+    galleryAddedToGallery: "NFT añadido a la galería",
+    galleryRemovedFromGallery: "NFT quitado de la galería",
+    galleryBulkUpdateSuccess: "Actualización en masa completada",
+    galleryLoadError: "Error al cargar NFTs"
   },
   pt: {
     title: "Painel de Administração",
@@ -150,6 +231,8 @@ const translations: Record<string, AdminTranslations> = {
     manageCommunities: "Gerenciar Comunidades",
     blogManagement: "Gerenciamento de Blog",
     manageBlog: "Gerenciar Blog",
+    galleryManagement: "Gestão de Galeria",
+    manageGallery: "Gerenciar Galeria",
     accessDenied: "Acesso Negado",
     accessDeniedDesc: "Você precisa de privilégios de administrador para acessar esta página. O status admin é verificado na blockchain.",
     adminWallet: "Carteira Admin",
@@ -168,7 +251,32 @@ const translations: Record<string, AdminTranslations> = {
     refreshStatus: "Atualizar Status",
     loading: "Carregando...",
     error: "Erro ao carregar status admin",
-    userAnalytics: "Análise de Usuários"
+    userAnalytics: "Análise de Usuários",
+    galleryTitle: "Gestão de Galeria",
+    galleryDescription: "Gerencie quais NFTs são destacados na galeria pública",
+    galleryFilterAll: "Todos os NFTs",
+    galleryFilterInGallery: "Na Galeria",
+    galleryFilterNotInGallery: "Fora da Galeria",
+    galleryAddToGallery: "Adicionar à Galeria",
+    galleryRemoveFromGallery: "Remover da Galeria",
+    galleryBulkAdd: "Adicionar em Massa",
+    galleryBulkRemove: "Remover em Massa",
+    gallerySelectAll: "Selecionar Todos",
+    galleryDeselectAll: "Desselecionar Todos",
+    galleryLoading: "Carregando NFTs...",
+    galleryNoNfts: "Nenhum NFT encontrado",
+    galleryInGallery: "Na Galeria",
+    galleryNotInGallery: "Fora da Galeria",
+    galleryPage: "Página",
+    galleryOf: "de",
+    galleryShowing: "Mostrando",
+    galleryNfts: "NFTs",
+    gallerySuccess: "Sucesso",
+    galleryError: "Erro",
+    galleryAddedToGallery: "NFT adicionado à galeria",
+    galleryRemovedFromGallery: "NFT removido da galeria",
+    galleryBulkUpdateSuccess: "Atualização em massa concluída",
+    galleryLoadError: "Falha ao carregar NFTs"
   },
   fr: {
     title: "Panneau d'Administration",
@@ -187,6 +295,8 @@ const translations: Record<string, AdminTranslations> = {
     manageCommunities: "Gérer les Communautés",
     blogManagement: "Gestion du Blog",
     manageBlog: "Gérer le Blog",
+    galleryManagement: "Gestion de la Galerie",
+    manageGallery: "Gérer la Galerie",
     accessDenied: "Accès Refusé",
     accessDeniedDesc: "Vous avez besoin de privilèges d'administrateur pour accéder à cette page. Le statut admin est vérifié sur la blockchain.",
     adminWallet: "Portefeuille Admin",
@@ -205,7 +315,32 @@ const translations: Record<string, AdminTranslations> = {
     refreshStatus: "Actualiser Statut",
     loading: "Chargement...",
     error: "Erreur lors du chargement du statut admin",
-    userAnalytics: "Analyse des Utilisateurs"
+    userAnalytics: "Analyse des Utilisateurs",
+    galleryTitle: "Gestion de la Galerie",
+    galleryDescription: "Gérer les NFTs mis en avant dans la galerie publique",
+    galleryFilterAll: "Tous les NFTs",
+    galleryFilterInGallery: "Dans la Galerie",
+    galleryFilterNotInGallery: "Hors Galerie",
+    galleryAddToGallery: "Ajouter à la Galerie",
+    galleryRemoveFromGallery: "Retirer de la Galerie",
+    galleryBulkAdd: "Ajout en Masse",
+    galleryBulkRemove: "Retrait en Masse",
+    gallerySelectAll: "Tout Sélectionner",
+    galleryDeselectAll: "Tout Désélectionner",
+    galleryLoading: "Chargement des NFTs...",
+    galleryNoNfts: "Aucun NFT trouvé",
+    galleryInGallery: "Dans la Galerie",
+    galleryNotInGallery: "Hors Galerie",
+    galleryPage: "Page",
+    galleryOf: "sur",
+    galleryShowing: "Affichage",
+    galleryNfts: "NFTs",
+    gallerySuccess: "Succès",
+    galleryError: "Erreur",
+    galleryAddedToGallery: "NFT ajouté à la galerie",
+    galleryRemovedFromGallery: "NFT retiré de la galerie",
+    galleryBulkUpdateSuccess: "Mise à jour en masse terminée",
+    galleryLoadError: "Échec du chargement des NFTs"
   }
 }
 
@@ -647,6 +782,53 @@ export default function SmartContractAdminPage() {
                 </Button>
               </div>
             </CardHeader>
+          </Card>
+
+          {/* Gallery Management */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-gallery-horizontal"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/><rect width="4" height="6" x="6" y="7" rx="1"/><rect width="4" height="6" x="14" y="7" rx="1"/></svg>
+                {t.galleryManagement}
+              </CardTitle>
+              <CardDescription>
+                Manage which NFTs are featured in the public gallery. Add or remove NFTs with pagination to avoid rate limits.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {address && (
+                <GalleryManagement
+                  adminWallet={address}
+                  translations={{
+                    title: t.galleryTitle,
+                    description: t.galleryDescription,
+                    filterAll: t.galleryFilterAll,
+                    filterInGallery: t.galleryFilterInGallery,
+                    filterNotInGallery: t.galleryFilterNotInGallery,
+                    addToGallery: t.galleryAddToGallery,
+                    removeFromGallery: t.galleryRemoveFromGallery,
+                    bulkAdd: t.galleryBulkAdd,
+                    bulkRemove: t.galleryBulkRemove,
+                    selectAll: t.gallerySelectAll,
+                    deselectAll: t.galleryDeselectAll,
+                    loading: t.galleryLoading,
+                    noNfts: t.galleryNoNfts,
+                    inGallery: t.galleryInGallery,
+                    notInGallery: t.galleryNotInGallery,
+                    page: t.galleryPage,
+                    of: t.galleryOf,
+                    showing: t.galleryShowing,
+                    nfts: t.galleryNfts,
+                    success: t.gallerySuccess,
+                    error: t.galleryError,
+                    addedToGallery: t.galleryAddedToGallery,
+                    removedFromGallery: t.galleryRemovedFromGallery,
+                    bulkUpdateSuccess: t.galleryBulkUpdateSuccess,
+                    loadError: t.galleryLoadError
+                  }}
+                />
+              )}
+            </CardContent>
           </Card>
 
           {/* Blog Management */}

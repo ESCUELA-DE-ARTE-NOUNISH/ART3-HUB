@@ -74,6 +74,33 @@
       "autoplay": "Reproducción Automática",
       "stopAutoplay": "Detener Reproducción"
     },
+    "galleryManagement": {
+      "title": "Gestión de Galería",
+      "description": "Gestionar qué NFTs se destacan en la galería pública",
+      "filterAll": "Todos los NFTs",
+      "filterInGallery": "En Galería",
+      "filterNotInGallery": "Fuera de Galería",
+      "addToGallery": "Añadir a Galería",
+      "removeFromGallery": "Quitar de Galería",
+      "bulkAdd": "Añadir en Masa",
+      "bulkRemove": "Quitar en Masa",
+      "selectAll": "Seleccionar Todos",
+      "deselectAll": "Deseleccionar Todos",
+      "loading": "Cargando NFTs...",
+      "noNfts": "No se encontraron NFTs",
+      "inGallery": "En Galería",
+      "notInGallery": "Fuera de Galería",
+      "page": "Página",
+      "of": "de",
+      "showing": "Mostrando",
+      "nfts": "NFTs",
+      "success": "Éxito",
+      "error": "Error",
+      "addedToGallery": "NFT añadido a la galería",
+      "removedFromGallery": "NFT quitado de la galería",
+      "bulkUpdateSuccess": "Actualización en masa completada",
+      "loadError": "Error al cargar NFTs"
+    },
     "footer": {
       "created": "Creado por Escuela de Arte Nounish",
       "built": "Construido con ❤️ desde LATAM"
