@@ -33,8 +33,10 @@ export class FirebaseUserService {
       const userRef = doc(db, COLLECTIONS.USER_PROFILES, walletAddress.toLowerCase())
       const userDoc = await getDoc(userRef)
 
-      // Detect authentication source
-      const authSource = isFarcasterEnvironment() ? 'mini_app' : 'privy'
+      // Detect authentication source with defensive check
+      const authSource = (typeof isFarcasterEnvironment === 'function' && isFarcasterEnvironment())
+        ? 'mini_app'
+        : 'privy'
 
       if (userDoc.exists()) {
         const existingProfile = userDoc.data() as UserProfile
