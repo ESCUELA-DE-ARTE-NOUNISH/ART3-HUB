@@ -10,12 +10,18 @@ import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight, Heart, Info, X, Maximize2, Minimize2, Play, Pause } from 'lucide-react'
 import Image from 'next/image'
 import { FirebaseNFTService } from '@/lib/services/firebase-nft-service'
+import { FirebaseFavoritesService } from '@/lib/services/firebase-favorites-service'
 import type { NFT } from '@/lib/firebase'
 import { useToast } from '@/hooks/use-toast'
+import { useFavorites } from '@/hooks/useFavorites'
+import { useAccount } from 'wagmi'
 
 export default function GalleryPage() {
   const params = useParams()
   const { toast } = useToast()
+  const { address: userAddress } = useAccount()
+  const { toggleFavorite, isFavorited, isConnected } = useFavorites()
+
   const [locale, setLocale] = useState<string>(defaultLocale)
   const [nfts, setNfts] = useState<NFT[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -24,6 +30,8 @@ export default function GalleryPage() {
   const [preloadedImages, setPreloadedImages] = useState<Set<number>>(new Set([0]))
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isAutoplay, setIsAutoplay] = useState(false)
+  const [nftLikesCount, setNftLikesCount] = useState<Record<string, number>>({})
+  const [isLiking, setIsLiking] = useState(false)
 
   const [messages, setMessages] = useState({
     title: "Art Gallery",
@@ -68,6 +76,17 @@ export default function GalleryPage() {
     loadMessages()
   }, [locale])
 
+  // Load NFT likes count
+  const loadNFTLikesCount = useCallback(async (nftList: NFT[]) => {
+    try {
+      const nftIds = nftList.map(nft => nft.id)
+      const likesCount = await FirebaseFavoritesService.getBatchNFTLikesCount(nftIds)
+      setNftLikesCount(prev => ({ ...prev, ...likesCount }))
+    } catch (error) {
+      console.error('Failed to load NFT likes count:', error)
+    }
+  }, [])
+
   // Load gallery NFTs on mount (only NFTs marked as in_gallery: true)
   useEffect(() => {
     async function loadNFTs() {
@@ -78,6 +97,8 @@ export default function GalleryPage() {
           setNfts(galleryNfts)
           // Preload first image
           setPreloadedImages(new Set([0]))
+          // Load likes count for all gallery NFTs
+          await loadNFTLikesCount(galleryNfts)
         }
       } catch (error) {
         console.error('Error loading gallery NFTs:', error)
@@ -92,7 +113,7 @@ export default function GalleryPage() {
     }
 
     loadNFTs()
-  }, [toast])
+  }, [toast, loadNFTLikesCount])
 
   // Helper function to get IPFS image URL
   const getImageUrl = (ipfsHash: string) => {
@@ -193,6 +214,45 @@ export default function GalleryPage() {
   const toggleAutoplay = useCallback(() => {
     setIsAutoplay(prev => !prev)
   }, [])
+
+  // Handle like/favorite functionality
+  const handleLikeClick = useCallback(async () => {
+    if (!isConnected) {
+      toast({
+        title: "Authentication Required",
+        description: "Please connect your wallet to like NFTs",
+        variant: "destructive"
+      })
+      return
+    }
+
+    const currentNft = nfts[currentIndex]
+    if (!currentNft) return
+
+    setIsLiking(true)
+    try {
+      await toggleFavorite(currentNft)
+      // Reload like count for current NFT
+      const count = await FirebaseFavoritesService.getNFTLikesCount(currentNft.id)
+      setNftLikesCount(prev => ({ ...prev, [currentNft.id]: count }))
+
+      toast({
+        title: isFavorited(currentNft.id) ? "Removed from favorites" : "Added to favorites",
+        description: isFavorited(currentNft.id)
+          ? "NFT removed from your favorites"
+          : "NFT added to your favorites",
+      })
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update like status. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLiking(false)
+    }
+  }, [isConnected, nfts, currentIndex, toggleFavorite, isFavorited, toast])
 
   // Autoplay effect - advance to next image every 10 seconds
   useEffect(() => {
@@ -304,6 +364,25 @@ export default function GalleryPage() {
 
         {/* Control Icons */}
         <div className="absolute top-16 md:top-20 right-4 md:right-6 flex flex-col gap-3 z-10">
+          {/* Like Button */}
+          <Button
+            onClick={handleLikeClick}
+            disabled={!isConnected || isLiking}
+            className="w-12 h-12 p-0 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed relative"
+            aria-label="Like NFT"
+            title={isConnected ? "Like this NFT" : "Connect wallet to like"}
+          >
+            <Heart
+              size={20}
+              className={`${nfts[currentIndex] && isFavorited(nfts[currentIndex].id) ? 'fill-current text-pink-500' : ''}`}
+            />
+            {nfts[currentIndex] && nftLikesCount[nfts[currentIndex].id] > 0 && (
+              <span className="absolute -bottom-1 -right-1 bg-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                {nftLikesCount[nfts[currentIndex].id]}
+              </span>
+            )}
+          </Button>
+
           {/* Autoplay Toggle */}
           <Button
             onClick={toggleAutoplay}
@@ -428,6 +507,25 @@ export default function GalleryPage() {
 
         {/* Control Icons - Right side below counter */}
         <div className="absolute top-28 md:top-32 right-4 md:right-6 flex flex-col gap-3 z-10">
+          {/* Like Button */}
+          <Button
+            onClick={handleLikeClick}
+            disabled={!isConnected || isLiking}
+            className="w-12 h-12 p-0 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed relative"
+            aria-label="Like NFT"
+            title={isConnected ? "Like this NFT" : "Connect wallet to like"}
+          >
+            <Heart
+              size={20}
+              className={`${nfts[currentIndex] && isFavorited(nfts[currentIndex].id) ? 'fill-current text-pink-500' : ''}`}
+            />
+            {nfts[currentIndex] && nftLikesCount[nfts[currentIndex].id] > 0 && (
+              <span className="absolute -bottom-1 -right-1 bg-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                {nftLikesCount[nfts[currentIndex].id]}
+              </span>
+            )}
+          </Button>
+
           {/* Autoplay Toggle */}
           <Button
             onClick={toggleAutoplay}
@@ -471,10 +569,15 @@ export default function GalleryPage() {
                 )}
               </Button>
               <Button
-                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm"
+                onClick={handleLikeClick}
+                disabled={!isConnected || isLiking}
+                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Heart size={16} className="mr-2" />
-                Like
+                <Heart
+                  size={16}
+                  className={`mr-2 ${nfts[currentIndex] && isFavorited(nfts[currentIndex].id) ? 'fill-current text-pink-500' : ''}`}
+                />
+                {isLiking ? 'Loading...' : (nfts[currentIndex] ? nftLikesCount[nfts[currentIndex].id] || 0 : 0)}
               </Button>
             </div>
 
