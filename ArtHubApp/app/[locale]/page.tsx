@@ -151,20 +151,26 @@ export default function Home() {
   useEffect(() => {
     async function updateUserEnvironment() {
       if (!isActuallyConnected) return
-      
+
       const userAddress = wagmiAddress || wallets[0]?.address
       if (!userAddress) return
 
       try {
+        // Cache the environment check to avoid multiple calls
+        const isFarcasterEnv = typeof isFarcasterEnvironment === 'function'
+          ? isFarcasterEnvironment()
+          : false
+        const authSource = isFarcasterEnv ? 'mini_app' : 'privy'
+
         console.log('🌍 ENVIRONMENT DETECTION ON LOGIN:', {
           userAddress: userAddress.substring(0, 6) + '...',
-          isFarcasterEnv: isFarcasterEnvironment(),
-          detectedAuthSource: isFarcasterEnvironment() ? 'mini_app' : 'privy'
+          isFarcasterEnv,
+          detectedAuthSource: authSource
         })
 
         // Update user profile with current environment
         await FirebaseUserService.upsertUserProfile(userAddress)
-        
+
         console.log('✅ User environment updated successfully')
       } catch (error) {
         console.error('❌ Error updating user environment:', error)
