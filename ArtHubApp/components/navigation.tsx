@@ -52,13 +52,7 @@ export default function Navigation() {
   useEffect(() => {
     const checkAdminStatus = async () => {
       const currentAddress = userAddress || wallets[0]?.address
-      
-      // Skip admin checking in Farcaster Mini App environment
-      if (context) {
-        setIsCurrentUserAdmin(false)
-        return
-      }
-      
+
       if (currentAddress) {
         try {
           // Check both smart contract and Firebase admin status
@@ -66,16 +60,17 @@ export default function Navigation() {
             smartContractAdminService.isAdmin(currentAddress),
             firebaseAdminService.isAdmin(currentAddress)
           ])
-          
+
           // User is admin if they have either smart contract or Firebase admin privileges
           const isAdmin = isSmartContractAdmin || isFirebaseAdmin
           setIsCurrentUserAdmin(isAdmin)
-          
+
           console.log('🔐 Navigation Admin Check:', {
             address: currentAddress,
             smartContractAdmin: isSmartContractAdmin,
             firebaseAdmin: isFirebaseAdmin,
-            finalResult: isAdmin
+            finalResult: isAdmin,
+            environment: context ? 'Farcaster' : 'Browser'
           })
         } catch (error) {
           console.error('Error checking admin status:', error)
@@ -88,7 +83,7 @@ export default function Navigation() {
         setIsCurrentUserAdmin(false)
       }
     }
-    
+
     checkAdminStatus()
   }, [userAddress, wallets, smartContractAdminService, firebaseAdminService, isActuallyConnected, context])
   
