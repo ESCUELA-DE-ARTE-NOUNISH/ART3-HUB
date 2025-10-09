@@ -115,6 +115,15 @@ Web3Providers
 - **Flow**: Admin creates claimable NFT → User enters code → Claim NFT
 - **Quota Tracking**: Claimable NFTs do NOT count toward user limits
 
+#### Gallery Collect Workflow (`/gallery` page)
+- **Purpose**: Support artists by collecting NFT copies with USDC payments
+- **Contracts**: V6 Factory (creates new collection per collect)
+- **Flow**: User selects amount → Pay USDC (95% artist, 5% treasury) → Mint NFT copy to collector
+- **Payment Split**: 5% to `NEXT_PUBLIC_TREASURY_WALLET`, 95% to artist wallet
+- **NFT Copy**: Creates new collection with same metadata (image, name, description) as original
+- **Quota Tracking**: Collected NFTs do NOT count toward user subscription limits
+- **Sales Registry**: All transactions logged in Firebase `gallery_sales` collection
+
 **Never interfere between these workflows** - they are parallel systems with different contracts and business logic.
 
 ### 3. Collection-per-NFT Architecture
@@ -170,12 +179,14 @@ nfts               // NFT metadata + ownership
 chat_memory        // AI conversation history
 claimable_nfts     // Secret code-based claims
 user_sessions      // Activity tracking
+gallery_sales      // Gallery collect transaction logs
 
 // Services (lib/services/)
 firebase-user-service.ts              // User CRUD
 firebase-nft-service.ts               // NFT operations
 firebase-chat-memory-service.ts       // AI memory
 nft-claim-service.ts                  // Claimable NFT management
+firebase-sales-service.ts             // Gallery sales tracking & export
 smart-contract-admin-service.ts       // Admin verification + RPC caching
 admin-service.ts                      // Admin wallet CRUD
 ```
@@ -216,6 +227,7 @@ FACTORY_V6_PROXY                = 0x8E8f86a2e5BCb6436474833764B3C68cEF89D18D
 SUBSCRIPTION_V6_PROXY           = 0x2380a7e74480d44f2Fe05B8cA2BDc9d012F56BE8
 COLLECTION_V6_IMPLEMENTATION    = 0x8aFf71f5dCb7Ad2C77f0Ec5a0A4D914394dB8c13
 CLAIMABLE_NFT_FACTORY_V6_PROXY = 0xB253b65b330A51DD452f32617730565d6f6A6b33
+USDC_ADDRESS                    = 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
 ```
 
 ### Base Sepolia (Testnet) - Chain ID: 84532
@@ -224,6 +236,7 @@ FACTORY_V6_PROXY                = 0x87DfC71B55a41825fe8EAA8a8724D8982b92DeBe
 SUBSCRIPTION_V6_PROXY           = 0x3B2D7fD4972077Fa1dbE60335c6CDF84b02fE555
 COLLECTION_V6_IMPLEMENTATION    = 0xA7a5C3c097f291411501129cB69029eCe0F7C45E
 CLAIMABLE_NFT_FACTORY_V6_PROXY = 0x51dD5FE61CF5B537853877A6dE50E7F74c24310A
+USDC_ADDRESS                    = 0x036CbD53842c5426634e7929541eC2318f3dCF7e
 ```
 
 **Network Mode**: Set via `NEXT_PUBLIC_IS_TESTING_MODE=true` (testnet) or `false` (mainnet)
@@ -295,6 +308,49 @@ CLAIMABLE_NFT_FACTORY_V6_PROXY = 0x51dD5FE61CF5B537853877A6dE50E7F74c24310A
 **AI**: OpenAI GPT-4, LangChain
 **Storage**: Pinata IPFS
 **Network**: Base (Mainnet + Sepolia)
+
+---
+
+## Recent Feature Additions (V6.1)
+
+### Gallery Like Feature
+- **File**: `app/[locale]/gallery/page.tsx`
+- **Location**: Right control panel (top-right corner) + fullscreen modal
+- **Functionality**:
+  - Heart icon with pink fill when liked
+  - Badge displays like count if > 0
+  - Positioned above autoplay and fullscreen buttons
+  - Requires wallet connection
+
+### Gallery Collect NFT Feature
+- **Files**:
+  - `components/gallery/CollectNFTModal.tsx` - Payment selection UI
+  - `app/api/gallery/collect-nft/route.ts` - USDC payment + minting backend
+- **Payment Flow**:
+  1. User selects amount ($5, $10, $25, $50, or custom)
+  2. USDC transferred: 5% to treasury, 95% to artist
+  3. New NFT collection created with same metadata as original
+  4. NFT minted to collector's wallet (token ID #1)
+  5. Sale logged in Firebase `gallery_sales` collection
+- **USDC Contract**: ERC20 `transferFrom` with approval requirement
+- **Architecture**: Collection-per-NFT (each collect creates new ERC721 collection)
+
+### Sales Registry & Admin Dashboard
+- **Files**:
+  - `lib/services/firebase-sales-service.ts` - Sales data service
+  - `components/admin/SalesManagement.tsx` - Admin UI component
+  - `app/[locale]/admin/page.tsx` - Integration into admin dashboard
+- **Features**:
+  - Stats cards: Total Sales, Total Revenue, Unique Collectors
+  - Sales table with sorting and filtering
+  - Search by NFT name, artist name, or collector wallet
+  - Filter by artist wallet address
+  - Export to CSV with all transaction details (3 tx hashes per sale)
+- **Data Tracked**:
+  - NFT metadata (name, image, description)
+  - Payment breakdown (total, artist amount, treasury fee)
+  - All transaction hashes (treasury payment, artist payment, mint)
+  - Blockchain network and timestamp
 
 ---
 

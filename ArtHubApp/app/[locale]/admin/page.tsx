@@ -19,6 +19,7 @@ import { useSmartContractAdminService, type AdminPermissions, type AdminInfo } f
 import { useAdminService } from "@/lib/services/admin-service"
 import { UsersList } from "@/components/admin/UsersList"
 import { GalleryManagement } from "@/components/admin/GalleryManagement"
+import { SalesManagement } from "@/components/admin/SalesManagement"
 
 interface AdminTranslations {
   title: string
@@ -828,6 +829,22 @@ export default function SmartContractAdminPage() {
                   }}
                 />
               )}
+            </CardContent>
+          </Card>
+
+          {/* Sales Management */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Sales Registry
+              </CardTitle>
+              <CardDescription>
+                View all gallery collect transactions, filter by artist wallet, and export sales data.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <SalesManagement />
             </CardContent>
           </Card>
 
