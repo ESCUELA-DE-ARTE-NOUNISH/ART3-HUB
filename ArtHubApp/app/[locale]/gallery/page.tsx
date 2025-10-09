@@ -7,7 +7,7 @@ import { useEffect, useState, useCallback, Fragment } from 'react'
 import { useParams } from 'next/navigation'
 import { defaultLocale } from '@/config/i18n'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight, Heart, Info, X, Maximize2, Minimize2, Play, Pause } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Heart, Info, X, Maximize2, Minimize2, Play, Pause, ShoppingCart } from 'lucide-react'
 import Image from 'next/image'
 import { FirebaseNFTService } from '@/lib/services/firebase-nft-service'
 import { FirebaseFavoritesService } from '@/lib/services/firebase-favorites-service'
@@ -15,6 +15,7 @@ import type { NFT } from '@/lib/firebase'
 import { useToast } from '@/hooks/use-toast'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useAccount } from 'wagmi'
+import { CollectNFTModal } from '@/components/gallery/CollectNFTModal'
 
 export default function GalleryPage() {
   const params = useParams()
@@ -32,6 +33,7 @@ export default function GalleryPage() {
   const [isAutoplay, setIsAutoplay] = useState(false)
   const [nftLikesCount, setNftLikesCount] = useState<Record<string, number>>({})
   const [isLiking, setIsLiking] = useState(false)
+  const [showCollectModal, setShowCollectModal] = useState(false)
 
   const [messages, setMessages] = useState({
     title: "Art Gallery",
@@ -115,10 +117,18 @@ export default function GalleryPage() {
     loadNFTs()
   }, [toast, loadNFTLikesCount])
 
-  // Helper function to get IPFS image URL
+  // Helper function to get IPFS image URL - use dedicated gateway to avoid rate limits
   const getImageUrl = (ipfsHash: string) => {
     if (!ipfsHash) return '/images/placeholder-nft.png'
-    return `https://gateway.pinata.cloud/ipfs/${ipfsHash}`
+
+    // Use Pinata's dedicated gateway with JWT if available, otherwise fall back to public
+    const pinataJWT = process.env.NEXT_PUBLIC_PINATA_GATEWAY_TOKEN
+    if (pinataJWT) {
+      return `https://gateway.pinata.cloud/ipfs/${ipfsHash}?pinataGatewayToken=${pinataJWT}`
+    }
+
+    // Fallback to ipfs.io gateway to avoid Pinata rate limits
+    return `https://ipfs.io/ipfs/${ipfsHash}`
   }
 
   // Helper function to format wallet address
@@ -138,13 +148,12 @@ export default function GalleryPage() {
     return formatAddress(nft.wallet_address)
   }
 
-  // Preload adjacent images
+  // Preload adjacent images - reduced to avoid rate limiting
   const preloadAdjacentImages = useCallback((index: number) => {
+    // Only preload current + 1 next to reduce IPFS gateway requests
     const indicesToPreload = [
-      index - 1, // Previous
       index,     // Current
-      index + 1, // Next
-      index + 2  // Next + 1
+      index + 1  // Next
     ].filter(i => i >= 0 && i < nfts.length)
 
     setPreloadedImages(prev => {
@@ -153,11 +162,14 @@ export default function GalleryPage() {
       return newSet
     })
 
-    // Preload images in the background
-    indicesToPreload.forEach(i => {
+    // Preload images in the background with delay to avoid rate limits
+    indicesToPreload.forEach((i, arrayIndex) => {
       if (nfts[i]?.image_ipfs_hash) {
-        const img = new window.Image()
-        img.src = getImageUrl(nfts[i].image_ipfs_hash)
+        // Stagger requests by 100ms to avoid hitting rate limits
+        setTimeout(() => {
+          const img = new window.Image()
+          img.src = getImageUrl(nfts[i].image_ipfs_hash)
+        }, arrayIndex * 100)
       }
     })
   }, [nfts])
@@ -364,6 +376,17 @@ export default function GalleryPage() {
 
         {/* Control Icons */}
         <div className="absolute top-16 md:top-20 right-4 md:right-6 flex flex-col gap-3 z-10">
+          {/* Collect Button */}
+          <Button
+            onClick={() => setShowCollectModal(true)}
+            disabled={!isConnected}
+            className="w-12 h-12 p-0 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border border-white/20 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            aria-label="Collect NFT"
+            title={isConnected ? "Collect this artwork" : "Connect wallet to collect"}
+          >
+            <ShoppingCart size={20} />
+          </Button>
+
           {/* Like Button */}
           <Button
             onClick={handleLikeClick}
@@ -507,6 +530,17 @@ export default function GalleryPage() {
 
         {/* Control Icons - Right side below counter */}
         <div className="absolute top-28 md:top-32 right-4 md:right-6 flex flex-col gap-3 z-10">
+          {/* Collect Button */}
+          <Button
+            onClick={() => setShowCollectModal(true)}
+            disabled={!isConnected}
+            className="w-12 h-12 p-0 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border border-white/20 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            aria-label="Collect NFT"
+            title={isConnected ? "Collect this artwork" : "Connect wallet to collect"}
+          >
+            <ShoppingCart size={20} />
+          </Button>
+
           {/* Like Button */}
           <Button
             onClick={handleLikeClick}
@@ -674,6 +708,19 @@ export default function GalleryPage() {
         </div>
       </div>
     </div>
+
+      {/* Collect NFT Modal */}
+      <CollectNFTModal
+        isOpen={showCollectModal}
+        onClose={() => setShowCollectModal(false)}
+        nft={currentNft}
+        onCollectSuccess={() => {
+          toast({
+            title: "Collection Successful!",
+            description: "Check your wallet for the NFT",
+          })
+        }}
+      />
     </Fragment>
   )
 }

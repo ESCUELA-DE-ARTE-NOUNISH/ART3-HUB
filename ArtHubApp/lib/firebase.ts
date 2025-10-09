@@ -239,6 +239,38 @@ export interface UserFavorite {
   favorited_at: string
 }
 
+export interface GallerySale {
+  id: string
+  // NFT Information
+  nft_id: string
+  nft_name: string
+  nft_image_ipfs_hash: string
+  nft_description?: string
+  collection_address: string
+  token_id: string
+
+  // Parties Involved
+  artist_wallet: string
+  artist_name?: string
+  collector_wallet: string
+
+  // Payment Details
+  amount_usdc: number
+  treasury_amount: number // 5%
+  artist_amount: number   // 95%
+
+  // Transaction Hashes
+  treasury_tx_hash: string
+  artist_tx_hash: string
+  mint_tx_hash: string
+
+  // Metadata
+  blockchain: string
+  network: string
+  sale_type: 'gallery_collect' // Future: could add 'marketplace', 'auction', etc.
+  created_at: string
+}
+
 // Firebase configuration
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -312,6 +344,7 @@ export const COLLECTIONS = {
   COMMUNITIES: 'communities',
   BLOG_POSTS: 'blog_posts',
   TRANSLATION_CACHE: 'translation_cache',
+  GALLERY_SALES: 'gallery_sales',
   USER_FAVORITES: 'user_favorites'
 } as const
 
