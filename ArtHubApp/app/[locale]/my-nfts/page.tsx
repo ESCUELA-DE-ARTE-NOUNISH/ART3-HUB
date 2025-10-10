@@ -313,26 +313,31 @@ export default function MyNFTsPage() {
     if (nft.image_ipfs_hash && nft.image_ipfs_hash.includes('firebasestorage.googleapis.com')) {
       return nft.image_ipfs_hash // Direct Firebase Storage URL
     }
-    
+
     // Check if image_ipfs_hash is already a full gateway URL
     if (nft.image_ipfs_hash && nft.image_ipfs_hash.startsWith('https://')) {
       return nft.image_ipfs_hash // Direct gateway URL
     }
-    
-    // Check if image_ipfs_hash uses ipfs:// protocol
-    if (nft.image_ipfs_hash && nft.image_ipfs_hash.startsWith('ipfs://')) {
-      // Extract the hash from ipfs:// URL and convert to gateway URL
-      const hash = nft.image_ipfs_hash.replace('ipfs://', '')
-      return `https://gateway.pinata.cloud/ipfs/${hash}`
+
+    // Extract IPFS hash from ipfs:// protocol or use directly
+    let ipfsHash = nft.image_ipfs_hash
+    if (ipfsHash && ipfsHash.startsWith('ipfs://')) {
+      ipfsHash = ipfsHash.replace('ipfs://', '')
     }
-    
-    // If the image_ipfs_hash is a valid IPFS hash (not placeholder), use IPFS
-    if (nft.image_ipfs_hash && nft.image_ipfs_hash !== 'QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L') {
-      return `https://gateway.pinata.cloud/ipfs/${nft.image_ipfs_hash}`
+
+    // If no valid hash, return placeholder
+    if (!ipfsHash || ipfsHash === 'QmcEs17g1UJvppq71hC8ssxVQLYXMQPnpnJm7o6eQ41s4L') {
+      return '/placeholder.svg'
     }
-    
-    // Fallback to placeholder for any remaining NFTs with placeholder hashes
-    return '/placeholder.svg'
+
+    // Use Pinata gateway with JWT token to avoid rate limits
+    const pinataJWT = process.env.NEXT_PUBLIC_PINATA_JWT
+    if (pinataJWT) {
+      return `https://gateway.pinata.cloud/ipfs/${ipfsHash}?pinataGatewayToken=${pinataJWT}`
+    }
+
+    // Fallback to ipfs.io gateway to avoid Pinata rate limits
+    return `https://ipfs.io/ipfs/${ipfsHash}`
   }
 
   // Filter options
@@ -513,10 +518,12 @@ export default function MyNFTsPage() {
                             <span className="font-mono ml-1 break-all">{nft.contract_address.slice(0, 10)}...{nft.contract_address.slice(-8)}</span>
                           </div>
                         )}
-                        <div className="text-xs md:text-sm text-gray-500">
-                          <span className="font-medium">TX:</span>
-                          <span className="font-mono ml-1">{nft.transaction_hash.slice(0, 10)}...{nft.transaction_hash.slice(-8)}</span>
-                        </div>
+                        {nft.transaction_hash && (
+                          <div className="text-xs md:text-sm text-gray-500">
+                            <span className="font-medium">TX:</span>
+                            <span className="font-mono ml-1">{nft.transaction_hash.slice(0, 10)}...{nft.transaction_hash.slice(-8)}</span>
+                          </div>
+                        )}
                       </div>
 
                       {/* Action Buttons - Responsive Design */}

@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input'
 import { useToast } from '@/hooks/use-toast'
 import { Loader2, DollarSign } from 'lucide-react'
 import type { NFT } from '@/lib/firebase'
-import { useAccount } from 'wagmi'
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+import { parseUnits } from 'viem'
 
 interface CollectNFTModalProps {
   isOpen: boolean
@@ -18,14 +19,37 @@ interface CollectNFTModalProps {
 
 const PRESET_AMOUNTS = [5, 10, 25, 50] // USDC amounts
 
+// ERC20 approve ABI
+const ERC20_ABI = [{
+  inputs: [
+    { name: 'spender', type: 'address' },
+    { name: 'amount', type: 'uint256' }
+  ],
+  name: 'approve',
+  outputs: [{ name: '', type: 'bool' }],
+  stateMutability: 'nonpayable',
+  type: 'function'
+}] as const
+
+// USDC address (Base Sepolia testnet)
+const USDC_ADDRESS = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
+  ? '0x036CbD53842c5426634e7929541eC2318f3dCF7e' // Base Sepolia
+  : '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' // Base Mainnet
+
 export function CollectNFTModal({ isOpen, onClose, nft, onCollectSuccess }: CollectNFTModalProps) {
   const { address, isConnected } = useAccount()
   const { toast } = useToast()
+  const { writeContract, data: approveTxHash } = useWriteContract()
+  const { isLoading: isApproving, isSuccess: isApproved } = useWaitForTransactionReceipt({
+    hash: approveTxHash,
+  })
 
   const [selectedAmount, setSelectedAmount] = useState<number>(10)
   const [customAmount, setCustomAmount] = useState<string>('')
   const [isCustom, setIsCustom] = useState(false)
   const [isCollecting, setIsCollecting] = useState(false)
+  const [needsApproval, setNeedsApproval] = useState(false)
+  const [approvalData, setApprovalData] = useState<any>(null)
 
   const getCollectAmount = (): number => {
     if (isCustom) {
@@ -61,33 +85,39 @@ export function CollectNFTModal({ isOpen, onClose, nft, onCollectSuccess }: Coll
     setIsCollecting(true)
 
     try {
-      console.log('🎨 Collecting NFT:', {
-        nft: nft.name,
-        amount,
-        treasuryFee,
-        artistAmount,
-        collector: address
-      })
+      const payload = {
+        nftId: nft.id,
+        collectorAddress: address,
+        amountUSDC: amount,
+        artistAddress: nft.wallet_address, // Correct field name from NFT type
+        metadata: {
+          name: nft.name,
+          description: nft.description,
+          image_ipfs_hash: nft.image_ipfs_hash,
+          metadata_ipfs_hash: nft.metadata_ipfs_hash,
+          artist_name: nft.artist_name
+        }
+      }
+
+      console.log('🎨 Collecting NFT - Full payload:', payload)
 
       const response = await fetch('/api/gallery/collect-nft', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nftId: nft.id,
-          collectorAddress: address,
-          amountUSDC: amount,
-          artistAddress: nft.artist_wallet,
-          metadata: {
-            name: nft.name,
-            description: nft.description,
-            image_ipfs_hash: nft.image_ipfs_hash
-          }
-        })
+        body: JSON.stringify(payload)
       })
 
       const data = await response.json()
 
       if (!response.ok) {
+        // Check if we need approval
+        if (data.needsApproval && data.approvalData) {
+          console.log('💰 USDC approval required:', data.approvalData)
+          setNeedsApproval(true)
+          setApprovalData(data.approvalData)
+          setIsCollecting(false)
+          return
+        }
         throw new Error(data.message || 'Failed to collect NFT')
       }
 
@@ -108,6 +138,45 @@ export function CollectNFTModal({ isOpen, onClose, nft, onCollectSuccess }: Coll
     } finally {
       setIsCollecting(false)
     }
+  }
+
+  const handleApprove = async () => {
+    if (!approvalData) return
+
+    try {
+      console.log('🔐 Approving USDC spend:', approvalData)
+
+      writeContract({
+        address: approvalData.usdcAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'approve',
+        args: [approvalData.spender as `0x${string}`, BigInt(approvalData.amount)]
+      })
+
+      toast({
+        title: "Approval Submitted",
+        description: "Waiting for transaction confirmation...",
+      })
+    } catch (error: any) {
+      console.error('❌ Approval error:', error)
+      toast({
+        title: "Approval Failed",
+        description: error.message || "Failed to approve USDC. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  // Auto-retry collection after approval
+  if (isApproved && needsApproval) {
+    setNeedsApproval(false)
+    setApprovalData(null)
+    toast({
+      title: "Approval Successful! ✅",
+      description: "Now collecting NFT...",
+    })
+    // Retry the collection
+    handleCollect()
   }
 
   return (
@@ -192,22 +261,48 @@ export function CollectNFTModal({ isOpen, onClose, nft, onCollectSuccess }: Coll
             </div>
           </div>
 
+          {/* Approval Notice */}
+          {needsApproval && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 space-y-3">
+              <p className="text-sm text-yellow-800">
+                <strong>Approval Required:</strong> You need to approve the platform to spend your USDC tokens.
+              </p>
+              <Button
+                onClick={handleApprove}
+                disabled={isApproving}
+                className="w-full"
+                size="lg"
+              >
+                {isApproving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Approving USDC...
+                  </>
+                ) : (
+                  'Approve USDC'
+                )}
+              </Button>
+            </div>
+          )}
+
           {/* Collect Button */}
-          <Button
-            onClick={handleCollect}
-            disabled={isCollecting || !isConnected || getCollectAmount() < 1}
-            className="w-full"
-            size="lg"
-          >
-            {isCollecting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Collecting NFT...
-              </>
-            ) : (
-              `Collect for $${getCollectAmount().toFixed(2)} USDC`
-            )}
-          </Button>
+          {!needsApproval && (
+            <Button
+              onClick={handleCollect}
+              disabled={isCollecting || !isConnected || getCollectAmount() < 1}
+              className="w-full"
+              size="lg"
+            >
+              {isCollecting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Collecting NFT...
+                </>
+              ) : (
+                `Collect for $${getCollectAmount().toFixed(2)} USDC`
+              )}
+            </Button>
+          )}
 
           {!isConnected && (
             <p className="text-sm text-muted-foreground text-center">
