@@ -7,7 +7,7 @@ import { useEffect, useState, useCallback, Fragment } from 'react'
 import { useParams } from 'next/navigation'
 import { defaultLocale } from '@/config/i18n'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight, Heart, Info, X, Maximize2, Minimize2, Play, Pause, ShoppingCart } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Heart, Info, X, Maximize2, Minimize2, Play, Pause, Sparkles } from 'lucide-react'
 import Image from 'next/image'
 import { FirebaseNFTService } from '@/lib/services/firebase-nft-service'
 import { FirebaseFavoritesService } from '@/lib/services/firebase-favorites-service'
@@ -384,7 +384,7 @@ export default function GalleryPage() {
             aria-label="Collect NFT"
             title={isConnected ? "Collect this artwork" : "Connect wallet to collect"}
           >
-            <ShoppingCart size={20} />
+            <Sparkles size={20} />
           </Button>
 
           {/* Like Button */}
@@ -538,7 +538,7 @@ export default function GalleryPage() {
             aria-label="Collect NFT"
             title={isConnected ? "Collect this artwork" : "Connect wallet to collect"}
           >
-            <ShoppingCart size={20} />
+            <Sparkles size={20} />
           </Button>
 
           {/* Like Button */}

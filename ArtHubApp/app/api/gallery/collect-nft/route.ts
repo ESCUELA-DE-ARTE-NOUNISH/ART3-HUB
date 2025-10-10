@@ -57,21 +57,35 @@ const ERC20_ABI = [
   }
 ] as const
 
-// NFT Factory V6 ABI (minimal for minting)
+// NFT Factory V6 ABI (correct V6 functions)
 const FACTORY_V6_ABI = [
   {
     inputs: [
+      { name: 'creator', type: 'address' },
       { name: 'name', type: 'string' },
       { name: 'symbol', type: 'string' },
-      { name: 'baseURI', type: 'string' },
-      { name: 'artist', type: 'address' },
-      { name: 'royaltyBPS', type: 'uint96' },
-      { name: 'recipient', type: 'address' }
+      { name: 'description', type: 'string' },
+      { name: 'image', type: 'string' },
+      { name: 'externalUrl', type: 'string' },
+      { name: 'royaltyRecipient', type: 'address' },
+      { name: 'royaltyFeeNumerator', type: 'uint96' }
     ],
-    name: 'createNFTWithCollection',
+    name: 'createCollectionV6Gasless',
     outputs: [
+      { name: '', type: 'address' }
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [
       { name: 'collection', type: 'address' },
-      { name: 'tokenId', type: 'uint256' }
+      { name: 'to', type: 'address' },
+      { name: 'tokenURI', type: 'string' }
+    ],
+    name: 'mintNFTV6Gasless',
+    outputs: [
+      { name: '', type: 'uint256' }
     ],
     stateMutability: 'nonpayable',
     type: 'function'
@@ -97,6 +111,9 @@ function getFactoryAddress(isTestnet: boolean): Address {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+
+    console.log('📥 Received collect-nft request body:', JSON.stringify(body, null, 2))
+
     const {
       nftId,
       collectorAddress,
@@ -105,8 +122,23 @@ export async function POST(request: NextRequest) {
       metadata
     } = body
 
+    console.log('🔍 Extracted fields:', {
+      nftId,
+      collectorAddress,
+      amountUSDC,
+      artistAddress,
+      metadata
+    })
+
     // Validation
     if (!nftId || !collectorAddress || !amountUSDC || !artistAddress || !metadata) {
+      console.error('❌ Validation failed - missing fields:', {
+        hasNftId: !!nftId,
+        hasCollectorAddress: !!collectorAddress,
+        hasAmountUSDC: !!amountUSDC,
+        hasArtistAddress: !!artistAddress,
+        hasMetadata: !!metadata
+      })
       return NextResponse.json(
         { success: false, message: 'Missing required fields' },
         { status: 400 }
@@ -207,17 +239,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get initial nonce for relayer
+    let currentNonce = await publicClient.getTransactionCount({
+      address: relayerAccount.address,
+      blockTag: 'pending'
+    })
+
+    console.log('🔢 Starting nonce:', currentNonce)
+
     // Step 2: Transfer USDC from collector to treasury (5%)
     console.log('💸 Transferring 5% to treasury...')
     const treasuryTxHash = await walletClient.writeContract({
       address: usdcAddress,
       abi: ERC20_ABI,
       functionName: 'transferFrom',
-      args: [collectorAddress as Address, treasuryWallet, treasuryAmount]
+      args: [collectorAddress as Address, treasuryWallet, treasuryAmount],
+      nonce: currentNonce
     })
 
     await publicClient.waitForTransactionReceipt({ hash: treasuryTxHash })
     console.log('✅ Treasury payment:', treasuryTxHash)
+    currentNonce++ // Increment nonce
 
     // Step 3: Transfer USDC from collector to artist (95%)
     console.log('💸 Transferring 95% to artist...')
@@ -225,43 +267,73 @@ export async function POST(request: NextRequest) {
       address: usdcAddress,
       abi: ERC20_ABI,
       functionName: 'transferFrom',
-      args: [collectorAddress as Address, artistAddress as Address, artistAmount]
+      args: [collectorAddress as Address, artistAddress as Address, artistAmount],
+      nonce: currentNonce
     })
 
     await publicClient.waitForTransactionReceipt({ hash: artistTxHash })
     console.log('✅ Artist payment:', artistTxHash)
+    currentNonce++ // Increment nonce
 
-    // Step 4: Mint NFT to collector using factory
+    // Step 4: Create collection using V6 Factory
+    console.log('🎨 Creating NFT collection...')
+    const collectionTxHash = await walletClient.writeContract({
+      address: factoryAddress,
+      abi: FACTORY_V6_ABI,
+      functionName: 'createCollectionV6Gasless',
+      args: [
+        collectorAddress as Address, // creator
+        metadata.name || 'Collected Artwork', // name
+        'CLCT', // symbol
+        metadata.description || `Collected from gallery for $${amountUSDC} USDC`, // description
+        `ipfs://${metadata.image_ipfs_hash}`, // image
+        '', // externalUrl
+        artistAddress as Address, // royaltyRecipient
+        250n // royaltyFeeNumerator (2.5%)
+      ],
+      nonce: currentNonce
+    })
+
+    const collectionReceipt = await publicClient.waitForTransactionReceipt({ hash: collectionTxHash })
+    console.log('✅ Collection created:', collectionTxHash)
+    currentNonce++ // Increment nonce
+
+    // Parse collection address from logs (first topic after event signature)
+    const collectionAddress = collectionReceipt.logs[0]?.address
+
+    if (!collectionAddress) {
+      throw new Error('Failed to get collection address from transaction receipt')
+    }
+
+    console.log('📦 Collection address:', collectionAddress)
+
+    // Step 5: Mint NFT to collector
     console.log('🎨 Minting NFT to collector...')
-    const baseURI = `ipfs://${metadata.image_ipfs_hash}`
+    const tokenURI = metadata.metadata_ipfs_hash
+      ? `ipfs://${metadata.metadata_ipfs_hash}`
+      : `ipfs://${metadata.image_ipfs_hash}`
 
     const mintTxHash = await walletClient.writeContract({
       address: factoryAddress,
       abi: FACTORY_V6_ABI,
-      functionName: 'createNFTWithCollection',
+      functionName: 'mintNFTV6Gasless',
       args: [
-        metadata.name || 'Collected Artwork',
-        'CLCT',
-        baseURI,
-        artistAddress as Address,
-        250, // 2.5% royalty
-        collectorAddress as Address
-      ]
+        collectionAddress as Address, // collection
+        collectorAddress as Address, // to
+        tokenURI // tokenURI
+      ],
+      nonce: currentNonce
     })
 
     const mintReceipt = await publicClient.waitForTransactionReceipt({ hash: mintTxHash })
     console.log('✅ NFT minted:', mintTxHash)
 
-    // Parse collection address from logs (first topic after event signature)
-    const collectionAddress = mintReceipt.logs[0]?.address
-
-    // Step 5: Save collected NFT to Firebase
+    // Step 6: Save collected NFT to Firebase
     const collectedNFT = await FirebaseNFTService.createNFT({
       name: metadata.name,
       description: metadata.description || `Collected from gallery for $${amountUSDC} USDC`,
-      artist_wallet: artistAddress,
+      wallet_address: collectorAddress, // Use wallet_address (correct field name from NFT type)
       artist_name: metadata.artist_name || 'Artist',
-      owner_wallet: collectorAddress,
       collection_address: collectionAddress || '0x0',
       token_id: '1',
       image_ipfs_hash: metadata.image_ipfs_hash,
@@ -269,13 +341,15 @@ export async function POST(request: NextRequest) {
       blockchain: chain.name,
       network: isTestnet ? 'base-sepolia' : 'base',
       royalty_percentage: 2.5,
+      transaction_hash: mintTxHash, // Add mint transaction hash
       in_gallery: false,
-      is_claimable: false
+      is_claimable: false,
+      source: 'user_created' // Mark as user_created so it appears in profile
     })
 
     console.log('✅ Collected NFT saved to Firebase:', collectedNFT.id)
 
-    // Step 6: Record the sale in sales registry
+    // Step 7: Record the sale in sales registry
     const saleRecord = await FirebaseSalesService.recordSale({
       nft_id: nftId,
       nft_name: metadata.name,
@@ -306,6 +380,7 @@ export async function POST(request: NextRequest) {
         nftId: collectedNFT.id,
         saleId: saleRecord.id,
         collectionAddress,
+        collectionTxHash,
         treasuryTxHash,
         artistTxHash,
         mintTxHash,
