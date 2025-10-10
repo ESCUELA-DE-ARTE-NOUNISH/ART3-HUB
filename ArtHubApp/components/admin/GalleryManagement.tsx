@@ -72,7 +72,15 @@ export function GalleryManagement({ adminWallet, translations }: GalleryManageme
   // Helper to get IPFS image URL
   const getImageUrl = (ipfsHash: string) => {
     if (!ipfsHash) return '/images/placeholder-nft.png'
-    return `https://gateway.pinata.cloud/ipfs/${ipfsHash}`
+
+    // Use Pinata gateway with JWT token to avoid rate limits
+    const pinataJWT = process.env.NEXT_PUBLIC_PINATA_JWT
+    if (pinataJWT) {
+      return `https://gateway.pinata.cloud/ipfs/${ipfsHash}?pinataGatewayToken=${pinataJWT}`
+    }
+
+    // Fallback to ipfs.io gateway to avoid Pinata rate limits
+    return `https://ipfs.io/ipfs/${ipfsHash}`
   }
 
   // Helper to format wallet address
