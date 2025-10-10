@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -39,7 +39,7 @@ const USDC_ADDRESS = process.env.NEXT_PUBLIC_IS_TESTING_MODE === 'true'
 export function CollectNFTModal({ isOpen, onClose, nft, onCollectSuccess }: CollectNFTModalProps) {
   const { address, isConnected } = useAccount()
   const { toast } = useToast()
-  const { writeContract, data: approveTxHash } = useWriteContract()
+  const { writeContract, data: approveTxHash, error: approveError } = useWriteContract()
   const { isLoading: isApproving, isSuccess: isApproved } = useWaitForTransactionReceipt({
     hash: approveTxHash,
   })
@@ -50,6 +50,18 @@ export function CollectNFTModal({ isOpen, onClose, nft, onCollectSuccess }: Coll
   const [isCollecting, setIsCollecting] = useState(false)
   const [needsApproval, setNeedsApproval] = useState(false)
   const [approvalData, setApprovalData] = useState<any>(null)
+
+  // Show approval errors
+  useEffect(() => {
+    if (approveError) {
+      console.error('❌ Approval transaction error:', approveError)
+      toast({
+        title: "Approval Transaction Failed",
+        description: approveError.message || "Please try again or check your wallet.",
+        variant: "destructive"
+      })
+    }
+  }, [approveError, toast])
 
   const getCollectAmount = (): number => {
     if (isCustom) {
@@ -167,17 +179,20 @@ export function CollectNFTModal({ isOpen, onClose, nft, onCollectSuccess }: Coll
     }
   }
 
-  // Auto-retry collection after approval
-  if (isApproved && needsApproval) {
-    setNeedsApproval(false)
-    setApprovalData(null)
-    toast({
-      title: "Approval Successful! ✅",
-      description: "Now collecting NFT...",
-    })
-    // Retry the collection
-    handleCollect()
-  }
+  // Auto-retry collection after approval (useEffect to prevent infinite loops)
+  useEffect(() => {
+    if (isApproved && needsApproval) {
+      setNeedsApproval(false)
+      setApprovalData(null)
+      toast({
+        title: "Approval Successful! ✅",
+        description: "Now collecting NFT...",
+      })
+      // Retry the collection
+      handleCollect()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isApproved])
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -267,6 +282,12 @@ export function CollectNFTModal({ isOpen, onClose, nft, onCollectSuccess }: Coll
               <p className="text-sm text-yellow-800">
                 <strong>Approval Required:</strong> You need to approve the platform to spend your USDC tokens.
               </p>
+              {isApproving && (
+                <p className="text-xs text-yellow-700 flex items-center gap-2">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Waiting for approval confirmation in your wallet...
+                </p>
+              )}
               <Button
                 onClick={handleApprove}
                 disabled={isApproving}
