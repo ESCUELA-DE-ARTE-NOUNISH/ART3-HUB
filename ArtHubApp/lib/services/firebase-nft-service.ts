@@ -1,14 +1,15 @@
-import { 
-  collection, 
-  doc, 
-  getDoc, 
-  setDoc, 
-  updateDoc, 
-  query, 
-  where, 
-  getDocs, 
-  orderBy, 
-  deleteDoc 
+import {
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  deleteDoc,
+  deleteField
 } from 'firebase/firestore'
 import { 
   db, 
@@ -648,21 +649,23 @@ export class FirebaseNFTService {
         return null
       }
 
-      const updateData: Partial<NFT> = {
-        in_gallery: inGallery,
-        updated_at: getCurrentTimestamp()
-      }
-
       if (inGallery) {
-        updateData.gallery_added_at = getCurrentTimestamp()
-        updateData.gallery_added_by = adminWallet
+        // Add to gallery
+        await updateDoc(nftRef, {
+          in_gallery: true,
+          gallery_added_at: getCurrentTimestamp(),
+          gallery_added_by: adminWallet,
+          updated_at: getCurrentTimestamp()
+        })
       } else {
-        // Remove gallery metadata when removing from gallery
-        updateData.gallery_added_at = undefined
-        updateData.gallery_added_by = undefined
+        // Remove from gallery - use deleteField() to properly remove fields
+        await updateDoc(nftRef, {
+          in_gallery: false,
+          gallery_added_at: deleteField(),
+          gallery_added_by: deleteField(),
+          updated_at: getCurrentTimestamp()
+        })
       }
-
-      await updateDoc(nftRef, updateData as any)
 
       // Fetch and return updated NFT
       const updatedDoc = await getDoc(nftRef)

@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * POST /api/admin/gallery/toggle
+ * POST /api/admin/gallery
  * Toggle NFT gallery status
  * Body: { nftId: string, inGallery: boolean, adminWallet: string }
  */
@@ -90,9 +90,9 @@ export async function POST(request: NextRequest) {
       nft: updatedNft
     })
   } catch (error) {
-    console.error('Error in POST /api/admin/gallery/toggle:', error)
+    console.error('Error in POST /api/admin/gallery:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     )
   }
