@@ -108,23 +108,31 @@ const assessmentQuestions = {
   }
 }
 
-// Set up rate limiting
+// Set up rate limiting (optional - chat works without it)
 let ratelimit: Ratelimit | undefined
 
-try {
-  const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL || '',
-    token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
-  })
-  
-  ratelimit = new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(8, "60 s"),
-    analytics: true,
-    prefix: "app:intelligent-chat:",
-  })
-} catch (error) {
-  console.warn("⚠️ Rate limiting not configured:", (error as Error).message)
+const upstashUrl = process.env.UPSTASH_REDIS_REST_URL
+const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN
+
+if (upstashUrl && upstashToken) {
+  try {
+    const redis = new Redis({
+      url: upstashUrl,
+      token: upstashToken,
+    })
+
+    ratelimit = new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(8, "60 s"),
+      analytics: true,
+      prefix: "app:intelligent-chat:",
+    })
+    console.log('✅ Rate limiting enabled with Upstash Redis')
+  } catch (error) {
+    console.warn("⚠️ Rate limiting initialization failed:", (error as Error).message)
+  }
+} else {
+  console.warn("⚠️ Rate limiting disabled: UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN not configured")
 }
 
 // Initialize chat model
@@ -507,24 +515,29 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // Apply rate limiting
+    // Apply rate limiting (graceful fallback if Upstash is unavailable)
     let rateLimitInfo: RateLimitInfo | undefined
-    
+
     if (ratelimit) {
-      rateLimitInfo = await ratelimit.limit(walletAddress)
-      
-      if (!rateLimitInfo.success) {
-        return NextResponse.json(
-          { 
-            error: 'Rate limit exceeded. Please try again later.',
-            rateLimitInfo: { 
-              limit: rateLimitInfo.limit, 
-              reset: rateLimitInfo.reset, 
-              remaining: rateLimitInfo.remaining 
-            }
-          },
-          { status: 429 }
-        )
+      try {
+        rateLimitInfo = await ratelimit.limit(walletAddress)
+
+        if (!rateLimitInfo.success) {
+          return NextResponse.json(
+            {
+              error: 'Rate limit exceeded. Please try again later.',
+              rateLimitInfo: {
+                limit: rateLimitInfo.limit,
+                reset: rateLimitInfo.reset,
+                remaining: rateLimitInfo.remaining
+              }
+            },
+            { status: 429 }
+          )
+        }
+      } catch (rateLimitError) {
+        console.warn('⚠️ Rate limiting failed, continuing without it:', (rateLimitError as Error).message)
+        // Continue without rate limiting if Upstash is unavailable
       }
     }
     
