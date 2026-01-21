@@ -1,19 +1,13 @@
 # ART3-HUB
 
 
-**🏆 #1 Ranked Educational Mini App on Base** - Our innovative mini app acts as an educational and transactional bridge for artists entering Web3. It combines a custom AI agent that offers step-by-step guidance—from what a wallet is to how to mint an NFT—with integrated tools that allow users to mint their creations directly, without technical knowledge. 
+**🏆 #1 Ranked Subcategory Mini App on Base** - Our innovative mini app acts as an guide and transactional bridge for artists entering Web3. It combines a custom AI agent that offers step-by-step guidance—from what a wallet is to how to mint an NFT—with integrated tools that allow users to mint their creations directly, without technical knowledge. 
 Mini app: https://farcaster.xyz/miniapps/HiSz_AYGZ62l/art3-hub
 Team: 
 - Julio M Cruz https://github.com/JulioMCruz
 Dynamic and innovative Onchain developer with a robust ability to analyze and implement decentralized solutions. I have profound expertise in cloud integrations, demonstrate top-tier problem-solving aptitude, and excel in collaborative settings, driving projects to fruition.
 
 - Ivanna León – Project Manager & Community Lead: Founder of Nounish IRL, she bridges educational vision with Web3 development, leading teams and initiatives to scale impact from LATAM. Prev COO at  [dened.org](https://dened.org/), a profitable edtech winner of Startup Peru.
-  
-- Claudio CMO - Visual artist & creative director with 10+ years in the arts field
-	•	Built a personal brand with 30K+ followers across platforms (Instagram, TikTok, X)
-	•	Leads communities with 12K+ members, focused on creators and web3 onboarding
-	•	Has organically reached over 3 million views with art and web3-related content
-  Nounish Art School metrics: 110 K reached people across last month 
 
 # 🎨 AI Art Hub — An Onboarding Agent for Creatives in Web3
 
@@ -30,9 +24,9 @@ This Mini App combines AI Agents + Base onchain tools to make onboarding frictio
 <div align="center">
   <img width="230" height="460" alt="image" src="https://github.com/user-attachments/assets/84506604-c0fd-4533-9aae-20d0956adaee" />
 
-  **🎉 Art3 Hub is now ranked #1 in Base's Educational Mini Apps category!**
+  **🎉 Art3 Hub is now ranked #1 in Base's Mini Apps sub-category!**
   
-  *Competing with top Web3 educational platforms, Art3 Hub stands out as the premier AI-driven NFT creation and Web3 onboarding platform for artists.*
+  *Competing with top Web3 platforms, Art3 Hub stands out as the premier AI-driven NFT creation and Web3 onboarding platform for artists.*
 </div>
 
 ---
@@ -249,7 +243,7 @@ Created with ❤️ by a team in LATAM to help artists **onboard, mint, and thri
 
 
 ROADMAP
-2025: Launch & Optimization
+2025-2026: Launch & Optimization
 
 Goal: Activate early users and refine core experience
 	•	Launch full version of AI onboarding agent
@@ -267,7 +261,7 @@ Goal: Activate early users and refine core experience
 
 ⸻
 
-📍Q4 2025: Monetization & Expansion
+📍Q1 2026: Monetization & Expansion
 
 Goal: Start scaling revenue and international traction
 	•	Launch Collector Dashboard (early access drops + rewards)
