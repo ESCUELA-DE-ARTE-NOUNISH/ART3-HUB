@@ -4,10 +4,11 @@
 **🏆 #1 Ranked Subcategory Mini App on Base** - Our innovative mini app acts as an guide and transactional bridge for artists entering Web3. It combines a custom AI agent that offers step-by-step guidance—from what a wallet is to how to mint an NFT—with integrated tools that allow users to mint their creations directly, without technical knowledge. 
 Mini app: https://farcaster.xyz/miniapps/HiSz_AYGZ62l/art3-hub
 Team: 
-- Julio M Cruz https://github.com/JulioMCruz
+- Julio M Cruz - CTO 
 Dynamic and innovative Onchain developer with a robust ability to analyze and implement decentralized solutions. I have profound expertise in cloud integrations, demonstrate top-tier problem-solving aptitude, and excel in collaborative settings, driving projects to fruition.
 
-- Ivanna León – Project Manager & Community Lead: Founder of Nounish IRL, she bridges educational vision with Web3 development, leading teams and initiatives to scale impact from LATAM. Prev COO at  [dened.org](https://dened.org/), a profitable edtech winner of Startup Peru.
+- Ivanna León – CEO
+-  Founder of Nounish IRL, she bridges educational vision with Web3 development, leading teams and initiatives to scale impact from LATAM. Prev COO at  [dened.org](https://dened.org/), a profitable edtech winner of Startup Peru.
 
 # 🎨 AI Art Hub — An Onboarding Agent for Creatives in Web3
 
