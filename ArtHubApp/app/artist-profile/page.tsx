@@ -2,158 +2,160 @@
 
 import { useState } from "react";
 
-// ── Types ────────────────────────────────────────────────────────────────────
-
-type OpportunityStatus = "pending" | "applied" | "won";
-
-interface Opportunity {
-  id: number;
-  name: string;
-  status: OpportunityStatus;
-  deadline?: string;
-  amount?: number;
-}
-
-// ── Mock Data ────────────────────────────────────────────────────────────────
-
 const ARTIST = {
   name: "Sofia Reyes",
   alias: "@sofiaonchain",
   level: "Emerging",
   goalAmount: 500,
   goalDeadline: "3 months",
-  totalIncome: 180,
-  monthlyIncome: 80,
+  baseIncome: 80,
   avatar: "SR",
 };
 
+type OpportunityStatus = "suggested" | "applied" | "won";
+
+interface Opportunity {
+  id: number;
+  name: string;
+  status: OpportunityStatus;
+  deadline?: string;
+  amount: number;
+}
+
 const INITIAL_OPPORTUNITIES: Opportunity[] = [
-  { id: 1, name: "Grant X",       status: "pending", deadline: "5 days" },
-  { id: 2, name: "Contest Y",     status: "applied" },
-  { id: 3, name: "Commission Z",  status: "won", amount: 100 },
+  { id: 1, name: "Grant X",      status: "suggested", deadline: "5 days", amount: 150 },
+  { id: 2, name: "Contest Y",    status: "applied",                        amount: 200 },
+  { id: 3, name: "Commission Z", status: "won",                            amount: 100 },
 ];
 
-const INCOME_LOG = [
-  { id: 1, label: "Commission Z", amount: 100, status: "confirmed" },
-  { id: 2, label: "Artwork sale",  amount: 80,  status: "paid"      },
-];
-
-// ── Status Config ────────────────────────────────────────────────────────────
-
-const STATUS: Record<OpportunityStatus, { dot: string; badge: string; btn: string; label: string }> = {
-  pending: {
-    dot:   "bg-amber-400",
-    badge: "bg-amber-50 text-amber-600 border border-amber-200",
-    btn:   "bg-amber-500 hover:bg-amber-600 text-white",
-    label: "Apply",
-  },
-  applied: {
-    dot:   "bg-blue-400",
-    badge: "bg-blue-50 text-blue-600 border border-blue-200",
-    btn:   "bg-blue-500 hover:bg-blue-600 text-white",
-    label: "Applied",
-  },
-  won: {
-    dot:   "bg-emerald-400",
-    badge: "bg-emerald-50 text-emerald-600 border border-emerald-200",
-    btn:   "bg-emerald-100 text-emerald-600 cursor-default",
-    label: "Won ✓",
-  },
+const statusConfig: Record<OpportunityStatus, { dot: string; btnLabel: string }> = {
+  suggested: { dot: "bg-amber-400",   btnLabel: "Apply"        },
+  applied:   { dot: "bg-blue-400",    btnLabel: "Mark as won"  },
+  won:       { dot: "bg-emerald-400", btnLabel: "Won"          },
 };
-
-// ── Main Component ───────────────────────────────────────────────────────────
 
 export default function ArtistProfileDashboard() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>(INITIAL_OPPORTUNITIES);
 
-  const goalPct = Math.round((ARTIST.totalIncome / ARTIST.goalAmount) * 100);
+  // ── Dynamic income & progress based on won opportunities ──
+  const wonIncome = opportunities
+    .filter((o) => o.status === "won")
+    .reduce((sum, o) => sum + o.amount, 0);
+  const totalIncome = ARTIST.baseIncome + wonIncome;
+  const goalPct = Math.min(100, Math.round((totalIncome / ARTIST.goalAmount) * 100));
+
+  // ── Dynamic income log: updates when opportunity is won ──
+  const incomeLog = [
+    { id: 0, label: "Artwork sale", amount: ARTIST.baseIncome, status: "paid" },
+    ...opportunities
+      .filter((o) => o.status === "won")
+      .map((o) => ({ id: o.id, label: o.name, amount: o.amount, status: "confirmed" })),
+  ];
 
   function advanceStatus(id: number) {
     setOpportunities((prev) =>
       prev.map((op) => {
-        if (op.id !== id || op.status === "won") return op;
+        if (op.id !== id) return op;
         const next: Record<OpportunityStatus, OpportunityStatus> = {
-          pending: "applied",
+          suggested: "applied",
           applied: "won",
-          won:     "won",
+          won: "won",
         };
         return { ...op, status: next[op.status] };
       })
     );
   }
 
-  const pendingOp   = opportunities.find((o) => o.status === "pending");
-  const wonCount    = opportunities.filter((o) => o.status === "won").length;
+  const firstSuggested = opportunities.find((o) => o.status === "suggested");
   const recommendation =
-    wonCount >= 2
-      ? "Great momentum! Consider raising your income goal for next month."
-      : pendingOp
-      ? `Apply to ${pendingOp.name}: high fit for your profile.`
+    goalPct >= 100
+      ? "🎉 Goal reached! Consider raising your target for next month."
+      : firstSuggested
+      ? `Apply to ${firstSuggested.name}: high fit for your profile.`
+      : opportunities.some((o) => o.status === "applied")
+      ? "Follow up on your applications — mark them as won when confirmed!"
       : "Keep tracking your opportunities to unlock personalised tips.";
 
-  const barColor =
-    goalPct >= 75 ? "bg-emerald-500" :
-    goalPct >= 40 ? "bg-amber-500"   : "bg-rose-500";
+  const progressColor =
+    goalPct >= 75
+      ? "from-emerald-500 to-teal-400"
+      : goalPct >= 40
+      ? "from-amber-500 to-yellow-400"
+      : "from-rose-500 to-pink-400";
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-lg mx-auto space-y-4">
+    <main className="min-h-screen bg-[#0a0a0f] text-white px-4 py-10 flex flex-col items-center">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+        * { font-family: 'DM Sans', sans-serif; }
+        .font-display { font-family: 'Syne', sans-serif; }
+        .glass {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          backdrop-filter: blur(12px);
+        }
+        .progress-bar { transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes fadeUp {
+          from { opacity:0; transform:translateY(16px); }
+          to   { opacity:1; transform:translateY(0); }
+        }
+        .card { animation: fadeUp 0.5s ease both; }
+        .card:nth-child(1) { animation-delay: 0.05s; }
+        .card:nth-child(2) { animation-delay: 0.15s; }
+        .card:nth-child(3) { animation-delay: 0.25s; }
+        .card:nth-child(4) { animation-delay: 0.35s; }
+        .card:nth-child(5) { animation-delay: 0.45s; }
+      `}</style>
 
-        {/* ── Page Title ── */}
-        <div className="mb-2">
-          <h1 className="text-2xl font-bold text-gray-900">Artist Profile</h1>
-          <p className="text-sm text-gray-500">Track your progress & opportunities</p>
-        </div>
+      <div className="w-full max-w-lg space-y-4">
 
-        {/* ── Profile Card ── */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-bold text-lg shrink-0">
+        {/* ── Profile ── */}
+        <div className="card glass rounded-2xl p-6 flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center font-display font-bold text-xl shrink-0">
             {ARTIST.avatar}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-gray-900 text-lg leading-tight">{ARTIST.name}</p>
-            <p className="text-gray-400 text-sm">{ARTIST.alias}</p>
-            <span className="inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">
+            <h1 className="font-display font-bold text-xl leading-tight truncate">{ARTIST.name}</h1>
+            <p className="text-white/50 text-sm">{ARTIST.alias}</p>
+            <span className="inline-block mt-1 text-xs font-medium px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30">
               {ARTIST.level}
             </span>
           </div>
           <div className="text-right shrink-0">
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Goal</p>
-            <p className="text-2xl font-bold text-gray-900">${ARTIST.goalAmount}</p>
-            <p className="text-xs text-gray-400">in {ARTIST.goalDeadline}</p>
+            <p className="text-xs text-white/40 uppercase tracking-widest">Goal</p>
+            <p className="font-display font-bold text-lg">${ARTIST.goalAmount}</p>
+            <p className="text-xs text-white/40">in {ARTIST.goalDeadline}</p>
           </div>
         </div>
 
         {/* ── Economic Snapshot ── */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-            💰 Economic Snapshot
-          </p>
-          <div className="grid grid-cols-3 gap-3 mb-4">
-            <div className="bg-gray-50 rounded-xl p-3 text-center">
-              <p className="text-xs text-gray-400 mb-1">Total income</p>
-              <p className="text-xl font-bold text-gray-900">${ARTIST.totalIncome}</p>
+        <div className="card glass rounded-2xl p-6 space-y-4">
+          <h2 className="font-display font-semibold text-sm uppercase tracking-widest text-white/40">
+            Economic Snapshot
+          </h2>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-xl bg-white/5 p-3 text-center">
+              <p className="text-xs text-white/40 mb-1">Total</p>
+              <p className="font-display font-bold text-lg">${totalIncome}</p>
             </div>
-            <div className="bg-gray-50 rounded-xl p-3 text-center">
-              <p className="text-xs text-gray-400 mb-1">This month</p>
-              <p className="text-xl font-bold text-emerald-600">${ARTIST.monthlyIncome}</p>
+            <div className="rounded-xl bg-white/5 p-3 text-center">
+              <p className="text-xs text-white/40 mb-1">This month</p>
+              <p className="font-display font-bold text-lg text-emerald-400">${ARTIST.baseIncome}</p>
             </div>
-            <div className="bg-gray-50 rounded-xl p-3 text-center">
-              <p className="text-xs text-gray-400 mb-1">Progress</p>
-              <p className={`text-xl font-bold ${goalPct >= 50 ? "text-emerald-600" : "text-amber-600"}`}>
+            <div className="rounded-xl bg-white/5 p-3 text-center">
+              <p className="text-xs text-white/40 mb-1">Progress</p>
+              <p className={`font-display font-bold text-lg ${goalPct >= 50 ? "text-emerald-400" : "text-amber-400"}`}>
                 {goalPct}%
               </p>
             </div>
           </div>
           <div>
-            <div className="flex justify-between text-xs text-gray-400 mb-1">
-              <span>$0</span>
-              <span className="font-medium text-gray-600">${ARTIST.totalIncome} of ${ARTIST.goalAmount}</span>
-              <span>${ARTIST.goalAmount}</span>
+            <div className="flex justify-between text-xs text-white/30 mb-2">
+              <span>$0</span><span>${ARTIST.goalAmount}</span>
             </div>
-            <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-2 rounded-full bg-white/10 overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all duration-700 ${barColor}`}
+                className={`h-full rounded-full bg-gradient-to-r progress-bar ${progressColor}`}
                 style={{ width: `${goalPct}%` }}
               />
             </div>
@@ -161,78 +163,72 @@ export default function ArtistProfileDashboard() {
         </div>
 
         {/* ── Opportunities ── */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-            🎯 Opportunities
-          </p>
-          <div className="space-y-2">
-            {opportunities.map((op) => {
-              const cfg = STATUS[op.status];
-              return (
-                <div key={op.id} className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3">
-                  <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${cfg.dot}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 text-sm">{op.name}</p>
-                    {op.deadline && op.status === "pending" && (
-                      <p className="text-xs text-amber-500">Deadline in {op.deadline}</p>
-                    )}
-                    {op.amount && op.status === "won" && (
-                      <p className="text-xs text-emerald-600 font-medium">+${op.amount} earned</p>
-                    )}
-                  </div>
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cfg.badge}`}>
-                    {op.status.charAt(0).toUpperCase() + op.status.slice(1)}
-                  </span>
-                  {op.status !== "won" && (
-                    <button
-                      onClick={() => advanceStatus(op.id)}
-                      className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${cfg.btn}`}
-                    >
-                      {cfg.label}
-                    </button>
+        <div className="card glass rounded-2xl p-6 space-y-3">
+          <h2 className="font-display font-semibold text-sm uppercase tracking-widest text-white/40">
+            Opportunities
+          </h2>
+          {opportunities.map((op) => {
+            const cfg = statusConfig[op.status];
+            return (
+              <div key={op.id} className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3">
+                <span className={`w-2 h-2 rounded-full shrink-0 ${cfg.dot}`} />
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">{op.name}</p>
+                  {op.deadline && op.status === "suggested" && (
+                    <p className="text-xs text-amber-400/70">Deadline in {op.deadline}</p>
+                  )}
+                  {op.status === "won" && (
+                    <p className="text-xs text-emerald-400/70">+${op.amount} earned</p>
                   )}
                 </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* ── Income Log ── */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-            📈 Income
-          </p>
-          <div className="space-y-2">
-            {INCOME_LOG.map((entry) => (
-              <div key={entry.id} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3">
-                <div>
-                  <p className="font-semibold text-gray-900 text-sm">{entry.label}</p>
-                  <p className="text-xs text-gray-400 capitalize">{entry.status}</p>
-                </div>
-                <span className="font-bold text-emerald-600 text-base">+${entry.amount}</span>
+                <button
+                  onClick={() => advanceStatus(op.id)}
+                  disabled={op.status === "won"}
+                  className={`text-xs font-semibold px-3 py-1 rounded-full border transition-all
+                    ${op.status === "won"
+                      ? "border-emerald-500/30 text-emerald-400 cursor-default"
+                      : op.status === "applied"
+                      ? "border-blue-500/30 text-blue-400 hover:bg-blue-500/10 cursor-pointer"
+                      : "border-amber-500/30 text-amber-400 hover:bg-amber-500/10 cursor-pointer"
+                    }`}
+                >
+                  {cfg.btnLabel}
+                </button>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
 
-        {/* ── Recommendation ── */}
-        <div className="bg-gradient-to-br from-violet-50 to-fuchsia-50 border border-violet-100 rounded-2xl p-5">
+        {/* ── Income Log (updates dynamically) ── */}
+        <div className="card glass rounded-2xl p-6 space-y-3">
+          <h2 className="font-display font-semibold text-sm uppercase tracking-widest text-white/40">
+            Income
+          </h2>
+          {incomeLog.map((entry) => (
+            <div key={entry.id} className="flex items-center justify-between rounded-xl bg-white/5 px-4 py-3">
+              <div>
+                <p className="font-medium text-sm">{entry.label}</p>
+                <p className="text-xs text-white/40 capitalize">{entry.status}</p>
+              </div>
+              <p className="font-display font-bold text-emerald-400">+${entry.amount}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Recommendation (updates dynamically) ── */}
+        <div className="card rounded-2xl p-5 bg-gradient-to-br from-violet-600/20 to-fuchsia-600/10 border border-violet-500/20">
           <div className="flex gap-3 items-start">
-            <span className="text-violet-500 text-xl mt-0.5">✦</span>
+            <span className="text-2xl mt-0.5">✦</span>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-violet-500 mb-1">
+              <p className="font-display font-semibold text-xs uppercase tracking-widest text-violet-300 mb-1">
                 Agent Recommendation
               </p>
-              <p className="text-sm text-gray-700 leading-relaxed font-medium">
-                "{recommendation}"
-              </p>
+              <p className="text-sm text-white/80 leading-relaxed">{recommendation}</p>
             </div>
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-300 pb-4">Art3 Hub · Artist Profile MVP</p>
-
       </div>
-    </div>
+    </main>
   );
 }
