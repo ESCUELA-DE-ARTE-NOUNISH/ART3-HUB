@@ -1,4 +1,4 @@
-# Art3 Hub Frontend Application
+# Art3-Hub Frontend Application
 
 > **🚀 V6 Update (July 2025): Collection-per-NFT Architecture & Firebase Integration**
 
